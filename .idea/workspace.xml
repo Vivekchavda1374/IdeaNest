@@ -4,16 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="composer added --updated">
-      <change afterPath="$PROJECT_DIR$/.idea/sqlDataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Login/Login/back-end/Login.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Login/Login/back-end/db.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Login/Login/back-end/register.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Login/Login/front-end/dashboard.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Login/Login/front-end/index.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Login/Login/front-end/logout.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Login/Signup/signup.php" afterDir="false" />
-    </list>
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="backend login/register done" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -82,7 +73,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1740558748949</updated>
-      <workItem from="1740558749970" duration="1723000" />
+      <workItem from="1740558749970" duration="2190000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -100,7 +91,15 @@
       <option name="project" value="LOCAL" />
       <updated>1740558852968</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="backend login/register done">
+      <option name="closed" value="true" />
+      <created>1740560939407</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1740560939407</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -109,6 +108,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="composer added" />
     <MESSAGE value="composer added --updated" />
-    <option name="LAST_COMMIT_MESSAGE" value="composer added --updated" />
+    <MESSAGE value="backend login/register done" />
+    <option name="LAST_COMMIT_MESSAGE" value="backend login/register done" />
   </component>
 </project>
