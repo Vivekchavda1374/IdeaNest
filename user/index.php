@@ -280,7 +280,7 @@
                             <div>
                                 <h6 class="mb-1">Code Review</h6>
                                 <div class="text-muted small">2:00 PM - 3:30 PM</div>
-                                <div class="text-primary small">With: David Chen</div>
+                                <div class="text-primary small">With: Vivek</div>
                             </div>
                         </div>
                         <div class="d-flex align-items-center p-3 border rounded">
@@ -293,7 +293,7 @@
                             <div>
                                 <h6 class="mb-1">Portfolio Review</h6>
                                 <div class="text-muted small">11:00 AM - 12:00 PM</div>
-                                <div class="text-primary small">With: Michelle Wong</div>
+                                <div class="text-primary small">With: Bhavik</div>
                             </div>
                         </div>
                     </div>
