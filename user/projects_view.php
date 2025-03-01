@@ -286,8 +286,13 @@ $categoryResult = $conn->query($categorySql);
     </head>
 
     <body>
+
     <!-- Hero Section -->
     <div class="hero-section">
+        <a href="index.php" class="btn btn-primary btn-lg  align-items-center gap-2" style="margin-left: 20px">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+
         <div class="container">
             <h1 class="display-4 text-center fw-bold">Discover Amazing Projects</h1>
             <p class="lead text-center">Explore innovative ideas and inspiring projects from our community</p>
@@ -393,7 +398,7 @@ $categoryResult = $conn->query($categorySql);
                                         <?php endif; ?>
                                     </div>
 
-                                    <a href="project-details.php?id=<?php echo $row['id']; ?>" class="btn btn-view">
+                                    <a href="project_details.php?id=<?php echo $row['id']; ?>" class="btn btn-view">
                                         <i class="fas fa-eye"></i> Details
                                     </a>
                                 </div>

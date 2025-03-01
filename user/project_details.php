@@ -13,7 +13,7 @@ if ($conn->connect_error) {
 $project_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 if ($project_id <= 0) {
-    header("Location: projects.php");
+    header("Location: projects_view.php");
     exit;
 }
 
@@ -25,7 +25,7 @@ $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
 
-    header("Location: projects.php");
+    header("Location: projects_view.php");
     exit;
 }
 
@@ -223,7 +223,7 @@ $related_result = $related_stmt->get_result();
     <div class="hero-section">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <a href="projects.php" class="btn btn-back">
+                <a href="projects_view.php" class="btn btn-back">
                     <i class="fas fa-arrow-left"></i> Back to Projects
                 </a>
 
@@ -319,12 +319,23 @@ $related_result = $related_stmt->get_result();
                 <div class="project-card">
                     <h3 class="section-title">Project Details</h3>
 
-                    <div class="mb-3">
-                        <div class="meta-info">
-                            <i class="fas fa-user meta-icon"></i>
-                            <strong>Author:</strong>
-                            <span><?php echo !empty($project['project_name']) ? htmlspecialchars($project['project_name']) : 'Not specified'; ?></span>
+                        <div class="mb-3">
+                            <div class="meta-info">
+                                <i class="fas fa-user meta-icon"></i>
+                                <strong>Code-File:</strong>
+                                <span>
+                                <?php if (!empty($project['code_file_path'])): ?>
+                                    <a href="<?php echo htmlspecialchars($project['code_file_path']); ?>"
+                                       class="btn btn-success btn-sm"
+                                       download>
+                                       <i class="fas fa-download"></i> Download
+                                    </a>
+                                <?php else: ?>
+                                    Not specified
+                                <?php endif; ?>
+                                </span>
                         </div>
+
 
                         <div class="meta-info">
                             <i class="fas fa-code-branch meta-icon"></i>

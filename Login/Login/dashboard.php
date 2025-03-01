@@ -14,5 +14,6 @@ if (!isset($_SESSION['user'])) {
 <body>
 <h2>Welcome, <?php echo $_SESSION['user']; ?>!</h2>
 <a href="front-end/logout.php">Logout</a>
+
 </body>
 </html>
