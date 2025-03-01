@@ -178,7 +178,7 @@
     }
 
     .team-img-container {
-        height: 500px;
+        height: 600px;
         overflow: hidden;
     }
 
@@ -564,8 +564,7 @@
                     </div>
                 </div>
                 <div class="col-lg-6 d-none d-lg-block">
-                    <img src="/api/placeholder/500/400" alt="Project Collaboration Platform"
-                        class="img-fluid rounded-3 shadow">
+                    <img src="ICT.png" alt="Project Collaboration Platform" class="img-fluid rounded-3 shadow">
                 </div>
             </div>
         </div>
@@ -826,7 +825,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="team-card">
                         <div class="team-img-container">
-                            <img src="" class="team-img" alt="Viveksinh Chaavada">
+                            <img src="vivek.jpeg" class="team-img" alt="Viveksinh Chaavada">
                         </div>
                         <div class="team-info">
                             <h4>Viveksinh Chaavada</h4>
