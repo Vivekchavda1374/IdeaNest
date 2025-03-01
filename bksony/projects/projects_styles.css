@@ -4,6 +4,10 @@ body {
     font-family: Arial, sans-serif;
     margin: 10px;
 }
+.card {
+    margin: 15px 0;
+    
+}
 
 /* Card Styling */
 .project-card {
