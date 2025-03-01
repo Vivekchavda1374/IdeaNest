@@ -1,10 +1,67 @@
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "ideanest";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$message = "";
+$messageType = "";
+
+// Handle form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $project_name = $_POST['project_name'];
+    $project_type = $_POST['project_type'];
+    $classification = isset($_POST['software_classification']) ? $_POST['software_classification'] : (isset($_POST['hardware_classification']) ? $_POST['hardware_classification'] : null);
+    $description = $_POST['description'];
+    $language = $_POST['language'];
+
+    function uploadFile($file, $folder) {
+        if (!empty($file['name'])) {
+            $target_dir = "uploads/$folder/";
+            if (!file_exists($target_dir)) {
+                mkdir($target_dir, 0777, true);
+            }
+            $target_file = $target_dir . basename($file["name"]);
+            move_uploaded_file($file["tmp_name"], $target_file);
+            return $target_file;
+        }
+        return null;
+    }
+
+    $image_path = uploadFile($_FILES['images'], "images");
+    $video_path = uploadFile($_FILES['videos'], "videos");
+    $code_file_path = uploadFile($_FILES['code_file'], "code_files");
+    $instruction_file_path = uploadFile($_FILES['instruction_file'], "instructions");
+
+    $sql = "INSERT INTO projects (project_name, project_type, classification, description, language, image_path, video_path, code_file_path, instruction_file_path) 
+            VALUES ('$project_name', '$project_type', '$classification', '$description', '$language', '$image_path', '$video_path', '$code_file_path', '$instruction_file_path')";
+
+    if ($conn->query($sql) === TRUE) {
+        $message = "Project submitted successfully!";
+        $messageType = "success";
+    } else {
+        $message = "Error: " . $conn->error;
+        $messageType = "danger";
+    }
+}
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Submission Form</title>
+    <title>Project Submission</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
@@ -19,12 +76,11 @@
         border-radius: 10px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         margin-top: 40px;
-        transition: 1s;
+        transition: 0.5s;
     }
 
     .container:hover {
-        box-shadow: 0px 1px 10px 1px rgba(0, 0, 0);
-
+        box-shadow: 0px 1px 10px 1px rgba(0, 0, 0, 0.2);
     }
 
     .hidden {
@@ -34,18 +90,13 @@
 </head>
 
 <body>
-
     <div class="container">
         <h3 class="text-center mb-4">Submit Your Project</h3>
-        <form id="projectForm">
-
-            <!-- Project Name -->
+        <form action="" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <label class="form-label">Project Name</label>
-                <input type="text" class="form-control" name="project_name" required placeholder="Enter project name">
+                <input type="text" class="form-control" name="project_name" required>
             </div>
-
-            <!-- Project Type -->
             <div class="mb-3">
                 <label class="form-label">Project Type</label>
                 <select class="form-select" name="project_type" id="projectType" required
@@ -55,8 +106,6 @@
                     <option value="hardware">Hardware</option>
                 </select>
             </div>
-
-            <!-- Software Classification -->
             <div class="mb-3 hidden" id="softwareOptions">
                 <label class="form-label">Software Classification</label>
                 <select class="form-select" name="software_classification">
@@ -66,8 +115,6 @@
                     <option value="embedded">Embedded Software</option>
                 </select>
             </div>
-
-            <!-- Hardware Classification -->
             <div class="mb-3 hidden" id="hardwareOptions">
                 <label class="form-label">Hardware Classification</label>
                 <select class="form-select" name="hardware_classification">
@@ -76,76 +123,58 @@
                     <option value="electronics">Electronics Circuit</option>
                 </select>
             </div>
-
-            <!-- Project Description -->
             <div class="mb-3">
-                <label class="form-label">Project Description</label>
-                <textarea class="form-control" name="description" rows="4" required
-                    placeholder="Describe your project"></textarea>
+                <label class="form-label">Description</label>
+                <textarea class="form-control" name="description" rows="4" required></textarea>
             </div>
-
-            <!-- Programming Language -->
             <div class="mb-3">
                 <label class="form-label">Programming Language</label>
-                <input type="text" class="form-control" name="language" placeholder="e.g., Python, Java, C++" required>
+                <input type="text" class="form-control" name="language" required>
             </div>
-
-            <!-- Upload Images -->
             <div class="mb-3">
-                <label class="form-label">Upload Images</label>
-                <input type="file" class="form-control" name="images" multiple accept="image/*">
+                <label class="form-label">Upload Image</label>
+                <input type="file" class="form-control" name="images" accept="image/*">
             </div>
-
-            <!-- Upload Videos -->
             <div class="mb-3">
-                <label class="form-label">Upload Videos</label>
-                <input type="file" class="form-control" name="videos" multiple accept="video/*">
+                <label class="form-label">Upload Video</label>
+                <input type="file" class="form-control" name="videos" accept="video/*">
             </div>
-
-            <!-- Upload Code File -->
             <div class="mb-3">
                 <label class="form-label">Upload Code File</label>
                 <input type="file" class="form-control" name="code_file" accept=".zip,.rar,.tar,.gz">
             </div>
-
-
-            <!-- Upload Instruction File -->
             <div class="mb-3">
-                <label class="form-label">Upload Instruction File / Report File (Which will help to impliment this
-                    project )</label>
-
+                <label class="form-label">Upload Instructions</label>
                 <input type="file" class="form-control" name="instruction_file" accept=".txt,.pdf,.docx">
-                <p class="text-danger">
-                    Only : .doc , .txt , .pdf will accept
-
-                </p>
             </div>
-
-            <!-- Submit Button -->
             <button type="submit" class="btn btn-primary w-100">Submit Project</button>
-
         </form>
     </div>
 
+    <?php if (!empty($message)) { ?>
+    <div class="modal fade show" style="display: block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-<?php echo $messageType; ?>">Message</h5>
+                    <button type="button" class="btn-close" onclick="window.location.href='';"></button>
+                </div>
+                <div class="modal-body">
+                    <p><?php echo $message; ?></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
+
     <script>
     function toggleProjectType() {
-        let projectType = document.getElementById("projectType").value;
-        document.getElementById("softwareOptions").classList.add("hidden");
-        document.getElementById("hardwareOptions").classList.add("hidden");
-
-        if (projectType === "software") {
-            document.getElementById("softwareOptions").classList.remove("hidden");
-        } else if (projectType === "hardware") {
-            document.getElementById("hardwareOptions").classList.remove("hidden");
-        }
+        document.getElementById("softwareOptions").classList.toggle("hidden", document.getElementById("projectType")
+            .value !== "software");
+        document.getElementById("hardwareOptions").classList.toggle("hidden", document.getElementById("projectType")
+            .value !== "hardware");
     }
-
-    document.getElementById("projectForm").addEventListener("submit", function(event) {
-        event.preventDefault();
-        alert("Project submitted successfully!");
-    });
     </script>
-
 </body>
 
 </html>
