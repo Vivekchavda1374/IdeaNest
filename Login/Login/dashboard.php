@@ -13,6 +13,6 @@ if (!isset($_SESSION['user'])) {
 </head>
 <body>
 <h2>Welcome, <?php echo $_SESSION['user']; ?>!</h2>
-<a href="logout.php">Logout</a>
+<a href="front-end/logout.php">Logout</a>
 </body>
 </html>

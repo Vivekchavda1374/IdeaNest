@@ -4,7 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="backend login/register done" />
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="backend login/register done">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Login/Login/back-end/Login.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Login/Login/back-end/db.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Login/Login/back-end/register.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Login/Login/front-end/dashboard.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/dashboard.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Login/Login/front-end/index.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Login/Login/front-end/logout.php" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -19,14 +27,26 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Vivekchavda1374"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Vivekchavda1374/IdeaNest.git",
+    "accountId": "7059d112-4172-45c4-9327-ff15b8ea0692"
+  }
+}]]></component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:\xampp\php\php.exe">
     <include_path>
       <path value="$PROJECT_DIR$/vendor/composer" />
     </include_path>
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 5
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
   <component name="ProjectId" id="2tZTldR0CdBALDEdlt6IoiBBukk" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -39,6 +59,7 @@
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "D:/study/study/sem6/HCD/Student Project/IdeaNest",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -54,6 +75,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login\Login" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login\Login\back-end" />
     </key>
   </component>
@@ -73,7 +95,9 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1740558748949</updated>
-      <workItem from="1740558749970" duration="2190000" />
+      <workItem from="1740558749970" duration="2219000" />
+      <workItem from="1740622761253" duration="32000" />
+      <workItem from="1740801105757" duration="975000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
