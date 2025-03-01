@@ -4,15 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="changes done">
-      <change afterPath="$PROJECT_DIR$/Login/Login/login.php" afterDir="false" />
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="login and register pages added with email id validation and database connected">
+      <change afterPath="$PROJECT_DIR$/user/index.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Login/Login/Login.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Login/Login/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Login/Login/register.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/register.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Login/Signup/signup.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bksony/register/register.php" beforeDir="false" afterPath="$PROJECT_DIR$/bksony/register/register.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bksony/register/register_image.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/image/register_image.jpg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,11 +71,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login\Signup" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login\Login\image" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login\Login" />
-      <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login\Login\back-end" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -103,7 +97,7 @@
       <workItem from="1740558749970" duration="2219000" />
       <workItem from="1740622761253" duration="32000" />
       <workItem from="1740801105757" duration="975000" />
-      <workItem from="1740804509462" duration="2659000" />
+      <workItem from="1740804509462" duration="3867000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -153,7 +147,15 @@
       <option name="project" value="LOCAL" />
       <updated>1740805144676</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="login and register pages added with email id validation and database connected">
+      <option name="closed" value="true" />
+      <created>1740807316242</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1740807316242</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -175,6 +177,7 @@
     <MESSAGE value="composer added --updated" />
     <MESSAGE value="backend login/register done" />
     <MESSAGE value="changes done" />
-    <option name="LAST_COMMIT_MESSAGE" value="changes done" />
+    <MESSAGE value="login and register pages added with email id validation and database connected" />
+    <option name="LAST_COMMIT_MESSAGE" value="login and register pages added with email id validation and database connected" />
   </component>
 </project>
