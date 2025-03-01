@@ -3,29 +3,52 @@ session_start();
 include 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST['email'];
+    $name = trim($_POST['name']);
+    $email = trim($_POST['email']);
+    $er_number = trim($_POST['er_number']);
+    $gr_number = trim($_POST['gr_number']);
     $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
 
-    // Fetch user from database
-    $stmt = $conn->prepare("SELECT password FROM login WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $stmt->store_result();
-
-    if ($stmt->num_rows > 0) {
-        $stmt->bind_result($hashed_password);
-        $stmt->fetch();
-
-        if (password_verify($password, $hashed_password)) {
-            $_SESSION['user'] = $email;
-            header("Location: dashboard.php"); // Redirect after login
-            exit();
-        } else {
-            echo "Invalid email or password! <a href='../front-end/index.php'>Try again</a>";
-        }
-    } else {
-        echo "User not found! <a href='register.php'>Register here</a>";
+    // Validate passwords
+    if ($password !== $confirm_password) {
+        die("Passwords do not match! <a href='register.php'>Try again</a>");
     }
+
+    // Hash the password
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+    // Insert user into database
+    $stmt = $conn->prepare("INSERT INTO users (name, email, er_number, gr_number, password) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssss", $name, $email, $er_number, $gr_number, $hashed_password);
+
+    if ($stmt->execute()) {
+        echo "Registration successful! <a href='login.php'>Login here</a>";
+    } else {
+        echo "Error: " . $stmt->error;
+    }
+
     $stmt->close();
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+<h2>Register</h2>
+<form action="register.php" method="post">
+    <input type="text" name="name" placeholder="Full Name" required><br>
+    <input type="email" name="email" placeholder="Email" required><br>
+    <input type="text" name="er_number" placeholder="ER Number" required><br>
+    <input type="text" name="gr_number" placeholder="GR Number" required><br>
+    <input type="password" name="password" placeholder="Password" required><br>
+    <input type="password" name="confirm_password" placeholder="Confirm Password" required><br>
+    <button type="submit">Register</button>
+</form>
+</body>
+</html>
