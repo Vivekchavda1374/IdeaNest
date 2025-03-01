@@ -178,7 +178,7 @@
     }
 
     .team-img-container {
-        height: 250px;
+        height: 500px;
         overflow: hidden;
     }
 
@@ -807,7 +807,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="team-card">
                         <div class="team-img-container">
-                            <img src="/api/placeholder/400/400" class="team-img" alt="Bhavik Kaladiya">
+                            <img src="me 4.png" class="team-img" alt="Bhavik Kaladiya">
                         </div>
                         <div class="team-info">
                             <h4>Bhavik Kaladiya</h4>
@@ -815,8 +815,8 @@
                             <p class="small text-muted mb-3">Computer Science Student passionate about creating
                                 educational platforms for beginner developers.</p>
                             <div class="social-links">
-                                <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                                <a href="#"><i class="fab fa-github"></i></a>
+                                <a href="www.linkedin.com/in/bhavik-kaladiya"><i class="fab fa-linkedin-in"></i></a>
+                                <a href=""><i class="fab fa-github"></i></a>
                                 <a href="#"><i class="fab fa-twitter"></i></a>
                             </div>
                         </div>
@@ -826,7 +826,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="team-card">
                         <div class="team-img-container">
-                            <img src="/api/placeholder/400/400" class="team-img" alt="Viveksinh Chaavada">
+                            <img src="" class="team-img" alt="Viveksinh Chaavada">
                         </div>
                         <div class="team-info">
                             <h4>Viveksinh Chaavada</h4>
