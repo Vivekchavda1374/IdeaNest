@@ -3,55 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <title>Improved Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
 </head>
 <body>
-<!-- Sidebar -->
-<nav class="sidebar" id="sidebar">
-    <div class="logo">
-        <h4>Dashboard</h4>
-    </div>
-    <a href="#" class="active">
-        <i class="fas fa-home"></i> Overview
-    </a>
-    <a href="#">
-        <i class="fas fa-folder"></i> Projects
-    </a>
-    <a href="#">
-        <i class="fas fa-sync-alt"></i> Recent Updates
-    </a>
-    <a href="#">
-        <i class="fas fa-book"></i> Read Blogs
-    </a>
-    <a href="#">
-        <i class="fas fa-pen"></i> Create Blog
-    </a>
-    <a href="#">
-        <i class="fas fa-search"></i> Search
-    </a>
-    <a href="#">
-        <i class="fas fa-bookmark"></i> Bookmarks
-    </a>
-    <a href="#">
-        <i class="fas fa-user"></i> Account
-    </a>
-    <a href="#">
-        <i class="fas fa-graduation-cap"></i> Mentor Support
-    </a>
-    <a href="#" class="mt-auto">
-        <i class="fas fa-cog"></i> Settings
-    </a>
-</nav>
+<div class="overlay" id="overlay"></div>
 
-<!-- Main Content Area -->
-<div class="content-wrapper">
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <i class="fas fa-cubes"></i>
+        <div class="logo">DevDashboard</div>
+    </div>
+
+    <ul class="sidebar-menu">
+        <li>
+            <a href="#" class="active">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class="fas fa-project-diagram"></i>
+                <span>Projects</span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class="fas fa-file-alt"></i>
+                <span>Blog Posts</span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class="fas fa-user-graduate"></i>
+                <span>Mentorship</span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class="fas fa-bookmark"></i>
+                <span>Bookmarks</span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class="fas fa-chart-bar"></i>
+                <span>Analytics</span>
+            </a>
+        </li>
+        <li>
+            <a href="#">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main-content" id="mainContent">
     <!-- Top Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid">
-            <button class="toggle-sidebar me-3" id="sidebarToggle">
+        <div class="d-flex align-items-center w-100">
+            <button class="btn btn-light me-3" id="sidebarToggle">
                 <i class="fas fa-bars"></i>
             </button>
 
@@ -90,21 +108,21 @@
         </div>
     </nav>
 
-    <div class="container-fluid">
+    <div class="container-fluid px-0">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold text-dark">Welcome back, User!</h2>
+            <h2 class="fw-bold">Welcome back, User!</h2>
             <button class="btn btn-primary"><i class="fas fa-plus me-2"></i> New Project</button>
         </div>
 
         <!-- Quick Stats -->
-        <div class="row g-4 quick-stats mb-4">
-            <div class="col-md-3">
+        <div class="row g-4 mb-4">
+            <div class="col-md-6 col-lg-3">
                 <div class="card stat-card bg-primary">
                     <div class="card-body p-3">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="mb-0 text-white-50">Active Projects</p>
-                                <h3 class="mt-2 mb-0">12</h3>
+                                <p class="mb-0 text-white-50">My Projects</p>
+                                <h3 class="mt-2 mb-0 text-white">12</h3>
                             </div>
                             <div class="icon">
                                 <i class="fas fa-project-diagram"></i>
@@ -113,13 +131,13 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-6 col-lg-3">
                 <div class="card stat-card" style="background-color: #4cc9f0;">
                     <div class="card-body p-3">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <p class="mb-0 text-white-50">Published Blogs</p>
-                                <h3 class="mt-2 mb-0">24</h3>
+                                <h3 class="mt-2 mb-0 text-white">24</h3>
                             </div>
                             <div class="icon">
                                 <i class="fas fa-file-alt"></i>
@@ -128,13 +146,13 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-6 col-lg-3">
                 <div class="card stat-card" style="background-color: #f72585;">
                     <div class="card-body p-3">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <p class="mb-0 text-white-50">Mentor Sessions</p>
-                                <h3 class="mt-2 mb-0">5</h3>
+                                <h3 class="mt-2 mb-0 text-white">5</h3>
                             </div>
                             <div class="icon">
                                 <i class="fas fa-user-graduate"></i>
@@ -143,13 +161,13 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-6 col-lg-3">
                 <div class="card stat-card" style="background-color: #3f37c9;">
                     <div class="card-body p-3">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <p class="mb-0 text-white-50">Bookmarks</p>
-                                <h3 class="mt-2 mb-0">17</h3>
+                                <h3 class="mt-2 mb-0 text-white">17</h3>
                             </div>
                             <div class="icon">
                                 <i class="fas fa-bookmark"></i>
@@ -163,10 +181,10 @@
         <!-- Main Content Cards -->
         <div class="row g-4 mb-4">
             <!-- Projects Progress -->
-            <div class="col-md-8">
+            <div class="col-lg-8">
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5>Project Progress</h5>
+                        <h5 class="mb-0">Project Progress</h5>
                         <div class="dropdown">
                             <button class="btn btn-sm btn-light" type="button" id="projectDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-ellipsis-h"></i>
@@ -232,10 +250,10 @@
             </div>
 
             <!-- Upcoming Mentor Sessions -->
-            <div class="col-md-4">
+            <div class="col-lg-4">
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5>Upcoming Mentor Sessions</h5>
+                        <h5 class="mb-0">Upcoming Mentor Sessions</h5>
                         <button class="btn btn-sm btn-light"><i class="fas fa-plus"></i></button>
                     </div>
                     <div class="card-body">
@@ -289,10 +307,10 @@
         <!-- Recent Activity and Blog Posts -->
         <div class="row g-4">
             <!-- Recent Activity -->
-            <div class="col-md-6">
+            <div class="col-lg-6">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5>Recent Activity</h5>
+                        <h5 class="mb-0">Recent Activity</h5>
                         <div class="dropdown">
                             <button class="btn btn-sm btn-light" type="button" id="activityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-ellipsis-h"></i>
@@ -350,10 +368,10 @@
             </div>
 
             <!-- Latest Blog Posts -->
-            <div class="col-md-6">
+            <div class="col-lg-6">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5>Latest Blog Posts</h5>
+                        <h5 class="mb-0">Latest Blog Posts</h5>
                         <div class="dropdown">
                             <button class="btn btn-sm btn-light" type="button" id="blogDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-ellipsis-h"></i>
@@ -418,19 +436,4 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Toggle sidebar on mobile
-    document.getElementById('sidebarToggle').addEventListener('click', function() {
-        document.getElementById('sidebar').classList.toggle('active');
-    });
-
-    // Make the sidebar responsive on window resize
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 768) {
-            document.getElementById('sidebar').classList.remove('active');
-        }
-    });
-</script>
-</body>
-</html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
