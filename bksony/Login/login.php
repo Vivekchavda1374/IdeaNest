@@ -99,7 +99,7 @@
 
                 <div class="btn-container">
                     <button type="submit" class="btn btn-login">LOGIN</button>
-                    <a href="register.php" class="btn btn-register">REGISTER</a>
+                    <a href="../register/register.php" class="btn btn-register">REGISTER</a>
                 </div>
 
                 <a href="#" class="forgot-password">Forgot Password?</a>
