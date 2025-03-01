@@ -7,6 +7,7 @@
     <title>User Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+
     <link href="style.css" rel="stylesheet">
 </head>
 
@@ -28,7 +29,7 @@
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="projects_view.php">
                 <i class="fas fa-project-diagram"></i>
                 <span>Projects</span>
             </a>
@@ -75,10 +76,12 @@
                 <i class="fas fa-bars"></i>
             </button>
 
-            <div class="search-bar me-auto">
+            <div class="search-bar me-auto search-container ">
                 <i class="fas fa-search"></i>
-                <input type="text" class="form-control" placeholder="Search projects, blogs, mentors...">
+                <input type="text" id="search" class="form-control" placeholder="Search projects, blogs, mentors..." onkeyup="fetchResults()">
+                <div id="searchResults" class="search-results"></div>
             </div>
+
 
             <div class="d-flex align-items-center">
                 <div class="position-relative me-4">
@@ -118,7 +121,7 @@
     <div class="container-fluid px-0">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-bold">Welcome back, Vivek!</h2>
-            <button class="btn btn-primary"><i class="fas fa-plus me-2"></i> New Project</button>
+            <a href="./forms/new_project_add.php" class="btn btn-primary"><i class="fas fa-plus me-2"></i> New Project</a>
         </div>
 
         <!-- Quick Stats -->
@@ -463,5 +466,7 @@
             </div>
         </div>
     </div>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+</body>
