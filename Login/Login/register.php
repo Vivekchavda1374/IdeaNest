@@ -96,7 +96,7 @@
 
         if (!validDomains.includes(emailDomain)) {
             alert("Please use a Marwadi University email ID!");
-            event.preventDefault(); // Stop form submission
+            event.preventDefault();
         }
     });
 </script>
@@ -113,7 +113,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // Retrieve input values
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     $er_number = trim($_POST['er_number']);
@@ -121,7 +120,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
-    // Email validation
     $allowed_domains = ["marwadiuniversity.ac.in", "marwadiuniversity.edu.in"];
     $email_domain = substr(strrchr($email, "@"), 1);
 
@@ -129,17 +127,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<script>alert('Please use a Marwadi University email ID!'); window.location.href='register.php';</script>";
         exit();
     }
-
-    // Validate password match
     if ($password !== $confirm_password) {
         echo "<script>alert('Passwords do not match!'); window.location.href='register.php';</script>";
         exit();
     }
-
-    // Hash password for security
     $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-    // Check if the email is already registered
     $stmt_email_check = $conn->prepare("SELECT id FROM register WHERE email = ?");
     $stmt_email_check->bind_param("s", $email);
     $stmt_email_check->execute();
@@ -151,7 +144,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     $stmt_email_check->close();
 
-    // Check if the ER number is already registered
     $stmt_check = $conn->prepare("SELECT id FROM register WHERE er_number = ?");
     $stmt_check->bind_param("s", $er_number);
     $stmt_check->execute();
@@ -163,7 +155,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     $stmt_check->close();
 
-    // Insert new user into 'register' table
     $stmt = $conn->prepare("INSERT INTO register (name, email, er_number, gr_number, password) VALUES (?, ?, ?, ?, ?)");
     $stmt->bind_param("sssss", $name, $email, $er_number, $gr_number, $hashed_password);
 
