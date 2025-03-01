@@ -9,19 +9,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $er_number = $_POST['er_number'];
         $password = $_POST['password'];
 
-        $stmt = $conn->prepare("SELECT id, password FROM register WHERE er_number = ? OR gr_number = ?");
+        $stmt = $conn->prepare("SELECT id, password, name FROM register WHERE er_number = ? OR gr_number = ?");
         $stmt->bind_param("ss", $er_number, $er_number);
         $stmt->execute();
         $stmt->store_result();
 
         if ($stmt->num_rows > 0) {
-            $stmt->bind_result($user_id, $hashed_password);
+            $stmt->bind_result($user_id, $hashed_password, $user_name);
             $stmt->fetch();
 
             if (password_verify($password, $hashed_password)) {
                 $_SESSION['user_id'] = $user_id;
                 $_SESSION['er_number'] = $er_number;
-                header("Location: dashboard.php");
+                $_SESSION['user_name'] = $user_name; // Store the user's name
+                header("Location: ../../user/index.php");
                 exit();
             } else {
                 $error_message = "Incorrect Password!";
@@ -115,7 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <div class="login-container">
     <div class="login-box">
         <h2>LOGIN</h2>
-        <p>Please login with your Username & Password</p>
+        <p>Please login with your ER number and Password</p>
         <form action="login.php" method="post">
             <input type="text" name="er_number" class="form-control" placeholder="ER Number / GR Number" required>
             <input type="password" name="password" class="form-control" placeholder="Password" required>
@@ -130,7 +131,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </div>
 
-<!-- Bootstrap Modal for Error Messages -->
 <?php if (isset($error_message)) : ?>
     <div class="modal fade show" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" style="display:block;">
         <div class="modal-dialog modal-dialog-centered">

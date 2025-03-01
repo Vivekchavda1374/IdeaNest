@@ -1,3 +1,27 @@
+<?php
+include '../Login/Login/db.php';
+session_start();
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to login page if not logged in
+    header("Location: ../Login/Login/login.php");
+    exit();
+}
+
+// Get the user's name from session
+$user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "User";
+$user_initial = !empty($user_name) ? substr($user_name, 0, 1) : "U";
+
+$sql = "SELECT COUNT(*) AS project_count FROM projects"; // Replace 'projects' with your actual table name
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+$projectCount = $row['project_count'];
+$bookmarkCount = $row['bookmark_count'];
+$conn->close();
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,6 +31,7 @@
     <title>User Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+
     <link href="style.css" rel="stylesheet">
 </head>
 
@@ -28,7 +53,7 @@
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="projects_view.php">
                 <i class="fas fa-project-diagram"></i>
                 <span>Projects</span>
             </a>
@@ -75,10 +100,12 @@
                 <i class="fas fa-bars"></i>
             </button>
 
-            <div class="search-bar me-auto">
+            <div class="search-bar me-auto search-container ">
                 <i class="fas fa-search"></i>
-                <input type="text" class="form-control" placeholder="Search projects, blogs, mentors...">
+                <input type="text" id="search" class="form-control" placeholder="Search projects, blogs, mentors..." onkeyup="fetchResults()">
+                <div id="searchResults" class="search-results"></div>
             </div>
+
 
             <div class="d-flex align-items-center">
                 <div class="position-relative me-4">
@@ -93,21 +120,26 @@
                             id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="me-2"
                              style="width: 32px; height: 32px; border-radius: 50%; background-color: #4361ee; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                            V
+                            <?php echo htmlspecialchars($user_initial); ?>
                         </div>
-                        <span>Vivek Chavda</span>
+                        <span><?php echo htmlspecialchars($user_name); ?></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="userMenu">
                         <li class="dropdown-header">
-                            <h6 class="mb-0">Vivek Chavda</h6>
-                            <small class="text-muted">viveksinhchavda@gmail.com</small>
+                            <h6 class="mb-0"><?php echo htmlspecialchars($user_name); ?></h6>
+                            <small class="text-muted">
+                                <?php
+                                // You might want to store email in session too or fetch it here
+                                echo isset($_SESSION['email']) ? htmlspecialchars($_SESSION['email']) : "user@example.com";
+                                ?>
+                            </small>
                         </li>
                         <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> My Profile</a></li>
                         <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Account Settings</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-sign-out-alt"></i> Sign
+                        <li><a class="dropdown-item text-danger" href="../Login/Login/logout.php"><i class="fas fa-sign-out-alt"></i> Sign
                                 Out</a></li>
                     </ul>
                 </div>
@@ -117,8 +149,8 @@
 
     <div class="container-fluid px-0">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold">Welcome back, Vivek!</h2>
-            <button class="btn btn-primary"><i class="fas fa-plus me-2"></i> New Project</button>
+            <h2 class="fw-bold">Welcome, <?php echo htmlspecialchars($user_name); ?></h2>
+            <a href="./forms/new_project_add.php" class="btn btn-primary"><i class="fas fa-plus me-2"></i> New Project</a>
         </div>
 
         <!-- Quick Stats -->
@@ -129,7 +161,7 @@
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <p class="mb-0 text-white-50">My Projects</p>
-                                <h3 class="mt-2 mb-0 text-white">12</h3>
+                                <h3 class="mt-2 mb-0 text-white"><?php echo $projectCount; ?></h3>
                             </div>
                             <div class="icon">
                                 <i class="fas fa-project-diagram"></i>
@@ -261,64 +293,6 @@
                     </div>
                 </div>
             </div>
-            <!--
-            Upcoming Mentor Sessions
-            <div class="col-lg-4">
-                <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Upcoming Mentor Sessions</h5>
-                        <button class="btn btn-sm btn-light"><i class="fas fa-plus"></i></button>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center p-3 border rounded mb-3">
-                            <div class="me-3">
-                                <div
-                                    style="width: 45px; height: 45px; background-color: #4cc9f0; color: white; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                    <span style="font-size: 14px; font-weight: bold;">MAR</span>
-                                    <span style="font-size: 16px; font-weight: bold;">03</span>
-                                </div>
-                            </div>
-                            <div>
-                                <h6 class="mb-1">Project Review</h6>
-                                <div class="text-muted small">10:00 AM - 11:00 AM</div>
-                                <div class="text-primary small">With: Sarah Johnson</div>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center p-3 border rounded mb-3">
-                            <div class="me-3">
-                                <div
-                                    style="width: 45px; height: 45px; background-color: #4361ee; color: white; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                    <span style="font-size: 14px; font-weight: bold;">MAR</span>
-                                    <span style="font-size: 16px; font-weight: bold;">05</span>
-                                </div>
-                            </div>
-                            <div>
-                                <h6 class="mb-1">Code Review</h6>
-                                <div class="text-muted small">2:00 PM - 3:30 PM</div>
-                                <div class="text-primary small">With: David Chen</div>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center p-3 border rounded">
-                            <div class="me-3">
-                                <div
-                                    style="width: 45px; height: 45px; background-color: #f72585; color: white; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                    <span style="font-size: 14px; font-weight: bold;">MAR</span>
-                                    <span style="font-size: 16px; font-weight: bold;">10</span>
-                                </div>
-                            </div>
-                            <div>
-                                <h6 class="mb-1">Portfolio Review</h6>
-                                <div class="text-muted small">11:00 AM - 12:00 PM</div>
-                                <div class="text-primary small">With: Michelle Wong</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-white border-top-0 text-center">
-                        <button class="btn btn-outline-primary btn-sm">Schedule New Session</button>
-                    </div>
-                </div>
-            </div>
-        </div> -->
 
             <!-- Recent Activity and Blog Posts -->
             <div class="row g-4">
@@ -463,5 +437,49 @@
             </div>
         </div>
     </div>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Add any JavaScript you need for the dashboard here
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle functionality
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('overlay');
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('collapsed');
+                    mainContent.classList.toggle('expanded');
+                    overlay.classList.toggle('active');
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('collapsed');
+                    mainContent.classList.remove('expanded');
+                    overlay.classList.remove('active');
+                });
+            }
+        });
+
+        // Search functionality (placeholder - you'll need to implement the actual search)
+        function fetchResults() {
+            const searchInput = document.getElementById('search');
+            const searchResults = document.getElementById('searchResults');
+
+            if (searchInput.value.length > 0) {
+                searchResults.style.display = 'block';
+                // In a real implementation, you would fetch results from a server
+                // For now, just a placeholder
+                searchResults.innerHTML = '<p>Searching...</p>';
+            } else {
+                searchResults.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
