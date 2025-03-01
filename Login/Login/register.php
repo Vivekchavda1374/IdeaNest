@@ -159,7 +159,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bind_param("sssss", $name, $email, $er_number, $gr_number, $hashed_password);
 
     if ($stmt->execute()) {
-        echo "<script>alert('Registration successful! You can now log in.'); window.location.href='../../user/index.php';</script>";
+        echo "<script>alert('Registration successful! You can now log in.'); window.location.href='login.php';</script>";
     } else {
         echo "<script>alert('Error during registration. Please try again!');</script>";
     }
