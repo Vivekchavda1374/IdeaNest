@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="dashboard ui design">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/user/style.css" afterDir="false" />
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="dashboard ui design modified">
+      <change afterPath="$PROJECT_DIR$/user/style.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -106,7 +104,7 @@
       <workItem from="1740558749970" duration="2219000" />
       <workItem from="1740622761253" duration="32000" />
       <workItem from="1740801105757" duration="975000" />
-      <workItem from="1740804509462" duration="6115000" />
+      <workItem from="1740804509462" duration="6765000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -172,7 +170,23 @@
       <option name="project" value="LOCAL" />
       <updated>1740809246977</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="dashboard ui design modified">
+      <option name="closed" value="true" />
+      <created>1740811522749</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1740811522749</updated>
+    </task>
+    <task id="LOCAL-00010" summary="dashboard ui design modified">
+      <option name="closed" value="true" />
+      <created>1740811746702</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1740811746702</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -196,6 +210,7 @@
     <MESSAGE value="changes done" />
     <MESSAGE value="login and register pages added with email id validation and database connected" />
     <MESSAGE value="dashboard ui design" />
-    <option name="LAST_COMMIT_MESSAGE" value="dashboard ui design" />
+    <MESSAGE value="dashboard ui design modified" />
+    <option name="LAST_COMMIT_MESSAGE" value="dashboard ui design modified" />
   </component>
 </project>
