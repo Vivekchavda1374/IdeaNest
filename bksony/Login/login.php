@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
     body {
-        background: url('login_image.jpg') no-repeat center center/cover;
+        background: url('ICT 2.png') no-repeat center center/cover;
         height: 100vh;
         display: flex;
         justify-content: center;
@@ -20,8 +20,8 @@
         justify-content: flex-start;
         align-items: center;
         width: 80%;
-        max-width: 900px;
-        background: rgba(255, 255, 255, 0.9);
+        max-width: 500px;
+        background: rgba(255, 255, 255, 0.3);
         border-radius: 10px;
         padding: 40px;
         box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
@@ -33,14 +33,16 @@
     }
 
     .login-box h2 {
-        color: #00838f;
+        color: rgb(0, 0, 0);
         font-weight: bold;
         margin-bottom: 20px;
+
     }
 
     .form-control {
         border-radius: 5px;
         margin-bottom: 15px;
+
     }
 
     .btn-container {
@@ -80,8 +82,12 @@
     .forgot-password {
         display: block;
         margin-top: 10px;
-        color: #555;
+        color: #000;
         text-decoration: none;
+    }
+
+    p {
+        color: #000;
     }
     </style>
 </head>
