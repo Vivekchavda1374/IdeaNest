@@ -564,7 +564,7 @@
                     </div>
                 </div>
                 <div class="col-lg-6 d-none d-lg-block">
-                    <img src="ICT.png" alt="Project Collaboration Platform" class="img-fluid rounded-3 shadow">
+                    <img src="ict.png" alt="Project Collaboration Platform" class="img-fluid rounded-3 shadow">
                 </div>
             </div>
         </div>
