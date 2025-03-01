@@ -21,30 +21,3 @@
 </body>
 
 </html>
-
-
-<?php
-// Check if form is submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = $_POST["name"];
-    $email = $_POST["email"];
-    $er_number = $_POST["er_number"];
-    $gr_number = $_POST["gr_number"];
-    $password = $_POST["password"];
-    $confirm_password = $_POST["confirm_password"];
-
-    // Display received input
-    echo "<h2>Received Data:</h2>";
-    echo "Name: " . htmlspecialchars($name) . "<br>";
-    echo "Email: " . htmlspecialchars($email) . "<br>";
-    echo "ER Number: " . htmlspecialchars($er_number) . "<br>";
-    echo "GR Number: " . htmlspecialchars($gr_number) . "<br>";
-
-    // Check password match
-    if ($password === $confirm_password) {
-        echo "Password confirmed successfully!";
-    } else {
-        echo "Error: Passwords do not match!";
-    }
-}
-?>
