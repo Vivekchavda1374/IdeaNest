@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
     body {
-        background: url('register_image.jpg') no-repeat center center/cover;
+        background: url('../../Login/Login/image/register_image.jpg') no-repeat center center/cover;
         height: 100vh;
         display: flex;
         justify-content: center;
