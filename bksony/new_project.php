@@ -13,7 +13,7 @@
     }
 
     .container {
-        max-width: 600px;
+        max-width: 700px;
         background: white;
         padding: 30px;
         border-radius: 10px;
@@ -108,16 +108,17 @@
                 <input type="file" class="form-control" name="code_file" accept=".zip,.rar,.tar,.gz">
             </div>
 
-            <!-- Upload Requirement File -->
-            <div class="mb-3">
-                <label class="form-label">Upload Requirement File</label>
-                <input type="file" class="form-control" name="requirement_file" accept=".txt,.pdf,.docx">
-            </div>
 
             <!-- Upload Instruction File -->
             <div class="mb-3">
-                <label class="form-label">Upload Instruction File</label>
+                <label class="form-label">Upload Instruction File / Report File (Which will help to impliment this
+                    project )</label>
+
                 <input type="file" class="form-control" name="instruction_file" accept=".txt,.pdf,.docx">
+                <p class="text-danger">
+                    Only : .doc , .txt , .pdf will accept
+
+                </p>
             </div>
 
             <!-- Submit Button -->
