@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Improved Dashboard</title>
+    <title>User Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
@@ -17,7 +17,7 @@
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <i class="fas fa-cubes"></i>
-        <div class="logo">DevDashboard</div>
+        <div class="logo">Dashboard</div>
     </div>
 
     <ul class="sidebar-menu">
@@ -93,14 +93,14 @@
                             id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="me-2"
                              style="width: 32px; height: 32px; border-radius: 50%; background-color: #4361ee; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                            U
+                            V
                         </div>
-                        <span>User</span>
+                        <span>Vivek Chavda</span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="userMenu">
                         <li class="dropdown-header">
-                            <h6 class="mb-0">User Name</h6>
-                            <small class="text-muted">user@example.com</small>
+                            <h6 class="mb-0">Vivek Chavda</h6>
+                            <small class="text-muted">viveksinhchavda@gmail.com</small>
                         </li>
                         <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> My Profile</a></li>
                         <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Account Settings</a></li>
@@ -117,7 +117,7 @@
 
     <div class="container-fluid px-0">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold">Welcome back, User!</h2>
+            <h2 class="fw-bold">Welcome back, Vivek!</h2>
             <button class="btn btn-primary"><i class="fas fa-plus me-2"></i> New Project</button>
         </div>
 
