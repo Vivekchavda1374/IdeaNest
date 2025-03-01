@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (password_verify($password, $hashed_password)) {
                 $_SESSION['user_id'] = $user_id;
                 $_SESSION['er_number'] = $er_number;
-                header("Location: dashboard.php");
+                header("Location: ../../user/index.php");
                 exit();
             } else {
                 $error_message = "Incorrect Password!";
@@ -130,7 +130,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </div>
 
-<!-- Bootstrap Modal for Error Messages -->
 <?php if (isset($error_message)) : ?>
     <div class="modal fade show" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" style="display:block;">
         <div class="modal-dialog modal-dialog-centered">

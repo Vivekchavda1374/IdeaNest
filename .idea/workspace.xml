@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="dynamic project view and next some project view done">
-      <change beforePath="$PROJECT_DIR$/Login/Login/register.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/register.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/index.php" afterDir="false" />
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="modified code done">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Login/Login/login.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/login.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,6 +42,7 @@
     &quot;accountId&quot;: &quot;7059d112-4172-45c4-9327-ff15b8ea0692&quot;
   }
 }</component>
+  <component name="PhpDebugGeneral" listening_started="true" />
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:\xampp\php\php.exe">
     <include_path>
       <path value="$PROJECT_DIR$/vendor/composer" />
@@ -98,6 +99,9 @@
     </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="StructureViewState">
+    <option name="selectedTab" value="PHP" />
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="" />
@@ -110,7 +114,7 @@
       <workItem from="1740801105757" duration="975000" />
       <workItem from="1740804509462" duration="6765000" />
       <workItem from="1740819532994" duration="106000" />
-      <workItem from="1740819658958" duration="9605000" />
+      <workItem from="1740819658958" duration="10267000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -248,7 +252,15 @@
       <option name="project" value="LOCAL" />
       <updated>1740829368343</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="modified code done">
+      <option name="closed" value="true" />
+      <created>1740829570028</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1740829570028</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -277,6 +289,7 @@
     <MESSAGE value="form added for new projects" />
     <MESSAGE value="form validation completed" />
     <MESSAGE value="dynamic project view and next some project view done" />
-    <option name="LAST_COMMIT_MESSAGE" value="dynamic project view and next some project view done" />
+    <MESSAGE value="modified code done" />
+    <option name="LAST_COMMIT_MESSAGE" value="modified code done" />
   </component>
 </project>
