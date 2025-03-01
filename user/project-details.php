@@ -1,28 +1,22 @@
 <?php
-// Database connection
 $servername = "localhost";
 $username = "root";
 $password = "";
 $database = "ideanest";
 
-// Create connection
 $conn = new mysqli($servername, $username, $password, $database);
 
-// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Get the project ID from URL
 $project_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-// Validate ID
 if ($project_id <= 0) {
     header("Location: projects.php");
     exit;
 }
 
-// Get project details
 $sql = "SELECT * FROM projects WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $project_id);
@@ -30,14 +24,13 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    // Project not found
+
     header("Location: projects.php");
     exit;
 }
 
 $project = $result->fetch_assoc();
 
-// Get related projects (same project_type, excluding current)
 $related_sql = "SELECT id, project_name, project_type, language FROM projects 
                 WHERE project_type = ? AND id != ? 
                 ORDER BY submission_date DESC LIMIT 3";
@@ -226,7 +219,7 @@ $related_result = $related_stmt->get_result();
     </head>
 
     <body>
-    <!-- Hero Section -->
+
     <div class="hero-section">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -273,7 +266,7 @@ $related_result = $related_stmt->get_result();
     <div class="container mb-5">
         <div class="row">
             <div class="col-lg-8">
-                <!-- Project Details -->
+
                 <div class="project-card">
                     <div class="details-section">
                         <h3 class="section-title">Project Description</h3>
@@ -330,7 +323,7 @@ $related_result = $related_stmt->get_result();
                         <div class="meta-info">
                             <i class="fas fa-user meta-icon"></i>
                             <strong>Author:</strong>
-                            <span><?php echo !empty($project['author']) ? htmlspecialchars($project['author']) : 'Not specified'; ?></span>
+                            <span><?php echo !empty($project['project_name']) ? htmlspecialchars($project['project_name']) : 'Not specified'; ?></span>
                         </div>
 
                         <div class="meta-info">

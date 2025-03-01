@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="form validation completed">
-      <change afterPath="$PROJECT_DIR$/user/project-details.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user/projects_view.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/user/style.css" afterDir="false" />
-    </list>
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="dynamic project view and next some project view done" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -113,7 +107,7 @@
       <workItem from="1740801105757" duration="975000" />
       <workItem from="1740804509462" duration="6765000" />
       <workItem from="1740819532994" duration="106000" />
-      <workItem from="1740819658958" duration="8920000" />
+      <workItem from="1740819658958" duration="9298000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -235,7 +229,15 @@
       <option name="project" value="LOCAL" />
       <updated>1740821875108</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="dynamic project view and next some project view done">
+      <option name="closed" value="true" />
+      <created>1740828856874</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1740828856874</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -263,6 +265,7 @@
     <MESSAGE value="dashboard ui design modified - final done" />
     <MESSAGE value="form added for new projects" />
     <MESSAGE value="form validation completed" />
-    <option name="LAST_COMMIT_MESSAGE" value="form validation completed" />
+    <MESSAGE value="dynamic project view and next some project view done" />
+    <option name="LAST_COMMIT_MESSAGE" value="dynamic project view and next some project view done" />
   </component>
 </project>
