@@ -4,15 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="login error done-final done">
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="data base fetch from data in dashboard and modified ui and solve bug issue">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Login/Login/dashboard.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/dashboard.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Login/Login/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Login/Login/login.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/login.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Login/Login/logout.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/logout.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Login/Login/register.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/register.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/project-details.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/project_details.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/project_details.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/project_details.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user/projects_view.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/projects_view.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -121,7 +116,8 @@
       <workItem from="1740801105757" duration="975000" />
       <workItem from="1740804509462" duration="6765000" />
       <workItem from="1740819532994" duration="106000" />
-      <workItem from="1740819658958" duration="16482000" />
+      <workItem from="1740819658958" duration="16681000" />
+      <workItem from="1740890745962" duration="1932000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -283,7 +279,15 @@
       <option name="project" value="LOCAL" />
       <updated>1740831468756</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
+      <option name="closed" value="true" />
+      <created>1740837998706</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1740837998706</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -315,6 +319,7 @@
     <MESSAGE value="modified code done" />
     <MESSAGE value="login error done" />
     <MESSAGE value="login error done-final done" />
-    <option name="LAST_COMMIT_MESSAGE" value="login error done-final done" />
+    <MESSAGE value="data base fetch from data in dashboard and modified ui and solve bug issue" />
+    <option name="LAST_COMMIT_MESSAGE" value="data base fetch from data in dashboard and modified ui and solve bug issue" />
   </component>
 </project>

@@ -227,16 +227,16 @@ $related_result = $related_stmt->get_result();
                     <i class="fas fa-arrow-left"></i> Back to Projects
                 </a>
 
-                <?php
-                $statusClass = 'status-pending';
-                if ($project['project_status'] == 'Approved') {
-                    $statusClass = 'status-approved';
-                } elseif ($project['project_status'] == 'Rejected') {
-                    $statusClass = 'status-rejected';
-                }
-                ?>
-                <span class="status-badge <?php echo $statusClass; ?>" style="background-color: rgba(255, 255, 255, 0.2);">
-                    <?php echo htmlspecialchars($project['project_status']); ?>
+<!--                --><?php
+//                $statusClass = 'status-pending';
+//                if ($project['project_status'] == 'Approved') {
+//                    $statusClass = 'status-approved';
+//                } elseif ($project['project_status'] == 'Rejected') {
+//                    $statusClass = 'status-rejected';
+//                }
+//                ?>
+<!--                <span class="status-badge --><?php //echo $statusClass; ?><!--" style="background-color: rgba(255, 255, 255, 0.2);">-->
+<!--                    --><?php //echo htmlspecialchars($project['project_status']); ?>
                 </span>
             </div>
 

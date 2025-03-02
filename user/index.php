@@ -17,7 +17,7 @@ $sql = "SELECT COUNT(*) AS project_count FROM projects"; // Replace 'projects' w
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 $projectCount = $row['project_count'];
-$bookmarkCount = $row['bookmark_count'];
+//$bookmarkCount = $row['bookmark_count'];
 $conn->close();
 
 ?>
