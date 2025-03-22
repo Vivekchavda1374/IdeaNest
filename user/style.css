@@ -6,6 +6,9 @@
     --light: #f8f9fa;
     --dark: #212529;
 }
+a{
+    text-decoration: none;
+}
 
 body {
     background-color: #f8f9fa;
