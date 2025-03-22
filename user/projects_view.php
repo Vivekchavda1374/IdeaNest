@@ -334,16 +334,16 @@ $categoryResult = $conn->query($categorySql);
                         <div class="card h-100">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="card-title"><?php echo htmlspecialchars($row['project_name']); ?></h5>
-                                <?php
-                                $statusClass = 'status-pending';
-                                if ($row['project_status'] == 'Approved') {
-                                    $statusClass = 'status-approved';
-                                } elseif ($row['project_status'] == 'Rejected') {
-                                    $statusClass = 'status-rejected';
-                                }
-                                ?>
-                                <span class="status-badge <?php echo $statusClass; ?>">
-                                    <?php echo htmlspecialchars($row['project_status']); ?>
+<!--                                --><?php
+//                                $statusClass = 'status-pending';
+//                                if ($row['project_status'] == 'Approved') {
+//                                    $statusClass = 'status-approved';
+//                                } elseif ($row['project_status'] == 'Rejected') {
+//                                    $statusClass = 'status-rejected';
+//                                }
+//                                ?>
+<!--                                <span class="status-badge --><?php //echo $statusClass; ?><!--">-->
+<!--                                    --><?php //echo htmlspecialchars($row['project_status']); ?>
                                 </span>
                             </div>
                             <div class="card-body">
