@@ -13,13 +13,37 @@ if (!isset($_SESSION['user_id'])) {
 $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "User";
 $user_initial = !empty($user_name) ? substr($user_name, 0, 1) : "U";
 
+// Fetch project count
 $sql = "SELECT COUNT(*) AS project_count FROM projects"; // Replace 'projects' with your actual table name
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 $projectCount = $row['project_count'];
-//$bookmarkCount = $row['bookmark_count'];
-$conn->close();
 
+$blogSql = "SELECT COUNT(*) AS blog_count FROM blog";
+$blogResult = $conn->query($blogSql);
+$blogRow = $blogResult->fetch_assoc();
+$blogCount = $blogRow['blog_count'];
+
+
+// Fetch user email based on user_id from session
+$user_id = $_SESSION['user_id'];
+$emailSql = "SELECT email FROM register WHERE id = ?"; // Assuming 'users' is your users table and 'id' is the primary key
+$stmt = $conn->prepare($emailSql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$emailResult = $stmt->get_result();
+
+if ($emailResult->num_rows > 0) {
+    $emailRow = $emailResult->fetch_assoc();
+    $user_email = $emailRow['email'];
+    // Store in session for future use
+    $_SESSION['email'] = $user_email;
+} else {
+    $user_email = "user@example.com"; // Default email if not found
+}
+
+$stmt->close();
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -59,9 +83,9 @@ $conn->close();
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="./Blog/list-project.php">
                 <i class="fas fa-file-alt"></i>
-                <span>Blog Posts</span>
+                <span>Idea Posts</span>
             </a>
         </li>
         <li>
@@ -102,7 +126,7 @@ $conn->close();
 
             <div class="search-bar me-auto search-container ">
                 <i class="fas fa-search"></i>
-                <input type="text" id="search" class="form-control" placeholder="Search projects, blogs, mentors..." onkeyup="fetchResults()">
+                <input type="text" id="search" class="form-control" placeholder="Search projects, ideas, mentors..." onkeyup="fetchResults()">
                 <div id="searchResults" class="search-results"></div>
             </div>
 
@@ -175,8 +199,8 @@ $conn->close();
                     <div class="card-body p-3">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="mb-0 text-white-50"> My Published Blogs</p>
-                                <h3 class="mt-2 mb-0 text-white">24</h3>
+                                <p class="mb-0 text-white-50"> My Published Ideas</p>
+                                <h3 class="mt-2 mb-0 text-white"><?php echo $blogCount; ?></h3>
                             </div>
                             <div class="icon">
                                 <i class="fas fa-file-alt"></i>
@@ -220,81 +244,91 @@ $conn->close();
         <!-- Main Content Cards -->
         <div class="row g-4 mb-4">
             <!-- Projects Progress -->
-            <div class="col-lg-14">
-                <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Project Classification </h5>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-light" type="button" id="projectDropdown"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="projectDropdown">
-                                <li><a class="dropdown-item" href="#">View All</a></li>
-                                <li><a class="dropdown-item" href="#">Sort by Date</a></li>
-                                <li><a class="dropdown-item" href="#">Sort by Priority</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-medium">Web Application</span>
-                                <span class="badge bg-success badge-custom">75</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: 75%"
-                                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-medium">Mobile Application</span>
-                                <span class="badge bg-primary badge-custom">45</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar bg-primary" role="progressbar" style="width: 45%"
-                                     aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-medium">IOT </span>
-                                <span class="badge bg-warning badge-custom">30</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar bg-warning" role="progressbar" style="width: 30%"
-                                     aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-medium">Ardino</span>
-                                <span class="badge bg-info badge-custom">90</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar bg-info" role="progressbar" style="width: 90%"
-                                     aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-medium">Backend API </span>
-                                <span class="badge bg-danger badge-custom">15</span>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar bg-danger" role="progressbar" style="width: 15%"
-                                     aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-white border-top-0 text-center">
-                        <button class="btn btn-outline-primary btn-sm">View All Projects</button>
-                    </div>
-                </div>
-            </div>
+<!--            <div class="col-lg-14">-->
+<!--                <div class="card h-100">-->
+<!--                    <div class="card-header d-flex justify-content-between align-items-center">-->
+<!--                        <h5 class="mb-0">Project Classification </h5>-->
+<!--                        <div class="dropdown">-->
+<!--                            <button class="btn btn-sm btn-light" type="button" id="projectDropdown"-->
+<!--                                    data-bs-toggle="dropdown" aria-expanded="false">-->
+<!--                                <i class="fas fa-ellipsis-h"></i>-->
+<!--                            </button>-->
+<!--                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="projectDropdown">-->
+<!--                                <li><a class="dropdown-item" href="#">View All</a></li>-->
+<!--                                <li><a class="dropdown-item" href="#">Sort by Date</a></li>-->
+<!--                                <li><a class="dropdown-item" href="#">Sort by Priority</a></li>-->
+<!--                            </ul>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="card-body">-->
+<!--                        <div class="mb-4">-->
+<!--                            <div class="d-flex justify-content-between align-items-center mb-1">-->
+<!--                                <span class="fw-medium">Web Application</span>-->
+<!--                                <span class="badge bg-success badge-custom">75</span>-->
+<!--                            </div>-->
+<!--                            <div class="progress">-->
+<!--                                <div class="progress-bar bg-success" role="progressbar" style="width: 75%"-->
+<!--                                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="mb-4">-->
+<!--                            <div class="d-flex justify-content-between align-items-center mb-1">-->
+<!--                                <span class="fw-medium">Mobile Application</span>-->
+<!--                                <span class="badge bg-primary badge-custom">45</span>-->
+<!--                            </div>-->
+<!--                            <div class="progress">-->
+<!--                                <div class="progress-bar bg-primary" role="progressbar" style="width: 45%"-->
+<!--                                     aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"></div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="mb-4">-->
+<!--                            <div class="d-flex justify-content-between align-items-center mb-1">-->
+<!--                                <span class="fw-medium">IOT </span>-->
+<!--                                <span class="badge bg-warning badge-custom">30</span>-->
+<!--                            </div>-->
+<!--                            <div class="progress">-->
+<!--                                <div class="progress-bar bg-warning" role="progressbar" style="width: 30%"-->
+<!--                                     aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="mb-4">-->
+<!--                            <div class="d-flex justify-content-between align-items-center mb-1">-->
+<!--                                <span class="fw-medium">Ardino</span>-->
+<!--                                <span class="badge bg-info badge-custom">90</span>-->
+<!--                            </div>-->
+<!--                            <div class="progress">-->
+<!--                                <div class="progress-bar bg-info" role="progressbar" style="width: 90%"-->
+<!--                                     aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div>-->
+<!--                            <div class="d-flex justify-content-between align-items-center mb-1">-->
+<!--                                <span class="fw-medium">Backend API </span>-->
+<!--                                <span class="badge bg-danger badge-custom">15</span>-->
+<!--                            </div>-->
+<!--                            <div class="progress">-->
+<!--                                <div class="progress-bar bg-danger" role="progressbar" style="width: 15%"-->
+<!--                                     aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="card-footer bg-white border-top-0 py-3">-->
+<!--                        <div class="d-flex justify-content-center">-->
+<!--                            <a href="projects_view.php" class="btn btn-primary btn-sm px-4 rounded-pill shadow-sm">-->
+<!--                                <i class="fas fa-project-diagram me-2"></i>View All Projects-->
+<!--                            </a>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
 
-            <!-- Recent Activity and Blog Posts -->
+           <?php
+// Method 1: include
+// If file is not found, PHP will issue a warning but continue execution
+include './forms/progressbar.php';
+?>
+
+            <!-- Recent Activity and idea Posts -->
             <div class="row g-4">
                 <!-- Recent Activity -->
                 <div class="col-lg-6">
@@ -329,7 +363,7 @@ $conn->close();
                                         <i class="fas fa-file-alt"></i>
                                     </div>
                                     <div>
-                                        <p class="mb-1">You published a new blog <span class="fw-medium">UX Design
+                                        <p class="mb-1">You published a new idea <span class="fw-medium">UX Design
                                                     Principles</span></p>
                                         <p class="text-muted small mb-0">Yesterday at 3:45 PM</p>
                                     </div>
@@ -363,18 +397,18 @@ $conn->close();
                     </div>
                 </div>
 
-                <!-- Latest Blog Posts -->
+                <!-- Latest idea Posts -->
                 <div class="col-lg-6">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Latest Blog Posts</h5>
+                            <h5 class="mb-0">Latest Idea Posts</h5>
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-light" type="button" id="blogDropdown"
                                         data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="blogDropdown">
-                                    <li><a class="dropdown-item" href="#">My Posts</a></li>
+                                    <li><a class="dropdown-item" href="./Blog/list-project.php">My Posts</a></li>
                                     <li><a class="dropdown-item" href="#">Bookmarked Posts</a></li>
                                     <li><a class="dropdown-item" href="#">Popular Posts</a></li>
                                 </ul>
@@ -430,7 +464,7 @@ $conn->close();
                             </div>
                         </div>
                         <div class="card-footer bg-white border-top-0 text-center">
-                            <button class="btn btn-outline-primary btn-sm">Create New Blog</button>
+                            <button class="btn btn-outline-primary btn-sm"> <a href="./Blog/form.php" >Create New Idea</button>
                         </div>
                     </div>
                 </div>
