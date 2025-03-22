@@ -118,58 +118,60 @@ $conn->close();
 <!-- Main Content -->
 <div class="main-content" id="mainContent">
     <!-- Top Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="d-flex align-items-center w-100">
-            <button class="btn btn-light me-3" id="sidebarToggle">
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+        <div class="container-fluid">
+            <!-- Sidebar Toggle Button -->
+            <button id="sidebarToggle" class="btn btn-light d-lg-none me-3">
                 <i class="fas fa-bars"></i>
             </button>
 
-            <div class="search-bar me-auto search-container ">
-                <i class="fas fa-search"></i>
-                <input type="text" id="search" class="form-control" placeholder="Search projects, ideas, mentors..." onkeyup="fetchResults()">
-                <div id="searchResults" class="search-results"></div>
+
+
+            <!-- Search Form -->
+            <div class="d-none d-md-block ms-lg-4 flex-grow-1 me-auto">
+                <div class="position-relative">
+                    <input type="text" id="search" class="form-control" placeholder="Search projects, ideas, mentors..." onkeyup="fetchResults()">
+                    <i class="fas fa-search position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></i>
+                    <div id="searchResults" class="position-absolute start-0 bg-white shadow-lg rounded-3 mt-1 w-100 p-2 d-none" style="z-index: 1000;"></div>
+                </div>
             </div>
 
+            <!-- Right-side menu items -->
+            <ul class="navbar-nav ms-auto align-items-center">
+                <!-- Notifications Dropdown -->
 
-            <div class="d-flex align-items-center">
-                <div class="position-relative me-4">
-                    <button class="btn btn-light position-relative">
-                        <i class="far fa-bell"></i>
-                        <span class="notification-badge">3</span>
-                    </button>
-                </div>
 
-                <div class="dropdown user-dropdown">
-                    <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button"
-                            id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="me-2"
-                             style="width: 32px; height: 32px; border-radius: 50%; background-color: #4361ee; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                            <?php echo htmlspecialchars($user_initial); ?>
+
+                <!-- User Profile Dropdown -->
+                <li class="nav-item dropdown ms-2">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="user-avatar rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                            <span class="text-white fw-medium"><?php echo htmlspecialchars($user_initial); ?></span>
                         </div>
-                        <span><?php echo htmlspecialchars($user_name); ?></span>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="userMenu">
-                        <li class="dropdown-header">
-                            <h6 class="mb-0"><?php echo htmlspecialchars($user_name); ?></h6>
-                            <small class="text-muted">
-                                <?php
-                                // You might want to store email in session too or fetch it here
-                                echo isset($_SESSION['email']) ? htmlspecialchars($_SESSION['email']) : "user@example.com";
-                                ?>
-                            </small>
-                        </li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> My Profile</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Account Settings</a></li>
+                        <span class="d-none d-lg-inline"><?php echo htmlspecialchars($user_name); ?></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
                         <li>
-                            <hr class="dropdown-divider">
+                            <div class="dropdown-item text-center">
+                                <div class="user-avatar rounded-circle bg-primary d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 60px; height: 60px;">
+                                    <span class="text-white fw-bold"><?php echo htmlspecialchars($user_initial); ?></span>
+                                </div>
+                                <h6 class="mb-0"><?php echo htmlspecialchars($user_name); ?></h6>
+                                <p class="text-muted small mb-0"><?php echo htmlspecialchars($user_email); ?></p>
+                            </div>
                         </li>
-                        <li><a class="dropdown-item text-danger" href="../Login/Login/logout.php"><i class="fas fa-sign-out-alt"></i> Sign
-                                Out</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> My Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Account Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="../Login/Login/logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
                     </ul>
-                </div>
-            </div>
+                </li>
+            </ul>
         </div>
     </nav>
+
 
     <div class="container-fluid px-0">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -243,84 +245,7 @@ $conn->close();
 
         <!-- Main Content Cards -->
         <div class="row g-4 mb-4">
-            <!-- Projects Progress -->
-<!--            <div class="col-lg-14">-->
-<!--                <div class="card h-100">-->
-<!--                    <div class="card-header d-flex justify-content-between align-items-center">-->
-<!--                        <h5 class="mb-0">Project Classification </h5>-->
-<!--                        <div class="dropdown">-->
-<!--                            <button class="btn btn-sm btn-light" type="button" id="projectDropdown"-->
-<!--                                    data-bs-toggle="dropdown" aria-expanded="false">-->
-<!--                                <i class="fas fa-ellipsis-h"></i>-->
-<!--                            </button>-->
-<!--                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="projectDropdown">-->
-<!--                                <li><a class="dropdown-item" href="#">View All</a></li>-->
-<!--                                <li><a class="dropdown-item" href="#">Sort by Date</a></li>-->
-<!--                                <li><a class="dropdown-item" href="#">Sort by Priority</a></li>-->
-<!--                            </ul>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="card-body">-->
-<!--                        <div class="mb-4">-->
-<!--                            <div class="d-flex justify-content-between align-items-center mb-1">-->
-<!--                                <span class="fw-medium">Web Application</span>-->
-<!--                                <span class="badge bg-success badge-custom">75</span>-->
-<!--                            </div>-->
-<!--                            <div class="progress">-->
-<!--                                <div class="progress-bar bg-success" role="progressbar" style="width: 75%"-->
-<!--                                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="mb-4">-->
-<!--                            <div class="d-flex justify-content-between align-items-center mb-1">-->
-<!--                                <span class="fw-medium">Mobile Application</span>-->
-<!--                                <span class="badge bg-primary badge-custom">45</span>-->
-<!--                            </div>-->
-<!--                            <div class="progress">-->
-<!--                                <div class="progress-bar bg-primary" role="progressbar" style="width: 45%"-->
-<!--                                     aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"></div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="mb-4">-->
-<!--                            <div class="d-flex justify-content-between align-items-center mb-1">-->
-<!--                                <span class="fw-medium">IOT </span>-->
-<!--                                <span class="badge bg-warning badge-custom">30</span>-->
-<!--                            </div>-->
-<!--                            <div class="progress">-->
-<!--                                <div class="progress-bar bg-warning" role="progressbar" style="width: 30%"-->
-<!--                                     aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="mb-4">-->
-<!--                            <div class="d-flex justify-content-between align-items-center mb-1">-->
-<!--                                <span class="fw-medium">Ardino</span>-->
-<!--                                <span class="badge bg-info badge-custom">90</span>-->
-<!--                            </div>-->
-<!--                            <div class="progress">-->
-<!--                                <div class="progress-bar bg-info" role="progressbar" style="width: 90%"-->
-<!--                                     aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div>-->
-<!--                            <div class="d-flex justify-content-between align-items-center mb-1">-->
-<!--                                <span class="fw-medium">Backend API </span>-->
-<!--                                <span class="badge bg-danger badge-custom">15</span>-->
-<!--                            </div>-->
-<!--                            <div class="progress">-->
-<!--                                <div class="progress-bar bg-danger" role="progressbar" style="width: 15%"-->
-<!--                                     aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="card-footer bg-white border-top-0 py-3">-->
-<!--                        <div class="d-flex justify-content-center">-->
-<!--                            <a href="projects_view.php" class="btn btn-primary btn-sm px-4 rounded-pill shadow-sm">-->
-<!--                                <i class="fas fa-project-diagram me-2"></i>View All Projects-->
-<!--                            </a>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
+
 
            <?php
 // Method 1: include
@@ -504,16 +429,46 @@ include './forms/progressbar.php';
         function fetchResults() {
             const searchInput = document.getElementById('search');
             const searchResults = document.getElementById('searchResults');
+            const searchTerm = searchInput.value.trim();
 
-            if (searchInput.value.length > 0) {
-                searchResults.style.display = 'block';
-                // In a real implementation, you would fetch results from a server
-                // For now, just a placeholder
-                searchResults.innerHTML = '<p>Searching...</p>';
+            if (searchTerm.length > 0) {
+                // Show the results container
+                searchResults.classList.remove('d-none');
+                searchResults.innerHTML = '<p class="text-center py-2"><i class="fas fa-spinner fa-spin me-2"></i>Searching...</p>';
+
+                // Fetch results from the server
+                fetch('search_results.php?query=' + encodeURIComponent(searchTerm))
+                    .then(response => response.text())
+                    .then(data => {
+                        searchResults.innerHTML = data;
+                    })
+                    .catch(error => {
+                        searchResults.innerHTML = '<p class="text-center py-2 text-danger">Error fetching results</p>';
+                        console.error('Search error:', error);
+                    });
             } else {
-                searchResults.style.display = 'none';
+                // Hide the results container when search is empty
+                searchResults.classList.add('d-none');
             }
         }
+
+        // Add event listener to close search results when clicking outside
+        document.addEventListener('click', function(event) {
+            const searchResults = document.getElementById('searchResults');
+            const searchInput = document.getElementById('search');
+
+            if (event.target !== searchInput && !searchResults.contains(event.target)) {
+                searchResults.classList.add('d-none');
+            }
+        });
+
+        // Add event listener to show results when focusing on search input
+        document.getElementById('search').addEventListener('focus', function() {
+            if (this.value.trim().length > 0) {
+                document.getElementById('searchResults').classList.remove('d-none');
+                fetchResults();
+            }
+        });
     </script>
 </body>
 </html>
