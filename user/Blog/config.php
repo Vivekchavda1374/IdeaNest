@@ -1,6 +1,6 @@
 <?php
 // Include the database configuration file
-require_once 'con.php';
+//require_once 'con.php';
 
 // Initialize variables to store form data
 $erNumber = $projectName = $projectType = $classification = $description = "";
