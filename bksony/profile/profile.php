@@ -1,23 +1,20 @@
 <?php
-// Database connection parameters
+// Start session at the beginning of the script
+session_start();
+
+// Check if user is logged in, redirect if not
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to login page
+    header("Location: login.php");
+    exit();
+}
+
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "ideanest";
 
-// Start session to maintain user login status
-session_start();
-
-// Check if user is logged in, redirect to login page if not
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../login/login.php");
-    exit();
-}
-
-// Get user ID from session
-$user_id = $_SESSION['user_id'];
-
-// Create database connection
+// Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 // Check connection
@@ -25,98 +22,103 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Initialize variables for user data
-$name = $email = $er_number = $gr_number = "";
-$update_message = "";
+// Get user ID from session
+$session_id = $_SESSION['user_id'];
 
-// Fetch user data from database
-$sql = "SELECT * FROM register WHERE id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
+// Initialize variables
+$user_name = "";
+$er_number = "";
+$about = "";
+$user_image = "";
+$project_count = 0;
+$idea_count = 0;
+$message = "";
+$messageType = "";
 
-if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $name = $row["name"];
-    $email = $row["email"];
-    $er_number = $row["er_number"];
-    $gr_number = $row["gr_number"];
+// Fetch user details from register table using session_id
+$sql_user = "SELECT name, er_number, about, user_image FROM register WHERE id = '$session_id'";
+$result_user = $conn->query($sql_user);
+
+if ($result_user && $result_user->num_rows > 0) {
+    $user_data = $result_user->fetch_assoc();
+    $user_name = $user_data['name'];
+    $er_number = $user_data['er_number'];
+    $about = $user_data['about'];
+    $user_image = $user_data['user_image'];
 }
 
-// Process form submission for profile update
+// Count projects by this user
+$sql_projects = "SELECT COUNT(*) as project_count FROM projects WHERE user_id = '$session_id'";
+$result_projects = $conn->query($sql_projects);
+
+if ($result_projects && $result_projects->num_rows > 0) {
+    $project_data = $result_projects->fetch_assoc();
+    $project_count = $project_data['project_count'];
+}
+
+// Count blog posts (ideas) by this user
+$sql_ideas = "SELECT COUNT(*) as idea_count FROM blog WHERE id = '$session_id'";
+$result_ideas = $conn->query($sql_ideas);
+
+if ($result_ideas && $result_ideas->num_rows > 0) {
+    $idea_data = $result_ideas->fetch_assoc();
+    $idea_count = $idea_data['idea_count'];
+}
+
+// Handle form submissions
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Validate and sanitize input data
-    $new_name = trim($_POST["name"]);
-    $new_email = trim($_POST["email"]);
-    $new_er_number = trim($_POST["er_number"]);
-    $new_gr_number = trim($_POST["gr_number"]);
-    $new_password = trim($_POST["password"]);
-    $confirm_password = trim($_POST["confirm_password"]);
-    
-    // Simple validation
-    $valid = true;
-    
-    if (empty($new_name)) {
-        $valid = false;
-        $update_message = "Name cannot be empty.";
-    } elseif (empty($new_email) || !filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
-        $valid = false;
-        $update_message = "Please enter a valid email address.";
-    }
-    
-    // Check if email already exists (if email changed)
-    if ($valid && $new_email != $email) {
-        $check_email = "SELECT id FROM register WHERE email = ? AND id != ?";
-        $stmt_check = $conn->prepare($check_email);
-        $stmt_check->bind_param("si", $new_email, $user_id);
-        $stmt_check->execute();
-        $result_check = $stmt_check->get_result();
+    // Handle about update
+    if (isset($_POST['update_about'])) {
+        $new_about = $_POST['about'];
         
-        if ($result_check->num_rows > 0) {
-            $valid = false;
-            $update_message = "Email already in use. Please choose another email.";
+        $update_sql = "UPDATE register SET about = '$new_about' WHERE id = '$session_id'";
+        
+        if ($conn->query($update_sql) === TRUE) {
+            $about = $new_about;
+            $message = "About section updated successfully!";
+            $messageType = "success";
+        } else {
+            $message = "Error updating about section: " . $conn->error;
+            $messageType = "danger";
         }
     }
     
-    // If password provided, validate and check matching
-    $password_update = false;
-    if (!empty($new_password) || !empty($confirm_password)) {
-        if (strlen($new_password) < 8) {
-            $valid = false;
-            $update_message = "Password must be at least 8 characters long.";
-        } elseif ($new_password != $confirm_password) {
-            $valid = false;
-            $update_message = "Passwords do not match.";
-        } else {
-            $password_update = true;
-        }
-    }
-    
-    // If validation passes, update profile
-    if ($valid) {
-        if ($password_update) {
-            // Update profile with new password
-            $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-            $update_sql = "UPDATE register SET name = ?, email = ?, er_number = ?, gr_number = ?, password = ? WHERE id = ?";
-            $stmt_update = $conn->prepare($update_sql);
-            $stmt_update->bind_param("sssssi", $new_name, $new_email, $new_er_number, $new_gr_number, $hashed_password, $user_id);
-        } else {
-            // Update profile without changing password
-            $update_sql = "UPDATE register SET name = ?, email = ?, er_number = ?, gr_number = ? WHERE id = ?";
-            $stmt_update = $conn->prepare($update_sql);
-            $stmt_update->bind_param("ssssi", $new_name, $new_email, $new_er_number, $new_gr_number, $user_id);
+    // Handle profile image upload
+    if (isset($_FILES['profile_image']) && $_FILES['profile_image']['size'] > 0) {
+        $target_dir = "uploads/profile_images/";
+        
+        // Create directory if it doesn't exist
+        if (!file_exists($target_dir)) {
+            mkdir($target_dir, 0777, true);
         }
         
-        if ($stmt_update->execute()) {
-            $update_message = "Profile updated successfully!";
-            // Update local variables with new values
-            $name = $new_name;
-            $email = $new_email;
-            $er_number = $new_er_number;
-            $gr_number = $new_gr_number;
+        $file_extension = pathinfo($_FILES["profile_image"]["name"], PATHINFO_EXTENSION);
+        $new_filename = "user_" . $session_id . "_" . time() . "." . $file_extension;
+        $target_file = $target_dir . $new_filename;
+        
+        // Check if file is an actual image
+        $check = getimagesize($_FILES["profile_image"]["tmp_name"]);
+        if($check !== false) {
+            // Upload file
+            if (move_uploaded_file($_FILES["profile_image"]["tmp_name"], $target_file)) {
+                // Update database with new image path
+                $update_img_sql = "UPDATE register SET user_image = '$target_file' WHERE id = '$session_id'";
+                
+                if ($conn->query($update_img_sql) === TRUE) {
+                    $user_image = $target_file;
+                    $message = "Profile image updated successfully!";
+                    $messageType = "success";
+                } else {
+                    $message = "Error updating profile image in database: " . $conn->error;
+                    $messageType = "danger";
+                }
+            } else {
+                $message = "Sorry, there was an error uploading your file.";
+                $messageType = "danger";
+            }
         } else {
-            $update_message = "Error updating profile: " . $conn->error;
+            $message = "File is not an image.";
+            $messageType = "danger";
         }
     }
 }
@@ -131,115 +133,220 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-    .profile-section {
-        background-color: #f8f9fa;
+    body {
+        background-color: rgb(220, 222, 225);
+    }
+
+    .profile-container {
+        max-width: 800px;
+        background: white;
+        padding: 30px;
         border-radius: 10px;
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-top: 40px;
+        transition: 0.5s;
+    }
+
+    .profile-container:hover {
+        box-shadow: 0px 1px 10px 1px rgba(0, 0, 0, 0.2);
     }
 
     .profile-header {
-        background-color: #0d6efd;
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #6c757d;
+        margin-right: 30px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-avatar .upload-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.5);
         color: white;
-        padding: 20px;
-        border-radius: 10px 10px 0 0;
+        text-align: center;
+        padding: 5px 0;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s;
     }
 
-    .btn-primary {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
+    .profile-avatar:hover .upload-overlay {
+        opacity: 1;
     }
 
-    .btn-primary:hover {
-        background-color: #0b5ed7;
-        border-color: #0a58ca;
+    .profile-stats {
+        display: flex;
+        justify-content: space-around;
+        margin: 30px 0;
+        padding: 20px 0;
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+    }
+
+    .stat-box {
+        text-align: center;
+        padding: 15px;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        min-width: 120px;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #0d6efd;
+    }
+
+    .about-section {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .edit-button {
+        cursor: pointer;
+        color: #0d6efd;
+    }
+
+    #file-input {
+        display: none;
     }
     </style>
 </head>
 
 <body>
-    <div class="container py-5">
-        <div class="row">
-            <div class="col-lg-8 mx-auto">
-                <div class="profile-section">
-                    <div class="profile-header">
-                        <div class="text-center">
-                            <i class="fas fa-user-circle fa-5x mb-3"></i>
-                            <h2><?php echo htmlspecialchars($name); ?></h2>
-                            <p class="mb-0"><i class="fas fa-envelope me-2"></i><?php echo htmlspecialchars($email); ?>
-                            </p>
-                        </div>
+    <div class="container profile-container">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <?php if (!empty($user_image)): ?>
+                <img src="<?php echo htmlspecialchars($user_image); ?>" alt="Profile Image">
+                <?php else: ?>
+                <i class="fas fa-user"></i>
+                <?php endif; ?>
+                <label for="file-input" class="upload-overlay">
+                    <i class="fas fa-camera"></i> Change
+                </label>
+                <form id="image-form" method="POST" enctype="multipart/form-data" style="display:none;">
+                    <input type="file" id="file-input" name="profile_image" accept="image/*"
+                        onchange="submitImageForm()">
+                </form>
+            </div>
+            <div>
+                <h2><?php echo htmlspecialchars($user_name); ?></h2>
+                <p class="text-muted">ID: <?php echo htmlspecialchars($er_number); ?></p>
+            </div>
+        </div>
+
+        <!-- About section with edit functionality -->
+        <div class="about-section">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h4>About Me</h4>
+                <span class="edit-button" onclick="toggleAboutEdit()"><i class="fas fa-edit"></i> Edit</span>
+            </div>
+
+            <div id="about-display" class="<?php echo empty($about) ? 'd-none' : ''; ?>">
+                <p><?php echo !empty($about) ? htmlspecialchars($about) : 'No information available'; ?></p>
+            </div>
+
+            <div id="about-edit" class="<?php echo empty($about) ? '' : 'd-none'; ?>">
+                <form method="POST" action="">
+                    <div class="mb-3">
+                        <textarea name="about" class="form-control" rows="4"
+                            placeholder="Write something about yourself..."><?php echo htmlspecialchars($about); ?></textarea>
                     </div>
-
-                    <div class="p-4">
-                        <?php if (!empty($update_message)): ?>
-                        <div
-                            class="alert <?php echo strpos($update_message, 'successfully') !== false ? 'alert-success' : 'alert-danger'; ?>">
-                            <?php echo $update_message; ?>
-                        </div>
-                        <?php endif; ?>
-
-                        <h3 class="mb-4 border-bottom pb-2">Edit Profile</h3>
-
-                        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                            <div class="mb-3">
-                                <label for="name" class="form-label">Full Name</label>
-                                <input type="text" class="form-control" id="name" name="name"
-                                    value="<?php echo htmlspecialchars($name); ?>" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email Address</label>
-                                <input type="email" class="form-control" id="email" name="email"
-                                    value="<?php echo htmlspecialchars($email); ?>" required>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="er_number" class="form-label">ER Number</label>
-                                    <input type="text" class="form-control" id="er_number" name="er_number"
-                                        value="<?php echo htmlspecialchars($er_number); ?>">
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label for="gr_number" class="form-label">GR Number</label>
-                                    <input type="text" class="form-control" id="gr_number" name="gr_number"
-                                        value="<?php echo htmlspecialchars($gr_number); ?>">
-                                </div>
-                            </div>
-
-                            <h4 class="mt-4 mb-3">Change Password</h4>
-                            <p class="text-muted small">Leave blank if you don't want to change your password</p>
-
-                            <div class="mb-3">
-                                <label for="password" class="form-label">New Password</label>
-                                <input type="password" class="form-control" id="password" name="password">
-                                <div class="form-text">Password must be at least 8 characters long</div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="confirm_password" class="form-label">Confirm New Password</label>
-                                <input type="password" class="form-control" id="confirm_password"
-                                    name="confirm_password">
-                            </div>
-
-                            <div class="d-grid gap-2 mt-4">
-                                <button type="submit" class="btn btn-primary">Update Profile</button>
-                                <a href="../dashboard.php" class="btn btn-outline-secondary">Back to Dashboard</a>
-                            </div>
-                        </form>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary me-2" onclick="toggleAboutEdit()">Cancel</button>
+                        <button type="submit" name="update_about" class="btn btn-primary">Save</button>
                     </div>
-                </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="profile-stats">
+            <div class="stat-box">
+                <div class="stat-value"><?php echo $project_count; ?></div>
+                <div class="stat-label">Projects</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value"><?php echo $idea_count; ?></div>
+                <div class="stat-label">Ideas</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">0</div>
+                <div class="stat-label">Bookmarks</div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6 mb-3">
+                <a href="projects.php" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-project-diagram me-2"></i> View My Projects
+                </a>
+            </div>
+            <div class="col-md-6 mb-3">
+                <a href="blog.php" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-lightbulb me-2"></i> View My Ideas
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <?php if (!empty($message)) { ?>
+    <div class="modal fade show" style="display: block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-<?php echo $messageType; ?>">Message</h5>
+                    <button type="button" class="btn-close" onclick="window.location.href='profile.php';"></button>
+                </div>
+                <div class="modal-body">
+                    <p><?php echo $message; ?></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
+
+    <script>
+    function toggleAboutEdit() {
+        const displayElement = document.getElementById('about-display');
+        const editElement = document.getElementById('about-edit');
+
+        displayElement.classList.toggle('d-none');
+        editElement.classList.toggle('d-none');
+    }
+
+    function submitImageForm() {
+        document.getElementById('image-form').submit();
+    }
+    </script>
 </body>
 
 </html>
