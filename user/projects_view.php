@@ -289,7 +289,7 @@ $categoryResult = $conn->query($categorySql);
 
     <!-- Hero Section -->
     <div class="hero-section">
-        <a href="index.php" class="btn btn-primary btn-lg  align-items-center gap-2" style="margin-left: 20px">
+        <a href="index.php" class="btn btn-back " style="margin-left: 20px; border-color: white; border-radius: 50px">
             <i class="fas fa-arrow-left"></i> Back to Dashboard
         </a>
 
