@@ -13,6 +13,11 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Start session if not already started
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Handle project approval
 if (isset($_POST['approve'])) {
     $project_id = $_POST['project_id'];
@@ -88,9 +93,64 @@ if (isset($_POST['reject'])) {
     }
 }
 
-// Fetch all projects
-$sql = "SELECT * FROM projects ORDER BY submission_date DESC";
+// Handle bookmark toggle
+if (isset($_POST['toggle_bookmark'])) {
+    $project_id = $_POST['project_id'];
+    $session_id = session_id();
+    
+    // Check if bookmark already exists
+    $check_sql = "SELECT * FROM bookmark WHERE project_id = $project_id AND user_id = '$session_id'";
+    $check_result = $conn->query($check_sql);
+    
+    if ($check_result->num_rows > 0) {
+        // Bookmark exists, so remove it
+        $delete_sql = "DELETE FROM bookmark WHERE project_id = $project_id AND session_id = '$session_id'";
+        if ($conn->query($delete_sql) === TRUE) {
+            echo "<div class='alert alert-info shadow-sm'>
+                    <div class='d-flex align-items-center'>
+                        <i class='bi bi-bookmark me-2'></i>
+                        <strong>Success!</strong> Bookmark removed!
+                    </div>
+                  </div>";
+        } else {
+            echo "<div class='alert alert-danger shadow-sm'>
+                    <div class='d-flex align-items-center'>
+                        <i class='bi bi-exclamation-triangle-fill me-2'></i>
+                        <strong>Error!</strong> " . $conn->error . "
+                    </div>
+                  </div>";
+        }
+    } else {
+        // Bookmark doesn't exist, so add it
+        $insert_sql = "INSERT INTO bookmark (project_id, user_id) VALUES ($project_id, '$session_id')";
+        if ($conn->query($insert_sql) === TRUE) {
+            echo "<div class='alert alert-success shadow-sm'>
+                    <div class='d-flex align-items-center'>
+                        <i class='bi bi-bookmark-fill me-2'></i>
+                        <strong>Success!</strong> Project bookmarked!
+                    </div>
+                  </div>";
+        } else {
+            echo "<div class='alert alert-danger shadow-sm'>
+                    <div class='d-flex align-items-center'>
+                        <i class='bi bi-exclamation-triangle-fill me-2'></i>
+                        <strong>Error!</strong> " . $conn->error . "
+                    </div>
+                  </div>";
+        }
+    }
+}
+
+$sql = "SELECT admin_approved_projects.*, 
+        CASE WHEN bookmark.project_id IS NOT NULL THEN 1 ELSE 0 END AS is_bookmarked
+        FROM admin_approved_projects 
+        LEFT JOIN bookmark ON admin_approved_projects.id = bookmark.project_id AND bookmark.user_id = '" . session_id() . "'
+        ORDER BY admin_approved_projects.submission_date DESC";
 $result = $conn->query($sql);
+
+// Also fetch pending projects to show in the same view
+$pending_sql = "SELECT * FROM projects ORDER BY submission_date DESC";
+$pending_result = $conn->query($pending_sql);
 ?>
 
 <!DOCTYPE html>
@@ -270,6 +330,32 @@ $result = $conn->query($sql);
         margin-bottom: 1rem;
     }
 
+    .bookmark-btn {
+        background: none;
+        border: none;
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-left: 10px;
+    }
+
+    .bookmark-btn:hover {
+        transform: scale(1.2);
+    }
+
+    .bookmark-btn.active {
+        color: #f59e0b;
+    }
+
+    .section-title {
+        margin: 2rem 0 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
     /* Add responsive styling */
     @media (max-width: 768px) {
         .action-buttons {
@@ -296,31 +382,20 @@ $result = $conn->query($sql);
     </div>
 
     <div class="container">
+        <!-- Pending Projects Section -->
+        <h2 class="section-title">
+            <i class="bi bi-hourglass-split me-2"></i>Pending Projects
+        </h2>
+
         <?php
-        if ($result && $result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
+        if ($pending_result && $pending_result->num_rows > 0) {
+            while($row = $pending_result->fetch_assoc()) {
         ?>
         <div class="project-card card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 fw-bold"><?php echo htmlspecialchars($row["project_name"]); ?></h5>
                 <span class="badge <?php echo 'badge-'.strtolower($row["status"]); ?>">
-                    <?php 
-                    $status_icon = "";
-                    switch(strtolower($row["status"])) {
-                        case "pending":
-                            $status_icon = "bi-hourglass-split";
-                            break;
-                        case "approved":
-                            $status_icon = "bi-check-circle";
-                            break;
-                        case "rejected":
-                            $status_icon = "bi-x-circle";
-                            break;
-                        default:
-                            $status_icon = "bi-circle";
-                    }
-                    ?>
-                    <i class="bi <?php echo $status_icon; ?> me-1"></i>
+                    <i class="bi bi-hourglass-split me-1"></i>
                     <?php echo $row["status"]; ?>
                 </span>
             </div>
@@ -420,8 +495,117 @@ $result = $conn->query($sql);
         ?>
         <div class="empty-projects">
             <i class="bi bi-inbox"></i>
-            <h3>No Projects Found</h3>
-            <p class="text-muted">There are currently no projects available for review.</p>
+            <h3>No Pending Projects</h3>
+            <p class="text-muted">There are currently no pending projects for review.</p>
+        </div>
+        <?php
+        }
+        ?>
+
+        <!-- Approved Projects Section -->
+        <h2 class="section-title mt-5">
+            <i class="bi bi-check-circle me-2"></i>Approved Projects
+        </h2>
+
+        <?php
+        if ($result && $result->num_rows > 0) {
+            while($row = $result->fetch_assoc()) {
+        ?>
+        <div class="project-card card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <h5 class="mb-0 fw-bold"><?php echo htmlspecialchars($row["project_name"]); ?></h5>
+                    <form method="post" class="d-inline">
+                        <input type="hidden" name="project_id" value="<?php echo $row["id"]; ?>">
+                        <button type="submit" name="toggle_bookmark"
+                            class="bookmark-btn <?php echo ($row["is_bookmarked"] ? 'active' : ''); ?>">
+                            <i
+                                class="bi <?php echo ($row["is_bookmarked"] ? 'bi-bookmark-fill' : 'bi-bookmark'); ?>"></i>
+                        </button>
+                    </form>
+                </div>
+                <span class="badge badge-approved">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Approved
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="project-detail">
+                                    <strong><i class="bi bi-tag me-1"></i> Type:</strong>
+                                    <?php echo htmlspecialchars($row["project_type"]); ?>
+                                </div>
+                                <div class="project-detail">
+                                    <strong><i class="bi bi-bookmark me-1"></i> Classification:</strong>
+                                    <?php echo htmlspecialchars($row["classification"]); ?>
+                                </div>
+                                <div class="project-detail">
+                                    <strong><i class="bi bi-code-slash me-1"></i> Language:</strong>
+                                    <?php echo htmlspecialchars($row["language"]); ?>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="project-detail">
+                                    <strong><i class="bi bi-calendar-date me-1"></i> Submitted:</strong>
+                                    <?php echo date("F j, Y, g:i a", strtotime($row["submission_date"])); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-detail mt-3">
+                            <strong><i class="bi bi-text-paragraph me-1"></i> Description:</strong>
+                            <p class="mt-2"><?php echo nl2br(htmlspecialchars($row["description"])); ?></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title fw-bold mb-3"><i class="bi bi-file-earmark me-1"></i> Project
+                                    Files</h6>
+
+                                <?php if(!empty($row["image_path"])): ?>
+                                <a href="<?php echo htmlspecialchars($row["image_path"]); ?>" target="_blank"
+                                    class="file-link">
+                                    <i class="bi bi-file-earmark-image"></i> View Image
+                                </a>
+                                <?php endif; ?>
+
+                                <?php if(!empty($row["video_path"])): ?>
+                                <a href="<?php echo htmlspecialchars($row["video_path"]); ?>" target="_blank"
+                                    class="file-link">
+                                    <i class="bi bi-file-earmark-play"></i> View Video
+                                </a>
+                                <?php endif; ?>
+
+                                <?php if(!empty($row["code_file_path"])): ?>
+                                <a href="<?php echo htmlspecialchars($row["code_file_path"]); ?>" target="_blank"
+                                    class="file-link">
+                                    <i class="bi bi-file-earmark-code"></i> View Code
+                                </a>
+                                <?php endif; ?>
+
+                                <?php if(!empty($row["instruction_file_path"])): ?>
+                                <a href="<?php echo htmlspecialchars($row["instruction_file_path"]); ?>" target="_blank"
+                                    class="file-link">
+                                    <i class="bi bi-file-earmark-text"></i> View Instructions
+                                </a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
+            }
+        } else {
+        ?>
+        <div class="empty-projects">
+            <i class="bi bi-check2-all"></i>
+            <h3>No Approved Projects</h3>
+            <p class="text-muted">There are currently no approved projects to display.</p>
         </div>
         <?php
         }
@@ -437,3 +621,4 @@ $result = $conn->query($sql);
 // Close connection
 $conn->close();
 ?>
+<!-- </antArtifact   -->
