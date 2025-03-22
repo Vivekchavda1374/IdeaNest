@@ -18,93 +18,18 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Handle project approval
-if (isset($_POST['approve'])) {
-    $project_id = $_POST['project_id'];
-    
-    // First, get all the project data
-    $sql = "SELECT * FROM projects WHERE id = $project_id";
-    $result = $conn->query($sql);
-    
-    if ($result->num_rows > 0) {
-        $project = $result->fetch_assoc();
-        
-        // Insert into admin_approved_projects
-        $insert_sql = "INSERT INTO admin_approved_projects 
-                       (project_name, project_type, classification, description, language, 
-                       image_path, video_path, code_file_path, instruction_file_path, 
-                       submission_date, status) 
-                       VALUES 
-                       ('{$project['project_name']}', '{$project['project_type']}', '{$project['classification']}', 
-                       '{$project['description']}', '{$project['language']}', '{$project['image_path']}', 
-                       '{$project['video_path']}', '{$project['code_file_path']}', '{$project['instruction_file_path']}', 
-                       '{$project['submission_date']}', 'approved')";
-        
-        if ($conn->query($insert_sql) === TRUE) {
-            // Delete from projects table
-            $delete_sql = "DELETE FROM projects WHERE id = $project_id";
-            if ($conn->query($delete_sql) === TRUE) {
-                echo "<div class='alert alert-success shadow-sm'>
-                        <div class='d-flex align-items-center'>
-                            <i class='bi bi-check-circle-fill me-2'></i>
-                            <strong>Success!</strong> Project approved and moved to approved projects successfully!
-                        </div>
-                      </div>";
-            } else {
-                echo "<div class='alert alert-danger shadow-sm'>
-                        <div class='d-flex align-items-center'>
-                            <i class='bi bi-exclamation-triangle-fill me-2'></i>
-                            <strong>Error!</strong> Error deleting from projects table: " . $conn->error . "
-                        </div>
-                      </div>";
-            }
-        } else {
-            echo "<div class='alert alert-danger shadow-sm'>
-                    <div class='d-flex align-items-center'>
-                        <i class='bi bi-exclamation-triangle-fill me-2'></i>
-                        <strong>Error!</strong> " . $conn->error . "
-                    </div>
-                  </div>";
-        }
-    }
-}
-
-// Handle project rejection
-if (isset($_POST['reject'])) {
-    $project_id = $_POST['project_id'];
-    
-    // Update status in projects table
-    $update_sql = "UPDATE projects SET status = 'rejected' WHERE id = $project_id";
-    
-    if ($conn->query($update_sql) === TRUE) {
-        echo "<div class='alert alert-warning shadow-sm'>
-                <div class='d-flex align-items-center'>
-                    <i class='bi bi-exclamation-circle-fill me-2'></i>
-                    <strong>Notice:</strong> Project rejected!
-                </div>
-              </div>";
-    } else {
-        echo "<div class='alert alert-danger shadow-sm'>
-                <div class='d-flex align-items-center'>
-                    <i class='bi bi-exclamation-triangle-fill me-2'></i>
-                    <strong>Error!</strong> " . $conn->error . "
-                </div>
-              </div>";
-    }
-}
-
-// Handle bookmark toggle
+// Handle bookmark toggle - only allow one active bookmark
 if (isset($_POST['toggle_bookmark'])) {
     $project_id = $_POST['project_id'];
     $session_id = session_id();
     
-    // Check if bookmark already exists
+    // Check if bookmark already exists for this project
     $check_sql = "SELECT * FROM bookmark WHERE project_id = $project_id AND user_id = '$session_id'";
     $check_result = $conn->query($check_sql);
     
     if ($check_result->num_rows > 0) {
         // Bookmark exists, so remove it
-        $delete_sql = "DELETE FROM bookmark WHERE project_id = $project_id AND session_id = '$session_id'";
+        $delete_sql = "DELETE FROM bookmark WHERE project_id = $project_id AND user_id = '$session_id'";
         if ($conn->query($delete_sql) === TRUE) {
             echo "<div class='alert alert-info shadow-sm'>
                     <div class='d-flex align-items-center'>
@@ -121,7 +46,11 @@ if (isset($_POST['toggle_bookmark'])) {
                   </div>";
         }
     } else {
-        // Bookmark doesn't exist, so add it
+        // First, remove any existing bookmarks for this user
+        $delete_all_sql = "DELETE FROM bookmark WHERE user_id = '$session_id'";
+        $conn->query($delete_all_sql);
+        
+        // Then add the new bookmark
         $insert_sql = "INSERT INTO bookmark (project_id, user_id) VALUES ($project_id, '$session_id')";
         if ($conn->query($insert_sql) === TRUE) {
             echo "<div class='alert alert-success shadow-sm'>
@@ -141,16 +70,13 @@ if (isset($_POST['toggle_bookmark'])) {
     }
 }
 
+// Get approved projects with bookmark status for current user
 $sql = "SELECT admin_approved_projects.*, 
         CASE WHEN bookmark.project_id IS NOT NULL THEN 1 ELSE 0 END AS is_bookmarked
         FROM admin_approved_projects 
         LEFT JOIN bookmark ON admin_approved_projects.id = bookmark.project_id AND bookmark.user_id = '" . session_id() . "'
         ORDER BY admin_approved_projects.submission_date DESC";
 $result = $conn->query($sql);
-
-// Also fetch pending projects to show in the same view
-$pending_sql = "SELECT * FROM projects ORDER BY submission_date DESC";
-$pending_result = $conn->query($pending_sql);
 ?>
 
 <!DOCTYPE html>
@@ -159,7 +85,7 @@ $pending_result = $conn->query($pending_sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Project Management</title>
+    <title>Approved Projects</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -232,18 +158,8 @@ $pending_result = $conn->query($pending_sql);
         border-radius: 50px;
     }
 
-    .badge-pending {
-        background-color: #f59e0b;
-        color: white;
-    }
-
     .badge-approved {
         background-color: #10b981;
-        color: white;
-    }
-
-    .badge-rejected {
-        background-color: #ef4444;
         color: white;
     }
 
@@ -269,37 +185,6 @@ $pending_result = $conn->query($pending_sql);
         color: var(--primary-color);
     }
 
-    .btn-action {
-        border-radius: 50px;
-        padding: 8px 20px;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.8rem;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-approve {
-        background-color: #10b981;
-        border-color: #10b981;
-    }
-
-    .btn-approve:hover {
-        background-color: #059669;
-        border-color: #059669;
-    }
-
-    .btn-reject {
-        background-color: #ef4444;
-        border-color: #ef4444;
-    }
-
-    .btn-reject:hover {
-        background-color: #dc2626;
-        border-color: #dc2626;
-    }
-
     .project-detail {
         margin-bottom: 10px;
     }
@@ -307,13 +192,6 @@ $pending_result = $conn->query($pending_sql);
     .project-detail strong {
         color: var(--primary-color);
         font-weight: 600;
-    }
-
-    .action-buttons {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 20px;
     }
 
     .empty-projects {
@@ -376,135 +254,15 @@ $pending_result = $conn->query($pending_sql);
         <div class="container">
             <h1 class="dashboard-title">
                 <i class="bi bi-kanban"></i>
-                Project Management Dashboard
+                Approved Projects
             </h1>
         </div>
     </div>
 
     <div class="container">
-        <!-- Pending Projects Section -->
-        <h2 class="section-title">
-            <i class="bi bi-hourglass-split me-2"></i>Pending Projects
-        </h2>
-
-        <?php
-        if ($pending_result && $pending_result->num_rows > 0) {
-            while($row = $pending_result->fetch_assoc()) {
-        ?>
-        <div class="project-card card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 fw-bold"><?php echo htmlspecialchars($row["project_name"]); ?></h5>
-                <span class="badge <?php echo 'badge-'.strtolower($row["status"]); ?>">
-                    <i class="bi bi-hourglass-split me-1"></i>
-                    <?php echo $row["status"]; ?>
-                </span>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="project-detail">
-                                    <strong><i class="bi bi-tag me-1"></i> Type:</strong>
-                                    <?php echo htmlspecialchars($row["project_type"]); ?>
-                                </div>
-                                <div class="project-detail">
-                                    <strong><i class="bi bi-bookmark me-1"></i> Classification:</strong>
-                                    <?php echo htmlspecialchars($row["classification"]); ?>
-                                </div>
-                                <div class="project-detail">
-                                    <strong><i class="bi bi-code-slash me-1"></i> Language:</strong>
-                                    <?php echo htmlspecialchars($row["language"]); ?>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="project-detail">
-                                    <strong><i class="bi bi-calendar-date me-1"></i> Submitted:</strong>
-                                    <?php echo date("F j, Y, g:i a", strtotime($row["submission_date"])); ?>
-                                </div>
-                                <div class="project-detail">
-                                    <strong><i class="bi bi-hash me-1"></i> ID:</strong>
-                                    <?php echo $row["id"]; ?>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="project-detail mt-3">
-                            <strong><i class="bi bi-text-paragraph me-1"></i> Description:</strong>
-                            <p class="mt-2"><?php echo nl2br(htmlspecialchars($row["description"])); ?></p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card h-100 border-0 bg-light">
-                            <div class="card-body">
-                                <h6 class="card-title fw-bold mb-3"><i class="bi bi-file-earmark me-1"></i> Project
-                                    Files</h6>
-
-                                <?php if(!empty($row["image_path"])): ?>
-                                <a href="<?php echo htmlspecialchars($row["image_path"]); ?>" target="_blank"
-                                    class="file-link">
-                                    <i class="bi bi-file-earmark-image"></i> View Image
-                                </a>
-                                <?php endif; ?>
-
-                                <?php if(!empty($row["video_path"])): ?>
-                                <a href="<?php echo htmlspecialchars($row["video_path"]); ?>" target="_blank"
-                                    class="file-link">
-                                    <i class="bi bi-file-earmark-play"></i> View Video
-                                </a>
-                                <?php endif; ?>
-
-                                <?php if(!empty($row["code_file_path"])): ?>
-                                <a href="<?php echo htmlspecialchars($row["code_file_path"]); ?>" target="_blank"
-                                    class="file-link">
-                                    <i class="bi bi-file-earmark-code"></i> View Code
-                                </a>
-                                <?php endif; ?>
-
-                                <?php if(!empty($row["instruction_file_path"])): ?>
-                                <a href="<?php echo htmlspecialchars($row["instruction_file_path"]); ?>" target="_blank"
-                                    class="file-link">
-                                    <i class="bi bi-file-earmark-text"></i> View Instructions
-                                </a>
-                                <?php endif; ?>
-
-                                <div class="action-buttons">
-                                    <form method="post">
-                                        <input type="hidden" name="project_id" value="<?php echo $row["id"]; ?>">
-                                        <button type="submit" name="approve"
-                                            class="btn btn-success btn-action btn-approve">
-                                            <i class="bi bi-check-lg me-1"></i> Approve
-                                        </button>
-                                    </form>
-                                    <form method="post">
-                                        <input type="hidden" name="project_id" value="<?php echo $row["id"]; ?>">
-                                        <button type="submit" name="reject"
-                                            class="btn btn-danger btn-action btn-reject">
-                                            <i class="bi bi-x-lg me-1"></i> Reject
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php
-            }
-        } else {
-        ?>
-        <div class="empty-projects">
-            <i class="bi bi-inbox"></i>
-            <h3>No Pending Projects</h3>
-            <p class="text-muted">There are currently no pending projects for review.</p>
-        </div>
-        <?php
-        }
-        ?>
-
         <!-- Approved Projects Section -->
-        <h2 class="section-title mt-5">
-            <i class="bi bi-check-circle me-2"></i>Approved Projects
+        <h2 class="section-title">
+            <i class="bi bi-check-circle me-2"></i>Admin Approved Projects
         </h2>
 
         <?php
@@ -621,4 +379,3 @@ $pending_result = $conn->query($pending_sql);
 // Close connection
 $conn->close();
 ?>
-<!-- </antArtifact   -->
