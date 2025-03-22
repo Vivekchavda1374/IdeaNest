@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="data base fetch from data in dashboard and modified ui and solve bug issue">
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="modified ui">
+      <change afterPath="$PROJECT_DIR$/user/Blog/config_db.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/Blog/index.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/project_details.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/project_details.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/projects_view.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/projects_view.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,28 +57,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/study/study/sem6/HCD/Student Project/IdeaNest/user/forms&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "E:/exproj",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\user\forms" />
@@ -117,7 +116,14 @@
       <workItem from="1740804509462" duration="6765000" />
       <workItem from="1740819532994" duration="106000" />
       <workItem from="1740819658958" duration="16681000" />
-      <workItem from="1740890745962" duration="1932000" />
+      <workItem from="1740890745962" duration="2136000" />
+      <workItem from="1740992025161" duration="59000" />
+      <workItem from="1741339686996" duration="3000" />
+      <workItem from="1741340179163" duration="603000" />
+      <workItem from="1741414508339" duration="480000" />
+      <workItem from="1741415134396" duration="123000" />
+      <workItem from="1742539025288" duration="980000" />
+      <workItem from="1742612797770" duration="2133000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -287,7 +293,15 @@
       <option name="project" value="LOCAL" />
       <updated>1740837998706</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="modified ui">
+      <option name="closed" value="true" />
+      <created>1740892883780</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1740892883780</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -320,6 +334,7 @@
     <MESSAGE value="login error done" />
     <MESSAGE value="login error done-final done" />
     <MESSAGE value="data base fetch from data in dashboard and modified ui and solve bug issue" />
-    <option name="LAST_COMMIT_MESSAGE" value="data base fetch from data in dashboard and modified ui and solve bug issue" />
+    <MESSAGE value="modified ui" />
+    <option name="LAST_COMMIT_MESSAGE" value="modified ui" />
   </component>
 </project>
