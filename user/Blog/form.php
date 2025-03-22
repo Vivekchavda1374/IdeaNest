@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $servername = "localhost";
         $username = "root";
         $password = "";
-        $dbname = "mydb1";
+        $dbname = "ideanest";
 
         // Create database connection
         $conn = new mysqli($servername, $username, $password, $dbname);
@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $error_message = "Connection failed: " . $conn->connect_error;
         } else {
             // Prepare and bind the SQL statement to prevent SQL injection
-            $stmt = $conn->prepare("INSERT INTO projects (er_number, project_name, project_type, classification, description, submission_datetime, priority1, status, assigned_to, completion_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO blog (er_number, project_name, project_type, classification, description, submission_datetime, priority1, status, assigned_to, completion_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("ssssssssss", $erNumber, $projectName, $projectType, $classification, $description, $submissionDateTime, $priority1, $status, $assignedTo, $completionDate);
 
             // Execute the statement

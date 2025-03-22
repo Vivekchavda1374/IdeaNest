@@ -227,7 +227,7 @@ function createDBConnection() {
 $servername = "localhost"; // Change if needed
 $username = "root"; // Database username
 $password = ""; // Database password
-$dbname = "mydb1"; // Your database name
+$dbname = "ideanest"; // Your database name
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
@@ -267,7 +267,7 @@ try {
             SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
             SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress,
             SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
-            SUM(CASE WHEN priority1 = 'high' THEN 1 ELSE 0 END) as high_priority1  FROM projects";
+            SUM(CASE WHEN priority1 = 'high' THEN 1 ELSE 0 END) as high_priority1  FROM blog";
 
     $stats_result = $conn->query($stats_query);
     if ($stats_result) {
@@ -275,7 +275,7 @@ try {
     }
 
     // Build SQL query with filters
-    $sql = "SELECT * FROM projects WHERE 1=1";
+    $sql = "SELECT * FROM blog WHERE 1=1";
     $params = [];
     $types = "";
 

@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
         $servername = "localhost";
         $username = "root";
         $password = "";
-        $dbname = "mydb1";
+        $dbname = "ideanest";
 
         // Create database connection
         $conn = new mysqli($servername, $username, $password, $dbname);
@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
             $error_message = "Connection failed: " . $conn->connect_error;
         } else {
             // Prepare and bind the SQL statement to prevent SQL injection
-            $stmt = $conn->prepare("UPDATE projects SET er_number=?, project_name=?, project_type=?, classification=?, description=?, submission_datetime=?, priority1=?, status=?, assigned_to=?, completion_date=? WHERE id=?"); $stmt->bind_param("ssssssssssi", $erNumber, $projectName, $projectType, $classification, $description, $updateDateTime, $priority1, $status, $assignedTo, $completionDate, $id);
+            $stmt = $conn->prepare("UPDATE blog SET er_number=?, project_name=?, project_type=?, classification=?, description=?, submission_datetime=?, priority1=?, status=?, assigned_to=?, completion_date=? WHERE id=?"); $stmt->bind_param("ssssssssssi", $erNumber, $projectName, $projectType, $classification, $description, $updateDateTime, $priority1, $status, $assignedTo, $completionDate, $id);
 
             // Execute the statement
             if ($stmt->execute()) {
@@ -62,7 +62,7 @@ if ($id> 0) {
     $servername = "localhost";
     $username = "root";
     $password = "";
-    $dbname = "mydb1";
+    $dbname = "ideanest";
 
     // Create database connection
     $conn = new mysqli($servername, $username, $password, $dbname);
@@ -72,7 +72,7 @@ if ($id> 0) {
         $error_message = "Connection failed: " . $conn->connect_error;
     } else {
         // Prepare and bind the SQL statement
-        $stmt = $conn->prepare("SELECT * FROM projects WHERE id = ?");
+        $stmt = $conn->prepare("SELECT * FROM blog WHERE id = ?");
         $stmt->bind_param("i", $id);
 
         // Execute the statement
