@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             // Prepare the SQL statement using prepared statements to prevent SQL injection
-            $stmt = $conn->prepare("INSERT INTO projects (er_number, project_name, project_type, classification, description, submission_date) 
+            $stmt = $conn->prepare("INSERT INTO blog (er_number, project_name, project_type, classification, description, submission_date) 
                               VALUES (?, ?, ?, ?, ?, NOW())");
 
             if (!$stmt) {
