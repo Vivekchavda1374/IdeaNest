@@ -4,11 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="blog table added">
-      <change afterPath="$PROJECT_DIR$/user/search.php" afterDir="false" />
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="serch file added">
+      <change afterPath="$PROJECT_DIR$/Admin/admin.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Admin/project_approvel.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/user/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Login/Login/login.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/login.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Login/Login/register.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/register.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bksony/admin/project_approvel.php" beforeDir="false" afterPath="$PROJECT_DIR$/bksony/admin/project_approvel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bksony/profile/profile.php" beforeDir="false" afterPath="$PROJECT_DIR$/bksony/profile/profile.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bksony/projects/my_projects.php" beforeDir="false" afterPath="$PROJECT_DIR$/bksony/projects/my_projects.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/new_project_add.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/new_project_add.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,30 +63,31 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/download/ideanest (1).sql&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "D:/study/study/sem6/HCD/Student Project/IdeaNest/Admin",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Admin" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\user\forms" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -128,7 +134,7 @@
       <workItem from="1742638379584" duration="9067000" />
       <workItem from="1742649386262" duration="2986000" />
       <workItem from="1742661964714" duration="168000" />
-      <workItem from="1742662956751" duration="1343000" />
+      <workItem from="1742662956751" duration="16573000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -322,7 +328,15 @@
       <option name="project" value="LOCAL" />
       <updated>1742641491404</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="serch file added">
+      <option name="closed" value="true" />
+      <created>1742671847738</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1742671847738</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -359,6 +373,7 @@
     <MESSAGE value="add successfully idea management system" />
     <MESSAGE value="remove error successfully" />
     <MESSAGE value="blog table added" />
-    <option name="LAST_COMMIT_MESSAGE" value="blog table added" />
+    <MESSAGE value="serch file added" />
+    <option name="LAST_COMMIT_MESSAGE" value="serch file added" />
   </component>
 </project>
