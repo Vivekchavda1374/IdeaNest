@@ -1,0 +1,248 @@
+Index: bksony/admin/submit_project.php
+===================================================================
+diff --git a/bksony/admin/submit_project.php b/bksony/admin/submit_project.php
+deleted file mode 100644
+--- a/bksony/admin/submit_project.php	(revision 18d643af0fc3d2b76d857da7bccb25f7b09b1fc7)
++++ /dev/null	(revision 18d643af0fc3d2b76d857da7bccb25f7b09b1fc7)
+@@ -1,180 +0,0 @@
+-<?php
+-// Database connection
+-$servername = "localhost";
+-$username = "root";
+-$password = "";
+-$dbname = "ideanest";
+-
+-// Create connection
+-$conn = new mysqli($servername, $username, $password, $dbname);
+-
+-// Check connection
+-if ($conn->connect_error) {
+-    die("Connection failed: " . $conn->connect_error);
+-}
+-
+-// Initialize variables
+-$message = "";
+-$message_type = "";
+-
+-// Check if user is logged in (You would need a proper session handling system)
+-$user_id = 1; // This is just a placeholder. In a real system, you'd get this from the session
+-
+-// Handle form submission
+-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_project'])) {
+-    $title = $_POST['title'];
+-    $description = $_POST['description'];
+-    
+-    // Basic validation
+-    if (empty($title) || empty($description)) {
+-        $message = "Please fill in all fields";
+-        $message_type = "danger";
+-    } else {
+-        // Insert project into the database
+-        $sql = "INSERT INTO projects (title, description, user_id, status) VALUES (?, ?, ?, 'pending')";
+-        $stmt = $conn->prepare($sql);
+-        $stmt->bind_param("ssi", $title, $description, $user_id);
+-        
+-        if ($stmt->execute()) {
+-            $message = "Project submitted successfully! It will be reviewed by our team.";
+-            $message_type = "success";
+-            // Clear form fields after successful submission
+-            $title = "";
+-            $description = "";
+-        } else {
+-            $message = "Error: " . $stmt->error;
+-            $message_type = "danger";
+-        }
+-        $stmt->close();
+-    }
+-}
+-
+-$conn->close();
+-?>
+-
+-<!DOCTYPE html>
+-<html lang="en">
+-
+-<head>
+-    <meta charset="UTF-8">
+-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-    <title>Submit Project - IdeaNest</title>
+-    <!-- Bootstrap 5 CSS -->
+-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+-    <!-- Bootstrap Icons -->
+-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+-    <style>
+-    body {
+-        background-color: #f8f9fa;
+-    }
+-
+-    .form-container {
+-        max-width: 800px;
+-        margin: 50px auto;
+-        padding: 30px;
+-        background-color: #fff;
+-        border-radius: 10px;
+-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+-    }
+-
+-    .header-icon {
+-        font-size: 3rem;
+-        color: #0d6efd;
+-    }
+-    </style>
+-</head>
+-
+-<body>
+-    <div class="container">
+-        <div class="form-container">
+-            <div class="text-center mb-4">
+-                <i class="bi bi-lightbulb header-icon"></i>
+-                <h2 class="mt-3">Submit Your Project</h2>
+-                <p class="text-muted">Share your innovative idea with the IdeaNest community</p>
+-            </div>
+-
+-            <?php if (!empty($message)): ?>
+-            <div class="alert alert-<?php echo $message_type; ?> alert-dismissible fade show" role="alert">
+-                <?php echo $message; ?>
+-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+-            </div>
+-            <?php endif; ?>
+-
+-            <form method="post" class="needs-validation" novalidate>
+-                <div class="mb-4">
+-                    <label for="title" class="form-label">Project Title</label>
+-                    <input type="text" class="form-control form-control-lg" id="title" name="title"
+-                        placeholder="Enter a descriptive title for your project"
+-                        value="<?php echo isset($title) ? htmlspecialchars($title) : ''; ?>" required>
+-                    <div class="invalid-feedback">
+-                        Please provide a project title.
+-                    </div>
+-                </div>
+-
+-                <div class="mb-4">
+-                    <label for="description" class="form-label">Project Description</label>
+-                    <textarea class="form-control" id="description" name="description" rows="8"
+-                        placeholder="Describe your project, its goals, target audience, and how it can be implemented"
+-                        required><?php echo isset($description) ? htmlspecialchars($description) : ''; ?></textarea>
+-                    <div class="invalid-feedback">
+-                        Please provide a project description.
+-                    </div>
+-                    <div class="form-text">
+-                        Be as detailed as possible. This will help our team understand your project better.
+-                    </div>
+-                </div>
+-
+-                <div class="mb-4 d-grid">
+-                    <button type="submit" name="submit_project" class="btn btn-primary btn-lg">
+-                        <i class="bi bi-send me-2"></i> Submit Project
+-                    </button>
+-                </div>
+-
+-                <div class="text-center text-muted">
+-                    <small>Your project will be reviewed by our team and you will be notified once it's
+-                        approved.</small>
+-                </div>
+-            </form>
+-        </div>
+-    </div>
+-
+-    <!-- Bootstrap 5 JavaScript Bundle with Popper -->
+-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+-    <script>
+-    // Example starter JavaScript for disabling form submissions if there are invalid fields
+-    (function() {
+-        'use strict';
+-
+-        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+-        var forms = document.querySelectorAll('.needs-validation');
+-
+-        // Loop over them and prevent submission
+-        Array.prototype.slice.call(forms)
+-            .forEach(function(form) {
+-                form.addEventListener('submit', function(event) {
+-                    if (!form.checkValidity()) {
+-                        event.preventDefault();
+-                        event.stopPropagation();
+-                    }
+-
+-                    form.classList.add('was-validated');
+-                }, false);
+-            });
+-    })();
+-
+-    // Auto-close alerts after 5 seconds
+-    document.addEventListener('DOMContentLoaded', function() {
+-        var alertList = document.querySelectorAll('.alert-dismissible');
+-        alertList.forEach(function(alert) {
+-            setTimeout(function() {
+-                var closeButton = alert.querySelector('.btn-close');
+-                if (closeButton) {
+-                    closeButton.click();
+-                }
+-            }, 5000);
+-        });
+-    });
+-    </script>
+-</body>
+-
+-</html>
+\ No newline at end of file
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"3032b921-7f46-489d-a152-2e01ffa7242f\" name=\"Changes\" comment=\"blog table added\">\r\n      <change afterPath=\"$PROJECT_DIR$/user/search.php\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/user/index.php\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/user/index.php\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/user/style.css\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/user/style.css\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"ComposerSettings\" synchronizationState=\"SYNCHRONIZE\">\r\n    <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>\r\n    <execution>\r\n      <executable path=\"composer\" />\r\n    </execution>\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"CSS File\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"PUSH_AUTO_UPDATE\" value=\"true\" />\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;Vivekchavda1374&quot;\r\n  }\r\n}</component>\r\n  <component name=\"GithubPullRequestsUISettings\">{\r\n  &quot;selectedUrlAndAccountId&quot;: {\r\n    &quot;url&quot;: &quot;https://github.com/Vivekchavda1374/IdeaNest.git&quot;,\r\n    &quot;accountId&quot;: &quot;7059d112-4172-45c4-9327-ff15b8ea0692&quot;\r\n  }\r\n}</component>\r\n  <component name=\"PhpDebugGeneral\" listening_started=\"true\" />\r\n  <component name=\"PhpWorkspaceProjectConfiguration\" interpreter_name=\"C:\\xampp\\php\\php.exe\">\r\n    <include_path>\r\n      <path value=\"$PROJECT_DIR$/vendor/composer\" />\r\n    </include_path>\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 5\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2tZTldR0CdBALDEdlt6IoiBBukk\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,\r\n    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;main&quot;,\r\n    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,\r\n    &quot;last_opened_file_path&quot;: &quot;E:/download/ideanest (1).sql&quot;,\r\n    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,\r\n    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,\r\n    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;\r\n  },\r\n  &quot;keyToStringList&quot;: {\r\n    &quot;DatabaseDriversLRU&quot;: [\r\n      &quot;mysql&quot;\r\n    ]\r\n  }\r\n}</component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"CopyFile.RECENT_KEYS\">\r\n      <recent name=\"D:\\study\\study\\sem6\\HCD\\Student Project\\IdeaNest\\user\\forms\" />\r\n    </key>\r\n    <key name=\"MoveFile.RECENT_KEYS\">\r\n      <recent name=\"D:\\study\\study\\sem6\\HCD\\Student Project\\IdeaNest\" />\r\n      <recent name=\"D:\\study\\study\\sem6\\HCD\\Student Project\\IdeaNest\\Login\" />\r\n      <recent name=\"D:\\study\\study\\sem6\\HCD\\Student Project\\IdeaNest\\Login\\Signup\" />\r\n      <recent name=\"D:\\study\\study\\sem6\\HCD\\Student Project\\IdeaNest\\Login\\Login\\image\" />\r\n      <recent name=\"D:\\study\\study\\sem6\\HCD\\Student Project\\IdeaNest\\Login\\Login\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-PS-243.25659.45\" />\r\n        <option value=\"bundled-php-predefined-a98d8de5180a-1ec7b7818973-com.jetbrains.php.sharedIndexes-PS-243.25659.45\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"StructureViewState\">\r\n    <option name=\"selectedTab\" value=\"PHP\" />\r\n  </component>\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"3032b921-7f46-489d-a152-2e01ffa7242f\" name=\"Changes\" comment=\"\" />\r\n      <created>1740558748949</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1740558748949</updated>\r\n      <workItem from=\"1740558749970\" duration=\"2219000\" />\r\n      <workItem from=\"1740622761253\" duration=\"32000\" />\r\n      <workItem from=\"1740801105757\" duration=\"975000\" />\r\n      <workItem from=\"1740804509462\" duration=\"6765000\" />\r\n      <workItem from=\"1740819532994\" duration=\"106000\" />\r\n      <workItem from=\"1740819658958\" duration=\"16681000\" />\r\n      <workItem from=\"1740890745962\" duration=\"2136000\" />\r\n      <workItem from=\"1740992025161\" duration=\"59000\" />\r\n      <workItem from=\"1741339686996\" duration=\"3000\" />\r\n      <workItem from=\"1741340179163\" duration=\"603000\" />\r\n      <workItem from=\"1741414508339\" duration=\"480000\" />\r\n      <workItem from=\"1741415134396\" duration=\"123000\" />\r\n      <workItem from=\"1742539025288\" duration=\"980000\" />\r\n      <workItem from=\"1742612797770\" duration=\"2133000\" />\r\n      <workItem from=\"1742638379584\" duration=\"9067000\" />\r\n      <workItem from=\"1742649386262\" duration=\"2986000\" />\r\n      <workItem from=\"1742661964714\" duration=\"168000\" />\r\n      <workItem from=\"1742662956751\" duration=\"1343000\" />\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"composer added\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740558813714</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740558813714</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\"composer added --updated\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740558852968</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740558852968</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"backend login/register done\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740560939407</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740560939407</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00004\" summary=\"changes done\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740804538568</created>\r\n      <option name=\"number\" value=\"00004\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740804538568</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00005\" summary=\"changes done\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740804858212</created>\r\n      <option name=\"number\" value=\"00005\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740804858212</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00006\" summary=\"changes done\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740805144675</created>\r\n      <option name=\"number\" value=\"00006\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00006\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740805144676</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00007\" summary=\"login and register pages added with email id validation and database connected\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740807316242</created>\r\n      <option name=\"number\" value=\"00007\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00007\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740807316242</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00008\" summary=\"dashboard ui design\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740809246977</created>\r\n      <option name=\"number\" value=\"00008\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00008\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740809246977</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00009\" summary=\"dashboard ui design modified\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740811522749</created>\r\n      <option name=\"number\" value=\"00009\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00009\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740811522749</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00010\" summary=\"dashboard ui design modified\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740811746702</created>\r\n      <option name=\"number\" value=\"00010\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00010\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740811746702</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00011\" summary=\"dashboard ui design modified\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740813430736</created>\r\n      <option name=\"number\" value=\"00011\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00011\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740813430736</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00012\" summary=\"dashboard ui design modified - final done\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740813478486</created>\r\n      <option name=\"number\" value=\"00012\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00012\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740813478486</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00013\" summary=\"form added for new projects\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740817918990</created>\r\n      <option name=\"number\" value=\"00013\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00013\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740817918990</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00014\" summary=\"form validation completed\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740821863238</created>\r\n      <option name=\"number\" value=\"00014\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00014\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740821863238</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00015\" summary=\"form validation completed\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740821875108</created>\r\n      <option name=\"number\" value=\"00015\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00015\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740821875108</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00016\" summary=\"dynamic project view and next some project view done\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740828856874</created>\r\n      <option name=\"number\" value=\"00016\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00016\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740828856874</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00017\" summary=\"dynamic project view and next some project view done\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740829368343</created>\r\n      <option name=\"number\" value=\"00017\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00017\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740829368343</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00018\" summary=\"modified code done\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740829570028</created>\r\n      <option name=\"number\" value=\"00018\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00018\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740829570028</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00019\" summary=\"login error done\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740830231830</created>\r\n      <option name=\"number\" value=\"00019\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00019\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740830231830</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00020\" summary=\"login error done-final done\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740831468756</created>\r\n      <option name=\"number\" value=\"00020\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00020\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740831468756</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00021\" summary=\"data base fetch from data in dashboard and modified ui and solve bug issue\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740837998706</created>\r\n      <option name=\"number\" value=\"00021\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00021\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740837998706</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00022\" summary=\"modified ui\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1740892883780</created>\r\n      <option name=\"number\" value=\"00022\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00022\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1740892883780</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00023\" summary=\"remove error successfully\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1742638923301</created>\r\n      <option name=\"number\" value=\"00023\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00023\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1742638923301</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00024\" summary=\"blog table added\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1742641491404</created>\r\n      <option name=\"number\" value=\"00024\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00024\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1742641491404</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"25\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"composer added\" />\r\n    <MESSAGE value=\"composer added --updated\" />\r\n    <MESSAGE value=\"backend login/register done\" />\r\n    <MESSAGE value=\"changes done\" />\r\n    <MESSAGE value=\"login and register pages added with email id validation and database connected\" />\r\n    <MESSAGE value=\"dashboard ui design\" />\r\n    <MESSAGE value=\"dashboard ui design modified\" />\r\n    <MESSAGE value=\"dashboard ui design modified - final done\" />\r\n    <MESSAGE value=\"form added for new projects\" />\r\n    <MESSAGE value=\"form validation completed\" />\r\n    <MESSAGE value=\"dynamic project view and next some project view done\" />\r\n    <MESSAGE value=\"modified code done\" />\r\n    <MESSAGE value=\"login error done\" />\r\n    <MESSAGE value=\"login error done-final done\" />\r\n    <MESSAGE value=\"data base fetch from data in dashboard and modified ui and solve bug issue\" />\r\n    <MESSAGE value=\"modified ui\" />\r\n    <MESSAGE value=\"add successfully idea management system\" />\r\n    <MESSAGE value=\"remove error successfully\" />\r\n    <MESSAGE value=\"blog table added\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"blog table added\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 18d643af0fc3d2b76d857da7bccb25f7b09b1fc7)
++++ b/.idea/workspace.xml	(date 1742699739061)
+@@ -4,11 +4,9 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="blog table added">
+-      <change afterPath="$PROJECT_DIR$/user/search.php" afterDir="false" />
++    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="serch file added">
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/user/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/index.php" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/user/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/user/style.css" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/bksony/admin/submit_project.php" beforeDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -128,7 +126,7 @@
+       <workItem from="1742638379584" duration="9067000" />
+       <workItem from="1742649386262" duration="2986000" />
+       <workItem from="1742661964714" duration="168000" />
+-      <workItem from="1742662956751" duration="1343000" />
++      <workItem from="1742662956751" duration="6155000" />
+     </task>
+     <task id="LOCAL-00001" summary="composer added">
+       <option name="closed" value="true" />
+@@ -322,7 +320,15 @@
+       <option name="project" value="LOCAL" />
+       <updated>1742641491404</updated>
+     </task>
+-    <option name="localTasksCounter" value="25" />
++    <task id="LOCAL-00025" summary="serch file added">
++      <option name="closed" value="true" />
++      <created>1742671847738</created>
++      <option name="number" value="00025" />
++      <option name="presentableId" value="LOCAL-00025" />
++      <option name="project" value="LOCAL" />
++      <updated>1742671847738</updated>
++    </task>
++    <option name="localTasksCounter" value="26" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -359,6 +365,7 @@
+     <MESSAGE value="add successfully idea management system" />
+     <MESSAGE value="remove error successfully" />
+     <MESSAGE value="blog table added" />
+-    <option name="LAST_COMMIT_MESSAGE" value="blog table added" />
++    <MESSAGE value="serch file added" />
++    <option name="LAST_COMMIT_MESSAGE" value="serch file added" />
+   </component>
+ </project>
+\ No newline at end of file
