@@ -121,7 +121,7 @@ $conn->close();
         <h3 class="text-center mb-4">Submit Your Project</h3>
 
         <div class="user-info">
-            <p><strong>Welcome, <?php echo isset($_SESSION['username']) ? $_SESSION['username'] : 'User'; ?>!</strong>
+            <p><strong>Welcome, <?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User'; ?>!</strong>
             </p>
             <p>User ID: <?php echo $_SESSION['user_id']; ?></p>
         </div>

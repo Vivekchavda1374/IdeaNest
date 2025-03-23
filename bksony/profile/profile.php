@@ -27,24 +27,26 @@ $session_id = $_SESSION['user_id'];
 
 // Initialize variables
 $user_name = "";
-$er_number = "";
+
 $about = "";
 $user_image = "";
 $project_count = 0;
 $idea_count = 0;
 $message = "";
 $messageType = "";
+$er_number = "";
 
 // Fetch user details from register table using session_id
-$sql_user = "SELECT name, er_number, about, user_image FROM register WHERE id = '$session_id'";
+$sql_user = "SELECT name,  about, user_image , 	enrollment_number FROM register WHERE id = '$session_id'";
 $result_user = $conn->query($sql_user);
 
 if ($result_user && $result_user->num_rows > 0) {
     $user_data = $result_user->fetch_assoc();
     $user_name = $user_data['name'];
-    $er_number = $user_data['er_number'];
     $about = $user_data['about'];
     $user_image = $user_data['user_image'];
+    $er_number = $user_data['enrollment_number'];
+
 }
 
 // Count projects by this user
@@ -55,6 +57,7 @@ if ($result_projects && $result_projects->num_rows > 0) {
     $project_data = $result_projects->fetch_assoc();
     $project_count = $project_data['project_count'];
 }
+
 
 // Count blog posts (ideas) by this user
 $sql_ideas = "SELECT COUNT(*) as idea_count FROM blog WHERE id = '$session_id'";

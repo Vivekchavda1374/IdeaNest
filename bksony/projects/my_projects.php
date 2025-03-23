@@ -366,7 +366,7 @@ if ($columns_result) {
 
         <?php if ($user): ?>
         <div class="user-profile">
-            <h2><i class="fas fa-user-circle"></i> <?php echo htmlspecialchars($user['username'] ?? 'User'); ?>'s
+            <h2><i class="fas fa-user-circle"></i> <?php echo htmlspecialchars(isset($user['username']) ? $user['username'] : 'User'); ?>'s
                 Profile</h2>
             <div class="user-info">
                 <?php if (isset($user['email'])): ?>
@@ -401,7 +401,7 @@ if ($columns_result) {
         <div class="project-list">
             <?php while ($row = $result->fetch_assoc()): ?>
             <div class="project-item">
-                <h3 class="project-title"><?php echo htmlspecialchars($row['project_name'] ?? 'Untitled Project'); ?>
+                <h3 class="project-title"><?php echo htmlspecialchars(isset($row['project_name']) ? $row['project_name'] : 'Untitled Project'); ?>
                 </h3>
 
                 <?php if (isset($row['status'])): 

@@ -75,7 +75,7 @@
         <form id="registerForm" action="register.php" method="post">
             <input type="text" name="name" class="form-control" placeholder="Full Name" required>
             <input type="email" name="email" id="email" class="form-control" placeholder="Email" required>
-            <input type="text" name="er_number" class="form-control" placeholder="ER Number" required>
+            <input type="text" name="enrollment_number" class="form-control" placeholder="ER Number" required>
             <input type="text" name="gr_number" class="form-control" placeholder="GR Number" required>
             <input type="password" name="password" class="form-control" placeholder="Password" required>
             <input type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" required>
@@ -108,14 +108,14 @@ session_start();
 include 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (!isset($_POST['name'], $_POST['email'], $_POST['er_number'], $_POST['gr_number'], $_POST['password'], $_POST['confirm_password'])) {
+    if (!isset($_POST['name'], $_POST['email'], $_POST['enrollment_number'], $_POST['gr_number'], $_POST['password'], $_POST['confirm_password'])) {
         echo "<script>alert('Please fill in all fields!'); window.location.href='register.php';</script>";
         exit();
     }
 
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
-    $er_number = trim($_POST['er_number']);
+    $enrollment_number = trim($_POST['enrollment_number']);
     $gr_number = trim($_POST['gr_number']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
@@ -144,8 +144,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     $stmt_email_check->close();
 
-    $stmt_check = $conn->prepare("SELECT id FROM register WHERE er_number = ?");
-    $stmt_check->bind_param("s", $er_number);
+    $stmt_check = $conn->prepare("SELECT id FROM register WHERE enrollment_number = ?");
+    $stmt_check->bind_param("s", $enrollment_number);
     $stmt_check->execute();
     $stmt_check->store_result();
 
@@ -155,8 +155,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     $stmt_check->close();
 
-    $stmt = $conn->prepare("INSERT INTO register (name, email, er_number, gr_number, password) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssss", $name, $email, $er_number, $gr_number, $hashed_password);
+    $stmt = $conn->prepare("INSERT INTO register (name, email, enrollment_number, gr_number, password) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssss", $name, $email, $enrollment_number, $gr_number, $hashed_password);
 
     if ($stmt->execute()) {
         echo "<script>alert('Registration successful! You can now log in.'); window.location.href='login.php';</script>";
