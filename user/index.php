@@ -251,6 +251,7 @@ $conn->close();
 // Method 1: include
 // If file is not found, PHP will issue a warning but continue execution
 include './forms/progressbar.php';
+include './forms/progressbar_idea.php';
 ?>
 
             <!-- Recent Activity and idea Posts -->
