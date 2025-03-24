@@ -380,15 +380,7 @@ $conn->close();
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="dashboard-header">
-        <div class="logo">
-            <i class="fas fa-lightbulb"></i> IdeaNest
-        </div>
-        <div class="date-display">
-            <i class="far fa-calendar-alt"></i> <?php echo $current_date; ?>
-        </div>
-    </div>
+
 
     <div class="dashboard">
         <h1 class="dashboard-title">Project Classification Dashboard</h1>
