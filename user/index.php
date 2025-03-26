@@ -95,7 +95,7 @@ $conn->close();
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="../bksony/bookmark/bookmark.php">
                 <i class="fas fa-bookmark"></i>
                 <span>Bookmarks</span>
             </a>
@@ -335,7 +335,7 @@ include './forms/progressbar_idea.php';
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="blogDropdown">
                                     <li><a class="dropdown-item" href="./Blog/list-project.php">My Posts</a></li>
-                                    <li><a class="dropdown-item" href="#">Bookmarked Posts</a></li>
+                                    <li><a class="dropdown-item" href="#>Bookmarked Posts</a></li>
                                     <li><a class="dropdown-item" href="#">Popular Posts</a></li>
                                 </ul>
                             </div>
