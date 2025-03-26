@@ -127,7 +127,7 @@ $conn->close();
             --danger-color: #f44336;
             --light-color: #f5f5f5;
             --dark-color: #212121;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);a
             --border-radius: 12px;
         }
 
