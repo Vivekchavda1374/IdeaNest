@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="project page add with pending request">
-      <change afterPath="$PROJECT_DIR$/user/forms/progressbar_idea.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="progressbar for idea page added &#10;index page modified">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bksony/admin/project_approvel.php" beforeDir="false" afterPath="$PROJECT_DIR$/bksony/admin/project_approvel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/progressbar.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/progressbar.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,8 +96,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-PS-243.25659.45" />
-        <option value="bundled-php-predefined-a98d8de5180a-1ec7b7818973-com.jetbrains.php.sharedIndexes-PS-243.25659.45" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-PS-243.26053.13" />
+        <option value="bundled-php-predefined-a98d8de5180a-1ec7b7818973-com.jetbrains.php.sharedIndexes-PS-243.26053.13" />
       </set>
     </attachedChunks>
   </component>
@@ -129,7 +130,10 @@
       <workItem from="1742649386262" duration="2986000" />
       <workItem from="1742661964714" duration="168000" />
       <workItem from="1742662956751" duration="16989000" />
-      <workItem from="1742786343647" duration="805000" />
+      <workItem from="1742786343647" duration="1091000" />
+      <workItem from="1742787470652" duration="31000" />
+      <workItem from="1742873449585" duration="615000" />
+      <workItem from="1742962270708" duration="3233000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -347,7 +351,23 @@
       <option name="project" value="LOCAL" />
       <updated>1742710566821</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="progressbar for idea page added">
+      <option name="closed" value="true" />
+      <created>1742787320571</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1742787320571</updated>
+    </task>
+    <task id="LOCAL-00029" summary="progressbar for idea page added &#10;index page modified">
+      <option name="closed" value="true" />
+      <created>1742787379240</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1742787379240</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -387,6 +407,8 @@
     <MESSAGE value="serch file added" />
     <MESSAGE value="login admin done and" />
     <MESSAGE value="project page add with pending request" />
-    <option name="LAST_COMMIT_MESSAGE" value="project page add with pending request" />
+    <MESSAGE value="progressbar for idea page added" />
+    <MESSAGE value="progressbar for idea page added &#10;index page modified" />
+    <option name="LAST_COMMIT_MESSAGE" value="progressbar for idea page added &#10;index page modified" />
   </component>
 </project>
