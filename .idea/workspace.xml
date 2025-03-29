@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="book mark project working well. error show because of id is not auto increment">
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment=" project working well. error show because of id is not auto increment">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/new_project_add.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/new_project_add.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/projects_view.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/projects_view.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -132,7 +133,8 @@
       <workItem from="1742787470652" duration="31000" />
       <workItem from="1742873449585" duration="615000" />
       <workItem from="1742962270708" duration="3480000" />
-      <workItem from="1742965905374" duration="2577000" />
+      <workItem from="1742965905374" duration="2669000" />
+      <workItem from="1742971157783" duration="3201000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -374,7 +376,15 @@
       <option name="project" value="LOCAL" />
       <updated>1742965778595</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary=" project working well. error show because of id is not auto increment">
+      <option name="closed" value="true" />
+      <created>1742968572893</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1742968572894</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -392,7 +402,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="composer added" />
     <MESSAGE value="composer added --updated" />
     <MESSAGE value="backend login/register done" />
     <MESSAGE value="changes done" />
@@ -417,6 +426,7 @@
     <MESSAGE value="progressbar for idea page added" />
     <MESSAGE value="progressbar for idea page added &#10;index page modified" />
     <MESSAGE value="book mark project working well. error show because of id is not auto increment" />
-    <option name="LAST_COMMIT_MESSAGE" value="book mark project working well. error show because of id is not auto increment" />
+    <MESSAGE value=" project working well. error show because of id is not auto increment" />
+    <option name="LAST_COMMIT_MESSAGE" value=" project working well. error show because of id is not auto increment" />
   </component>
 </project>
