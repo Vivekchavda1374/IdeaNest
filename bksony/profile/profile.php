@@ -306,7 +306,7 @@ $conn->close();
 
         <div class="row mt-4">
             <div class="col-md-6 mb-3">
-                <a href="projects.php" class="btn btn-outline-primary w-100">
+                <a href="../projects/my_projects.php" class="btn btn-outline-primary w-100">
                     <i class="fas fa-project-diagram me-2"></i> View My Projects
                 </a>
             </div>
