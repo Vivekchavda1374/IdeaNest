@@ -1,11 +1,16 @@
 <?php
 // Process form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Start session if not already started
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+    
     // Set the timezone for accurate datetime
     date_default_timezone_set('Asia/Kolkata'); // Change to your timezone
 
     // Collect form data
-    $erNumber = $_POST['erNumber'];
+    // $erNumber = $_POST['er_number'];
     $projectName = $_POST['projectName'];
     $projectType = $_POST['projectType'];
     $classification = $_POST['classification'];
@@ -14,6 +19,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Get current date and time
     $submissionDateTime = date('Y-m-d H:i:s');
     
+    // Get the session ID
+    $sessionId = session_id();
+    
     // Validate the data
     if (empty($erNumber) || empty($projectName) || empty($projectType) || 
         empty($classification) || empty($description)) {
@@ -21,9 +29,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         // Database connection parameters
         $servername = "localhost";
-        $username = "your_db_username";
-        $password = "your_db_password";
-        $dbname = "your_database_name";
+        $username = "root";
+        $password = "";
+        $dbname = "ideanest";
         
         // Create database connection
         $conn = new mysqli($servername, $username, $password, $dbname);
@@ -33,8 +41,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $error_message = "Connection failed: " . $conn->connect_error;
         } else {
             // Prepare and bind the SQL statement to prevent SQL injection
-            $stmt = $conn->prepare("INSERT INTO projects (er_number, project_name, project_type, classification, description, submission_datetime) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssssss", $erNumber, $projectName, $projectType, $classification, $description, $submissionDateTime);
+            $stmt = $conn->prepare("INSERT INTO projects (id, er_number, project_name, project_type, classification, description, submission_datetime) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssssss", $sessionId, $erNumber, $projectName, $projectType, $classification, $description, $submissionDateTime);
             
             // Execute the statement
             if ($stmt->execute()) {
@@ -52,7 +60,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
