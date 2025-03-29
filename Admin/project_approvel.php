@@ -170,7 +170,7 @@ $approved_result = $conn->query($approved_sql);
     }
 
     .dashboard-title {
-        font-weight: 700;
+        font-weight: 699;
         margin: 0;
         display: flex;
         align-items: center;
