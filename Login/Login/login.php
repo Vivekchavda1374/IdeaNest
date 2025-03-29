@@ -9,8 +9,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $er_number = $_POST['er_number'];
         $password = $_POST['password'];
 
-        $stmt = $conn->prepare("SELECT id, password, name FROM register WHERE er_number = ? OR gr_number = ?");
-        $stmt->bind_param("ss", $er_number, $er_number);
+        // Check for admin credentials first
+        if($er_number === "admin@ict.com" && $password === "admin@ICT123"){
+            // Set admin session variables
+            $_SESSION['user_id'] = 'admin';
+            $_SESSION['er_number'] = $er_number;
+            $_SESSION['user_name'] = 'Administrator';
+            $_SESSION['is_admin'] = true;
+
+            header("Location: ../../Admin/admin.php");
+            exit(); // Stop execution after redirect
+        }
+
+        // If not admin, proceed with regular user login
+        $stmt = $conn->prepare("SELECT id, password, name FROM register WHERE enrollment_number = ? ");
+        $stmt->bind_param("s", $er_number);
         $stmt->execute();
         $stmt->store_result();
 
@@ -21,7 +34,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (password_verify($password, $hashed_password)) {
                 $_SESSION['user_id'] = $user_id;
                 $_SESSION['er_number'] = $er_number;
-                $_SESSION['user_name'] = $user_name; // Store the user's name
+                $_SESSION['user_name'] = $user_name;
+                $_SESSION['is_admin'] = false;
+
                 header("Location: ../../user/index.php");
                 exit();
             } else {
@@ -109,6 +124,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #555;
             text-decoration: none;
         }
+        .admin-info {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 
@@ -127,6 +149,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <a href="#" class="forgot-password">Forgot Password?</a>
+
+
         </form>
     </div>
 </div>
