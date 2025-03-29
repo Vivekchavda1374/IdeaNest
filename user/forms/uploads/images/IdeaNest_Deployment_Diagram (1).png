@@ -1,0 +1,19 @@
+digraph IdeaNest_Deployment_Diagram {
+	Browser [label="Client Browser
+(User Interface)" shape=box3d]
+	FrontendServer [label="Frontend Server
+(HTML, CSS, JS)" shape=box3d]
+	BackendServer [label="Backend Server
+(PHP, API, Logic)" shape=box3d]
+	DatabaseServer [label="Database Server
+(MySQL)" shape=cylinder]
+	CloudStorage [label="Cloud Storage
+(Project Files & Images)" shape=box3d]
+	NotificationService [label="Notification Service
+(Emails, Alerts)" shape=box3d]
+	Browser -> FrontendServer [label="Requests & Responses (HTTP)"]
+	FrontendServer -> BackendServer [label="API Calls (RESTful)"]
+	BackendServer -> DatabaseServer [label="Database Queries (SQL)"]
+	BackendServer -> CloudStorage [label="Stores/Retrieves Files"]
+	BackendServer -> NotificationService [label="Triggers Alerts"]
+}

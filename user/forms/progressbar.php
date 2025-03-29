@@ -114,7 +114,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IdeaNest - Classification Dashboard</title>
+    <title>IdeaNest Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -127,7 +127,7 @@ $conn->close();
             --danger-color: #f44336;
             --light-color: #f5f5f5;
             --dark-color: #212121;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);a
             --border-radius: 12px;
         }
 
@@ -380,15 +380,7 @@ $conn->close();
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="dashboard-header">
-        <div class="logo">
-            <i class="fas fa-lightbulb"></i> IdeaNest
-        </div>
-        <div class="date-display">
-            <i class="far fa-calendar-alt"></i> <?php echo $current_date; ?>
-        </div>
-    </div>
+
 
     <div class="dashboard">
         <h1 class="dashboard-title">Project Classification Dashboard</h1>

@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="blog table added">
-      <change afterPath="$PROJECT_DIR$/user/search.php" afterDir="false" />
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="book mark project working well. error show because of id is not auto increment">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/user/style.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +63,7 @@
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/download/ideanest (1).sql&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/study/study/sem6/HCD/Student Project/IdeaNest/Admin&quot;,
     &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -82,6 +80,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Admin" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\user\forms" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -95,8 +94,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-PS-243.25659.45" />
-        <option value="bundled-php-predefined-a98d8de5180a-1ec7b7818973-com.jetbrains.php.sharedIndexes-PS-243.25659.45" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-PS-243.26053.13" />
+        <option value="bundled-php-predefined-a98d8de5180a-1ec7b7818973-com.jetbrains.php.sharedIndexes-PS-243.26053.13" />
       </set>
     </attachedChunks>
   </component>
@@ -128,7 +127,12 @@
       <workItem from="1742638379584" duration="9067000" />
       <workItem from="1742649386262" duration="2986000" />
       <workItem from="1742661964714" duration="168000" />
-      <workItem from="1742662956751" duration="1343000" />
+      <workItem from="1742662956751" duration="16989000" />
+      <workItem from="1742786343647" duration="1091000" />
+      <workItem from="1742787470652" duration="31000" />
+      <workItem from="1742873449585" duration="615000" />
+      <workItem from="1742962270708" duration="3480000" />
+      <workItem from="1742965905374" duration="2577000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -322,7 +326,55 @@
       <option name="project" value="LOCAL" />
       <updated>1742641491404</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="serch file added">
+      <option name="closed" value="true" />
+      <created>1742671847738</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1742671847738</updated>
+    </task>
+    <task id="LOCAL-00026" summary="login admin done and">
+      <option name="closed" value="true" />
+      <created>1742710528376</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1742710528376</updated>
+    </task>
+    <task id="LOCAL-00027" summary="project page add with pending request">
+      <option name="closed" value="true" />
+      <created>1742710566821</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1742710566821</updated>
+    </task>
+    <task id="LOCAL-00028" summary="progressbar for idea page added">
+      <option name="closed" value="true" />
+      <created>1742787320571</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1742787320571</updated>
+    </task>
+    <task id="LOCAL-00029" summary="progressbar for idea page added &#10;index page modified">
+      <option name="closed" value="true" />
+      <created>1742787379240</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1742787379240</updated>
+    </task>
+    <task id="LOCAL-00030" summary="book mark project working well. error show because of id is not auto increment">
+      <option name="closed" value="true" />
+      <created>1742965778595</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1742965778595</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -359,6 +411,12 @@
     <MESSAGE value="add successfully idea management system" />
     <MESSAGE value="remove error successfully" />
     <MESSAGE value="blog table added" />
-    <option name="LAST_COMMIT_MESSAGE" value="blog table added" />
+    <MESSAGE value="serch file added" />
+    <MESSAGE value="login admin done and" />
+    <MESSAGE value="project page add with pending request" />
+    <MESSAGE value="progressbar for idea page added" />
+    <MESSAGE value="progressbar for idea page added &#10;index page modified" />
+    <MESSAGE value="book mark project working well. error show because of id is not auto increment" />
+    <option name="LAST_COMMIT_MESSAGE" value="book mark project working well. error show because of id is not auto increment" />
   </component>
 </project>

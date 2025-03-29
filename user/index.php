@@ -95,7 +95,7 @@ $conn->close();
             </a>
         </li>
         <li>
-            <a href="#">
+            <a href="../bksony/bookmark/bookmark.php">
                 <i class="fas fa-bookmark"></i>
                 <span>Bookmarks</span>
             </a>
@@ -251,6 +251,7 @@ $conn->close();
 // Method 1: include
 // If file is not found, PHP will issue a warning but continue execution
 include './forms/progressbar.php';
+include './forms/progressbar_idea.php';
 ?>
 
             <!-- Recent Activity and idea Posts -->
@@ -334,7 +335,7 @@ include './forms/progressbar.php';
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="blogDropdown">
                                     <li><a class="dropdown-item" href="./Blog/list-project.php">My Posts</a></li>
-                                    <li><a class="dropdown-item" href="#">Bookmarked Posts</a></li>
+                                    <li><a class="dropdown-item" href="#>Bookmarked Posts</a></li>
                                     <li><a class="dropdown-item" href="#">Popular Posts</a></li>
                                 </ul>
                             </div>
