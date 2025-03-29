@@ -19,11 +19,22 @@ $offset = ($page - 1) * $itemsPerPage;
 
 // Get filter parameters
 $filterType = isset($_GET['type']) ? $_GET['type'] : '';
+$filterClassification = isset($_GET['classification']) ? $_GET['classification'] : '';
 
-// Build query with possible filter
+// Build query with possible filters
 $whereClause = "";
+$filters = [];
+
 if (!empty($filterType)) {
-    $whereClause = " WHERE project_type = '" . $conn->real_escape_string($filterType) . "'";
+    $filters[] = "project_type = '" . $conn->real_escape_string($filterType) . "'";
+}
+
+if (!empty($filterClassification)) {
+    $filters[] = "classification = '" . $conn->real_escape_string($filterClassification) . "'";
+}
+
+if (!empty($filters)) {
+    $whereClause = " WHERE " . implode(" AND ", $filters);
 }
 
 // Get total count for pagination
@@ -39,11 +50,14 @@ $result = $conn->query($sql);
 // Get project categories for filter
 $categorySql = "SELECT DISTINCT project_type FROM projects ORDER BY project_type";
 $categoryResult = $conn->query($categorySql);
+
+// Get unique classifications
+$classificationSql = "SELECT DISTINCT classification FROM projects WHERE classification != '' AND classification IS NOT NULL ORDER BY classification";
+$classificationResult = $conn->query($classificationSql);
 ?>
 
     <!DOCTYPE html>
     <html lang="en">
-
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -131,29 +145,6 @@ $categoryResult = $conn->query($categorySql);
 
             .badge-language {
                 background-color: var(--secondary-color);
-                color: white;
-            }
-
-            .status-badge {
-                display: inline-block;
-                padding: 0.35rem 0.75rem;
-                border-radius: 50px;
-                font-size: 0.75rem;
-                font-weight: 600;
-            }
-
-            .status-pending {
-                background-color: var(--warning-color);
-                color: #856404;
-            }
-
-            .status-approved {
-                background-color: var(--success-color);
-                color: #155724;
-            }
-
-            .status-rejected {
-                background-color: var(--danger-color);
                 color: white;
             }
 
@@ -284,12 +275,10 @@ $categoryResult = $conn->query($categorySql);
             }
         </style>
     </head>
-
     <body>
-
     <!-- Hero Section -->
     <div class="hero-section">
-        <a href="index.php" class="btn btn-back " style="margin-left: 20px; border-color: white; border-radius: 50px">
+        <a href="index.php" class="btn btn-back" style="margin-left: 20px; border-color: white; border-radius: 50px">
             <i class="fas fa-arrow-left"></i> Back to Dashboard
         </a>
 
@@ -303,21 +292,37 @@ $categoryResult = $conn->query($categorySql);
         <!-- Filter Section -->
         <div class="filter-container">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <h5 class="mb-3"><i class="fas fa-filter me-2 meta-icon"></i>Filter Projects</h5>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a href="projects_view.php" class="btn filter-btn <?php echo empty($filterType) ? 'active' : ''; ?>">
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <a href="projects_view.php" class="btn filter-btn <?php echo (empty($filterType) && empty($filterClassification)) ? 'active' : ''; ?>">
                             All Projects
                         </a>
-                        <?php while ($category = $categoryResult->fetch_assoc()): ?>
-                            <a href="?type=<?php echo urlencode($category['project_type']); ?>"
+
+                        <!-- Project Type Filters -->
+                        <?php
+                        $categoryResult->data_seek(0); // Reset result pointer
+                        while ($category = $categoryResult->fetch_assoc()): ?>
+                            <a href="?type=<?php echo urlencode($category['project_type']); ?><?php echo !empty($filterClassification) ? '&classification=' . urlencode($filterClassification) : ''; ?>"
                                class="btn filter-btn <?php echo $filterType === $category['project_type'] ? 'active' : ''; ?>">
                                 <?php echo htmlspecialchars($category['project_type']); ?>
                             </a>
                         <?php endwhile; ?>
                     </div>
+
+                    <!-- Classification Filters -->
+                    <div class="d-flex flex-wrap gap-2">
+                        <?php
+                        $classificationResult->data_seek(0); // Reset result pointer
+                        while ($classification = $classificationResult->fetch_assoc()): ?>
+                            <a href="?classification=<?php echo urlencode($classification['classification']); ?><?php echo !empty($filterType) ? '&type=' . urlencode($filterType) : ''; ?>"
+                               class="btn filter-btn <?php echo $filterClassification === $classification['classification'] ? 'active' : ''; ?>">
+                                <?php echo htmlspecialchars($classification['classification']); ?>
+                            </a>
+                        <?php endwhile; ?>
+                    </div>
                 </div>
-                <div class="col-md-4 text-end align-self-center">
+                <div class="col-12 text-end align-self-center mt-3">
                     <div class="meta-info justify-content-end">
                         <i class="fas fa-project-diagram meta-icon"></i>
                         <span class="fw-bold"><?php echo $totalProjects; ?></span> projects found
@@ -334,17 +339,6 @@ $categoryResult = $conn->query($categorySql);
                         <div class="card h-100">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="card-title"><?php echo htmlspecialchars($row['project_name']); ?></h5>
-<!--                                --><?php
-//                                $statusClass = 'status-pending';
-//                                if ($row['project_status'] == 'Approved') {
-//                                    $statusClass = 'status-approved';
-//                                } elseif ($row['project_status'] == 'Rejected') {
-//                                    $statusClass = 'status-rejected';
-//                                }
-//                                ?>
-<!--                                <span class="status-badge --><?php //echo $statusClass; ?><!--">-->
-<!--                                    --><?php //echo htmlspecialchars($row['project_status']); ?>
-                                </span>
                             </div>
                             <div class="card-body">
                                 <div class="d-flex gap-2 mb-3">
@@ -422,34 +416,43 @@ $categoryResult = $conn->query($categorySql);
         <!-- Pagination -->
         <?php if ($totalPages > 1): ?>
             <nav aria-label="Project pagination" class="my-4">
-                <ul class="pagination">
+                <ul class="pagination justify-content-center">
                     <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
-                        <a class="page-link" href="?page=<?php echo $page-1; ?><?php echo !empty($filterType) ? '&type=' . urlencode($filterType) : ''; ?>" aria-label="Previous">
+                        <a class="page-link bg-primary text-white" href="?page=<?php echo $page-1; ?><?php
+                        echo !empty($filterType) ? '&type=' . urlencode($filterType) : '';
+                        echo !empty($filterClassification) ? '&classification=' . urlencode($filterClassification) : '';
+                        ?>" aria-label="Previous">
                             <span aria-hidden="true"><i class="fas fa-chevron-left"></i></span>
                         </a>
                     </li>
 
                     <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                         <li class="page-item <?php echo ($page == $i) ? 'active' : ''; ?>">
-                            <a class="page-link" href="?page=<?php echo $i; ?><?php echo !empty($filterType) ? '&type=' . urlencode($filterType) : ''; ?>">
+                            <a class="page-link <?php echo ($page == $i) ? 'bg-primary text-white' : 'bg-light'; ?>" href="?page=<?php echo $i; ?><?php
+                            echo !empty($filterType) ? '&type=' . urlencode($filterType) : '';
+                            echo !empty($filterClassification) ? '&classification=' . urlencode($filterClassification) : '';
+                            ?>">
                                 <?php echo $i; ?>
                             </a>
                         </li>
                     <?php endfor; ?>
 
                     <li class="page-item <?php echo ($page >= $totalPages) ? 'disabled' : ''; ?>">
-                        <a class="page-link" href="?page=<?php echo $page+1; ?><?php echo !empty($filterType) ? '&type=' . urlencode($filterType) : ''; ?>" aria-label="Next">
+                        <a class="page-link bg-primary text-white" href="?page=<?php echo $page+1; ?><?php
+                        echo !empty($filterType) ? '&type=' . urlencode($filterType) : '';
+                        echo !empty($filterClassification) ? '&classification=' . urlencode($filterClassification) : '';
+                        ?>" aria-label="Next">
                             <span aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
                         </a>
                     </li>
                 </ul>
             </nav>
         <?php endif; ?>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
-
     </html>
 
 <?php $conn->close(); ?>
