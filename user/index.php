@@ -100,14 +100,9 @@ $conn->close();
                 <span>Bookmarks</span>
             </a>
         </li>
+
         <li>
-            <a href="#">
-                <i class="fas fa-chart-bar"></i>
-                <span>Analytics</span>
-            </a>
-        </li>
-        <li>
-            <a href="#">
+            <a href="user_profile_setting.php">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
@@ -116,7 +111,7 @@ $conn->close();
 </div>
 
 <!-- Main Content -->
-<div class="main-content" id="mainContent">>
+<div class="main-content" id="mainContent">
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
         <div class="container-fluid">
             <button id="sidebarToggle" class="btn btn-light d-lg-none me-3">
@@ -156,7 +151,6 @@ $conn->close();
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="user_profile_setting.php"><i class="fas fa-user me-2"></i> My Profile</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Account Settings</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="../Login/Login/logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
                     </ul>
