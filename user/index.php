@@ -77,7 +77,7 @@ $conn->close();
             </a>
         </li>
         <li>
-            <a href="projects_view.php">
+            <a href="../Admin/user_project_search.php">
                 <i class="fas fa-project-diagram"></i>
                 <span>Projects</span>
             </a>
