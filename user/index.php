@@ -14,7 +14,7 @@ $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "User";
 $user_initial = !empty($user_name) ? substr($user_name, 0, 1) : "U";
 
 // Fetch project count
-$sql = "SELECT COUNT(*) AS project_count FROM projects"; // Replace 'projects' with your actual table name
+$sql = "SELECT COUNT(*) AS project_count FROM admin_approved_projects"; // Replace 'projects' with your actual table name
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 $projectCount = $row['project_count'];
