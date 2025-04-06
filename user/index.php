@@ -39,7 +39,7 @@ if ($emailResult->num_rows > 0) {
     // Store in session for future use
     $_SESSION['email'] = $user_email;
 } else {
-    $user_email = "user@example.com"; // Default email if not found
+    $user_email = "admin@ICT.com"; // Default email if not found
 }
 
 $stmt->close();
@@ -116,12 +116,9 @@ $conn->close();
 </div>
 
 <!-- Main Content -->
-<div class="main-content" id="mainContent">
-    <!-- Top Navigation -->
-    <!-- Top Navigation Bar -->
+<div class="main-content" id="mainContent">>
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
         <div class="container-fluid">
-            <!-- Sidebar Toggle Button -->
             <button id="sidebarToggle" class="btn btn-light d-lg-none me-3">
                 <i class="fas fa-bars"></i>
             </button>
@@ -139,11 +136,7 @@ $conn->close();
 
             <!-- Right-side menu items -->
             <ul class="navbar-nav ms-auto align-items-center">
-                <!-- Notifications Dropdown -->
-
-
-
-                <!-- User Profile Dropdown -->
+             <!-- User Profile Dropdown -->
                 <li class="nav-item dropdown ms-2">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="user-avatar rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
@@ -162,7 +155,7 @@ $conn->close();
                             </div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> My Profile</a></li>
+                        <li><a class="dropdown-item" href="user_profile_setting.php"><i class="fas fa-user me-2"></i> My Profile</a></li>
                         <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Account Settings</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="../Login/Login/logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
@@ -248,8 +241,6 @@ $conn->close();
 
 
            <?php
-// Method 1: include
-// If file is not found, PHP will issue a warning but continue execution
 include './forms/progressbar.php';
 include './forms/progressbar_idea.php';
 ?>
