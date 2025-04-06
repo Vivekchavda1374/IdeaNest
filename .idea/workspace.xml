@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="admin approved project show successfully">
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="user project modified and remove bug in filter">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin/user_project_search.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/user_project_search.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -148,7 +147,7 @@
       <workItem from="1743918018909" duration="255000" />
       <workItem from="1743918390693" duration="594000" />
       <workItem from="1743919765117" duration="1548000" />
-      <workItem from="1743950009473" duration="6871000" />
+      <workItem from="1743950009473" duration="7396000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -438,7 +437,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743956252354</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="user project modified and remove bug in filter">
+      <option name="closed" value="true" />
+      <created>1743957427605</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1743957427605</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -456,7 +463,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="changes done" />
     <MESSAGE value="login and register pages added with email id validation and database connected" />
     <MESSAGE value="dashboard ui design" />
     <MESSAGE value="dashboard ui design modified" />
@@ -481,6 +487,7 @@
     <MESSAGE value=" project working well. error show because of id is not auto increment" />
     <MESSAGE value="index.php file modified remove error" />
     <MESSAGE value="admin approved project show successfully" />
-    <option name="LAST_COMMIT_MESSAGE" value="admin approved project show successfully" />
+    <MESSAGE value="user project modified and remove bug in filter" />
+    <option name="LAST_COMMIT_MESSAGE" value="user project modified and remove bug in filter" />
   </component>
 </project>
