@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="user project modified and remove bug in filter">
+      <change afterPath="$PROJECT_DIR$/Admin/user_manage_by_admin.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Admin/admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/admin.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,6 +43,7 @@
     &quot;accountId&quot;: &quot;7059d112-4172-45c4-9327-ff15b8ea0692&quot;
   }
 }</component>
+  <component name="PhpDebugGeneral" listening_started="true" />
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:\xampp1\php\php.exe">
     <include_path>
       <path value="$PROJECT_DIR$" />
@@ -69,7 +72,7 @@
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "C:/xampp/htdocs/project/IdeaNest",
+    "last_opened_file_path": "C:/xampp/htdocs/project/IdeaNest/Admin",
     "list.type.of.created.stylesheet": "CSS",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -87,6 +90,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\xampp\htdocs\project\IdeaNest\Admin" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Admin" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\user\forms" />
     </key>
@@ -97,6 +101,16 @@
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login\Signup" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="progressbar.php" type="PhpLocalRunConfigurationType" factoryName="PHP Console" path="$PROJECT_DIR$/user/forms/progressbar.php">
+      <CommandLine>
+        <PhpTestInterpreterSettings>
+          <option name="interpreterName" value="C:\xampp\php\php.exe" />
+        </PhpTestInterpreterSettings>
+      </CommandLine>
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -148,6 +162,9 @@
       <workItem from="1743918390693" duration="594000" />
       <workItem from="1743919765117" duration="1548000" />
       <workItem from="1743950009473" duration="7396000" />
+      <workItem from="1743991903637" duration="47000" />
+      <workItem from="1744037303264" duration="101000" />
+      <workItem from="1744212238697" duration="4501000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
