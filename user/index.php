@@ -14,7 +14,7 @@ $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "User";
 $user_initial = !empty($user_name) ? substr($user_name, 0, 1) : "U";
 
 // Fetch project count
-$sql = "SELECT COUNT(*) AS project_count FROM projects"; // Replace 'projects' with your actual table name
+$sql = "SELECT COUNT(*) AS project_count FROM admin_approved_projects"; // Replace 'projects' with your actual table name
 $result = $conn->query($sql);
 $row = $result->fetch_assoc();
 $projectCount = $row['project_count'];
@@ -39,7 +39,7 @@ if ($emailResult->num_rows > 0) {
     // Store in session for future use
     $_SESSION['email'] = $user_email;
 } else {
-    $user_email = "user@example.com"; // Default email if not found
+    $user_email = "admin@ICT.com"; // Default email if not found
 }
 
 $stmt->close();
@@ -77,7 +77,7 @@ $conn->close();
             </a>
         </li>
         <li>
-            <a href="projects_view.php">
+            <a href="../Admin/user_project_search.php">
                 <i class="fas fa-project-diagram"></i>
                 <span>Projects</span>
             </a>
@@ -100,14 +100,9 @@ $conn->close();
                 <span>Bookmarks</span>
             </a>
         </li>
+
         <li>
-            <a href="#">
-                <i class="fas fa-chart-bar"></i>
-                <span>Analytics</span>
-            </a>
-        </li>
-        <li>
-            <a href="#">
+            <a href="user_profile_setting.php">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
@@ -117,11 +112,8 @@ $conn->close();
 
 <!-- Main Content -->
 <div class="main-content" id="mainContent">
-    <!-- Top Navigation -->
-    <!-- Top Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
         <div class="container-fluid">
-            <!-- Sidebar Toggle Button -->
             <button id="sidebarToggle" class="btn btn-light d-lg-none me-3">
                 <i class="fas fa-bars"></i>
             </button>
@@ -139,11 +131,7 @@ $conn->close();
 
             <!-- Right-side menu items -->
             <ul class="navbar-nav ms-auto align-items-center">
-                <!-- Notifications Dropdown -->
-
-
-
-                <!-- User Profile Dropdown -->
+             <!-- User Profile Dropdown -->
                 <li class="nav-item dropdown ms-2">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="user-avatar rounded-circle bg-primary d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
@@ -162,8 +150,7 @@ $conn->close();
                             </div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> My Profile</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Account Settings</a></li>
+                        <li><a class="dropdown-item" href="user_profile_setting.php"><i class="fas fa-user me-2"></i> My Profile</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="../Login/Login/logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
                     </ul>
@@ -248,8 +235,6 @@ $conn->close();
 
 
            <?php
-// Method 1: include
-// If file is not found, PHP will issue a warning but continue execution
 include './forms/progressbar.php';
 include './forms/progressbar_idea.php';
 ?>

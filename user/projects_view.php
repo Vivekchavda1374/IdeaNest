@@ -1,16 +1,7 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$database = "ideanest";
+include '../Login/Login/db.php';
+session_start();
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $database);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
 // Get projects with pagination
 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
@@ -38,21 +29,21 @@ if (!empty($filters)) {
 }
 
 // Get total count for pagination
-$countSql = "SELECT COUNT(*) as total FROM projects" . $whereClause;
+$countSql = "SELECT COUNT(*) as total FROM admin_approved_projects" . $whereClause;
 $countResult = $conn->query($countSql);
 $totalProjects = $countResult->fetch_assoc()['total'];
 $totalPages = ceil($totalProjects / $itemsPerPage);
 
 // Get projects for current page
-$sql = "SELECT * FROM projects" . $whereClause . " ORDER BY submission_date DESC LIMIT $offset, $itemsPerPage";
+$sql = "SELECT * FROM admin_approved_projects" . $whereClause . " ORDER BY submission_date DESC LIMIT $offset, $itemsPerPage";
 $result = $conn->query($sql);
 
 // Get project categories for filter
-$categorySql = "SELECT DISTINCT project_type FROM projects ORDER BY project_type";
+$categorySql = "SELECT DISTINCT project_type FROM admin_approved_projects ORDER BY project_type";
 $categoryResult = $conn->query($categorySql);
 
 // Get unique classifications
-$classificationSql = "SELECT DISTINCT classification FROM projects WHERE classification != '' AND classification IS NOT NULL ORDER BY classification";
+$classificationSql = "SELECT DISTINCT classification FROM admin_approved_projects WHERE classification != '' AND classification IS NOT NULL ORDER BY classification";
 $classificationResult = $conn->query($classificationSql);
 ?>
 

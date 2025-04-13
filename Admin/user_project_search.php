@@ -130,63 +130,7 @@ $result = $stmt->get_result();
             line-height: 1.6;
         }
 
-        /* Modern navbar with gradient */
-        .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            padding: 1rem 0;
-        }
 
-        .navbar-brand {
-            font-weight: 700;
-            color: white;
-            display: flex;
-            align-items: center;
-        }
-
-        .navbar-brand i {
-            font-size: 1.5rem;
-            margin-right: 0.5rem;
-        }
-
-        /* Dashboard Header */
-        .dashboard-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 2.5rem 0 3.5rem;
-            position: relative;
-            margin-bottom: 4rem;
-            border-radius: 0 0 30px 30px;
-            box-shadow: var(--box-shadow);
-        }
-
-        .dashboard-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
-            border-radius: 0 0 30px 30px;
-            z-index: 0;
-        }
-
-        .dashboard-title {
-            position: relative;
-            z-index: 1;
-            font-weight: 700;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            font-size: 2.2rem;
-        }
-
-        .dashboard-title i {
-            margin-right: 15px;
-            font-size: 2.4rem;
-        }
-
-        /* Toast container */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -544,28 +488,7 @@ $result = $stmt->get_result();
 </head>
 
 <body>
-<!-- Toast Container for notifications -->
-<div class="toast-container"></div>
 
-<!-- Modern Navbar -->
-<nav class="navbar">
-    <div class="container">
-        <a class="navbar-brand" href="#">
-            <i class="bi bi-lightning-charge-fill"></i>
-            IdeaNest
-        </a>
-    </div>
-</nav>
-
-<!-- Dashboard Header -->
-<div class="dashboard-header">
-    <div class="container">
-        <h1 class="dashboard-title">
-            <i class="bi bi-kanban"></i>
-            Approved Projects
-        </h1>
-    </div>
-</div>
 
 <div class="container">
     <!-- Search and Filter Section -->
@@ -580,22 +503,20 @@ $result = $stmt->get_result();
                            placeholder="Search projects...">
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="d-flex justify-content-md-end mt-3 mt-md-0">
-                    <select class="form-select me-2" style="max-width: 150px;">
-                        <option selected>All Types</option>
-                        <option>Hardware</option>
-                        <option>Software</option>
-                        <option>Research</option>
-                    </select>
-                    <select class="form-select" style="max-width: 150px;">
-                        <option selected>Sort By</option>
-                        <option>Newest</option>
-                        <option>Oldest</option>
-                        <option>A-Z</option>
-                    </select>
-                </div>
-            </div>
+            <!-- Change these lines in the search-filter-container section -->
+            <select class="form-select me-2" style="max-width: 150px;" id="projectTypeFilter">
+                <option selected>All Types</option>
+                <option>Hardware</option>
+                <option>Software</option>
+
+            </select>
+            <select class="form-select" style="max-width: 150px;" id="sortByFilter">
+                <option selected>Sort By</option>
+                <option>Newest</option>
+                <option>Oldest</option>
+                <option>A-Z</option>
+                <option>Z-A</option>
+            </select>
         </div>
     </div>
 
@@ -688,6 +609,10 @@ $result = $stmt->get_result();
                                 <div class="col-md-6">
                                     <div class="project-detail">
                                         <strong><i class="bi bi-tag-fill me-1"></i> Category</strong>
+                                        <p><?php echo htmlspecialchars($row["project_type"]); ?></p>
+                                    </div>
+                                    <div class="project-detail">
+                                        <strong><i class="bi bi-tag-fill me-1"></i> Classification</strong>
                                         <p><?php echo htmlspecialchars($row["classification"]); ?></p>
                                     </div>
 
@@ -717,6 +642,7 @@ $result = $stmt->get_result();
                                     endif;
                                 endforeach; ?>
                             </div>
+
 
 
                         </div>
@@ -757,36 +683,6 @@ $result = $stmt->get_result();
     <?php endif; ?>
 </div>
 
-<!-- Footer -->
-<footer class="bg-dark text-white py-4 mt-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <h5 class="mb-3"><i class="bi bi-lightning-charge-fill me-2"></i>IdeaNest</h5>
-                <p>A platform to share and discover innovative project ideas within our community.</p>
-            </div>
-            <div class="col-md-3">
-                <h5 class="mb-3">Quick Links</h5>
-                <ul class="list-unstyled">
-                    <li><a href="index.php" class="text-white">Home</a></li>
-                    <li><a href="submit_project.php" class="text-white">Submit Project</a></li>
-                    <li><a href="my_bookmarks.php" class="text-white">My Bookmarks</a></li>
-                </ul>
-            </div>
-            <div class="col-md-3">
-                <h5 class="mb-3">Contact</h5>
-                <ul class="list-unstyled">
-                    <li><i class="bi bi-envelope me-2"></i>support@ideanest.com</li>
-                    <li><i class="bi bi-telephone me-2"></i>(123) 456-7890</li>
-                </ul>
-            </div>
-        </div>
-        <hr class="my-3 bg-light">
-        <div class="text-center">
-            <p class="mb-0">&copy; <?php echo date('Y'); ?> IdeaNest. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
 
 <!-- Bootstrap and custom JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -871,6 +767,91 @@ $result = $stmt->get_result();
                 this.classList.remove('active');
             }
         });
+    });
+    // Enhanced search and filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchProjects');
+        const typeFilter = document.getElementById('projectTypeFilter');
+        const sortFilter = document.getElementById('sortByFilter');
+        const projectContainer = document.getElementById('projectContainer');
+        const projects = document.querySelectorAll('.project-item');
+
+        // Combined filter function that handles search, type filtering, and sorting
+        // Function to filter projects
+        function filterProjects() {
+            const searchText = searchInput.value.toLowerCase();
+            const selectedType = typeFilter.value;
+
+            // First pass: Filter by search text and type
+            projects.forEach(project => {
+                const projectTitle = project.querySelector('.card-header h5').textContent.toLowerCase();
+                const projectDesc = project.querySelector('.description-container p').textContent.toLowerCase();
+                const projectLead = project.querySelector('.project-detail:nth-child(1) p').textContent.toLowerCase();
+
+                // Find the category element specifically (with the Category label)
+                const categoryElement = Array.from(project.querySelectorAll('.project-detail')).find(
+                    detail => detail.querySelector('strong').textContent.includes('Category')
+                );
+                const projectCategory = categoryElement ? categoryElement.querySelector('p').textContent.toLowerCase() : '';
+
+                // Check if project matches search text
+                const matchesSearch = projectTitle.includes(searchText) ||
+                    projectDesc.includes(searchText) ||
+                    projectLead.includes(searchText);
+
+                // Check if project matches the type filter
+                const matchesType = selectedType === 'All Types' ||
+                    projectCategory.includes(selectedType.toLowerCase());
+
+                // Show project only if it matches both criteria
+                project.style.display = (matchesSearch && matchesType) ? '' : 'none';
+            });
+
+            // Second pass: Sorting
+            sortProjects();
+        }
+
+        // Function to sort projects based on selected sort option
+        function sortProjects() {
+            const sortBy = sortFilter.value;
+            const projectsArray = Array.from(projects).filter(p => p.style.display !== 'none');
+
+            projectsArray.sort((a, b) => {
+                switch(sortBy) {
+                    case 'Newest':
+                        const dateA = new Date(a.querySelector('.project-detail:nth-child(2) p').textContent);
+                        const dateB = new Date(b.querySelector('.project-detail:nth-child(2) p').textContent);
+                        return dateB - dateA;
+                    case 'Oldest':
+                        const dateC = new Date(a.querySelector('.project-detail:nth-child(2) p').textContent);
+                        const dateD = new Date(b.querySelector('.project-detail:nth-child(2) p').textContent);
+                        return dateC - dateD;
+                    case 'A-Z':
+                        const titleA = a.querySelector('.card-header h5').textContent.toLowerCase();
+                        const titleB = b.querySelector('.card-header h5').textContent.toLowerCase();
+                        return titleA.localeCompare(titleB);
+                    case 'Z-A':
+                        const titleC = a.querySelector('.card-header h5').textContent.toLowerCase();
+                        const titleD = b.querySelector('.card-header h5').textContent.toLowerCase();
+                        return titleD.localeCompare(titleC);
+                    default:
+                        return 0;
+                }
+            });
+
+            // Remove and reappend projects in sorted order
+            projectsArray.forEach(project => {
+                projectContainer.appendChild(project);
+            });
+        }
+
+        // Event listeners for search input and filter dropdowns
+        searchInput.addEventListener('keyup', filterProjects);
+        typeFilter.addEventListener('change', filterProjects);
+        sortFilter.addEventListener('change', filterProjects);
+
+        // Initial filtering on page load
+        filterProjects();
     });
 </script>
 </body>
