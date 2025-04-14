@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="Typo error removed">
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="admin page code improved with php">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Admin/admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/admin.php" afterDir="false" />
     </list>
@@ -144,7 +144,8 @@
       <workItem from="1743918390693" duration="594000" />
       <workItem from="1743919765117" duration="1548000" />
       <workItem from="1744527121744" duration="936000" />
-      <workItem from="1744595482687" duration="2557000" />
+      <workItem from="1744595482687" duration="2755000" />
+      <workItem from="1744610028157" duration="3867000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -418,7 +419,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744595592552</updated>
     </task>
-    <option name="localTasksCounter" value="35" />
+    <task id="LOCAL-00035" summary="admin page code improved with php">
+      <option name="closed" value="true" />
+      <created>1744598396418</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1744598396418</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -436,7 +445,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="backend login/register done" />
     <MESSAGE value="changes done" />
     <MESSAGE value="login and register pages added with email id validation and database connected" />
     <MESSAGE value="dashboard ui design" />
@@ -461,6 +469,7 @@
     <MESSAGE value="book mark project working well. error show because of id is not auto increment" />
     <MESSAGE value=" project working well. error show because of id is not auto increment" />
     <MESSAGE value="Typo error removed" />
-    <option name="LAST_COMMIT_MESSAGE" value="Typo error removed" />
+    <MESSAGE value="admin page code improved with php" />
+    <option name="LAST_COMMIT_MESSAGE" value="admin page code improved with php" />
   </component>
 </project>

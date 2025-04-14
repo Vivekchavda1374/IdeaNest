@@ -1,756 +1,316 @@
 <?php
+// Database connection
+include "../Login/Login/db.php";
+
+// Site name
+$site_name = "IdeaNest Admin";
+
+// Current user information (replace with session variable or actual login system)
 session_start();
-require_once("../Login/Login/db.php");
-
-$site_name = "IdeaNest";
-$user_name = isset($_SESSION['name']) ? $_SESSION['name'] : "Admin";
-$notification_count = 0;
-$message_count = 0;
-$analytics_image = "assets/images/analytics.svg";
-$app_version = "1.0.0";
-
-// Get project statistics and chart data
-function getProjectStats() {
-    global $conn;
-    $stats = [
-        'total_projects' => 0,
-        'approved_projects' => 0,
-        'rejected_projects' => 0,
-        'pending_projects' => 0,
-        'total_projects_percentage' => 0,
-        'total_projects_growth' => "0%",
-        'approved_projects_percentage' => 0,
-        'approved_projects_growth' => "0%",
-        'pending_projects_percentage' => 0,
-        'pending_projects_growth' => "0%",
-        'rejected_projects_percentage' => 0,
-        'rejected_projects_growth' => "0%",
-        'project_chart_data' => [],
-        'category_chart_data' => []
-    ];
-
-    // Get total projects count
-    $total_sql = "SELECT COUNT(*) as count FROM projects";
-    $total_result = mysqli_query($conn, $total_sql);
-    if ($total_result && $row = mysqli_fetch_assoc($total_result)) {
-        $stats['total_projects'] = $row['count'];
-    }
-
-    // Get approved projects count
-    $approved_sql = "SELECT COUNT(*) as count FROM admin_approved_projects";
-    $approved_result = mysqli_query($conn, $approved_sql);
-    if ($approved_result && $row = mysqli_fetch_assoc($approved_result)) {
-        $stats['approved_projects'] = $row['count'];
-    }
-
-    // Get rejected projects count
-    $rejected_sql = "SELECT COUNT(*) as count FROM denial_projects";
-    $rejected_result = mysqli_query($conn, $rejected_sql);
-    if ($rejected_result && $row = mysqli_fetch_assoc($rejected_result)) {
-        $stats['rejected_projects'] = $row['count'];
-    }
-
-    // Calculate pending projects (total - approved - rejected)
-    $stats['pending_projects'] = $stats['total_projects'] - $stats['approved_projects'] - $stats['rejected_projects'];
-
-    // Calculate percentages (if total > 0)
-    if ($stats['total_projects'] > 0) {
-        $stats['approved_projects_percentage'] = round(($stats['approved_projects'] / $stats['total_projects']) * 100);
-        $stats['rejected_projects_percentage'] = round(($stats['rejected_projects'] / $stats['total_projects']) * 100);
-        $stats['pending_projects_percentage'] = round(($stats['pending_projects'] / $stats['total_projects']) * 100);
-        $stats['total_projects_percentage'] = 100; // Always 100% of itself
-    }
-
-    // For growth calculation, you would typically compare with previous period
-    // Set some placeholder growth values for now
-    $stats['approved_projects_growth'] = "+8%";
-    $stats['pending_projects_growth'] = "+3%";
-    $stats['rejected_projects_growth'] = "+2%";
-    $stats['total_projects_growth'] = "+10%";
-
-    // Get data for projects chart (last 6 months)
-    $months = [];
-    $submitted_data = [];
-    $approved_data = [];
-    $rejected_data = [];
-
-    // Get the last 6 months
-    for ($i = 5; $i >= 0; $i--) {
-        $month = date('M', strtotime("-$i month"));
-        $months[] = $month;
-
-        $year_month = date('Y-m', strtotime("-$i month"));
-        $start_date = $year_month . '-01';
-        $end_date = date('Y-m-t', strtotime($start_date));
-
-        // Count submitted projects for this month
-        $submitted_sql = "SELECT COUNT(*) as count FROM projects 
-                         WHERE submission_date BETWEEN '$start_date' AND '$end_date'";
-        $submitted_result = mysqli_query($conn, $submitted_sql);
-        $submitted_count = 0;
-        if ($submitted_result && $row = mysqli_fetch_assoc($submitted_result)) {
-            $submitted_count = $row['count'];
-        }
-        $submitted_data[] = $submitted_count;
-
-        // Count approved projects for this month
-        $approved_sql = "SELECT COUNT(*) as count FROM admin_approved_projects 
-                        WHERE submission_date BETWEEN '$start_date' AND '$end_date'";
-        $approved_result = mysqli_query($conn, $approved_sql);
-        $approved_count = 0;
-        if ($approved_result && $row = mysqli_fetch_assoc($approved_result)) {
-            $approved_count = $row['count'];
-        }
-        $approved_data[] = $approved_count;
-
-        // Count rejected projects for this month
-        $rejected_sql = "SELECT COUNT(*) as count FROM denial_projects 
-                        WHERE submission_date BETWEEN '$start_date' AND '$end_date'";
-        $rejected_result = mysqli_query($conn, $rejected_sql);
-        $rejected_count = 0;
-        if ($rejected_result && $row = mysqli_fetch_assoc($rejected_result)) {
-            $rejected_count = $row['count'];
-        }
-        $rejected_data[] = $rejected_count;
-    }
-
-    $stats['project_chart_labels'] = $months;
-    $stats['submitted_projects_data'] = $submitted_data;
-    $stats['approved_projects_data'] = $approved_data;
-    $stats['rejected_projects_data'] = $rejected_data;
-
-    // Get data for categories chart
-    $category_sql = "SELECT classification, COUNT(*) as count FROM projects GROUP BY project_type";
-    $category_result = mysqli_query($conn, $category_sql);
-
-    $category_labels = [];
-    $category_data = [];
-    $category_colors = ["#4361ee", "#10b981", "#f59e0b", "#6366f1", "#ec4899", "#8b5cf6"];
-    $color_index = 0;
-
-    if ($category_result) {
-        while ($row = mysqli_fetch_assoc($category_result)) {
-            $category_labels[] = $row['classification'];
-            $category_data[] = (int)$row['count'];
-            $color_index++;
-            if ($color_index >= count($category_colors)) {
-                $color_index = 0; // Reset if we run out of colors
-            }
-        }
-    }
-
-    $stats['category_labels'] = $category_labels;
-    $stats['category_data'] = $category_data;
-    $stats['category_colors'] = array_slice($category_colors, 0, count($category_labels));
-
-    // Get the most recent activities
-    $recent_activities = [];
-
-    // Recent submitted projects
-    $submitted_sql = "SELECT 'primary' as type, 'New Project Submitted' as title, 
-                    CONCAT('A new ', project_type, ' project \"', project_name, '\" has been submitted for review.') as description,
-                    TIMESTAMPDIFF(MINUTE, submission_date, NOW()) as minutes_ago,
-                    submission_date
-                    FROM projects 
-                    ORDER BY submission_date DESC LIMIT 3";
-    $submitted_result = mysqli_query($conn, $submitted_sql);
-
-    if ($submitted_result) {
-        while ($row = mysqli_fetch_assoc($submitted_result)) {
-            $time_ago = formatTimeAgo($row['minutes_ago'], $row['submission_date']);
-            $recent_activities[] = [
-                "type" => $row['type'],
-                "title" => $row['title'],
-                "description" => $row['description'],
-                "time_ago" => $time_ago
-            ];
-        }
-    }
-
-    // Recent approved projects
-    $approved_sql = "SELECT 'success' as type, 'Project Approved' as title, 
-                   CONCAT(project_type, ' project \"', project_name, '\" has been approved.') as description,
-                   TIMESTAMPDIFF(MINUTE, submission_date, NOW()) as minutes_ago,
-                   submission_date
-                   FROM admin_approved_projects 
-                   ORDER BY submission_date DESC LIMIT 2";
-    $approved_result = mysqli_query($conn, $approved_sql);
-
-    if ($approved_result) {
-        while ($row = mysqli_fetch_assoc($approved_result)) {
-            $time_ago = formatTimeAgo($row['minutes_ago'], $row['submission_date']);
-            $recent_activities[] = [
-                "type" => $row['type'],
-                "title" => $row['title'],
-                "description" => $row['description'],
-                "time_ago" => $time_ago
-            ];
-        }
-    }
-
-    // Recent rejected projects
-    $rejected_sql = "SELECT 'danger' as type, 'Project Rejected' as title, 
-                   CONCAT(project_type, ' project \"', project_name, '\" has been rejected.') as description,
-                   TIMESTAMPDIFF(MINUTE, rejection_date, NOW()) as minutes_ago,
-                   rejection_date as activity_date
-                   FROM denial_projects 
-                   ORDER BY rejection_date DESC LIMIT 2";
-    $rejected_result = mysqli_query($conn, $rejected_sql);
-
-    if ($rejected_result) {
-        while ($row = mysqli_fetch_assoc($rejected_result)) {
-            $time_ago = formatTimeAgo($row['minutes_ago'], $row['activity_date']);
-            $recent_activities[] = [
-                "type" => $row['type'],
-                "title" => $row['title'],
-                "description" => $row['description'],
-                "time_ago" => $time_ago
-            ];
-        }
-    }
-
-    // Sort activities by time (most recent first)
-    usort($recent_activities, function($a, $b) {
-        $time_a = strtotime(str_replace([' ago', 'min', 'hour', 'day'], ['', 'minutes', 'hours', 'days'], $a['time_ago']));
-        $time_b = strtotime(str_replace([' ago', 'min', 'hour', 'day'], ['', 'minutes', 'hours', 'days'], $b['time_ago']));
-        return $time_b - $time_a;
-    });
-
-    // Take only the 3 most recent activities
-    $stats['recent_activities'] = array_slice($recent_activities, 0, 3);
-
-    // Get pending projects list
-    $pending_sql = "SELECT p.id, p.project_name, p.project_type, p.language as technologies, 
-                  CASE 
-                      WHEN p.project_type = 'Web App' THEN 'globe'
-                      WHEN p.project_type = 'Mobile App' THEN 'phone'
-                      WHEN p.project_type = 'API' THEN 'code-slash'
-                      ELSE 'folder'
-                  END as icon,
-                  u.name as submitted_by, p.submission_date, 'Pending' as status, 'warning' as status_class
-                  FROM projects p
-                  JOIN users u ON p.user_id = u.id
-                  WHERE p.id NOT IN (SELECT id FROM admin_approved_projects)
-                  AND p.id NOT IN (SELECT id FROM denial_projects)
-                  ORDER BY p.submission_date DESC
-                  LIMIT 5";
-    $pending_result = mysqli_query($conn, $pending_sql);
-
-    $pending_projects_list = [];
-    if ($pending_result) {
-        while ($row = mysqli_fetch_assoc($pending_result)) {
-            // Format the date for display
-            $row['submission_date'] = date('Y-m-d', strtotime($row['submission_date']));
-            $pending_projects_list[] = $row;
-        }
-    }
-
-    $stats['pending_projects_list'] = $pending_projects_list;
-
-    return $stats;
+if(isset($_SESSION['user_name'])) {
+    $user_name = $_SESSION['user_name'];
+} else {
+    $user_name = "Admin"; // Default if not logged in
 }
 
-// Helper function to format time ago
-function formatTimeAgo($minutes_ago, $date) {
-    if ($minutes_ago < 60) {
-        return $minutes_ago . " min ago";
-    } else if ($minutes_ago < 1440) { // less than a day
-        $hours = floor($minutes_ago / 60);
-        return $hours . " hour" . ($hours > 1 ? "s" : "") . " ago";
-    } else {
-        $days = floor($minutes_ago / 1440);
-        return $days . " day" . ($days > 1 ? "s" : "") . " ago";
+// Check if there's an action to handle
+if(isset($_GET['action']) && isset($_GET['project_id'])) {
+    $action = $_GET['action'];
+    $project_id = intval($_GET['project_id']);
+
+    // Perform action based on request
+    switch($action) {
+        case 'view':
+            // Redirect to view page with project ID
+            header("Location: view_project.php?id=$project_id");
+            exit;
+            break;
+
+        case 'approve':
+            // Approve the project
+            approveProject($project_id, $conn);
+            break;
+
+        case 'reject':
+            // Show rejection form
+            header("Location: reject_project.php?id=$project_id");
+            exit;
+            break;
     }
 }
 
-// Call this function to get all the dashboard data
-$dashboard_data = getProjectStats();
+// Function to approve a project
+function approveProject($project_id, $conn) {
+    // Get project details
+    $query = "SELECT * FROM projects WHERE id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $project_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-// Update all variables used in the dashboard
-$total_projects = $dashboard_data['total_projects'];
-$total_projects_percentage = $dashboard_data['total_projects_percentage'];
-$total_projects_growth = $dashboard_data['total_projects_growth'];
-$approved_projects = $dashboard_data['approved_projects'];
-$approved_projects_percentage = $dashboard_data['approved_projects_percentage'];
-$approved_projects_growth = $dashboard_data['approved_projects_growth'];
-$pending_projects = $dashboard_data['pending_projects'];
-$pending_projects_percentage = $dashboard_data['pending_projects_percentage'];
-$pending_projects_growth = $dashboard_data['pending_projects_growth'];
-$rejected_projects = $dashboard_data['rejected_projects'];
-$rejected_projects_percentage = $dashboard_data['rejected_projects_percentage'];
-$rejected_projects_growth = $dashboard_data['rejected_projects_growth'];
+    if($result->num_rows > 0) {
+        $project = $result->fetch_assoc();
 
-// Chart data
-$project_chart_labels = $dashboard_data['project_chart_labels'];
-$submitted_projects_data = $dashboard_data['submitted_projects_data'];
-$approved_projects_data = $dashboard_data['approved_projects_data'];
-$rejected_projects_data = $dashboard_data['rejected_projects_data'];
-$category_labels = $dashboard_data['category_labels'];
-$category_data = $dashboard_data['category_data'];
-$category_colors = $dashboard_data['category_colors'];
+        // Insert into approved projects table
+        $approve_query = "INSERT INTO admin_approved_projects (
+            project_name, project_type, classification, description, 
+            language, image_path, video_path, code_file_path, 
+            instruction_file_path, submission_date, status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')";
 
-// Recent activities & pending projects
-$recent_activities = $dashboard_data['recent_activities'];
-$pending_projects_list = $dashboard_data['pending_projects_list'];
-
-// Time ranges and categories for dropdowns
-$selected_time_range = "Last 30 Days";
-$time_ranges = ["Last 7 Days", "Last 30 Days", "Last 3 Months", "Last Year"];
-$selected_category_range = "All Time";
-$category_ranges = ["Last 30 Days", "Last 3 Months", "Last Year", "All Time"];
-
-function createProject($user_id, $project_name, $project_type, $description, $language, $classification = NULL, $image_path = NULL, $video_path = NULL, $code_file_path = NULL, $instruction_file_path = NULL) {
-    global $conn;
-
-    // Sanitize inputs
-    $user_id = (int)$user_id;
-    $project_name = mysqli_real_escape_string($conn, $project_name);
-    $project_type = mysqli_real_escape_string($conn, $project_type);
-    $description = mysqli_real_escape_string($conn, $description);
-    $language = mysqli_real_escape_string($conn, $language);
-
-    // Sanitize optional parameters
-    $classification = $classification !== NULL ? mysqli_real_escape_string($conn, $classification) : NULL;
-    $image_path = $image_path !== NULL ? mysqli_real_escape_string($conn, $image_path) : NULL;
-    $video_path = $video_path !== NULL ? mysqli_real_escape_string($conn, $video_path) : NULL;
-    $code_file_path = $code_file_path !== NULL ? mysqli_real_escape_string($conn, $code_file_path) : NULL;
-    $instruction_file_path = $instruction_file_path !== NULL ? mysqli_real_escape_string($conn, $instruction_file_path) : NULL;
-
-    // Build SQL query with proper handling of NULL values
-    $sql = "INSERT INTO projects (user_id, project_name, project_type, description, language, 
-            classification, image_path, video_path, code_file_path, instruction_file_path, status, submission_date) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())";
-
-    $stmt = mysqli_prepare($conn, $sql);
-
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, 'isssssssss',
-            $user_id,
-            $project_name,
-            $project_type,
-            $description,
-            $language,
-            $classification,
-            $image_path,
-            $video_path,
-            $code_file_path,
-            $instruction_file_path
+        $approve_stmt = $conn->prepare($approve_query);
+        $approve_stmt->bind_param(
+            "ssssssssss",
+            $project['project_name'],
+            $project['project_type'],
+            $project['classification'],
+            $project['description'],
+            $project['language'],
+            $project['image_path'],
+            $project['video_path'],
+            $project['code_file_path'],
+            $project['instruction_file_path'],
+            $project['submission_date']
         );
 
-        $success = mysqli_stmt_execute($stmt);
+        $approve_stmt->execute();
 
-        if ($success) {
-            $project_id = mysqli_insert_id($conn);
-            mysqli_stmt_close($stmt);
-            return $project_id;
-        } else {
-            mysqli_stmt_close($stmt);
-            return false;
-        }
+        // Update status in original projects table
+        $update_query = "UPDATE projects SET status = 'approved' WHERE id = ?";
+        $update_stmt = $conn->prepare($update_query);
+        $update_stmt->bind_param("i", $project_id);
+        $update_stmt->execute();
+
+        // Redirect back to dashboard with success message
+        header("Location: dashboard.php?message=Project approved successfully");
+        exit;
     } else {
-        return false;
+        header("Location: dashboard.php?error=Project not found");
+        exit;
     }
 }
 
-function getProjectById($project_id) {
-    global $conn;
-    $project_id = (int)$project_id;
+// Project statistics
+// Total Projects
+$total_projects_query = "SELECT COUNT(*) as count FROM projects";
+$total_projects_result = $conn->query($total_projects_query);
+$total_projects = $total_projects_result->fetch_assoc()['count'];
 
-    $sql = "SELECT p.*, u.name FROM projects p 
-            JOIN users u ON p.user_id = u.id
-            WHERE p.id = ?";
+// Total approved projects
+$approved_projects_query = "SELECT COUNT(*) as count FROM `admin_approved_projects`";
+$approved_projects_result = $conn->query($approved_projects_query);
+$approved_projects = $approved_projects_result->fetch_assoc()['count'];
 
-    $stmt = mysqli_prepare($conn, $sql);
+// Total pending projects
+$pending_projects_query = "SELECT COUNT(*) as count FROM projects WHERE status = 'pending'";
+$pending_projects_result = $conn->query($pending_projects_query);
+$pending_projects = $pending_projects_result->fetch_assoc()['count'];
 
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, 'i', $project_id);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
+// Total rejected projects
+$rejected_projects_query = "SELECT COUNT(*) as count FROM denial_projects";
+$rejected_projects_result = $conn->query($rejected_projects_query);
+$rejected_projects = $rejected_projects_result->fetch_assoc()['count'];
 
-        if (mysqli_num_rows($result) > 0) {
-            $project = mysqli_fetch_assoc($result);
-            mysqli_stmt_close($stmt);
-            return $project;
-        } else {
-            mysqli_stmt_close($stmt);
-            return null;
-        }
-    }
+// Calculate percentages and growth
+// This is placeholder data - you'd typically compare with previous periods
+$total_projects_percentage = 75;
+$total_projects_growth = "12%";
+$approved_projects_percentage = 60;
+$approved_projects_growth = "8%";
+$pending_projects_percentage = 40;
+$pending_projects_growth = "5%";
+$rejected_projects_percentage = 20;
+$rejected_projects_growth = "3%";
 
-    return null;
+// Time range for charts
+$selected_time_range = "Last 7 Days";
+$time_ranges = ["Last 7 Days", "Last 30 Days", "Last 3 Months", "Last Year"];
+
+// Category ranges
+$selected_category_range = "All Time";
+$category_ranges = ["All Time", "This Month", "This Year"];
+
+// Chart data for projects
+$project_chart_labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+// Query for submitted projects per day for the last 7 days
+$submitted_projects_data = [];
+$approved_projects_data = [];
+$rejected_projects_data = [];
+
+// Get today's date
+$today = date('Y-m-d');
+
+// Loop through last 7 days
+for ($i = 6; $i >= 0; $i--) {
+    $date = date('Y-m-d', strtotime("-$i days"));
+    $next_date = date('Y-m-d', strtotime("-" . ($i - 1) . " days"));
+
+    // Submitted projects
+    $submitted_query = "SELECT COUNT(*) as count FROM projects WHERE DATE(submission_date) = '$date'";
+    $submitted_result = $conn->query($submitted_query);
+    $submitted_projects_data[] = $submitted_result->fetch_assoc()['count'];
+
+    // Approved projects
+    $approved_query = "SELECT COUNT(*) as count FROM `admin_approved_projects` WHERE DATE(submission_date) = '$date'";
+    $approved_result = $conn->query($approved_query);
+    $approved_projects_data[] = $approved_result->fetch_assoc()['count'];
+
+    // Rejected projects
+    $rejected_query = "SELECT COUNT(*) as count FROM denial_projects WHERE DATE(rejection_date) = '$date'";
+    $rejected_result = $conn->query($rejected_query);
+    $rejected_projects_data[] = $rejected_result->fetch_assoc()['count'];
 }
 
-function updateProject($project_id, $data) {
-    global $conn;
-    $project_id = (int)$project_id;
+// Category data
+$category_query = "SELECT classification, COUNT(*) as count FROM projects GROUP BY classification";
+$category_result = $conn->query($category_query);
 
-    // Check if project exists
-    $existing_project = getProjectById($project_id);
-    if (!$existing_project) {
-        return false;
+$category_labels = [];
+$category_data = [];
+$category_colors = ['#4361ee', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#8b5cf6'];
+
+$color_index = 0;
+while ($row = $category_result->fetch_assoc()) {
+    $category_labels[] = $row['classification'];
+    $category_data[] = $row['count'];
+    $color_index++;
+
+    // Reset color index if we run out of colors
+    if ($color_index >= count($category_colors)) {
+        $color_index = 0;
     }
-
-    // Build update query
-    $updates = [];
-    $types = '';
-    $values = [];
-
-    $allowed_fields = [
-        'project_name' => 's',
-        'project_type' => 's',
-        'classification' => 's',
-        'description' => 's',
-        'language' => 's',
-        'image_path' => 's',
-        'video_path' => 's',
-        'code_file_path' => 's',
-        'instruction_file_path' => 's',
-        'status' => 's'
-    ];
-
-    foreach ($data as $field => $value) {
-        if (array_key_exists($field, $allowed_fields)) {
-            $updates[] = "$field = ?";
-            $types .= $allowed_fields[$field];
-            $values[] = $value;
-        }
-    }
-
-    if (empty($updates)) {
-        return false;
-    }
-
-    $sql = "UPDATE projects SET " . implode(', ', $updates) . " WHERE id = ?";
-
-    $types .= 'i'; // For the project_id parameter
-    $values[] = $project_id;
-
-    $stmt = mysqli_prepare($conn, $sql);
-
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, $types, ...$values);
-        $success = mysqli_stmt_execute($stmt);
-        mysqli_stmt_close($stmt);
-        return $success;
-    }
-
-    return false;
 }
 
-function deleteProject($project_id) {
-    global $conn;
-    $project_id = (int)$project_id;
+// Recent activities
+$recent_activities = [];
 
-    $sql = "DELETE FROM projects WHERE id = ?";
-    $stmt = mysqli_prepare($conn, $sql);
+// Get recent project submissions
+$recent_submissions_query = "SELECT id, project_name, user_id, submission_date FROM projects ORDER BY submission_date DESC LIMIT 3";
+$recent_submissions_result = $conn->query($recent_submissions_query);
 
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, 'i', $project_id);
-        $success = mysqli_stmt_execute($stmt);
-        mysqli_stmt_close($stmt);
-        return $success;
-    }
-
-    return false;
-}
-
-function getProjectsByUser($user_id, $status = null) {
-    global $conn;
-    $user_id = (int)$user_id;
-
-    $sql = "SELECT * FROM projects WHERE user_id = ?";
-    $types = 'i';
-    $params = [$user_id];
-
-    if ($status !== null) {
-        $sql .= " AND status = ?";
-        $types .= 's';
-        $params[] = $status;
-    }
-
-    $sql .= " ORDER BY submission_date DESC";
-
-    $stmt = mysqli_prepare($conn, $sql);
-
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, $types, ...$params);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-
-        $projects = [];
-        while ($row = mysqli_fetch_assoc($result)) {
-            $projects[] = $row;
-        }
-
-        mysqli_stmt_close($stmt);
-        return $projects;
-    }
-
-    return [];
-}
-
-function getFilteredProjects($filters = [], $page = 1, $per_page = 10) {
-    global $conn;
-
-    // Initialize variables
-    $where_clauses = [];
-    $params = [];
-    $types = '';
-
-    // Process filters
-    if (!empty($filters['status'])) {
-        $where_clauses[] = "status = ?";
-        $types .= 's';
-        $params[] = $filters['status'];
-    }
-
-    if (!empty($filters['project_type'])) {
-        $where_clauses[] = "project_type = ?";
-        $types .= 's';
-        $params[] = $filters['project_type'];
-    }
-
-    if (!empty($filters['language'])) {
-        $where_clauses[] = "language = ?";
-        $types .= 's';
-        $params[] = $filters['language'];
-    }
-
-    if (!empty($filters['search'])) {
-        $search_term = '%' . $filters['search'] . '%';
-        $where_clauses[] = "(project_name LIKE ? OR description LIKE ?)";
-        $types .= 'ss';
-        $params[] = $search_term;
-        $params[] = $search_term;
-    }
-
-    // Build the WHERE clause
-    $where_sql = !empty($where_clauses) ? " WHERE " . implode(' AND ', $where_clauses) : "";
-
-    // Count total matching projects
-    $count_sql = "SELECT COUNT(*) as total FROM projects" . $where_sql;
-    $count_stmt = mysqli_prepare($conn, $count_sql);
-
-    if ($count_stmt) {
-        if (!empty($params)) {
-            mysqli_stmt_bind_param($count_stmt, $types, ...$params);
-        }
-
-        mysqli_stmt_execute($count_stmt);
-        $count_result = mysqli_stmt_get_result($count_stmt);
-        $total_count = mysqli_fetch_assoc($count_result)['total'];
-        mysqli_stmt_close($count_stmt);
-    } else {
-        $total_count = 0;
-    }
-
-    // Calculate pagination
-    $offset = ($page - 1) * $per_page;
-
-    // Get the projects
-    $sql = "SELECT p.*, u.name FROM projects p 
-            JOIN users u ON p.user_id = u.id" .
-        $where_sql . " 
-            ORDER BY p.submission_date DESC 
-            LIMIT ?, ?";
-
-    $types .= 'ii';
-    $params[] = $offset;
-    $params[] = $per_page;
-
-    $stmt = mysqli_prepare($conn, $sql);
-
-    $projects = [];
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, $types, ...$params);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-
-        while ($row = mysqli_fetch_assoc($result)) {
-            $projects[] = $row;
-        }
-
-        mysqli_stmt_close($stmt);
-    }
-
-    return [
-        'projects' => $projects,
-        'total_count' => $total_count,
-        'total_pages' => ceil($total_count / $per_page),
-        'current_page' => $page
+while ($row = $recent_submissions_result->fetch_assoc()) {
+    $time_ago = time_elapsed_string($row['submission_date']);
+    $recent_activities[] = [
+        'type' => 'primary',
+        'title' => 'New Project Submitted',
+        'description' => 'Project "' . $row['project_name'] . '" was submitted by User #' . $row['user_id'],
+        'time_ago' => $time_ago
     ];
 }
 
-function getProjectTypeStats() {
-    global $conn;
+// Get recent approvals
+$recent_approvals_query = "SELECT project_name, submission_date FROM `admin_approved_projects` ORDER BY submission_date DESC LIMIT 2";
+$recent_approvals_result = $conn->query($recent_approvals_query);
 
-    $sql = "SELECT project_type, status, COUNT(*) as count FROM projects GROUP BY project_type, status";
-    $result = mysqli_query($conn, $sql);
-
-    $stats = [];
-
-    while ($row = mysqli_fetch_assoc($result)) {
-        if (!isset($stats[$row['project_type']])) {
-            $stats[$row['project_type']] = [
-                'total' => 0,
-                'pending' => 0,
-                'approved' => 0,
-                'rejected' => 0
-            ];
-        }
-
-        $stats[$row['project_type']][$row['status']] = $row['count'];
-        $stats[$row['project_type']]['total'] += $row['count'];
-    }
-
-    return $stats;
+while ($row = $recent_approvals_result->fetch_assoc()) {
+    $time_ago = time_elapsed_string($row['submission_date']);
+    $recent_activities[] = [
+        'type' => 'success',
+        'title' => 'Project Approved',
+        'description' => 'Project "' . $row['project_name'] . '" was approved',
+        'time_ago' => $time_ago
+    ];
 }
 
-function uploadProjectFile($file, $type) {
-    // Define allowed extensions per type
-    $allowed_extensions = [
-        'image' => ['jpg', 'jpeg', 'png', 'gif'],
-        'video' => ['mp4', 'webm', 'ogg'],
-        'code' => ['zip', 'rar', 'tar', 'gz', 'txt', 'pdf'],
-        'instruction' => ['pdf', 'doc', 'docx', 'txt']
+// Get recent rejections
+$recent_rejections_query = "SELECT project_name, rejection_date, rejection_reason FROM denial_projects ORDER BY rejection_date DESC LIMIT 2";
+$recent_rejections_result = $conn->query($recent_rejections_query);
+
+while ($row = $recent_rejections_result->fetch_assoc()) {
+    $time_ago = time_elapsed_string($row['rejection_date']);
+    $recent_activities[] = [
+        'type' => 'danger',
+        'title' => 'Project Rejected',
+        'description' => 'Project "' . $row['project_name'] . '" was rejected. Reason: ' . $row['rejection_reason'],
+        'time_ago' => $time_ago
     ];
-
-    // Check if file type is valid
-    if (!array_key_exists($type, $allowed_extensions)) {
-        return false;
-    }
-
-    // Check if file was uploaded properly
-    if ($file['error'] !== UPLOAD_ERR_OK) {
-        return false;
-    }
-
-    // Validate file extension
-    $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    if (!in_array($file_extension, $allowed_extensions[$type])) {
-        return false;
-    }
-
-    // Set upload directory based on type
-    $upload_dir = "../uploads/{$type}s/";
-
-    // Create directory if it doesn't exist
-    if (!is_dir($upload_dir)) {
-        mkdir($upload_dir, 0755, true);
-    }
-
-    // Generate unique filename
-    $filename = uniqid() . '_' . md5(mt_rand()) . '.' . $file_extension;
-    $filepath = $upload_dir . $filename;
-
-    // Move the uploaded file
-    if (move_uploaded_file($file['tmp_name'], $filepath)) {
-        return str_replace('..', '', $filepath); // Remove the leading ../ for storage in DB
-    }
-
-    return false;
 }
 
-function handleProjectSubmission() {
-    // Verify user is logged in
-    if (!isset($_SESSION['user_id'])) {
-        return [
-            'status' => 'error',
-            'message' => 'You must be logged in to submit a project'
-        ];
+// Sort activities by time
+usort($recent_activities, function($a, $b) {
+    return strtotime($b['time_ago']) - strtotime($a['time_ago']);
+});
+
+// Pending projects list
+$pending_projects_list = [];
+$pending_projects_query = "SELECT p.id, p.project_name, p.project_type, p.classification, p.user_id, p.status 
+                          FROM projects p 
+                          WHERE p.status = 'pending' 
+                          ORDER BY p.submission_date DESC 
+                          LIMIT 5";
+$pending_projects_result = $conn->query($pending_projects_query);
+
+while ($row = $pending_projects_result->fetch_assoc()) {
+    // Determine icon based on project type
+    $icon = 'folder';
+    switch (strtolower($row['project_type'])) {
+        case 'web':
+            $icon = 'globe';
+            break;
+        case 'mobile':
+            $icon = 'phone';
+            break;
+        case 'desktop':
+            $icon = 'pc-display';
+            break;
+        case 'game':
+            $icon = 'controller';
+            break;
+        case 'ai':
+            $icon = 'cpu';
+            break;
     }
 
-    // Validate required fields
-    $required_fields = ['project_name', 'project_type', 'description', 'language'];
-
-    foreach ($required_fields as $field) {
-        if (empty($_POST[$field])) {
-            return [
-                'status' => 'error',
-                'message' => 'Please fill all required fields'
-            ];
-        }
-    }
-
-    // Process file uploads
-    $file_paths = [
-        'image_path' => null,
-        'video_path' => null,
-        'code_file_path' => null,
-        'instruction_file_path' => null
+    $pending_projects_list[] = [
+        'id' => $row['id'],
+        'name' => $row['project_name'],
+        'type' => $row['project_type'],
+        'technologies' => $row['classification'],
+        'submitted_by' => 'User #' . $row['user_id'],
+        'status' => 'Pending Review',
+        'status_class' => 'warning',
+        'icon' => $icon
     ];
+}
 
-    // Process image upload
-    if (isset($_FILES['project_image']) && $_FILES['project_image']['size'] > 0) {
-        $file_paths['image_path'] = uploadProjectFile($_FILES['project_image'], 'image');
-        if ($file_paths['image_path'] === false) {
-            return [
-                'status' => 'error',
-                'message' => 'Invalid image file. Allowed formats: JPG, JPEG, PNG, GIF'
-            ];
-        }
-    }
+// Helper function to convert MySQL datetime to "time ago" format
+function time_elapsed_string($datetime, $full = false) {
+    $now = new DateTime;
+    $ago = new DateTime($datetime);
+    $diff = $now->diff($ago);
 
-    // Process video upload
-    if (isset($_FILES['project_video']) && $_FILES['project_video']['size'] > 0) {
-        $file_paths['video_path'] = uploadProjectFile($_FILES['project_video'], 'video');
-        if ($file_paths['video_path'] === false) {
-            return [
-                'status' => 'error',
-                'message' => 'Invalid video file. Allowed formats: MP4, WEBM, OGG'
-            ];
-        }
-    }
+    $diff->w = floor($diff->d / 7);
+    $diff->d -= $diff->w * 7;
 
-    // Process code file upload
-    if (isset($_FILES['code_file']) && $_FILES['code_file']['size'] > 0) {
-        $file_paths['code_file_path'] = uploadProjectFile($_FILES['code_file'], 'code');
-        if ($file_paths['code_file_path'] === false) {
-            return [
-                'status' => 'error',
-                'message' => 'Invalid code file. Allowed formats: ZIP, RAR, TAR, GZ, TXT, PDF'
-            ];
-        }
-    }
-
-    // Process instruction file upload
-    if (isset($_FILES['instruction_file']) && $_FILES['instruction_file']['size'] > 0) {
-        $file_paths['instruction_file_path'] = uploadProjectFile($_FILES['instruction_file'], 'instruction');
-        if ($file_paths['instruction_file_path'] === false) {
-            return [
-                'status' => 'error',
-                'message' => 'Invalid instruction file. Allowed formats: PDF, DOC, DOCX, TXT'
-            ];
-        }
-    }
-
-    // Create the project
-    $project_id = createProject(
-        $_SESSION['user_id'],
-        $_POST['project_name'],
-        $_POST['project_type'],
-        $_POST['description'],
-        $_POST['language'],
-        isset($_POST['classification']) ? $_POST['classification'] : null,
-        $file_paths['image_path'],
-        $file_paths['video_path'],
-        $file_paths['code_file_path'],
-        $file_paths['instruction_file_path']
+    $string = array(
+        'y' => 'year',
+        'm' => 'month',
+        'w' => 'week',
+        'd' => 'day',
+        'h' => 'hour',
+        'i' => 'minute',
+        's' => 'second',
     );
 
-    if ($project_id) {
-        return [
-            'status' => 'success',
-            'message' => 'Project submitted successfully',
-            'project_id' => $project_id
-        ];
-    } else {
-        return [
-            'status' => 'error',
-            'message' => 'Failed to submit project. Please try again.'
-        ];
+    foreach ($string as $k => &$v) {
+        if ($diff->$k) {
+            $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? 's' : '');
+        } else {
+            unset($string[$k]);
+        }
     }
+
+    if (!$full) $string = array_slice($string, 0, 1);
+    return $string ? implode(', ', $string) . ' ago' : 'just now';
 }
+
+// Check for messages
+$message = isset($_GET['message']) ? $_GET['message'] : '';
+$error = isset($_GET['error']) ? $_GET['error'] : '';
+
+// Close connection
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -1004,6 +564,11 @@ function handleProjectSubmission() {
             height: 300px;
         }
 
+        /* Alert banner */
+        .alert-banner {
+            margin-bottom: 20px;
+        }
+
         /* Media Query for Responsive Sidebar */
         @media (max-width: 991.98px) {
             .sidebar {
@@ -1032,19 +597,19 @@ function handleProjectSubmission() {
     </div>
     <ul class="sidebar-menu">
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link active">
+            <a href="dashboard.php" class="sidebar-link active">
                 <i class="bi bi-grid-1x2"></i>
                 <span>Dashboard</span>
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link">
+            <a href="projects.php" class="sidebar-link">
                 <i class="bi bi-kanban"></i>
                 <span>Projects</span>
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link">
+            <a href="users.php" class="sidebar-link">
                 <i class="bi bi-people"></i>
                 <span>Users</span>
             </a>
@@ -1052,7 +617,7 @@ function handleProjectSubmission() {
 
         <hr class="sidebar-divider">
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link">
+            <a href="settings.php" class="sidebar-link">
                 <i class="bi bi-gear"></i>
                 <span>Settings</span>
             </a>
@@ -1074,7 +639,6 @@ function handleProjectSubmission() {
         </button>
         <h1 class="page-title">Dashboard</h1>
         <div class="topbar-actions">
-
             <div class="dropdown">
                 <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-person"></i>
@@ -1089,6 +653,21 @@ function handleProjectSubmission() {
         </div>
     </div>
 
+    <!-- Alert Messages -->
+    <?php if($message): ?>
+        <div class="alert alert-success alert-banner alert-dismissible fade show" role="alert">
+            <?php echo $message; ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
+    <?php if($error): ?>
+        <div class="alert alert-danger alert-banner alert-dismissible fade show" role="alert">
+            <?php echo $error; ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
     <!-- Welcome Stats -->
     <div class="card mb-4">
         <div class="card-body p-4">
@@ -1098,9 +677,9 @@ function handleProjectSubmission() {
                     <p class="text-muted">Here's what's happening with your projects today.</p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <button class="btn btn-primary">
+                    <a href="add_project.php" class="btn btn-primary">
                         <i class="bi bi-plus-lg me-1"></i> Add New Project
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -1235,92 +814,101 @@ function handleProjectSubmission() {
     </div>
 
     <!-- Recent Activities and Pending Projects -->
+    <!-- Recent Activities and Pending Projects -->
     <div class="row">
-        <div class="col-lg-6 mb-4 mb-lg-0">
+        <!-- Recent Activities Column -->
+        <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
                     <h5 class="card-title mb-0">Recent Activities</h5>
                 </div>
-                <div class="card-body p-0">
-                    <div class="timeline p-3">
-                        <?php foreach ($recent_activities as $activity): ?>
+                <div class="card-body">
+                    <div class="timeline">
+                        <?php foreach($recent_activities as $activity): ?>
                             <div class="timeline-item">
                                 <div class="timeline-icon <?php echo $activity['type']; ?>">
-                                    <?php if ($activity['type'] === 'primary'): ?>
-                                        <i class="bi bi-plus text-primary small"></i>
-                                    <?php elseif ($activity['type'] === 'success'): ?>
-                                        <i class="bi bi-check text-success small"></i>
-                                    <?php elseif ($activity['type'] === 'danger'): ?>
-                                        <i class="bi bi-x text-danger small"></i>
+                                    <?php if($activity['type'] == 'primary'): ?>
+                                        <i class="bi bi-plus-circle text-primary small"></i>
+                                    <?php elseif($activity['type'] == 'success'): ?>
+                                        <i class="bi bi-check-circle text-success small"></i>
+                                    <?php elseif($activity['type'] == 'danger'): ?>
+                                        <i class="bi bi-x-circle text-danger small"></i>
                                     <?php endif; ?>
                                 </div>
                                 <div class="timeline-content">
                                     <h6 class="timeline-title"><?php echo $activity['title']; ?></h6>
                                     <p class="timeline-text"><?php echo $activity['description']; ?></p>
-                                    <span class="timeline-time"><?php echo $activity['time_ago']; ?></span>
+                                    <p class="timeline-time"><?php echo $activity['time_ago']; ?></p>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
-                <div class="card-footer text-center">
-                    <a href="#" class="btn btn-sm btn-outline-primary">View All Activities</a>
-                </div>
             </div>
         </div>
-        <div class="col-lg-6">
+
+        <!-- Pending Projects Column -->
+        <div class="col-lg-8 mb-4">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">Pending Projects</h5>
-                    <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                    <a href="" class="btn btn-sm btn-outline-primary">View All</a>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
+                        <table class="table table-hover">
                             <thead>
                             <tr>
                                 <th>Project</th>
                                 <th>Type</th>
+                                <th>Technologies</th>
                                 <th>Submitted By</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <?php foreach ($pending_projects_list as $project): ?>
+                            <?php if(count($pending_projects_list) > 0): ?>
+                                <?php foreach($pending_projects_list as $project): ?>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-2">
+                                                    <i class="bi bi-<?php echo $project['icon']; ?> text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <?php echo $project['name']; ?>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><?php echo $project['type']; ?></td>
+                                        <td><?php echo $project['technologies']; ?></td>
+                                        <td><?php echo $project['submitted_by']; ?></td>
+                                        <td>
+                                                <span class="badge bg-<?php echo $project['status_class']; ?>">
+                                                    <?php echo $project['status']; ?>
+                                                </span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="" class="btn btn-sm btn-outline-success">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </a>
+                                                <a href="" class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
                                 <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-light rounded p-2 me-2">
-                                                <i class="bi bi-<?php echo $project['icon']; ?>"></i>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-0"><?php echo $project['name']; ?></h6>
-                                                <small class="text-muted"><?php echo $project['technologies']; ?></small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><?php echo $project['type']; ?></td>
-                                    <td><?php echo $project['submitted_by']; ?></td>
-                                    <td>
-                                            <span class="badge bg-<?php echo $project['status_class']; ?>">
-                                                <?php echo $project['status']; ?>
-                                            </span>
-                                    </td>
-                                    <td>
-                                        <div class="dropdown">
-                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Actions
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li><a class="dropdown-item" href="#"><i class="bi bi-eye me-2"></i>View</a></li>
-                                                <li><a class="dropdown-item" href="#"><i class="bi bi-check-circle me-2"></i>Approve</a></li>
-                                                <li><a class="dropdown-item" href="#"><i class="bi bi-x-circle me-2"></i>Reject</a></li>
-                                            </ul>
-                                        </div>
-                                    </td>
+                                    <td colspan="6" class="text-center py-3">No pending projects</td>
                                 </tr>
-                            <?php endforeach; ?>
+                            <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -1331,13 +919,14 @@ function handleProjectSubmission() {
 
 </div>
 
-<!-- Bootstrap JS and Popper.js -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap 5 JS and Popper.js -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Sidebar Toggle
+    // Sidebar toggle on mobile
     document.getElementById('sidebarToggle')?.addEventListener('click', function() {
         document.querySelector('.sidebar').classList.toggle('show');
         document.querySelector('.main-content').classList.toggle('pushed');
@@ -1355,7 +944,7 @@ function handleProjectSubmission() {
                     data: <?php echo json_encode($submitted_projects_data); ?>,
                     borderColor: '#4361ee',
                     backgroundColor: 'rgba(67, 97, 238, 0.1)',
-                    tension: 0.3,
+                    tension: 0.4,
                     fill: true
                 },
                 {
@@ -1363,7 +952,7 @@ function handleProjectSubmission() {
                     data: <?php echo json_encode($approved_projects_data); ?>,
                     borderColor: '#10b981',
                     backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    tension: 0.3,
+                    tension: 0.4,
                     fill: true
                 },
                 {
@@ -1371,7 +960,7 @@ function handleProjectSubmission() {
                     data: <?php echo json_encode($rejected_projects_data); ?>,
                     borderColor: '#ef4444',
                     backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                    tension: 0.3,
+                    tension: 0.4,
                     fill: true
                 }
             ]
@@ -1382,10 +971,6 @@ function handleProjectSubmission() {
             plugins: {
                 legend: {
                     position: 'top',
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false
                 }
             },
             scales: {
@@ -1416,7 +1001,7 @@ function handleProjectSubmission() {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom'
+                    position: 'bottom',
                 }
             },
             cutout: '70%'
