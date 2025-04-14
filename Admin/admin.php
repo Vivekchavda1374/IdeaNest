@@ -1,5 +1,303 @@
 <?php
+session_start();
 require_once("../Login/Login/db.php");
+
+$site_name = "IdeaNest";
+$user_name = isset($_SESSION['name']) ? $_SESSION['name'] : "Admin";
+$notification_count = 0;
+$message_count = 0;
+$analytics_image = "assets/images/analytics.svg";
+$app_version = "1.0.0";
+
+// Get project statistics and chart data
+function getProjectStats() {
+    global $conn;
+    $stats = [
+        'total_projects' => 0,
+        'approved_projects' => 0,
+        'rejected_projects' => 0,
+        'pending_projects' => 0,
+        'total_projects_percentage' => 0,
+        'total_projects_growth' => "0%",
+        'approved_projects_percentage' => 0,
+        'approved_projects_growth' => "0%",
+        'pending_projects_percentage' => 0,
+        'pending_projects_growth' => "0%",
+        'rejected_projects_percentage' => 0,
+        'rejected_projects_growth' => "0%",
+        'project_chart_data' => [],
+        'category_chart_data' => []
+    ];
+
+    // Get total projects count
+    $total_sql = "SELECT COUNT(*) as count FROM projects";
+    $total_result = mysqli_query($conn, $total_sql);
+    if ($total_result && $row = mysqli_fetch_assoc($total_result)) {
+        $stats['total_projects'] = $row['count'];
+    }
+
+    // Get approved projects count
+    $approved_sql = "SELECT COUNT(*) as count FROM admin_approved_projects";
+    $approved_result = mysqli_query($conn, $approved_sql);
+    if ($approved_result && $row = mysqli_fetch_assoc($approved_result)) {
+        $stats['approved_projects'] = $row['count'];
+    }
+
+    // Get rejected projects count
+    $rejected_sql = "SELECT COUNT(*) as count FROM denial_projects";
+    $rejected_result = mysqli_query($conn, $rejected_sql);
+    if ($rejected_result && $row = mysqli_fetch_assoc($rejected_result)) {
+        $stats['rejected_projects'] = $row['count'];
+    }
+
+    // Calculate pending projects (total - approved - rejected)
+    $stats['pending_projects'] = $stats['total_projects'] - $stats['approved_projects'] - $stats['rejected_projects'];
+
+    // Calculate percentages (if total > 0)
+    if ($stats['total_projects'] > 0) {
+        $stats['approved_projects_percentage'] = round(($stats['approved_projects'] / $stats['total_projects']) * 100);
+        $stats['rejected_projects_percentage'] = round(($stats['rejected_projects'] / $stats['total_projects']) * 100);
+        $stats['pending_projects_percentage'] = round(($stats['pending_projects'] / $stats['total_projects']) * 100);
+        $stats['total_projects_percentage'] = 100; // Always 100% of itself
+    }
+
+    // For growth calculation, you would typically compare with previous period
+    // Set some placeholder growth values for now
+    $stats['approved_projects_growth'] = "+8%";
+    $stats['pending_projects_growth'] = "+3%";
+    $stats['rejected_projects_growth'] = "+2%";
+    $stats['total_projects_growth'] = "+10%";
+
+    // Get data for projects chart (last 6 months)
+    $months = [];
+    $submitted_data = [];
+    $approved_data = [];
+    $rejected_data = [];
+
+    // Get the last 6 months
+    for ($i = 5; $i >= 0; $i--) {
+        $month = date('M', strtotime("-$i month"));
+        $months[] = $month;
+
+        $year_month = date('Y-m', strtotime("-$i month"));
+        $start_date = $year_month . '-01';
+        $end_date = date('Y-m-t', strtotime($start_date));
+
+        // Count submitted projects for this month
+        $submitted_sql = "SELECT COUNT(*) as count FROM projects 
+                         WHERE submission_date BETWEEN '$start_date' AND '$end_date'";
+        $submitted_result = mysqli_query($conn, $submitted_sql);
+        $submitted_count = 0;
+        if ($submitted_result && $row = mysqli_fetch_assoc($submitted_result)) {
+            $submitted_count = $row['count'];
+        }
+        $submitted_data[] = $submitted_count;
+
+        // Count approved projects for this month
+        $approved_sql = "SELECT COUNT(*) as count FROM admin_approved_projects 
+                        WHERE submission_date BETWEEN '$start_date' AND '$end_date'";
+        $approved_result = mysqli_query($conn, $approved_sql);
+        $approved_count = 0;
+        if ($approved_result && $row = mysqli_fetch_assoc($approved_result)) {
+            $approved_count = $row['count'];
+        }
+        $approved_data[] = $approved_count;
+
+        // Count rejected projects for this month
+        $rejected_sql = "SELECT COUNT(*) as count FROM denial_projects 
+                        WHERE submission_date BETWEEN '$start_date' AND '$end_date'";
+        $rejected_result = mysqli_query($conn, $rejected_sql);
+        $rejected_count = 0;
+        if ($rejected_result && $row = mysqli_fetch_assoc($rejected_result)) {
+            $rejected_count = $row['count'];
+        }
+        $rejected_data[] = $rejected_count;
+    }
+
+    $stats['project_chart_labels'] = $months;
+    $stats['submitted_projects_data'] = $submitted_data;
+    $stats['approved_projects_data'] = $approved_data;
+    $stats['rejected_projects_data'] = $rejected_data;
+
+    // Get data for categories chart
+    $category_sql = "SELECT classification, COUNT(*) as count FROM projects GROUP BY project_type";
+    $category_result = mysqli_query($conn, $category_sql);
+
+    $category_labels = [];
+    $category_data = [];
+    $category_colors = ["#4361ee", "#10b981", "#f59e0b", "#6366f1", "#ec4899", "#8b5cf6"];
+    $color_index = 0;
+
+    if ($category_result) {
+        while ($row = mysqli_fetch_assoc($category_result)) {
+            $category_labels[] = $row['classification'];
+            $category_data[] = (int)$row['count'];
+            $color_index++;
+            if ($color_index >= count($category_colors)) {
+                $color_index = 0; // Reset if we run out of colors
+            }
+        }
+    }
+
+    $stats['category_labels'] = $category_labels;
+    $stats['category_data'] = $category_data;
+    $stats['category_colors'] = array_slice($category_colors, 0, count($category_labels));
+
+    // Get the most recent activities
+    $recent_activities = [];
+
+    // Recent submitted projects
+    $submitted_sql = "SELECT 'primary' as type, 'New Project Submitted' as title, 
+                    CONCAT('A new ', project_type, ' project \"', project_name, '\" has been submitted for review.') as description,
+                    TIMESTAMPDIFF(MINUTE, submission_date, NOW()) as minutes_ago,
+                    submission_date
+                    FROM projects 
+                    ORDER BY submission_date DESC LIMIT 3";
+    $submitted_result = mysqli_query($conn, $submitted_sql);
+
+    if ($submitted_result) {
+        while ($row = mysqli_fetch_assoc($submitted_result)) {
+            $time_ago = formatTimeAgo($row['minutes_ago'], $row['submission_date']);
+            $recent_activities[] = [
+                "type" => $row['type'],
+                "title" => $row['title'],
+                "description" => $row['description'],
+                "time_ago" => $time_ago
+            ];
+        }
+    }
+
+    // Recent approved projects
+    $approved_sql = "SELECT 'success' as type, 'Project Approved' as title, 
+                   CONCAT(project_type, ' project \"', project_name, '\" has been approved.') as description,
+                   TIMESTAMPDIFF(MINUTE, submission_date, NOW()) as minutes_ago,
+                   submission_date
+                   FROM admin_approved_projects 
+                   ORDER BY submission_date DESC LIMIT 2";
+    $approved_result = mysqli_query($conn, $approved_sql);
+
+    if ($approved_result) {
+        while ($row = mysqli_fetch_assoc($approved_result)) {
+            $time_ago = formatTimeAgo($row['minutes_ago'], $row['submission_date']);
+            $recent_activities[] = [
+                "type" => $row['type'],
+                "title" => $row['title'],
+                "description" => $row['description'],
+                "time_ago" => $time_ago
+            ];
+        }
+    }
+
+    // Recent rejected projects
+    $rejected_sql = "SELECT 'danger' as type, 'Project Rejected' as title, 
+                   CONCAT(project_type, ' project \"', project_name, '\" has been rejected.') as description,
+                   TIMESTAMPDIFF(MINUTE, rejection_date, NOW()) as minutes_ago,
+                   rejection_date as activity_date
+                   FROM denial_projects 
+                   ORDER BY rejection_date DESC LIMIT 2";
+    $rejected_result = mysqli_query($conn, $rejected_sql);
+
+    if ($rejected_result) {
+        while ($row = mysqli_fetch_assoc($rejected_result)) {
+            $time_ago = formatTimeAgo($row['minutes_ago'], $row['activity_date']);
+            $recent_activities[] = [
+                "type" => $row['type'],
+                "title" => $row['title'],
+                "description" => $row['description'],
+                "time_ago" => $time_ago
+            ];
+        }
+    }
+
+    // Sort activities by time (most recent first)
+    usort($recent_activities, function($a, $b) {
+        $time_a = strtotime(str_replace([' ago', 'min', 'hour', 'day'], ['', 'minutes', 'hours', 'days'], $a['time_ago']));
+        $time_b = strtotime(str_replace([' ago', 'min', 'hour', 'day'], ['', 'minutes', 'hours', 'days'], $b['time_ago']));
+        return $time_b - $time_a;
+    });
+
+    // Take only the 3 most recent activities
+    $stats['recent_activities'] = array_slice($recent_activities, 0, 3);
+
+    // Get pending projects list
+    $pending_sql = "SELECT p.id, p.project_name, p.project_type, p.language as technologies, 
+                  CASE 
+                      WHEN p.project_type = 'Web App' THEN 'globe'
+                      WHEN p.project_type = 'Mobile App' THEN 'phone'
+                      WHEN p.project_type = 'API' THEN 'code-slash'
+                      ELSE 'folder'
+                  END as icon,
+                  u.name as submitted_by, p.submission_date, 'Pending' as status, 'warning' as status_class
+                  FROM projects p
+                  JOIN users u ON p.user_id = u.id
+                  WHERE p.id NOT IN (SELECT id FROM admin_approved_projects)
+                  AND p.id NOT IN (SELECT id FROM denial_projects)
+                  ORDER BY p.submission_date DESC
+                  LIMIT 5";
+    $pending_result = mysqli_query($conn, $pending_sql);
+
+    $pending_projects_list = [];
+    if ($pending_result) {
+        while ($row = mysqli_fetch_assoc($pending_result)) {
+            // Format the date for display
+            $row['submission_date'] = date('Y-m-d', strtotime($row['submission_date']));
+            $pending_projects_list[] = $row;
+        }
+    }
+
+    $stats['pending_projects_list'] = $pending_projects_list;
+
+    return $stats;
+}
+
+// Helper function to format time ago
+function formatTimeAgo($minutes_ago, $date) {
+    if ($minutes_ago < 60) {
+        return $minutes_ago . " min ago";
+    } else if ($minutes_ago < 1440) { // less than a day
+        $hours = floor($minutes_ago / 60);
+        return $hours . " hour" . ($hours > 1 ? "s" : "") . " ago";
+    } else {
+        $days = floor($minutes_ago / 1440);
+        return $days . " day" . ($days > 1 ? "s" : "") . " ago";
+    }
+}
+
+// Call this function to get all the dashboard data
+$dashboard_data = getProjectStats();
+
+// Update all variables used in the dashboard
+$total_projects = $dashboard_data['total_projects'];
+$total_projects_percentage = $dashboard_data['total_projects_percentage'];
+$total_projects_growth = $dashboard_data['total_projects_growth'];
+$approved_projects = $dashboard_data['approved_projects'];
+$approved_projects_percentage = $dashboard_data['approved_projects_percentage'];
+$approved_projects_growth = $dashboard_data['approved_projects_growth'];
+$pending_projects = $dashboard_data['pending_projects'];
+$pending_projects_percentage = $dashboard_data['pending_projects_percentage'];
+$pending_projects_growth = $dashboard_data['pending_projects_growth'];
+$rejected_projects = $dashboard_data['rejected_projects'];
+$rejected_projects_percentage = $dashboard_data['rejected_projects_percentage'];
+$rejected_projects_growth = $dashboard_data['rejected_projects_growth'];
+
+// Chart data
+$project_chart_labels = $dashboard_data['project_chart_labels'];
+$submitted_projects_data = $dashboard_data['submitted_projects_data'];
+$approved_projects_data = $dashboard_data['approved_projects_data'];
+$rejected_projects_data = $dashboard_data['rejected_projects_data'];
+$category_labels = $dashboard_data['category_labels'];
+$category_data = $dashboard_data['category_data'];
+$category_colors = $dashboard_data['category_colors'];
+
+// Recent activities & pending projects
+$recent_activities = $dashboard_data['recent_activities'];
+$pending_projects_list = $dashboard_data['pending_projects_list'];
+
+// Time ranges and categories for dropdowns
+$selected_time_range = "Last 30 Days";
+$time_ranges = ["Last 7 Days", "Last 30 Days", "Last 3 Months", "Last Year"];
+$selected_category_range = "All Time";
+$category_ranges = ["Last 30 Days", "Last 3 Months", "Last Year", "All Time"];
 
 function createProject($user_id, $project_name, $project_type, $description, $language, $classification = NULL, $image_path = NULL, $video_path = NULL, $code_file_path = NULL, $instruction_file_path = NULL) {
     global $conn;
@@ -20,13 +318,13 @@ function createProject($user_id, $project_name, $project_type, $description, $la
 
     // Build SQL query with proper handling of NULL values
     $sql = "INSERT INTO projects (user_id, project_name, project_type, description, language, 
-            classification, image_path, video_path, code_file_path, instruction_file_path) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            classification, image_path, video_path, code_file_path, instruction_file_path, status, submission_date) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())";
 
     $stmt = mysqli_prepare($conn, $sql);
 
     if ($stmt) {
-        mysqli_stmt_bind_param($stmt, 'issssssss',
+        mysqli_stmt_bind_param($stmt, 'isssssssss',
             $user_id,
             $project_name,
             $project_type,
@@ -58,7 +356,7 @@ function getProjectById($project_id) {
     global $conn;
     $project_id = (int)$project_id;
 
-    $sql = "SELECT p.*, u.username FROM projects p 
+    $sql = "SELECT p.*, u.name FROM projects p 
             JOIN users u ON p.user_id = u.id
             WHERE p.id = ?";
 
@@ -81,6 +379,7 @@ function getProjectById($project_id) {
 
     return null;
 }
+
 function updateProject($project_id, $data) {
     global $conn;
     $project_id = (int)$project_id;
@@ -120,7 +419,6 @@ function updateProject($project_id, $data) {
     if (empty($updates)) {
         return false;
     }
-    $updates[] = "updated_at = NOW()";
 
     $sql = "UPDATE projects SET " . implode(', ', $updates) . " WHERE id = ?";
 
@@ -138,6 +436,7 @@ function updateProject($project_id, $data) {
 
     return false;
 }
+
 function deleteProject($project_id) {
     global $conn;
     $project_id = (int)$project_id;
@@ -154,6 +453,7 @@ function deleteProject($project_id) {
 
     return false;
 }
+
 function getProjectsByUser($user_id, $status = null) {
     global $conn;
     $user_id = (int)$user_id;
@@ -188,6 +488,7 @@ function getProjectsByUser($user_id, $status = null) {
 
     return [];
 }
+
 function getFilteredProjects($filters = [], $page = 1, $per_page = 10) {
     global $conn;
 
@@ -247,7 +548,7 @@ function getFilteredProjects($filters = [], $page = 1, $per_page = 10) {
     $offset = ($page - 1) * $per_page;
 
     // Get the projects
-    $sql = "SELECT p.*, u.username FROM projects p 
+    $sql = "SELECT p.*, u.name FROM projects p 
             JOIN users u ON p.user_id = u.id" .
         $where_sql . " 
             ORDER BY p.submission_date DESC 
@@ -304,6 +605,7 @@ function getProjectTypeStats() {
 
     return $stats;
 }
+
 function uploadProjectFile($file, $type) {
     // Define allowed extensions per type
     $allowed_extensions = [
@@ -338,7 +640,7 @@ function uploadProjectFile($file, $type) {
     }
 
     // Generate unique filename
-    $filename = uniqid() . '_' . bin2hex(random_bytes(8)) . '.' . $file_extension;
+    $filename = uniqid() . '_' . md5(mt_rand()) . '.' . $file_extension;
     $filepath = $upload_dir . $filename;
 
     // Move the uploaded file
@@ -348,6 +650,7 @@ function uploadProjectFile($file, $type) {
 
     return false;
 }
+
 function handleProjectSubmission() {
     // Verify user is logged in
     if (!isset($_SESSION['user_id'])) {
@@ -461,248 +764,150 @@ function handleProjectSubmission() {
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3bc9db;
-            --success-color: #10b981;
-            --info-color: #60a5fa;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --light-color: #f9fafb;
-            --dark-color: #1f2937;
-            --gray-color: #9ca3af;
-            --sidebar-width: 250px;
-            --topbar-height: 70px;
-            --card-border-radius: 12px;
-            --box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.08);
-        }
-
-        body {
-            background-color: #f8fafc;
-            font-family: 'Inter', 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
-            overflow-x: hidden;
-        }
-
-        /* Sidebar Styles */
+        /* Custom Sidebar Styles */
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
-            width: var(--sidebar-width);
-            height: 100vh;
-            background: #fff;
-            box-shadow: var(--box-shadow);
+            bottom: 0;
+            width: 250px;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
             z-index: 1000;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
+            overflow-y: auto;
+            padding: 1rem;
         }
 
         .sidebar-header {
-            height: var(--topbar-height);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 0 1.5rem;
+            padding: 1rem 0;
+            text-align: center;
+            border-bottom: 1px solid #f1f1f1;
+            margin-bottom: 1rem;
         }
 
         .sidebar-brand {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #4361ee;
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-brand i {
+            margin-right: 0.5rem;
         }
 
         .sidebar-menu {
-            padding: 1.5rem 0;
             list-style: none;
+            padding: 0;
             margin: 0;
         }
 
         .sidebar-item {
-            position: relative;
             margin-bottom: 0.5rem;
         }
 
         .sidebar-link {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1.5rem;
-            color: var(--dark-color);
+            padding: 0.75rem 1rem;
+            color: #6c757d;
             text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s ease;
+            border-radius: 0.25rem;
+            transition: all 0.2s;
         }
 
         .sidebar-link i {
+            margin-right: 0.75rem;
             font-size: 1.25rem;
-            margin-right: 1rem;
-            color: var(--gray-color);
-            transition: all 0.2s ease;
-        }
-
-        .sidebar-link:hover {
-            background-color: rgba(67, 97, 238, 0.1);
-            color: var(--primary-color);
-        }
-
-        .sidebar-link:hover i {
-            color: var(--primary-color);
         }
 
         .sidebar-link.active {
-            background-color: rgba(67, 97, 238, 0.1);
-            color: var(--primary-color);
-            border-left: 4px solid var(--primary-color);
+            background-color: #4361ee;
+            color: #fff;
         }
 
-        .sidebar-link.active i {
-            color: var(--primary-color);
+        .sidebar-link:hover:not(.active) {
+            background-color: #f8f9fa;
+            color: #4361ee;
         }
 
         .sidebar-divider {
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            margin: 1rem 1.5rem;
-            padding: 0;
+            margin: 1rem 0;
+            border-top: 1px solid #f1f1f1;
         }
 
         .sidebar-footer {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            padding: 1.5rem;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1rem 0;
+            border-top: 1px solid #f1f1f1;
+            margin-top: 1rem;
         }
 
-        /* Content Area Styles */
+        /* Main Content Styles */
         .main-content {
-            margin-left: var(--sidebar-width);
-            padding: 1.5rem;
-            min-height: 100vh;
-            transition: all 0.3s ease;
+            margin-left: 250px;
+            padding: 1rem;
+            transition: all 0.3s;
         }
 
         /* Topbar Styles */
         .topbar {
-            height: var(--topbar-height);
-            padding: 0 1.5rem;
-            background-color: #fff;
-            box-shadow: var(--box-shadow);
-            margin-bottom: 1.5rem;
-            border-radius: var(--card-border-radius);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
         }
 
         .page-title {
             font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--dark-color);
+            font-weight: 600;
             margin: 0;
         }
 
         .topbar-actions {
             display: flex;
             align-items: center;
-            gap: 1rem;
         }
 
         .topbar-action {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--light-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--dark-color);
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-
-        .topbar-action:hover {
-            background-color: rgba(67, 97, 238, 0.1);
-            color: var(--primary-color);
+            font-size: 1.25rem;
+            color: #6c757d;
+            margin-left: 1rem;
+            position: relative;
         }
 
         .user-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            overflow: hidden;
-            background-color: var(--light-color);
+            background-color: #f8f9fa;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            color: var(--primary-color);
+            color: #4361ee;
+            margin-left: 1rem;
         }
 
-        /* Card Styles */
-        .card {
-            border: none;
-            border-radius: var(--card-border-radius);
-            box-shadow: var(--box-shadow);
-            margin-bottom: 1.5rem;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .card-header {
-            background-color: #fff;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 1.25rem 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .card-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--dark-color);
-            margin: 0;
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        /* Stats Card */
+        /* Stats Card Styles */
         .stats-card {
-            height: 100%;
-            border-radius: var(--card-border-radius);
-            padding: 1.5rem;
             background-color: #fff;
-            box-shadow: var(--box-shadow);
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-            transition: all 0.3s ease;
-        }
-
-        .stats-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stats-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100px;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
             height: 100%;
-            background: linear-gradient(to right, transparent, rgba(67, 97, 238, 0.03));
-            z-index: -1;
         }
 
         .stats-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -710,130 +915,45 @@ function handleProjectSubmission() {
             margin-bottom: 1rem;
         }
 
-        .stats-icon.primary {
-            background-color: rgba(67, 97, 238, 0.1);
-            color: var(--primary-color);
-        }
-
-        .stats-icon.success {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
-        }
-
-        .stats-icon.warning {
-            background-color: rgba(245, 158, 11, 0.1);
-            color: var(--warning-color);
-        }
-
-        .stats-icon.danger {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--danger-color);
-        }
+        .stats-icon.primary { background-color: rgba(67, 97, 238, 0.1); color: #4361ee; }
+        .stats-icon.success { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .stats-icon.warning { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .stats-icon.danger { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
 
         .stats-info {
-            margin-bottom: 0.5rem;
+            flex-grow: 1;
         }
 
         .stats-label {
             font-size: 0.875rem;
-            color: var(--gray-color);
+            color: #6c757d;
             margin-bottom: 0.5rem;
         }
 
         .stats-value {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--dark-color);
-            margin-bottom: 0;
-        }
-
-        .stats-progress {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .progress {
-            flex: 1;
-            height: 6px;
-            border-radius: 3px;
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-
-        .progress-bar {
-            border-radius: 3px;
-        }
-
-        .stats-percentage {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--success-color);
-        }
-
-        /* Project Card */
-        .project-card {
-            border-radius: var(--card-border-radius);
-            border-left: 4px solid var(--primary-color);
-            transition: all 0.3s ease;
-        }
-
-        .project-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .project-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
             margin-bottom: 1rem;
         }
 
-        .project-meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--gray-color);
+        .stats-progress {
+            margin-top: auto;
         }
 
-        .badge {
-            font-weight: 500;
-            padding: 0.35rem 0.65rem;
-            border-radius: 50rem;
+        .stats-percentage {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+            text-align: right;
         }
 
-        .badge-pending {
-            background-color: var(--warning-color);
-            color: #fff;
-        }
-
-        .badge-approved {
-            background-color: var(--success-color);
-            color: #fff;
-        }
-
-        .badge-rejected {
-            background-color: var(--danger-color);
-            color: #fff;
-        }
-
-        /* Activity Timeline */
+        /* Timeline Styles */
         .timeline {
             position: relative;
-            padding-left: 2rem;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 7px;
-            height: 100%;
-            width: 2px;
-            background-color: rgba(0, 0, 0, 0.05);
         }
 
         .timeline-item {
+            padding-left: 2rem;
             position: relative;
             padding-bottom: 1.5rem;
         }
@@ -844,108 +964,60 @@ function handleProjectSubmission() {
 
         .timeline-icon {
             position: absolute;
+            left: 0;
             top: 0;
-            left: -2rem;
-            width: 16px;
-            height: 16px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background-color: var(--primary-color);
-            border: 3px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .timeline-icon.approved {
-            background-color: var(--success-color);
-        }
-
-        .timeline-icon.rejected {
-            background-color: var(--danger-color);
-        }
+        .timeline-icon.primary { background-color: rgba(67, 97, 238, 0.1); border: 2px solid #4361ee; }
+        .timeline-icon.success { background-color: rgba(16, 185, 129, 0.1); border: 2px solid #10b981; }
+        .timeline-icon.danger { background-color: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; }
 
         .timeline-content {
-            padding-top: 0.25rem;
+            position: relative;
         }
 
         .timeline-title {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--dark-color);
+            font-size: 0.9375rem;
             margin-bottom: 0.25rem;
         }
 
         .timeline-text {
             font-size: 0.875rem;
-            color: var(--gray-color);
+            color: #6c757d;
             margin-bottom: 0.25rem;
         }
 
         .timeline-time {
             font-size: 0.75rem;
-            color: var(--gray-color);
+            color: #adb5bd;
         }
 
-        /* Chart Styles */
+        /* Chart Container */
         .chart-container {
-            height: 280px;
+            position: relative;
+            height: 300px;
         }
 
-        /* Responsive Media Queries */
+        /* Media Query for Responsive Sidebar */
         @media (max-width: 991.98px) {
             .sidebar {
                 transform: translateX(-100%);
             }
-
-            .main-content {
-                margin-left: 0;
-            }
-
             .sidebar.show {
                 transform: translateX(0);
             }
-
-            .main-content.pushed {
-                margin-left: var(--sidebar-width);
+            .main-content {
+                margin-left: 0;
             }
-        }
-
-        /* Additional Utility Classes */
-        .text-muted {
-            color: var(--gray-color) !important;
-        }
-
-        .text-primary {
-            color: var(--primary-color) !important;
-        }
-
-        .text-success {
-            color: var(--success-color) !important;
-        }
-
-        .text-warning {
-            color: var(--warning-color) !important;
-        }
-
-        .text-danger {
-            color: var(--danger-color) !important;
-        }
-
-        .bg-primary {
-            background-color: var(--primary-color) !important;
-        }
-
-        .bg-success {
-            background-color: var(--success-color) !important;
-        }
-
-        .bg-warning {
-            background-color: var(--warning-color) !important;
-        }
-
-        .bg-danger {
-            background-color: var(--danger-color) !important;
-        }
-
-        .mb-6 {
-            margin-bottom: 4rem !important;
+            .main-content.pushed {
+                margin-left: 250px;
+            }
         }
     </style>
 </head>
@@ -1002,18 +1074,7 @@ function handleProjectSubmission() {
         </button>
         <h1 class="page-title">Dashboard</h1>
         <div class="topbar-actions">
-            <a href="#" class="topbar-action position-relative">
-                <i class="bi bi-bell"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    <?php echo $notification_count; ?>
-                </span>
-            </a>
-            <a href="#" class="topbar-action position-relative">
-                <i class="bi bi-envelope"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
-                    <?php echo $message_count; ?>
-                </span>
-            </a>
+
             <div class="dropdown">
                 <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-person"></i>
@@ -1033,106 +1094,112 @@ function handleProjectSubmission() {
         <div class="card-body p-4">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <h2 class="mb-1">Welcome back, <?php echo $user_name; ?>!</h2>
-                    <p class="text-muted mb-3">Here's what's happening with your projects today.</p>
-                    <a href="#" class="btn btn-primary">View Analytics Report</a>
+                    <h4 class="mb-1">Welcome back, <?php echo $user_name; ?>!</h4>
+                    <p class="text-muted">Here's what's happening with your projects today.</p>
                 </div>
-                <div class="col-md-6 d-none d-md-block text-end">
-                    <img src="<?php echo $analytics_image; ?>" alt="analytics" class="img-fluid" style="max-height: 150px;">
+                <div class="col-md-6 text-md-end">
+                    <button class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-1"></i> Add New Project
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Stats Cards -->
+    <!-- Stats Row -->
     <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-md-3 mb-4 mb-md-0">
             <div class="stats-card">
                 <div class="stats-icon primary">
                     <i class="bi bi-folder"></i>
                 </div>
                 <div class="stats-info">
                     <div class="stats-label">Total Projects</div>
-                    <h3 class="stats-value"><?php echo $total_projects; ?></h3>
+                    <div class="stats-value"><?php echo $total_projects; ?></div>
                 </div>
                 <div class="stats-progress">
-                    <div class="progress">
-                        <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo $total_projects_percentage; ?>%" aria-valuenow="<?php echo $total_projects_percentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo $total_projects_percentage; ?>%"></div>
                     </div>
-                    <div class="stats-percentage"><?php echo $total_projects_growth; ?></div>
+                    <div class="stats-percentage">
+                        <i class="bi bi-arrow-up"></i> <?php echo $total_projects_growth; ?> from last period
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-md-3 mb-4 mb-md-0">
             <div class="stats-card">
                 <div class="stats-icon success">
                     <i class="bi bi-check-circle"></i>
                 </div>
                 <div class="stats-info">
                     <div class="stats-label">Approved Projects</div>
-                    <h3 class="stats-value"><?php echo $approved_projects; ?></h3>
+                    <div class="stats-value"><?php echo $approved_projects; ?></div>
                 </div>
                 <div class="stats-progress">
-                    <div class="progress">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $approved_projects_percentage; ?>%" aria-valuenow="<?php echo $approved_projects_percentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $approved_projects_percentage; ?>%"></div>
                     </div>
-                    <div class="stats-percentage"><?php echo $approved_projects_growth; ?></div>
+                    <div class="stats-percentage">
+                        <i class="bi bi-arrow-up"></i> <?php echo $approved_projects_growth; ?> from last period
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-md-3 mb-4 mb-md-0">
             <div class="stats-card">
                 <div class="stats-icon warning">
-                    <i class="bi bi-hourglass-split"></i>
+                    <i class="bi bi-clock"></i>
                 </div>
                 <div class="stats-info">
                     <div class="stats-label">Pending Projects</div>
-                    <h3 class="stats-value"><?php echo $pending_projects; ?></h3>
+                    <div class="stats-value"><?php echo $pending_projects; ?></div>
                 </div>
                 <div class="stats-progress">
-                    <div class="progress">
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: <?php echo $pending_projects_percentage; ?>%" aria-valuenow="<?php echo $pending_projects_percentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: <?php echo $pending_projects_percentage; ?>%"></div>
                     </div>
-                    <div class="stats-percentage"><?php echo $pending_projects_growth; ?></div>
+                    <div class="stats-percentage">
+                        <i class="bi bi-arrow-up"></i> <?php echo $pending_projects_growth; ?> from last period
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-md-3">
             <div class="stats-card">
                 <div class="stats-icon danger">
                     <i class="bi bi-x-circle"></i>
                 </div>
                 <div class="stats-info">
                     <div class="stats-label">Rejected Projects</div>
-                    <h3 class="stats-value"><?php echo $rejected_projects; ?></h3>
+                    <div class="stats-value"><?php echo $rejected_projects; ?></div>
                 </div>
                 <div class="stats-progress">
-                    <div class="progress">
-                        <div class="progress-bar bg-danger" role="progressbar" style="width: <?php echo $rejected_projects_percentage; ?>%" aria-valuenow="<?php echo $rejected_projects_percentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: <?php echo $rejected_projects_percentage; ?>%"></div>
                     </div>
-                    <div class="stats-percentage"><?php echo $rejected_projects_growth; ?></div>
+                    <div class="stats-percentage">
+                        <i class="bi bi-arrow-up"></i> <?php echo $rejected_projects_growth; ?> from last period
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Project Analytics & Activity -->
-    <div class="row">
-        <!-- Project Analytics -->
-        <div class="col-lg-8 mb-4">
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mb-4 mb-lg-0">
             <div class="card h-100">
-                <div class="card-header">
-                    <h6 class="card-title">Project Submissions Analytics</h6>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Project Submissions</h5>
                     <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="timeRangeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <?php echo $selected_time_range; ?>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="timeRangeDropdown">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <?php foreach ($time_ranges as $range): ?>
-                                <li><a class="dropdown-item <?php echo ($range == $selected_time_range) ? 'active' : ''; ?>" href="#"><?php echo $range; ?></a></li>
+                                <li><a class="dropdown-item" href="#"><?php echo $range; ?></a></li>
                             <?php endforeach; ?>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#">Custom Range</a></li>
                         </ul>
                     </div>
                 </div>
@@ -1143,76 +1210,78 @@ function handleProjectSubmission() {
                 </div>
             </div>
         </div>
-
-        <!-- Recent Activity -->
-        <div class="col-lg-4 mb-4">
+        <div class="col-lg-4">
             <div class="card h-100">
-                <div class="card-header">
-                    <h6 class="card-title">Recent Activity</h6>
-                    <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
-                </div>
-                <div class="card-body p-0">
-                    <div class="p-3">
-                        <div class="timeline">
-                            <?php foreach ($recent_activities as $activity): ?>
-                                <div class="timeline-item">
-                                    <div class="timeline-icon <?php echo $activity['type']; ?>"></div>
-                                    <div class="timeline-content">
-                                        <h6 class="timeline-title"><?php echo $activity['title']; ?></h6>
-                                        <p class="timeline-text"><?php echo $activity['description']; ?></p>
-                                        <span class="timeline-time"><?php echo $activity['time_ago']; ?></span>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Project Categories & Pending Projects -->
-    <div class="row">
-        <!-- Project Categories -->
-        <div class="col-lg-4 mb-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h6 class="card-title">Project Categories</h6>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Project Categories</h5>
                     <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="projectCategoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <?php echo $selected_category_range; ?>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="projectCategoryDropdown">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <?php foreach ($category_ranges as $range): ?>
-                                <li><a class="dropdown-item <?php echo ($range == $selected_category_range) ? 'active' : ''; ?>" href="#"><?php echo $range; ?></a></li>
+                                <li><a class="dropdown-item" href="#"><?php echo $range; ?></a></li>
                             <?php endforeach; ?>
                         </ul>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="chart-container">
-                        <canvas id="categoryChart"></canvas>
+                        <canvas id="categoriesChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Latest Pending Projects -->
-        <div class="col-lg-8 mb-4">
+    <!-- Recent Activities and Pending Projects -->
+    <div class="row">
+        <div class="col-lg-6 mb-4 mb-lg-0">
             <div class="card h-100">
                 <div class="card-header">
-                    <h6 class="card-title">Latest Pending Projects</h6>
-                    <a href="#" class="btn btn-sm btn-primary">View All</a>
+                    <h5 class="card-title mb-0">Recent Activities</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="timeline p-3">
+                        <?php foreach ($recent_activities as $activity): ?>
+                            <div class="timeline-item">
+                                <div class="timeline-icon <?php echo $activity['type']; ?>">
+                                    <?php if ($activity['type'] === 'primary'): ?>
+                                        <i class="bi bi-plus text-primary small"></i>
+                                    <?php elseif ($activity['type'] === 'success'): ?>
+                                        <i class="bi bi-check text-success small"></i>
+                                    <?php elseif ($activity['type'] === 'danger'): ?>
+                                        <i class="bi bi-x text-danger small"></i>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="timeline-content">
+                                    <h6 class="timeline-title"><?php echo $activity['title']; ?></h6>
+                                    <p class="timeline-text"><?php echo $activity['description']; ?></p>
+                                    <span class="timeline-time"><?php echo $activity['time_ago']; ?></span>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="#" class="btn btn-sm btn-outline-primary">View All Activities</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Pending Projects</h5>
+                    <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead>
                             <tr>
-                                <th>Project Name</th>
+                                <th>Project</th>
                                 <th>Type</th>
                                 <th>Submitted By</th>
-                                <th>Date</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -1223,7 +1292,7 @@ function handleProjectSubmission() {
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="bg-light rounded p-2 me-2">
-                                                <i class="bi bi-<?php echo $project['icon']; ?> text-primary"></i>
+                                                <i class="bi bi-<?php echo $project['icon']; ?>"></i>
                                             </div>
                                             <div>
                                                 <h6 class="mb-0"><?php echo $project['name']; ?></h6>
@@ -1233,17 +1302,20 @@ function handleProjectSubmission() {
                                     </td>
                                     <td><?php echo $project['type']; ?></td>
                                     <td><?php echo $project['submitted_by']; ?></td>
-                                    <td><?php echo $project['submission_date']; ?></td>
-                                    <td><span class="badge badge-<?php echo $project['status_class']; ?>"><?php echo $project['status']; ?></span></td>
+                                    <td>
+                                            <span class="badge bg-<?php echo $project['status_class']; ?>">
+                                                <?php echo $project['status']; ?>
+                                            </span>
+                                    </td>
                                     <td>
                                         <div class="dropdown">
                                             <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Action
+                                                Actions
                                             </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li><a class="dropdown-item" href="project_details.php?id=<?php echo $project['id']; ?>">View Details</a></li>
-                                                <li><a class="dropdown-item text-success" href="approve_project.php?id=<?php echo $project['id']; ?>">Approve</a></li>
-                                                <li><a class="dropdown-item text-danger" href="reject_project.php?id=<?php echo $project['id']; ?>">Reject</a></li>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#"><i class="bi bi-eye me-2"></i>View</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="bi bi-check-circle me-2"></i>Approve</a></li>
+                                                <li><a class="dropdown-item" href="#"><i class="bi bi-x-circle me-2"></i>Reject</a></li>
                                             </ul>
                                         </div>
                                     </td>
@@ -1257,100 +1329,99 @@ function handleProjectSubmission() {
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="mt-auto py-3">
-        <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <span class="text-muted">&copy; <?php echo date('Y'); ?> <?php echo $site_name; ?>. All rights reserved.</span>
-                </div>
-                <div>
-                    <span class="text-muted">Version <?php echo $app_version; ?></span>
-                </div>
-            </div>
-        </div>
-    </footer>
 </div>
 
-<!-- Bootstrap JS and dependencies -->
+<!-- Bootstrap JS and Popper.js -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    // Sidebar toggle functionality
-    document.getElementById('sidebarToggle').addEventListener('click', function() {
+    // Sidebar Toggle
+    document.getElementById('sidebarToggle')?.addEventListener('click', function() {
         document.querySelector('.sidebar').classList.toggle('show');
         document.querySelector('.main-content').classList.toggle('pushed');
     });
 
     // Projects Chart
-    const projectsChart = new Chart(
-        document.getElementById('projectsChart'),
-        {
-            type: 'line',
-            data: {
-                labels: <?php echo json_encode($project_chart_labels); ?>,
-                datasets: [
-                    {
-                        label: 'Submitted',
-                        data: <?php echo json_encode($submitted_projects_data); ?>,
-                        borderColor: '#4361ee',
-                        tension: 0.3,
-                        fill: false
-                    },
-                    {
-                        label: 'Approved',
-                        data: <?php echo json_encode($approved_projects_data); ?>,
-                        borderColor: '#10b981',
-                        tension: 0.3,
-                        fill: false
-                    },
-                    {
-                        label: 'Rejected',
-                        data: <?php echo json_encode($rejected_projects_data); ?>,
-                        borderColor: '#ef4444',
-                        tension: 0.3,
-                        fill: false
-                    }
-                ]
+    const projectsChartCtx = document.getElementById('projectsChart').getContext('2d');
+    const projectsChart = new Chart(projectsChartCtx, {
+        type: 'line',
+        data: {
+            labels: <?php echo json_encode($project_chart_labels); ?>,
+            datasets: [
+                {
+                    label: 'Submitted',
+                    data: <?php echo json_encode($submitted_projects_data); ?>,
+                    borderColor: '#4361ee',
+                    backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: 'Approved',
+                    data: <?php echo json_encode($approved_projects_data); ?>,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: 'Rejected',
+                    data: <?php echo json_encode($rejected_projects_data); ?>,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
                     }
                 }
             }
         }
-    );
+    });
 
-    // Category Chart
-    const categoryChart = new Chart(
-        document.getElementById('categoryChart'),
-        {
-            type: 'doughnut',
-            data: {
-                labels: <?php echo json_encode($category_labels); ?>,
-                datasets: [{
-                    data: <?php echo json_encode($category_data); ?>,
-                    backgroundColor: <?php echo json_encode($category_colors); ?>,
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
+    // Categories Chart
+    const categoriesChartCtx = document.getElementById('categoriesChart').getContext('2d');
+    const categoriesChart = new Chart(categoriesChartCtx, {
+        type: 'doughnut',
+        data: {
+            labels: <?php echo json_encode($category_labels); ?>,
+            datasets: [{
+                data: <?php echo json_encode($category_data); ?>,
+                backgroundColor: <?php echo json_encode($category_colors); ?>,
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
                 }
-            }
+            },
+            cutout: '70%'
         }
-    );
+    });
 </script>
 </body>
 </html>
