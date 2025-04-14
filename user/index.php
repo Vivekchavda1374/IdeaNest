@@ -173,7 +173,7 @@ $conn->close();
                     <div class="card-body p-3">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="mb-0 text-white-50">My Projects</p>
+                                <p class="mb-0 text-white-50">Projects</p>
                                 <h3 class="mt-2 mb-0 text-white"><?php echo $projectCount; ?></h3>
                             </div>
                             <div class="icon">
@@ -188,7 +188,7 @@ $conn->close();
                     <div class="card-body p-3">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="mb-0 text-white-50"> My Published Ideas</p>
+                                <p class="mb-0 text-white-50">Ideas</p>
                                 <h3 class="mt-2 mb-0 text-white"><?php echo $blogCount; ?></h3>
                             </div>
                             <div class="icon">
@@ -203,7 +203,7 @@ $conn->close();
                     <div class="card-body p-3">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="mb-0 text-white-50">Upcoming Featuer </p>
+                                <p class="mb-0 text-white-50">Upcoming Feature </p>
                                 <h3 class="mt-2 mb-0 text-white"> Mentor Sessions</h3>
                             </div>
                             <div class="icon">
