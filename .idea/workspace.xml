@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="admin page code improved with php">
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="admin page error solved successfully 1. admin view reject and approved project error solve successfully 2. user management working and error removed in admin.php">
+      <change afterPath="$PROJECT_DIR$/Admin/admin_view_project.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Admin/admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/admin.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Admin/user_project_search.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/user_project_search.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,34 +57,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;JavaScript Debug.user_project_search.php.executor&quot;: &quot;Coverage&quot;,
-    &quot;PHP Script.progressbar.php.executor&quot;: &quot;Run&quot;,
-    &quot;PHP Script.user_project_search.php.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/xampp/htdocs/project/IdeaNest&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.webide.settings.project.settings.php.composer&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JavaScript Debug.user_project_search.php.executor": "Coverage",
+    "PHP Script.progressbar.php.executor": "Run",
+    "PHP Script.user_project_search.php.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/xampp/htdocs/project/IdeaNest/Admin",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "reference.webide.settings.project.settings.php.composer",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\xampp\htdocs\project\IdeaNest\Admin" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Admin" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\user\forms" />
     </key>
@@ -145,7 +148,9 @@
       <workItem from="1743919765117" duration="1548000" />
       <workItem from="1744527121744" duration="936000" />
       <workItem from="1744595482687" duration="2755000" />
-      <workItem from="1744610028157" duration="3867000" />
+      <workItem from="1744610028157" duration="4033000" />
+      <workItem from="1744615321635" duration="758000" />
+      <workItem from="1744691160475" duration="5255000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -427,7 +432,31 @@
       <option name="project" value="LOCAL" />
       <updated>1744598396418</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="admin page code improved with php">
+      <option name="closed" value="true" />
+      <created>1744614082453</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1744614082453</updated>
+    </task>
+    <task id="LOCAL-00037" summary="admin page error solved successfully 1. admin view reject and approved project error solve successfully">
+      <option name="closed" value="true" />
+      <created>1744694497774</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1744694497774</updated>
+    </task>
+    <task id="LOCAL-00038" summary="admin page error solved successfully 1. admin view reject and approved project error solve successfully 2. user management working and error removed in admin.php">
+      <option name="closed" value="true" />
+      <created>1744694961722</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1744694961722</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -445,8 +474,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="changes done" />
-    <MESSAGE value="login and register pages added with email id validation and database connected" />
     <MESSAGE value="dashboard ui design" />
     <MESSAGE value="dashboard ui design modified" />
     <MESSAGE value="dashboard ui design modified - final done" />
@@ -470,6 +497,8 @@
     <MESSAGE value=" project working well. error show because of id is not auto increment" />
     <MESSAGE value="Typo error removed" />
     <MESSAGE value="admin page code improved with php" />
-    <option name="LAST_COMMIT_MESSAGE" value="admin page code improved with php" />
+    <MESSAGE value="admin page error solved successfully 1. admin view reject and approved project error solve successfully" />
+    <MESSAGE value="admin page error solved successfully 1. admin view reject and approved project error solve successfully 2. user management working and error removed in admin.php" />
+    <option name="LAST_COMMIT_MESSAGE" value="admin page error solved successfully 1. admin view reject and approved project error solve successfully 2. user management working and error removed in admin.php" />
   </component>
 </project>
