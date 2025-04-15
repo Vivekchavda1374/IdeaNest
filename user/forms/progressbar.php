@@ -14,13 +14,13 @@ if ($conn->connect_error) {
 }
 
 // First, check if the table exists
-$table_check_sql = "SHOW TABLES LIKE 'projects'";
+$table_check_sql = "SHOW TABLES LIKE 'admin_approved_projects'";
 $table_check_result = $conn->query($table_check_sql);
 
 // If the table doesn't exist, create it with sample data
 if ($table_check_result->num_rows == 0) {
     // Create table
-    $create_table_sql = "CREATE TABLE `projects` (
+    $create_table_sql = "CREATE TABLE `admin_approved_projects` (
         `id` INT AUTO_INCREMENT PRIMARY KEY,
         `classification` VARCHAR(100) NOT NULL,
         `project_name` VARCHAR(255) NOT NULL,
@@ -45,7 +45,7 @@ if ($table_check_result->num_rows == 0) {
             ['Web Application', 'Online Learning Platform', 'Interactive educational website']
         ];
 
-        $insert_sql = "INSERT INTO `projects` (`classification`, `project_name`, `description`) VALUES (?, ?, ?)";
+        $insert_sql = "INSERT INTO `admin_approved_projects` (`classification`, `project_name`, `description`) VALUES (?, ?, ?)";
         $stmt = $conn->prepare($insert_sql);
 
         foreach ($sample_data as $data) {
@@ -55,7 +55,7 @@ if ($table_check_result->num_rows == 0) {
 
         $stmt->close();
         echo "<div class='alert alert-success'>
-                <i class='fas fa-check-circle'></i> Sample table 'projects' created with test data.
+                <i class='fas fa-check-circle'></i> Sample table 'admin_approved_projects' created with test data.
               </div>";
     } else {
         echo "<div class='alert alert-danger'>
@@ -65,7 +65,7 @@ if ($table_check_result->num_rows == 0) {
 }
 
 // SQL query to get classification counts
-$sql = "SELECT `classification`, COUNT(*) as `count` FROM `projects` GROUP BY `classification`";
+$sql = "SELECT `classification`, COUNT(*) as `count` FROM `admin_approved_projects` GROUP BY `classification`";
 
 try {
     $result = $conn->query($sql);
