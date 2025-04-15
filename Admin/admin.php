@@ -687,15 +687,15 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="" class="sidebar-link">
+                <a href="projects_view.php" class="sidebar-link">
                     <i class="bi bi-kanban"></i>
                     <span>Projects</span>
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="users.php" class="sidebar-link">
+                <a href="user_manage_by_admin.php" class="sidebar-link">
                     <i class="bi bi-people"></i>
-                    <span>Users</span>
+                    <span>Users Management</span>
                 </a>
             </li>
 
