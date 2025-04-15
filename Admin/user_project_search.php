@@ -18,7 +18,6 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Handle bookmark toggle - Instagram style (allow multiple bookmarks)
 if (isset($_POST['toggle_bookmark'])) {
     $project_id = $_POST['project_id'];
     $session_id = session_id();
@@ -492,34 +491,11 @@ $result = $stmt->get_result();
 
 <div class="container">
     <!-- Search and Filter Section -->
-    <div class="search-filter-container">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0">
-                            <i class="bi bi-search"></i>
-                        </span>
-                    <input type="text" class="form-control search-input border-start-0" id="searchProjects"
-                           placeholder="Search projects...">
-                </div>
-            </div>
-            <!-- Change these lines in the search-filter-container section -->
-            <select class="form-select me-2" style="max-width: 150px;" id="projectTypeFilter">
-                <option selected>All Types</option>
-                <option>Hardware</option>
-                <option>Software</option>
 
-            </select>
-            <select class="form-select" style="max-width: 150px;" id="sortByFilter">
-                <option selected>Sort By</option>
-                <option>Newest</option>
-                <option>Oldest</option>
-                <option>A-Z</option>
-                <option>Z-A</option>
-            </select>
-        </div>
-    </div>
-
+    <h2 class="section-title">
+        <i class="bi bi-check-circle"></i>
+        Projects
+    </h2>
     <!-- Project Stats -->
     <div class="project-stats">
         <div class="stat-item">
@@ -565,13 +541,33 @@ $result = $stmt->get_result();
 
     <!-- Alert Container -->
     <div id="alertContainer"></div>
+    <div class="search-filter-container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                    <input type="text" class="form-control search-input border-start-0" id="searchProjects"
+                           placeholder="Search projects...">
+                </div>
+            </div>
+            <!-- Change these lines in the search-filter-container section -->
+            <select class="form-select me-2" style="max-width: 150px;" id="projectTypeFilter">
+                <option selected>All Types</option>
+                <option>Hardware</option>
+                <option>Software</option>
 
-
-    <!-- Approved Projects Section -->
-    <h2 class="section-title">
-        <i class="bi bi-check-circle"></i>
-        Admin Approved Projects
-    </h2>
+            </select>
+            <select class="form-select" style="max-width: 150px;" id="sortByFilter">
+                <option selected>Sort By</option>
+                <option>Newest</option>
+                <option>Oldest</option>
+                <option>A-Z</option>
+                <option>Z-A</option>
+            </select>
+        </div>
+    </div>
 
     <?php if ($result && $result->num_rows > 0): ?>
         <div class="row" id="projectContainer">
