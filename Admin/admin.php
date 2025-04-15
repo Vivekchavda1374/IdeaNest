@@ -21,7 +21,7 @@ if(isset($_GET['action']) && isset($_GET['id'])) {
     // View project
     if($action == 'view') {
         // Get project details
-        $query = "SELECT * FROM projects WHERE id = ?";
+        $query = "SELECT * FROM admin_approved_projects WHERE id = ?";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("i", $project_id);
         $stmt->execute();
@@ -153,11 +153,24 @@ function rejectProject($project_id, $rejection_reason, $conn) {
     }
 }
 
-// Project statistics
-// Total Projects
-$total_projects_query = "SELECT COUNT(*) as count FROM projects";
+
+$total_projects_query = "SELECT 
+    (SELECT COUNT(*) FROM projects) as all_projects,
+    (SELECT COUNT(*) FROM admin_approved_projects) as approved_projects,
+    (SELECT COUNT(*) FROM projects WHERE status = 'pending') as pending_projects,
+    (SELECT COUNT(*) FROM denial_projects) as denied_projects";
+
 $total_projects_result = $conn->query($total_projects_query);
-$total_projects = $total_projects_result->fetch_assoc()['count'];
+$counts = $total_projects_result->fetch_assoc();
+
+// Now you can access each count individually
+$all_projects = $counts['all_projects'];
+$approved_projects = $counts['approved_projects'];
+$pending_projects = $counts['pending_projects'];
+$denied_projects = $counts['denied_projects'];
+
+// Or if you want a total of all counts
+$total_projects = $all_projects + $approved_projects + $pending_projects + $denied_projects;
 
 // Total approved projects
 $approved_projects_query = "SELECT COUNT(*) as count FROM `admin_approved_projects`";
@@ -174,8 +187,7 @@ $rejected_projects_query = "SELECT COUNT(*) as count FROM denial_projects";
 $rejected_projects_result = $conn->query($rejected_projects_query);
 $rejected_projects = $rejected_projects_result->fetch_assoc()['count'];
 
-// Calculate percentages and growth
-// This is placeholder data - you'd typically compare with previous periods
+
 $total_projects_percentage = 75;
 $total_projects_growth = "12%";
 $approved_projects_percentage = 60;
@@ -226,7 +238,7 @@ for ($i = 6; $i >= 0; $i--) {
 }
 
 // Category data
-$category_query = "SELECT classification, COUNT(*) as count FROM projects GROUP BY classification";
+$category_query = "SELECT classification, COUNT(*) as count FROM admin_approved_projects GROUP BY classification";
 $category_result = $conn->query($category_query);
 
 $category_labels = [];
