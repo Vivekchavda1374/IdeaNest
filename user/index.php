@@ -24,6 +24,11 @@ $blogResult = $conn->query($blogSql);
 $blogRow = $blogResult->fetch_assoc();
 $blogCount = $blogRow['blog_count'];
 
+$bookMarkSql = "SELECT COUNT(*) AS bookmark_count FROM bookmark";
+$bookMarkResult = $conn->query($bookMarkSql);
+$bookMarkRow = $bookMarkResult->fetch_assoc();
+$bookMarkCount = $bookMarkRow['bookmark_count'];
+
 
 // Fetch user email based on user_id from session
 $user_id = $_SESSION['user_id'];
@@ -219,7 +224,7 @@ $conn->close();
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <p class="mb-0 text-white-50">Bookmarks</p>
-                                <h3 class="mt-2 mb-0 text-white">17</h3>
+                                <h3 class="mt-2 mb-0 text-white"><?php echo $bookMarkCount; ?></h3>
                             </div>
                             <div class="icon">
                                 <i class="fas fa-bookmark"></i>
@@ -239,147 +244,7 @@ include './forms/progressbar.php';
 include './forms/progressbar_idea.php';
 ?>
 
-            <!-- Recent Activity and idea Posts -->
-            <div class="row g-4">
-                <!-- Recent Activity -->
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Recent Activity</h5>
-                            <div class="dropdown">
-                                <button class="btn btn-sm btn-light" type="button" id="activityDropdown"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="activityDropdown">
-                                    <li><a class="dropdown-item" href="#">All Activities</a></li>
-                                    <li><a class="dropdown-item" href="#">Filter by Type</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="recent-activity">
-                                <div class="item p-3">
-                                    <div class="avatar" style="background-color: #4cc9f0;">
-                                        <i class="fas fa-comment-alt"></i>
-                                    </div>
-                                    <div>
-                                        <p class="mb-1">You commented on <span class="fw-medium">Mobile App
-                                                    Design</span></p>
-                                        <p class="text-muted small mb-0">2 hours ago</p>
-                                    </div>
-                                </div>
-                                <div class="item p-3">
-                                    <div class="avatar" style="background-color: #f72585;">
-                                        <i class="fas fa-file-alt"></i>
-                                    </div>
-                                    <div>
-                                        <p class="mb-1">You published a new idea <span class="fw-medium">UX Design
-                                                    Principles</span></p>
-                                        <p class="text-muted small mb-0">Yesterday at 3:45 PM</p>
-                                    </div>
-                                </div>
-                                <div class="item p-3">
-                                    <div class="avatar" style="background-color: #4361ee;">
-                                        <i class="fas fa-trophy"></i>
-                                    </div>
-                                    <div>
-                                        <p class="mb-1">You completed <span class="fw-medium">Frontend
-                                                    Development</span> milestone</p>
-                                        <p class="text-muted small mb-0">Feb 28, 2025</p>
-                                    </div>
-                                </div>
-                                <div class="item p-3">
-                                    <div class="avatar" style="background-color: #3f37c9;">
-                                        <i class="fas fa-user-graduate"></i>
-                                    </div>
-                                    <div>
-                                        <p class="mb-1">Mentor session with <span class="fw-medium">Sarah
-                                                    Johnson</span>
-                                            completed</p>
-                                        <p class="text-muted small mb-0">Feb 27, 2025</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-white border-top-0 text-center">
-                            <button class="btn btn-outline-primary btn-sm">View All Activity</button>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Latest idea Posts -->
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Latest Idea Posts</h5>
-                            <div class="dropdown">
-                                <button class="btn btn-sm btn-light" type="button" id="blogDropdown"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="blogDropdown">
-                                    <li><a class="dropdown-item" href="./Blog/list-project.php">My Posts</a></li>
-                                    <li><a class="dropdown-item" href="#>Bookmarked Posts</a></li>
-                                    <li><a class="dropdown-item" href="#">Popular Posts</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="list-group list-group-flush">
-                                <a href="#" class="list-group-item list-group-item-action p-3">
-                                    <div class="d-flex w-100 justify-content-between align-items-center">
-                                        <h6 class="mb-1">Best Practices for React Development</h6>
-                                        <span class="badge bg-primary badge-custom">New</span>
-                                    </div>
-                                    <p class="text-muted small mb-2">Tips and tricks for optimizing React
-                                        applications
-                                        and improving performance.</p>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="text-muted small">
-                                            <i class="far fa-eye me-1"></i> 245 views
-                                            <i class="far fa-comment ms-3 me-1"></i> 18 comments
-                                        </div>
-                                        <span class="text-muted small">Feb 28, 2025</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action p-3">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">UI Design Principles for Developers</h6>
-                                    </div>
-                                    <p class="text-muted small mb-2">Essential design concepts every developer
-                                        should
-                                        know about.</p>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="text-muted small">
-                                            <i class="far fa-eye me-1"></i> 187 views
-                                            <i class="far fa-comment ms-3 me-1"></i> 12 comments
-                                        </div>
-                                        <span class="text-muted small">Feb 25, 2025</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action p-3">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1">Getting Started with Backend Development</h6>
-                                    </div>
-                                    <p class="text-muted small mb-2">A comprehensive guide to building robust
-                                        server-side applications.</p>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="text-muted small">
-                                            <i class="far fa-eye me-1"></i> 324 views
-                                            <i class="far fa-comment ms-3 me-1"></i> 24 comments
-                                        </div>
-                                        <span class="text-muted small">Feb 20, 2025</span>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-white border-top-0 text-center">
-                            <button class="btn btn-outline-primary btn-sm"> <a href="./Blog/form.php" >Create New Idea</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
