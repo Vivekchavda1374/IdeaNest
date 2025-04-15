@@ -687,7 +687,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="projects_view.php" class="sidebar-link">
+                <a href="admin_view_project.php" class="sidebar-link">
                     <i class="bi bi-kanban"></i>
                     <span>Projects</span>
                 </a>

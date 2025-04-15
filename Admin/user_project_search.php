@@ -600,7 +600,7 @@ $result = $stmt->get_result();
                                     <div class="project-detail">
                                         <strong><i class="bi bi-person-fill me-1"></i> Project Lead</strong>
                                         <p><?php echo htmlspecialchars($row["id"]); ?></p>
-                                    </div>
+                                    </div>projects_view.php
                                     <div class="project-detail">
                                         <strong><i class="bi bi-calendar-event me-1"></i> Submission Date</strong>
                                         <p><?php echo date('F j, Y', strtotime($row["submission_date"])); ?></p>
