@@ -13,6 +13,23 @@ if(isset($_SESSION['user_name'])) {
     $user_name = "Admin"; // Default if not logged in
 }
 
+// Get project statistics
+$total_projects_query = "SELECT 
+    (SELECT COUNT(*) FROM projects) as all_projects,
+    (SELECT COUNT(*) FROM admin_approved_projects) as approved_projects,
+    (SELECT COUNT(*) FROM projects WHERE status = 'pending') as pending_projects,
+    (SELECT COUNT(*) FROM denial_projects) as denied_projects";
+
+$total_projects_result = $conn->query($total_projects_query);
+$counts = $total_projects_result->fetch_assoc();
+// Now you can access each count individually
+$all_projects = $counts['all_projects'];
+$approved_projects = $counts['approved_projects'];
+$pending_projects = $counts['pending_projects'];
+$denied_projects = $counts['denied_projects'];
+// Or if you want a total of all counts
+$total_projects = $all_projects + $approved_projects + $pending_projects + $denied_projects;
+
 // Handle filters and pagination
 $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $per_page = 10;

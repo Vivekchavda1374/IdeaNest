@@ -170,7 +170,7 @@ $pending_projects = $counts['pending_projects'];
 $denied_projects = $counts['denied_projects'];
 
 // Or if you want a total of all counts
-$total_projects = $all_projects + $approved_projects + $pending_projects + $denied_projects;
+$total_projects =$approved_projects + $pending_projects + $denied_projects;
 
 // Total approved projects
 $approved_projects_query = "SELECT COUNT(*) as count FROM `admin_approved_projects`";
@@ -201,14 +201,10 @@ $rejected_projects_growth = "3%";
 $selected_time_range = "Last 7 Days";
 $time_ranges = ["Last 7 Days", "Last 30 Days", "Last 3 Months", "Last Year"];
 
-// Category ranges
 $selected_category_range = "All Time";
 $category_ranges = ["All Time", "This Month", "This Year"];
-
-// Chart data for projects
 $project_chart_labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-// Query for submitted projects per day for the last 7 days
 $submitted_projects_data = [];
 $approved_projects_data = [];
 $rejected_projects_data = [];
@@ -396,7 +392,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
         <style>
-            /* Custom Sidebar Styles */
+
             .sidebar {
                 position: fixed;
                 top: 0;
@@ -1022,7 +1018,6 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             </div>
         </div>
 
-        <!-- Recent Activity & Pending Projects Row -->
         <div class="row g-4">
             <!-- Recent Activity -->
             <div class="col-lg-4">
@@ -1053,7 +1048,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Pending Projects</h5>
-                        <a href="projects.php?status=pending" class="btn btn-sm btn-outline-primary">View All</a>
+
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
