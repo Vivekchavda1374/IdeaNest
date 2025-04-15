@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="user setting page improved">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin/admin_view_project.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/admin_view_project.php" afterDir="false" />
-    </list>
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="admin view page modified. page refresh error gone" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -151,7 +148,7 @@
       <workItem from="1744691160475" duration="9411000" />
       <workItem from="1744705353458" duration="19000" />
       <workItem from="1744705388718" duration="1145000" />
-      <workItem from="1744707190012" duration="1251000" />
+      <workItem from="1744707190012" duration="1601000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -513,7 +510,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744706531748</updated>
     </task>
-    <option name="localTasksCounter" value="46" />
+    <task id="LOCAL-00046" summary="admin view page modified. page refresh error gone">
+      <option name="closed" value="true" />
+      <created>1744708798094</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1744708798094</updated>
+    </task>
+    <option name="localTasksCounter" value="47" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -531,7 +536,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="login error done" />
     <MESSAGE value="login error done-final done" />
     <MESSAGE value="data base fetch from data in dashboard and modified ui and solve bug issue" />
     <MESSAGE value="modified ui" />
@@ -556,6 +560,7 @@
     <MESSAGE value="admin user management  page improved" />
     <MESSAGE value="admin and admin view page improved" />
     <MESSAGE value="user setting page improved" />
-    <option name="LAST_COMMIT_MESSAGE" value="user setting page improved" />
+    <MESSAGE value="admin view page modified. page refresh error gone" />
+    <option name="LAST_COMMIT_MESSAGE" value="admin view page modified. page refresh error gone" />
   </component>
 </project>
