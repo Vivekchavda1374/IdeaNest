@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="admin user management  page improved">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin/admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/admin.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin/admin_view_project.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/admin_view_project.php" afterDir="false" />
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="admin and admin view page improved">
+      <change beforePath="$PROJECT_DIR$/user/user_profile_setting.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/user_profile_setting.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -151,7 +149,7 @@
       <workItem from="1744615321635" duration="758000" />
       <workItem from="1744691160475" duration="9411000" />
       <workItem from="1744705353458" duration="19000" />
-      <workItem from="1744705388718" duration="667000" />
+      <workItem from="1744705388718" duration="1071000" />
     </task>
     <task id="LOCAL-00001" summary="composer added">
       <option name="closed" value="true" />
@@ -497,7 +495,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744700763188</updated>
     </task>
-    <option name="localTasksCounter" value="44" />
+    <task id="LOCAL-00044" summary="admin and admin view page improved">
+      <option name="closed" value="true" />
+      <created>1744706170740</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1744706170740</updated>
+    </task>
+    <option name="localTasksCounter" value="45" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -515,7 +521,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="dynamic project view and next some project view done" />
     <MESSAGE value="modified code done" />
     <MESSAGE value="login error done" />
     <MESSAGE value="login error done-final done" />
@@ -540,6 +545,7 @@
     <MESSAGE value="progressbar data successfully change with admin approved project" />
     <MESSAGE value="user management site work well with same style and also changed in admin site" />
     <MESSAGE value="admin user management  page improved" />
-    <option name="LAST_COMMIT_MESSAGE" value="admin user management  page improved" />
+    <MESSAGE value="admin and admin view page improved" />
+    <option name="LAST_COMMIT_MESSAGE" value="admin and admin view page improved" />
   </component>
 </project>

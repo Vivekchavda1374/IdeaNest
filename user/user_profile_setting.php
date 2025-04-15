@@ -238,7 +238,7 @@ $stmt->close();
             </a>
         </li>
         <li>
-            <a href="account_settings.php" class="active">
+            <a href="user_profile_setting.php" class="active">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
@@ -281,7 +281,7 @@ $stmt->close();
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> My Profile</a></li>
-                        <li><a class="dropdown-item active" href="account_settings.php"><i class="fas fa-cog me-2"></i> Account Settings</a></li>
+                        <li><a class="dropdown-item active" href="user_profile_setting.php"><i class="fas fa-cog me-2"></i> Account Settings</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="../Login/Login/logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
                     </ul>
