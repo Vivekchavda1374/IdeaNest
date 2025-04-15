@@ -5,15 +5,13 @@ include "../Login/Login/db.php";
 // Site name
 $site_name = "IdeaNest Admin";
 
-// Current user information (replace with session variable or actual login system)
 session_start();
 if(isset($_SESSION['user_name'])) {
     $user_name = $_SESSION['user_name'];
 } else {
-    $user_name = "Admin"; // Default if not logged in
+    $user_name = "Admin";
 }
 
-// Get project statistics
 $total_projects_query = "SELECT 
     (SELECT COUNT(*) FROM projects) as all_projects,
     (SELECT COUNT(*) FROM admin_approved_projects) as approved_projects,
@@ -28,7 +26,7 @@ $approved_projects = $counts['approved_projects'];
 $pending_projects = $counts['pending_projects'];
 $denied_projects = $counts['denied_projects'];
 // Or if you want a total of all counts
-$total_projects = $all_projects + $approved_projects + $pending_projects + $denied_projects;
+$total_projects =  $approved_projects + $pending_projects + $denied_projects;
 
 // Handle filters and pagination
 $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -51,7 +49,6 @@ $category_filter = isset($_GET['category']) ? $_GET['category'] : 'all';
 // Search filter
 $search_filter = isset($_GET['search']) ? $_GET['search'] : '';
 
-// View mode - either "projects" or "approved"
 $view_mode = isset($_GET['view']) ? $_GET['view'] : 'projects';
 $valid_views = ['projects', 'approved'];
 if (!in_array($view_mode, $valid_views)) {
@@ -76,22 +73,20 @@ while ($row = $categories_result->fetch_assoc()) {
     $project_categories[] = $row['classification'];
 }
 
-// Build query based on filters and view mode
 if ($view_mode == 'projects') {
     $base_query = "FROM projects WHERE 1=1";
     $count_query = "SELECT COUNT(*) as total ";
     $data_query = "SELECT * ";
-} else {
+} else if ($view_mode == 'approved') {
     $base_query = "FROM admin_approved_projects WHERE 1=1";
     $count_query = "SELECT COUNT(*) as total ";
     $data_query = "SELECT * ";
 }
 
-// Add status filter
+// Add status filter - only apply to projects table
 if ($status_filter != 'all' && $view_mode == 'projects') {
     $base_query .= " AND status = '$status_filter'";
 }
-
 // Add project type filter
 if ($type_filter != 'all') {
     $base_query .= " AND project_type = '$type_filter'";
@@ -728,7 +723,6 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
     <div class="filter-bar">
         <form action="admin_view_project.php" method="get" class="row g-3">
             <input type="hidden" name="view" value="<?php echo $view_mode; ?>">
-
             <div class="col-md-3">
                 <label for="search" class="form-label">Search</label>
                 <div class="input-group">
@@ -890,31 +884,30 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                 </tbody>
             </table>
         </div>
-
         <!-- Pagination -->
         <?php if ($total_pages > 1): ?>
             <nav aria-label="Projects pagination" class="mt-4">
-            <ul class="pagination justify-content-center">
-        <li class="page-item <?php echo $current_page <= 1 ? 'disabled' : ''; ?>">
-            <a class="page-link" href="admin_view_project.php?view=<?php echo $view_mode; ?>&page=<?php echo $current_page - 1; ?>&status=<?php echo $status_filter; ?>&type=<?php echo $type_filter; ?>&category=<?php echo $category_filter; ?>&search=<?php echo urlencode($search_filter); ?>">
-                <i class="bi bi-chevron-left"></i>
-            </a>
-        </li>
-
-                <?php for($i = 1; $i <= $total_pages; $i++): ?>
-                    <li class="page-item <?php echo $current_page == $i ? 'active' : ''; ?>">
-                        <a class="page-link" href="admin_view_project.php?view=<?php echo $view_mode; ?>&page=<?php echo $i; ?>&status=<?php echo $status_filter; ?>&type=<?php echo $type_filter; ?>&category=<?php echo $category_filter; ?>&search=<?php echo urlencode($search_filter); ?>">
-                            <?php echo $i; ?>
+                <ul class="pagination justify-content-center">
+                    <li class="page-item <?php echo $current_page <= 1 ? 'disabled' : ''; ?>">
+                        <a class="page-link" href="admin_view_project.php?view=<?php echo $view_mode; ?>&page=<?php echo $current_page - 1; ?>&status=<?php echo $status_filter; ?>&type=<?php echo $type_filter; ?>&category=<?php echo $category_filter; ?>&search=<?php echo urlencode($search_filter); ?>">
+                            <i class="bi bi-chevron-left"></i>
                         </a>
                     </li>
-                <?php endfor; ?>
 
-                <li class="page-item <?php echo $current_page >= $total_pages ? 'disabled' : ''; ?>">
-                    <a class="page-link" href="admin_view_project.php?view=<?php echo $view_mode; ?>&page=<?php echo $current_page + 1; ?>&status=<?php echo $status_filter; ?>&type=<?php echo $type_filter; ?>&category=<?php echo $category_filter; ?>&search=<?php echo urlencode($search_filter); ?>">
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
-                </li>
-            </ul>
+                    <?php for($i = 1; $i <= $total_pages; $i++): ?>
+                        <li class="page-item <?php echo $current_page == $i ? 'active' : ''; ?>">
+                            <a class="page-link" href="admin_view_project.php?view=<?php echo $view_mode; ?>&page=<?php echo $i; ?>&status=<?php echo $status_filter; ?>&type=<?php echo $type_filter; ?>&category=<?php echo $category_filter; ?>&search=<?php echo urlencode($search_filter); ?>">
+                                <?php echo $i; ?>
+                            </a>
+                        </li>
+                    <?php endfor; ?>
+
+                    <li class="page-item <?php echo $current_page >= $total_pages ? 'disabled' : ''; ?>">
+                        <a class="page-link" href="admin_view_project.php?view=<?php echo $view_mode; ?>&page=<?php echo $current_page + 1; ?>&status=<?php echo $status_filter; ?>&type=<?php echo $type_filter; ?>&category=<?php echo $category_filter; ?>&search=<?php echo urlencode($search_filter); ?>">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
             </nav>
         <?php endif; ?>
 
@@ -928,7 +921,6 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
 <?php endif; ?>
 </div>
 
-    <!-- Add Bootstrap and custom JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Toggle sidebar on mobile
