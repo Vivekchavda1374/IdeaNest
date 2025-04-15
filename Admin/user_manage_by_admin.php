@@ -484,7 +484,7 @@ if (!empty($search)) {
         <button class="btn d-lg-none" id="sidebarToggle">
             <i class="bi bi-list"></i>
         </button>
-        <h1 class="page-title">User Management</h1>
+        <h1 class="page-title" >User Management</h1>
         <div class="topbar-actions">
             <div class="dropdown">
                 <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
@@ -517,9 +517,7 @@ if (!empty($search)) {
 
     <!-- Main Content Area -->
     <div class="card">
-        <div class="card-header">
-            <h5 class="card-title">User Access Management</h5>
-        </div>
+
         <div class="card-body">
             <!-- Search Box -->
             <div class="search-box">
