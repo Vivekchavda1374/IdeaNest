@@ -761,14 +761,14 @@ if (!empty($search)) {
                 const targetId = event.target.getAttribute('data-bs-target').replace('#', '').replace('-users', '');
 
                     .replace('-users', '');
-                // Update URL without refreshing page, preserving search term
+
                 const searchParam = urlParams.get('search') ? '&search=' + urlParams.get('search') : '';
 
                 history.replaceState(null, null, '?tab=' + targetId + searchParam);
             });
         });
 
-        // Sidebar toggle functionality for mobile
+
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
         const mainContent = document.querySelector('.main-content');
