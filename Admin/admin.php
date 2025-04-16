@@ -926,7 +926,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         <button class="btn d-lg-none" id="sidebarToggle">
             <i class="bi bi-list"></i>
         </button>
-        <h1 class="page-title">admin</h1>
+        <h1 class="page-title">Welcome!! Admin</h1>
         <div class="topbar-actions">
             <div class="dropdown">
                 <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
