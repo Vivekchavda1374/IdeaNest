@@ -1083,12 +1083,10 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         </div>
 
         <div class="row g-4">
-            <!-- Recent Activity -->
-            <!-- Recent Activity -->
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Recent Activity</h5>
+                        <h5 class="card-title mb-0">Recent Activity - Projects</h5>
                     </div>
                     <div class="card-body p-0">
                         <div class="activity-timeline">
@@ -1109,72 +1107,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                     </div>
                 </div>
             </div>
-            <!-- Pending Projects -->
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Pending Projects</h5>
 
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Project</th>
-                                        <th scope="col">Type</th>
-                                        <th scope="col">Technologies</th>
-                                        <th scope="col">Submitted By</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if(count($pending_projects_list) > 0): ?>
-                                        <?php foreach ($pending_projects_list as $project): ?>
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="avatar-sm bg-light text-primary rounded me-2">
-                                                            <i class="bi bi-<?php echo $project['icon']; ?>"></i>
-                                                        </div>
-                                                        <div>
-                                                            <?php echo $project['name']; ?>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td><?php echo $project['type']; ?></td>
-                                                <td><?php echo $project['technologies']; ?></td>
-                                                <td><?php echo $project['submitted_by']; ?></td>
-                                                <td>
-                                                    <span class="badge bg-<?php echo $project['status_class']; ?>"><?php echo $project['status']; ?></span>
-                                                </td>
-                                                <td>
-                                                    <div class="d-flex">
-                                                        <a href="admin.php?action=view&id=<?php echo $project['id']; ?>" class="btn btn-sm btn-outline-primary me-1">
-                                                            <i class="bi bi-eye"></i>
-                                                        </a>
-                                                        <a href="admin.php?action=approve&id=<?php echo $project['id']; ?>" class="btn btn-sm btn-outline-success me-1" onclick="return confirm('Are you sure you want to approve this project?')">
-                                                            <i class="bi bi-check"></i>
-                                                        </a>
-                                                        <a href="admin.php?action=reject&id=<?php echo $project['id']; ?>" class="btn btn-sm btn-outline-danger">
-                                                            <i class="bi bi-x"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="6" class="text-center py-4">No pending projects found</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
     <?php endif; ?>
