@@ -59,179 +59,342 @@ $result = $conn->query($sql);
     <title>My Bookmarked Projects</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <style>
-    :root {
-        --primary-color: #4361ee;
-        --secondary-color: #3f37c9;
-        --success-color: #4cc9f0;
-        --info-color: #4895ef;
-        --warning-color: #f72585;
-        --danger-color: #ff5a5f;
-        --light-color: #f8f9fa;
-        --dark-color: #212529;
-    }
+  <style>
+      /* Modern Color Palette */
+      :root {
+          --primary-color: #4361ee;
+          --primary-light: #4895ef;
+          --primary-dark: #3a0ca3;
+          --accent-color: #f72585;
+          --accent-light: #f94144;
+          --success-color: #10b981;
+          --background-color: #f8fafc;
+          --card-bg: #ffffff;
+          --text-primary: #1e293b;
+          --text-secondary: #64748b;
+          --border-color: #e2e8f0;
+          --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+          --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+          --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+          --transition-speed: 0.3s;
+      }
 
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f5f7fa;
-        color: #333;
-    }
+      /* Base Styles */
+      body {
+          font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+          background-color: var(--background-color);
+          color: var(--text-primary);
+          line-height: 1.6;
+      }
 
-    .dashboard-header {
-        background-color: var(--primary-color);
-        color: white;
-        padding: 1.5rem 0;
-        margin-bottom: 2rem;
-        border-radius: 0 0 15px 15px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
+      /* Dashboard Header */
+      .dashboard-header {
+          background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+          color: white;
+          padding: 2rem 0;
+          margin-bottom: 2.5rem;
+          border-radius: 0 0 20px 20px;
+          box-shadow: var(--shadow-lg);
+      }
 
-    .dashboard-title {
-        font-weight: 700;
-        margin: 0;
-        display: flex;
-        align-items: center;
-    }
+      .dashboard-title {
+          font-weight: 700;
+          margin: 0;
+          display: flex;
+          align-items: center;
+          font-size: 1.8rem;
+      }
 
-    .dashboard-title i {
-        margin-right: 10px;
-        font-size: 1.8rem;
-    }
+      .dashboard-title i {
+          margin-right: 12px;
+          font-size: 2rem;
+          color: rgba(255, 255, 255, 0.9);
+      }
 
-    .project-card {
-        margin-bottom: 1.5rem;
-        border-radius: 12px;
-        border: none;
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-        overflow: hidden;
-    }
+      /* Section Styling */
+      .section-title {
+          display: flex;
+          align-items: center;
+          margin: 2rem 0 1.5rem;
+          padding-bottom: 0.75rem;
+          border-bottom: 2px solid var(--primary-light);
+          color: var(--primary-dark);
+          font-weight: 700;
+          font-size: 1.3rem;
+      }
 
-    .project-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
+      .section-title i {
+          margin-right: 10px;
+          color: var(--primary-color);
+      }
 
-    .card-header {
-        background-color: white;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        padding: 1.25rem 1.5rem;
-    }
+      /* Card Styling */
+      .project-card {
+          margin-bottom: 2rem;
+          border-radius: 16px;
+          border: none;
+          box-shadow: var(--shadow-md);
+          transition: all var(--transition-speed) ease;
+          overflow: hidden;
+          background-color: var(--card-bg);
+      }
 
-    .card-body {
-        padding: 1.5rem;
-    }
+      .project-card:hover {
+          transform: translateY(-6px);
+          box-shadow: var(--shadow-lg);
+      }
 
-    .badge {
-        padding: 0.5rem 0.8rem;
-        font-weight: 600;
-        font-size: 0.75rem;
-        border-radius: 50px;
-    }
+      .card-header {
+          background-color: var(--card-bg);
+          border-bottom: 1px solid var(--border-color);
+          padding: 1.5rem;
+      }
 
-    .badge-approved {
-        background-color: #10b981;
-        color: white;
-    }
+      .card-body {
+          padding: 1.5rem;
+      }
 
-    .file-link {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-        padding: 8px 12px;
-        border-radius: 8px;
-        background-color: #f8f9fa;
-        transition: all 0.2s ease;
-        text-decoration: none;
-        color: #333;
-    }
+      /* Badge Styling */
+      .badge {
+          padding: 0.5rem 1rem;
+          font-weight: 600;
+          font-size: 0.75rem;
+          border-radius: 50px;
+          box-shadow: var(--shadow-sm);
+      }
 
-    .file-link:hover {
-        background-color: #e9ecef;
-    }
+      .badge-approved {
+          background: linear-gradient(45deg, var(--success-color), #34d399);
+          color: white;
+      }
 
-    .file-link i {
-        margin-right: 8px;
-        font-size: 1.1rem;
-        color: var(--primary-color);
-    }
+      /* Project Details */
+      .project-detail {
+          margin-bottom: 1rem;
+          font-size: 0.95rem;
+      }
 
-    .btn-action {
-        border-radius: 50px;
-        padding: 8px 20px;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.8rem;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
+      .project-detail strong {
+          color: var(--primary-dark);
+          font-weight: 600;
+          display: inline-block;
+          margin-bottom: 0.25rem;
+      }
 
-    .project-detail {
-        margin-bottom: 10px;
-    }
+      .project-detail p {
+          color: var(--text-secondary);
+          line-height: 1.8;
+      }
 
-    .project-detail strong {
-        color: var(--primary-color);
-        font-weight: 600;
-    }
+      /* File Links */
+      .file-link {
+          display: flex;
+          align-items: center;
+          margin-bottom: 10px;
+          padding: 10px 15px;
+          border-radius: 10px;
+          background-color: #f1f5f9;
+          transition: all 0.2s ease;
+          text-decoration: none;
+          color: var(--text-primary);
+          border-left: 3px solid transparent;
+      }
 
-    .action-buttons {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 20px;
-    }
+      .file-link:hover {
+          background-color: #e2e8f0;
+          border-left: 3px solid var(--primary-color);
+          transform: translateX(3px);
+          color: var(--primary-dark);
+      }
 
-    .empty-projects {
-        text-align: center;
-        padding: 3rem;
-        background-color: white;
-        border-radius: 12px;
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
-    }
+      .file-link i {
+          margin-right: 10px;
+          font-size: 1.2rem;
+          color: var(--primary-color);
+      }
 
-    .empty-projects i {
-        font-size: 4rem;
-        color: #d1d5db;
-        margin-bottom: 1rem;
-    }
+      /* Button Styling */
+      .btn-action {
+          border-radius: 50px;
+          padding: 10px 24px;
+          font-weight: 600;
+          text-transform: uppercase;
+          font-size: 0.85rem;
+          letter-spacing: 0.5px;
+          transition: all 0.3s ease;
+          box-shadow: var(--shadow-sm);
+      }
 
-    .bookmark-btn {
-        background: none;
-        border: none;
-        color: #f59e0b;
-        font-size: 1.2rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        margin-left: 10px;
-    }
+      .btn-primary {
+          background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+          border: none;
+      }
 
-    .bookmark-btn:hover {
-        transform: scale(1.2);
-    }
+      .btn-primary:hover {
+          background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-md);
+      }
 
-    .section-title {
-        margin: 2rem 0 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid var(--primary-color);
-        color: var(--primary-color);
-        font-weight: 600;
-    }
+      /* Bookmark Button */
+      .bookmark-btn {
+          background: none;
+          border: none;
+          color: var(--accent-color);
+          font-size: 1.3rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          margin-left: 12px;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+      }
 
-    /* Add responsive styling */
-    @media (max-width: 768px) {
-        .action-buttons {
-            flex-direction: column;
-            width: 100%;
-        }
+      .bookmark-btn:hover {
+          background-color: rgba(247, 37, 133, 0.1);
+          transform: scale(1.15);
+      }
 
-        .btn-action {
-            width: 100%;
-            margin-bottom: 8px;
-        }
-    }
-    </style>
+      .bookmark-btn i {
+          transition: all 0.3s ease;
+      }
+
+      .bookmark-btn:hover i {
+          color: var(--accent-light);
+      }
+
+      /* Empty State */
+      .empty-projects {
+          text-align: center;
+          padding: 4rem 2rem;
+          background-color: var(--card-bg);
+          border-radius: 16px;
+          box-shadow: var(--shadow-md);
+      }
+
+      .empty-projects i {
+          font-size: 5rem;
+          color: #cbd5e1;
+          margin-bottom: 1.5rem;
+          opacity: 0.7;
+      }
+
+      .empty-projects h3 {
+          color: var(--text-primary);
+          font-weight: 600;
+          margin-bottom: 1rem;
+      }
+
+      .empty-projects p {
+          color: var(--text-secondary);
+          max-width: 500px;
+          margin: 0 auto;
+      }
+
+      /* Alert Styling */
+      .alert {
+          border-radius: 12px;
+          padding: 1rem 1.5rem;
+          margin-bottom: 1.5rem;
+          border: none;
+          box-shadow: var(--shadow-sm);
+      }
+
+      .alert-info {
+          background-color: rgba(79, 149, 255, 0.1);
+          color: var(--primary-dark);
+          border-left: 4px solid var(--primary-color);
+      }
+
+      .alert-danger {
+          background-color: rgba(249, 65, 68, 0.1);
+          color: #ef4444;
+          border-left: 4px solid var(--accent-light);
+      }
+
+      /* Responsive Adjustments */
+      @media (max-width: 992px) {
+          .dashboard-header {
+              padding: 1.5rem 0;
+              margin-bottom: 2rem;
+          }
+
+          .dashboard-title {
+              font-size: 1.5rem;
+          }
+
+          .card-header {
+              padding: 1.25rem;
+          }
+
+          .card-body {
+              padding: 1.25rem;
+          }
+      }
+
+      @media (max-width: 768px) {
+          .action-buttons {
+              flex-direction: column;
+              width: 100%;
+          }
+
+          .btn-action {
+              width: 100%;
+              margin-bottom: 10px;
+          }
+
+          .project-card {
+              margin-bottom: 1.5rem;
+          }
+
+          .section-title {
+              font-size: 1.2rem;
+          }
+
+          .project-detail {
+              margin-bottom: 0.75rem;
+          }
+      }
+
+      @media (max-width: 576px) {
+          .dashboard-header {
+              border-radius: 0 0 15px 15px;
+              padding: 1.25rem 0;
+          }
+
+          .empty-projects {
+              padding: 3rem 1.5rem;
+          }
+
+          .card-header {
+              flex-direction: column;
+              align-items: flex-start !important;
+          }
+
+          .card-header .badge {
+              margin-top: 0.75rem;
+          }
+
+          .bookmark-btn {
+              position: absolute;
+              top: 1rem;
+              right: 1rem;
+          }
+      }
+
+      /* Animation Effects */
+      @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
+
+      .project-card {
+          animation: fadeIn 0.5s ease-out forwards;
+      }
+  </style>
 </head>
 
 <body>
