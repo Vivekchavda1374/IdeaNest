@@ -1,72 +1,87 @@
 <?php
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "ideanest";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+include "../Login/Login/db.php";
 
 // Start session if not already started
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-
 // Process bookmark toggle
 $alert_message = '';
 $alert_type = '';
 
+// Process bookmark toggle with improved error handling
 if (isset($_POST['toggle_bookmark'])) {
     $project_id = $_POST['project_id'];
     $session_id = session_id();
 
-    // Check if bookmark already exists for this project
-    $check_sql = "SELECT * FROM bookmark WHERE project_id = ? AND user_id = ?";
-    $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("is", $project_id, $session_id);
-    $check_stmt->execute();
-    $check_result = $check_stmt->get_result();
+    // Debug - uncomment to check values
+    // echo "Project ID: " . $project_id . " Session ID: " . $session_id;
 
-    if ($check_result->num_rows > 0) {
-        // Bookmark exists, so remove it
-        $delete_sql = "DELETE FROM bookmark WHERE project_id = ? AND user_id = ?";
-        $delete_stmt = $conn->prepare($delete_sql);
-        $delete_stmt->bind_param("is", $project_id, $session_id);
-
-        if ($delete_stmt->execute()) {
-            $alert_message = 'Project removed from bookmarks!';
-            $alert_type = 'info';
-        } else {
-            $alert_message = 'Error: ' . $conn->error;
-            $alert_type = 'danger';
+    try {
+        // Check if bookmark already exists for this project
+        $check_sql = "SELECT * FROM bookmark WHERE project_id = ? AND user_id = ?";
+        $check_stmt = $conn->prepare($check_sql);
+        if (!$check_stmt) {
+            throw new Exception("Prepare failed: " . $conn->error);
         }
-        $delete_stmt->close();
-    } else {
-        // Add new bookmark
-        $idea_id = 0; // Default value for idea_id
 
-        $insert_sql = "INSERT INTO bookmark (project_id, user_id, idea_id) VALUES (?, ?, ?)";
-        $insert_stmt = $conn->prepare($insert_sql);
-        $insert_stmt->bind_param("isi", $project_id, $session_id, $idea_id);
-
-        if ($insert_stmt->execute()) {
-            $alert_message = 'Project added to bookmarks!';
-            $alert_type = 'success';
-        } else {
-            $alert_message = 'Error: ' . $conn->error;
-            $alert_type = 'danger';
+        $check_stmt->bind_param("is", $project_id, $session_id);
+        if (!$check_stmt->execute()) {
+            throw new Exception("Execute failed: " . $check_stmt->error);
         }
-        $insert_stmt->close();
+
+        $check_result = $check_stmt->get_result();
+
+        if ($check_result->num_rows > 0) {
+            // Bookmark exists, so remove it
+            $delete_sql = "DELETE FROM bookmark WHERE project_id = ? AND user_id = ?";
+            $delete_stmt = $conn->prepare($delete_sql);
+            if (!$delete_stmt) {
+                throw new Exception("Prepare failed: " . $conn->error);
+            }
+
+            $delete_stmt->bind_param("is", $project_id, $session_id);
+
+            if ($delete_stmt->execute()) {
+                $alert_message = 'Project removed from bookmarks!';
+                $alert_type = 'info';
+            } else {
+                throw new Exception("Delete failed: " . $delete_stmt->error);
+            }
+            $delete_stmt->close();
+        } else {
+            // Add new bookmark
+            $idea_id = 0; // Default value for idea_id
+
+            $insert_sql = "INSERT INTO bookmark (project_id, user_id, idea_id) VALUES (?, ?, ?)";
+            $insert_stmt = $conn->prepare($insert_sql);
+            if (!$insert_stmt) {
+                throw new Exception("Prepare failed: " . $conn->error);
+            }
+
+            $insert_stmt->bind_param("isi", $project_id, $session_id, $idea_id);
+
+            if ($insert_stmt->execute()) {
+                $alert_message = 'Project added to bookmarks!';
+                $alert_type = 'success';
+            } else {
+                throw new Exception("Insert failed: " . $insert_stmt->error);
+            }
+            $insert_stmt->close();
+        }
+        $check_stmt->close();
+    } catch (Exception $e) {
+        $alert_message = 'Error: ' . $e->getMessage();
+        $alert_type = 'danger';
     }
-    $check_stmt->close();
-}
 
+    // For AJAX requests, return JSON response
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        header('Content-Type: application/json');
+        echo json_encode(['message' => $alert_message, 'type' => $alert_type]);
+        exit;
+    }
+}
 // Get projects with pagination
 $items_per_page = 8; // Number of projects per page
 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
@@ -193,7 +208,7 @@ $search_term = isset($_GET['search']) ? $_GET['search'] : '';
             :root {
                 --primary-color: #4361ee;
                 --primary-light: rgba(67, 97, 238, 0.1);
-                --primary-dark: #3040b0;
+                --primary-dark: #fbfbff;
                 --secondary-color: #f50057;
                 --success-color: #10b981;
                 --success-light: rgba(16, 185, 129, 0.1);
@@ -1106,7 +1121,6 @@ $search_term = isset($_GET['search']) ? $_GET['search'] : '';
                         });
                 });
             });
-
             // Toast notification function
             function showToast(message, type) {
                 const toastContainer = document.querySelector('.toast-container');
@@ -1143,6 +1157,49 @@ $search_term = isset($_GET['search']) ? $_GET['search'] : '';
                     toast.remove();
                 });
             }
+        });
+        // Handle bookmark toggle with AJAX
+        document.addEventListener('DOMContentLoaded', function() {
+            const bookmarkForms = document.querySelectorAll('.bookmark-form');
+            bookmarkForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+                    const bookmarkBtn = this.querySelector('.bookmark-btn');
+
+                    fetch(window.location.href, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Toggle bookmark icon
+                            bookmarkBtn.classList.toggle('active');
+                            const icon = bookmarkBtn.querySelector('i');
+
+                            if (icon.classList.contains('bi-bookmark')) {
+                                icon.classList.replace('bi-bookmark', 'bi-bookmark-fill');
+                            } else {
+                                icon.classList.replace('bi-bookmark-fill', 'bi-bookmark');
+                            }
+
+                            // Show toast with the response message
+                            showToast(data.message, data.type);
+                        })
+                        .catch(error => {
+                            showToast('Error updating bookmark status.', 'danger');
+                            console.error('Error:', error);
+                        });
+                });
+            });
         });
     </script>
     </body>

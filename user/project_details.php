@@ -52,7 +52,7 @@ $related_result = $related_stmt->get_result();
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #0d6efd;
+            --primary-color: #ffffff;
             --primary-hover: #2414ff;
             --primary-light: rgba(99, 102, 241, 0.1);
             --primary-dark: #3e2eff;
