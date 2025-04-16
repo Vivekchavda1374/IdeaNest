@@ -120,6 +120,58 @@ if (isset($_POST['approve_project'])) {
     }
 }
 
+// Handle project rejection
+if (isset($_POST['reject_project'])) {
+    $project_id = $_POST['project_id'];
+    $rejection_reason = isset($_POST['rejection_reason']) ? $_POST['rejection_reason'] : "No reason provided";
+    
+    // Get the project data
+    $get_project_sql = "SELECT * FROM projects WHERE id = $project_id";
+    $project_result = $conn->query($get_project_sql);
+    
+    if ($project_result->num_rows > 0) {
+        $project = $project_result->fetch_assoc();
+        
+        // Insert into denial_projects
+      // Insert into denial_projects
+    $insert_sql = "INSERT INTO denial_projects 
+(project_name, project_type, classification, description, language, 
+ image_path, video_path, code_file_path, instruction_file_path, 
+ submission_date, rejection_reason) 
+VALUES 
+('{$project['project_name']}', '{$project['project_type']}', '{$project['classification']}', 
+ '{$project['description']}', '{$project['language']}', '{$project['image_path']}', 
+ '{$project['video_path']}', '{$project['code_file_path']}', '{$project['instruction_file_path']}', 
+ '{$project['submission_date']}', '$rejection_reason')";  
+        if ($conn->query($insert_sql) === TRUE) {
+            // Delete from projects table
+            $delete_sql = "DELETE FROM projects WHERE id = $project_id";
+            if ($conn->query($delete_sql) === TRUE) {
+                echo "<div class='alert alert-warning shadow-sm'>
+                        <div class='d-flex align-items-center'>
+                            <i class='bi bi-x-circle-fill me-2'></i>
+                            <strong>Success!</strong> Project rejected and moved to denied projects!
+                        </div>
+                      </div>";
+            } else {
+                echo "<div class='alert alert-danger shadow-sm'>
+                        <div class='d-flex align-items-center'>
+                            <i class='bi bi-exclamation-triangle-fill me-2'></i>
+                            <strong>Error!</strong> Failed to remove from pending projects: " . $conn->error . "
+                        </div>
+                      </div>";
+            }
+        } else {
+            echo "<div class='alert alert-danger shadow-sm'>
+                    <div class='d-flex align-items-center'>
+                        <i class='bi bi-exclamation-triangle-fill me-2'></i>
+                        <strong>Error!</strong> Failed to reject project: " . $conn->error . "
+                    </div>
+                  </div>";
+        }
+    }
+}
+
 // Get pending projects
 $pending_sql = "SELECT * FROM projects ORDER BY submission_date DESC";
 $pending_result = $conn->query($pending_sql);
@@ -131,6 +183,10 @@ $approved_sql = "SELECT admin_approved_projects.*,
                 LEFT JOIN bookmark ON admin_approved_projects.id = bookmark.project_id AND bookmark.user_id = '" . session_id() . "'
                 ORDER BY admin_approved_projects.submission_date DESC";
 $approved_result = $conn->query($approved_sql);
+
+// Get rejected projects
+$rejected_sql = "SELECT * FROM denial_projects ORDER BY submission_date DESC"; // Changed from rejection_date to submission_date
+$rejected_result = $conn->query($rejected_sql);
 ?>
 
 <!DOCTYPE html>
@@ -222,6 +278,11 @@ $approved_result = $conn->query($approved_sql);
         color: white;
     }
 
+    .badge-rejected {
+        background-color: #ef4444;
+        color: white;
+    }
+
     .file-link {
         display: flex;
         align-items: center;
@@ -307,6 +368,21 @@ $approved_result = $conn->query($approved_sql);
         transform: translateY(-2px);
     }
 
+    .btn-reject {
+        background-color: #ef4444;
+        color: white;
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-left: 10px;
+    }
+
+    .btn-reject:hover {
+        background-color: #dc2626;
+        color: white;
+        transform: translateY(-2px);
+    }
+
     .nav-tabs {
         border-bottom: 2px solid var(--primary-color);
         margin-bottom: 2rem;
@@ -331,6 +407,18 @@ $approved_result = $conn->query($approved_sql);
         background-color: #f8f9fa;
     }
 
+    .action-buttons {
+        display: flex;
+    }
+
+    .rejection-reason {
+        margin-top: 1rem;
+        padding: 1rem;
+        background-color: #fee2e2;
+        border-radius: 8px;
+        border-left: 4px solid #ef4444;
+    }
+
     /* Add responsive styling */
     @media (max-width: 768px) {
         .action-buttons {
@@ -341,6 +429,11 @@ $approved_result = $conn->query($approved_sql);
         .btn-action {
             width: 100%;
             margin-bottom: 8px;
+        }
+
+        .btn-reject {
+            margin-left: 0;
+            margin-top: 8px;
         }
     }
     </style>
@@ -368,6 +461,12 @@ $approved_result = $conn->query($approved_sql);
                 <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved-projects"
                     type="button" role="tab" aria-controls="approved-projects" aria-selected="false">
                     <i class="bi bi-check-circle me-1"></i>Approved Projects
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected-projects"
+                    type="button" role="tab" aria-controls="rejected-projects" aria-selected="false">
+                    <i class="bi bi-x-circle me-1"></i>Rejected Projects
                 </button>
             </li>
         </ul>
@@ -421,12 +520,19 @@ $approved_result = $conn->query($approved_sql);
                                     <p class="mt-2"><?php echo nl2br(htmlspecialchars($row["description"])); ?></p>
                                 </div>
                                 <div class="mt-4">
-                                    <form method="post">
-                                        <input type="hidden" name="project_id" value="<?php echo $row["id"]; ?>">
-                                        <button type="submit" name="approve_project" class="btn btn-approve">
-                                            <i class="bi bi-check-lg me-1"></i> Approve Project
+                                    <div class="action-buttons">
+                                        <form method="post" class="d-inline">
+                                            <input type="hidden" name="project_id" value="<?php echo $row["id"]; ?>">
+                                            <button type="submit" name="approve_project" class="btn btn-approve">
+                                                <i class="bi bi-check-lg me-1"></i> Approve Project
+                                            </button>
+                                        </form>
+
+                                        <button type="button" class="btn btn-reject" data-bs-toggle="modal"
+                                            data-bs-target="#rejectModal<?php echo $row["id"]; ?>">
+                                            <i class="bi bi-x-lg me-1"></i> Reject Project
                                         </button>
-                                    </form>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -465,6 +571,43 @@ $approved_result = $conn->query($approved_sql);
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reject Modal for each project -->
+                <div class="modal fade" id="rejectModal<?php echo $row["id"]; ?>" tabindex="-1"
+                    aria-labelledby="rejectModalLabel<?php echo $row["id"]; ?>" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title" id="rejectModalLabel<?php echo $row["id"]; ?>">
+                                    <i class="bi bi-x-circle me-2"></i>Reject Project
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <form method="post">
+                                <div class="modal-body">
+                                    <input type="hidden" name="project_id" value="<?php echo $row["id"]; ?>">
+                                    <p>You are about to reject the project
+                                        <strong><?php echo htmlspecialchars($row["project_name"]); ?></strong>.
+                                    </p>
+                                    <div class="mb-3">
+                                        <label for="rejection_reason" class="form-label">Rejection Reason:</label>
+                                        <textarea class="form-control" name="rejection_reason" id="rejection_reason"
+                                            rows="4" placeholder="Please provide a reason for rejecting this project..."
+                                            required></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" name="reject_project" class="btn btn-danger">
+                                        <i class="bi bi-x-lg me-1"></i> Reject Project
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -569,6 +712,116 @@ $approved_result = $conn->query($approved_sql);
                                         <?php endif; ?>
 
                                         <?php if(!empty($row["instruction_file_path"])): ?>
+                                        <a href="<?php echo htmlspecialchars($row["instruction_file_path"]);
+                                        ?>" target="_blank" class="file-link">
+                                            <i class="bi bi-file-earmark-text"></i> View Instructions
+                                        </a>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php
+                }
+            } else {
+            ?>
+                <div class="empty-projects">
+                    <i class="bi bi-check-circle"></i>
+                    <h3>No Approved Projects</h3>
+                    <p class="text-muted">There are currently no approved projects to display.</p>
+                </div>
+                <?php
+            }
+            ?>
+            </div>
+
+            <!-- Rejected Projects Tab -->
+            <div class="tab-pane fade" id="rejected-projects" role="tabpanel" aria-labelledby="rejected-tab">
+                <h2 class="section-title">
+                    <i class="bi bi-x-circle me-2"></i>Rejected Projects
+                </h2>
+
+                <?php
+            if ($rejected_result && $rejected_result->num_rows > 0) {
+                while($row = $rejected_result->fetch_assoc()) {
+            ?>
+                <div class="project-card card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold"><?php echo htmlspecialchars($row["project_name"]); ?></h5>
+                        <span class="badge badge-rejected">
+                            <i class="bi bi-x-circle me-1"></i>
+                            Rejected
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="project-detail">
+                                            <strong><i class="bi bi-tag me-1"></i> Type:</strong>
+                                            <?php echo htmlspecialchars($row["project_type"]); ?>
+                                        </div>
+                                        <div class="project-detail">
+                                            <strong><i class="bi bi-bookmark me-1"></i> Classification:</strong>
+                                            <?php echo htmlspecialchars($row["classification"]); ?>
+                                        </div>
+                                        <div class="project-detail">
+                                            <strong><i class="bi bi-code-slash me-1"></i> Language:</strong>
+                                            <?php echo htmlspecialchars($row["language"]); ?>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="project-detail">
+                                            <strong><i class="bi bi-calendar-date me-1"></i> Submitted:</strong>
+                                            <?php echo date("F j, Y, g:i a", strtotime($row["submission_date"])); ?>
+                                        </div>
+                                        <div class="project-detail">
+                                            <strong><i class="bi bi-calendar-x me-1"></i> Rejected:</strong>
+                                            <?php echo date("F j, Y, g:i a", strtotime($row["rejection_date"])); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="project-detail mt-3">
+                                    <strong><i class="bi bi-text-paragraph me-1"></i> Description:</strong>
+                                    <p class="mt-2"><?php echo nl2br(htmlspecialchars($row["description"])); ?></p>
+                                </div>
+
+                                <div class="rejection-reason">
+                                    <strong><i class="bi bi-exclamation-triangle me-1"></i> Rejection Reason:</strong>
+                                    <p class="mt-2"><?php echo nl2br(htmlspecialchars($row["rejection_reason"])); ?></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title fw-bold mb-3"><i class="bi bi-file-earmark me-1"></i>
+                                            Project Files</h6>
+
+                                        <?php if(!empty($row["image_path"])): ?>
+                                        <a href="<?php echo htmlspecialchars($row["image_path"]); ?>" target="_blank"
+                                            class="file-link">
+                                            <i class="bi bi-file-earmark-image"></i> View Image
+                                        </a>
+                                        <?php endif; ?>
+
+                                        <?php if(!empty($row["video_path"])): ?>
+                                        <a href="<?php echo htmlspecialchars($row["video_path"]); ?>" target="_blank"
+                                            class="file-link">
+                                            <i class="bi bi-file-earmark-play"></i> View Video
+                                        </a>
+                                        <?php endif; ?>
+
+                                        <?php if(!empty($row["code_file_path"])): ?>
+                                        <a href="<?php echo htmlspecialchars($row["code_file_path"]); ?>"
+                                            target="_blank" class="file-link">
+                                            <i class="bi bi-file-earmark-code"></i> View Code
+                                        </a>
+                                        <?php endif; ?>
+
+                                        <?php if(!empty($row["instruction_file_path"])): ?>
                                         <a href="<?php echo htmlspecialchars($row["instruction_file_path"]); ?>"
                                             target="_blank" class="file-link">
                                             <i class="bi bi-file-earmark-text"></i> View Instructions
@@ -581,27 +834,40 @@ $approved_result = $conn->query($approved_sql);
                     </div>
                 </div>
                 <?php
-                    }
-                } else {
-                ?>
+                }
+            } else {
+            ?>
                 <div class="empty-projects">
-                    <i class="bi bi-check2-all"></i>
-                    <h3>No Approved Projects</h3>
-                    <p class="text-muted">There are currently no approved projects to display.</p>
+                    <i class="bi bi-x-circle"></i>
+                    <h3>No Rejected Projects</h3>
+                    <p class="text-muted">There are currently no rejected projects to display.</p>
                 </div>
                 <?php
-                }
-                ?>
+            }
+            ?>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+
+    // Show the rejection modal when reject button is clicked
+    const rejectBtn = document.querySelectorAll('.btn-reject');
+    rejectBtn.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const projectId = e.target.closest('form').querySelector('input[name="project_id"]').value;
+            const modalId = `#rejectModal${projectId}`;
+            const modal = new bootstrap.Modal(document.querySelector(modalId));
+            modal.show();
+        });
+    });
+    </script>
 </body>
 
 </html>
-
-<?php
-// Close connection
-$conn->close();
-?>

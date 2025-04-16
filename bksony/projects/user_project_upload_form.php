@@ -1,15 +1,21 @@
 <?php
-// Initialize variables for form processing
-$message = '';
-$messageType = '';
+// Start session at the beginning of the script
+session_start();
 
-// Database connection
+// Check if user is logged in, redirect if not
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to login page
+    header("Location: login.php");
+    exit();
+}
+
+// Database configuration - consider moving to a separate config file
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "ideanest";
 
-// Create connection
+// Create connection with error handling
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 // Check connection
@@ -17,132 +23,128 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Check if form was submitted
+// Set character set to prevent encoding issues
+$conn->set_charset("utf8mb4");
+
+$message = "";
+$messageType = "";
+
+// Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get form data
-    $user_name = $_POST['user_name'];
-    $project_id = $_POST['project_id'];
-    $classification = $_POST['classification'];
-    
-    // Default status is pending for new submissions
+    // Sanitize and validate inputs
+    $user_id = filter_var($_SESSION['user_id'], FILTER_VALIDATE_INT);
+    $project_name = htmlspecialchars(trim($_POST['project_name']));
+    $project_type = in_array($_POST['project_type'], ['software', 'hardware']) ? $_POST['project_type'] : null;
+    $description = htmlspecialchars(trim($_POST['description']));
+    $language = htmlspecialchars(trim($_POST['language']));
+
+    // Classification handling
+    $classification = null;
+    if ($project_type == 'software') {
+        $valid_software_types = [
+            'web', 'mobile', 'ai_ml', 'desktop', 'system', 
+            'embedded_iot', 'cybersecurity', 'game', 'data_science', 'cloud'
+        ];
+        $classification = in_array($_POST['software_classification'], $valid_software_types)
+            ? $_POST['software_classification']
+            : null;
+    } elseif ($project_type == 'hardware') {
+        $valid_hardware_types = [
+            'embedded', 'iot', 'robotics', 'automation', 'sensor',
+            'communication', 'power', 'wearable', 'mechatronics', 'renewable'
+        ];
+        $classification = in_array($_POST['hardware_classification'], $valid_hardware_types)
+            ? $_POST['hardware_classification']
+            : null;
+    }
+
+    // File upload function with improved validation
+    function uploadFile($file, $folder, $allowedTypes = [], $maxSize = 5 * 1024 * 1024) {
+        if (empty($file['name'])) {
+            return null;
+        }
+
+        // Validate file
+        $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $fileName = uniqid() . '.' . $fileExt; // Generate unique filename
+
+        // Check file type
+        if (!empty($allowedTypes) && !in_array($fileExt, $allowedTypes)) {
+            return null;
+        }
+
+        // Check file size
+        if ($file['size'] > $maxSize) {
+            return null;
+        }
+
+        // Create upload directory if not exists
+        $target_dir = "uploads/$folder/";
+        if (!file_exists($target_dir)) {
+            mkdir($target_dir, 0755, true);
+        }
+
+        // Move uploaded file
+        $target_file = $target_dir . $fileName;
+        if (move_uploaded_file($file["tmp_name"], $target_file)) {
+            return $target_file;
+        }
+
+        return null;
+    }
+
+    // Upload files with type restrictions
+    $image_path = uploadFile($_FILES['images'], "images", ['jpg', 'jpeg', 'png', 'gif'], 2 * 1024 * 1024);
+    $video_path = uploadFile($_FILES['videos'], "videos", ['mp4', 'avi', 'mov'], 10 * 1024 * 1024);
+    $code_file_path = uploadFile($_FILES['code_file'], "code_files", ['zip', 'rar', 'tar', 'gz']);
+    $instruction_file_path = uploadFile($_FILES['instruction_file'], "instructions", ['txt', 'pdf', 'docx']);
+
+    // Set default status for new projects
     $status = "pending";
-    
-    // Get current date for submission_date
-    $submission_date = date("Y-m-d H:i:s");
-    
-    // Handle file uploads
-    $uploadOk = true;
-    $target_dir = "uploads/";
-    
-    // Make sure the upload directory exists
-    if (!file_exists($target_dir)) {
-        mkdir($target_dir, 0777, true);
-    }
-    
-    // Make sure the photos directory exists
-    if (!file_exists($target_dir . "photos/")) {
-        mkdir($target_dir . "photos/", 0777, true);
-    }
-    
-    // Process code file upload
-    $code_file = "";
-    if(isset($_FILES["code_file"]) && $_FILES["code_file"]["error"] == 0) {
-        $code_file = basename($_FILES["code_file"]["name"]);
-        $target_file = $target_dir . $code_file;
-        
-        // Check if file already exists
-        if (file_exists($target_file)) {
-            $code_file = time() . "_" . $code_file; // Add timestamp to make filename unique
-            $target_file = $target_dir . $code_file;
-        }
-        
-        // Try to upload file
-        if (!move_uploaded_file($_FILES["code_file"]["tmp_name"], $target_file)) {
-            $message = "Sorry, there was an error uploading your code file.";
-            $messageType = "danger";
-            $uploadOk = false;
-        }
+
+    // Current date and time for submission_date
+    $submission_date = date('Y-m-d H:i:s');
+
+    // Prepare SQL statement
+    $sql = "INSERT INTO projects (
+        user_id, project_name, project_type, classification, 
+        description, language, image_path, video_path, 
+        code_file_path, instruction_file_path, 
+        submission_date, status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    // Prepare and bind
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param(
+        "ssssssssssss",
+        $user_id,
+        $project_name,
+        $project_type,
+        $classification,
+        $description,
+        $language,
+        $image_path,
+        $video_path,
+        $code_file_path,
+        $instruction_file_path,
+        $submission_date,
+        $status
+    );
+
+    // Execute statement
+    if ($stmt->execute()) {
+        $message = "Project submitted successfully!";
+        $messageType = "success";
     } else {
-        $message = "Code file is required.";
+        $message = "Error submitting project: " . $stmt->error;
         $messageType = "danger";
-        $uploadOk = false;
     }
-    
-    // Process guide files upload
-    $guide_files = "";
-    if(isset($_FILES["guide_files"]) && $_FILES["guide_files"]["error"] == 0) {
-        $guide_files = basename($_FILES["guide_files"]["name"]);
-        $target_file = $target_dir . $guide_files;
-        
-        // Check if file already exists
-        if (file_exists($target_file)) {
-            $guide_files = time() . "_" . $guide_files; // Add timestamp to make filename unique
-            $target_file = $target_dir . $guide_files;
-        }
-        
-        // Try to upload file
-        if (!move_uploaded_file($_FILES["guide_files"]["tmp_name"], $target_file)) {
-            $message = "Sorry, there was an error uploading your guide files.";
-            $messageType = "danger";
-            $uploadOk = false;
-        }
-    }
-    
-    // Process project photos uploads
-    $project_photos = array();
-    if(isset($_FILES["project_photos"])) {
-        // Multiple files were uploaded
-        $total_photos = count($_FILES["project_photos"]["name"]);
-        
-        for($i = 0; $i < $total_photos; $i++) {
-            if($_FILES["project_photos"]["error"][$i] == 0) {
-                $photo_name = basename($_FILES["project_photos"]["name"][$i]);
-                $target_file = $target_dir . "photos/" . $photo_name;
-                
-                // Check if file already exists
-                if (file_exists($target_file)) {
-                    $photo_name = time() . "_" . $photo_name; // Add timestamp to make filename unique
-                    $target_file = $target_dir . "photos/" . $photo_name;
-                }
-                
-                // Try to upload file
-                if (move_uploaded_file($_FILES["project_photos"]["tmp_name"][$i], $target_file)) {
-                    $project_photos[] = $photo_name;
-                } else {
-                    $message = "Sorry, there was an error uploading one of your project photos.";
-                    $messageType = "danger";
-                    $uploadOk = false;
-                }
-            }
-        }
-    }
-    
-    // Convert project photos array to comma-separated string
-    $project_photos_str = implode(",", $project_photos);
-    
-    // If files uploaded successfully, insert data into database
-    if($uploadOk) {
-        // Prepare SQL statement to insert data
-        $stmt = $conn->prepare("INSERT INTO user_submited_projects (user_name, project_id, classicifation, submission_date, code_file, status, project_photos, guide_files) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssssssss", $user_name, $project_id, $classification, $submission_date, $code_file, $status, $project_photos_str, $guide_files);
-        
-        // Execute the statement
-        if($stmt->execute()) {
-            $message = "Project submitted successfully! Your submission will be reviewed.";
-            $messageType = "success";
-            
-            // Clear form data after successful submission
-            $user_name = $project_id = $classification = "";
-        } else {
-            $message = "Error: " . $stmt->error;
-            $messageType = "danger";
-        }
-        
-        $stmt->close();
-    }
+
+    // Close statement
+    $stmt->close();
 }
 
-// Close database connection
+// Close connection
 $conn->close();
 ?>
 
@@ -152,164 +154,261 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit Project</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
+    <title>Project Submission</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
-    .form-container {
-        max-width: 800px;
-        margin: 0 auto;
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --accent-color: #4895ef;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         padding: 20px;
     }
 
-    .required-field::after {
-        content: " *";
-        color: red;
+    .container {
+        max-width: 800px;
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin: 40px auto;
+        position: relative;
+        overflow: hidden;
     }
 
-    .preview-image {
-        max-width: 100px;
-        max-height: 100px;
-        margin: 5px;
+    .container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 8px;
         border: 1px solid #ddd;
-        border-radius: 4px;
-        padding: 5px;
+        padding: 10px 15px;
+        transition: all 0.3s;
     }
 
-    #imagePreview {
-        display: flex;
-        flex-wrap: wrap;
-        margin-top: 10px;
+    .form-control:focus,
+    .form-select:focus {
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+        border-color: var(--primary-color);
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--secondary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .user-info {
+        margin-bottom: 25px;
+        padding: 15px;
+        background-color: var(--light-color);
+        border-radius: 10px;
+        border-left: 4px solid var(--accent-color);
+    }
+
+    h3 {
+        color: var(--dark-color);
+        margin-bottom: 25px;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    h3::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: var(--primary-color);
+    }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    .modal-content {
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .category-group {
+        margin-bottom: 20px;
+        padding: 15px;
+        border-radius: 10px;
+        background-color: #f8f9fa;
+        border-left: 4px solid var(--accent-color);
     }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <div class="form-container">
-            <h1 class="mb-4">Submit New Project</h1>
+        <h3 class="text-center">Submit Your Project</h3>
 
-            <?php if(!empty($message)): ?>
-            <div class="alert alert-<?php echo $messageType; ?>" role="alert">
-                <?php echo $message; ?>
+        <div class="user-info">
+            <p class="mb-0"><strong>Welcome, <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?>!</strong>
+            </p>
+            <p class="mb-0 text-muted">User ID: <?php echo htmlspecialchars($_SESSION['user_id']); ?></p>
+        </div>
+
+        <form action="" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label class="form-label">Project Name</label>
+                <input type="text" class="form-control" name="project_name" required maxlength="255"
+                    placeholder="Enter your project name">
             </div>
-            <?php endif; ?>
 
-            <form method="post" enctype="multipart/form-data">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="user_name" class="form-label required-field">Your Name</label>
-                        <input type="text" class="form-control" id="user_name" name="user_name" required
-                            value="<?php echo isset($user_name) ? htmlspecialchars($user_name) : ''; ?>">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="project_id" class="form-label required-field">Project ID</label>
-                        <input type="text" class="form-control" id="project_id" name="project_id" required
-                            value="<?php echo isset($project_id) ? htmlspecialchars($project_id) : ''; ?>">
-                    </div>
+            <div class="mb-3">
+                <label class="form-label">Project Type</label>
+                <select class="form-select" name="project_type" id="projectType" required
+                    onchange="toggleProjectType()">
+                    <option value="">Select Type</option>
+                    <option value="software">Software</option>
+                    <option value="hardware">Hardware</option>
+                </select>
+            </div>
+
+            <div class="mb-3 category-group hidden" id="softwareOptions">
+                <label class="form-label">Software Classification</label>
+                <select class="form-select" name="software_classification">
+                    <option value="">Select Classification</option>
+                    <option value="web">Web Application (Web App)</option>
+                    <option value="mobile">Mobile Application (Mobile App)</option>
+                    <option value="ai_ml">Artificial Intelligence & Machine Learning (AI/ML)</option>
+                    <option value="desktop">Desktop Application</option>
+                    <option value="system">System Software</option>
+                    <option value="embedded_iot">Embedded Systems / IoT Software</option>
+                    <option value="cybersecurity">Cybersecurity Software</option>
+                    <option value="game">Game Development</option>
+                    <option value="data_science">Data Science & Analytics</option>
+                    <option value="cloud">Cloud-Based Applications</option>
+                </select>
+            </div>
+
+            <div class="mb-3 category-group hidden" id="hardwareOptions">
+                <label class="form-label">Hardware Classification</label>
+                <select class="form-select" name="hardware_classification">
+                    <option value="">Select Classification</option>
+                    <option value="embedded">Embedded Systems Projects</option>
+                    <option value="iot">IoT (Internet of Things) Projects</option>
+                    <option value="robotics">Robotics Projects</option>
+                    <option value="automation">Automation Projects</option>
+                    <option value="sensor">Sensor-Based Projects</option>
+                    <option value="communication">Communication Systems Projects</option>
+                    <option value="power">Power Electronics Projects</option>
+                    <option value="wearable">Wearable Technology Projects</option>
+                    <option value="mechatronics">Mechatronics Projects</option>
+                    <option value="renewable">Renewable Energy Projects</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" name="description" rows="4" required maxlength="1000"
+                    placeholder="Describe your project..."></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Programming Language/Technology</label>
+                <input type="text" class="form-control" name="language" required maxlength="50"
+                    placeholder="e.g., Python, JavaScript, Arduino">
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Upload Image (Max 2MB)</label>
+                    <input type="file" class="form-control" name="images" accept="image/jpeg,image/png,image/gif">
                 </div>
 
-                <div class="mb-3">
-                    <label for="classification" class="form-label required-field">Classification</label>
-                    <select class="form-select" id="classification" name="classification" required>
-                        <option value="" disabled <?php echo !isset($classification) ? 'selected' : ''; ?>>Select a
-                            classification</option>
-                        <option value="Beginner"
-                            <?php echo (isset($classification) && $classification == 'Beginner') ? 'selected' : ''; ?>>
-                            Beginner</option>
-                        <option value="Intermediate"
-                            <?php echo (isset($classification) && $classification == 'Intermediate') ? 'selected' : ''; ?>>
-                            Intermediate</option>
-                        <option value="Advanced"
-                            <?php echo (isset($classification) && $classification == 'Advanced') ? 'selected' : ''; ?>>
-                            Advanced</option>
-                        <option value="Expert"
-                            <?php echo (isset($classification) && $classification == 'Expert') ? 'selected' : ''; ?>>
-                            Expert</option>
-                    </select>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Upload Video (Max 10MB)</label>
+                    <input type="file" class="form-control" name="videos" accept="video/mp4,video/avi,video/quicktime">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Upload Code File</label>
+                    <input type="file" class="form-control" name="code_file" accept=".zip,.rar,.tar,.gz">
                 </div>
 
-                <div class="mb-3">
-                    <label for="code_file" class="form-label required-field">Code File</label>
-                    <input type="file" class="form-control" id="code_file" name="code_file" required>
-                    <small class="text-muted">Upload your project code file (ZIP, RAR, or other file formats).</small>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Upload Instructions</label>
+                    <input type="file" class="form-control" name="instruction_file" accept=".txt,.pdf,.docx">
                 </div>
+            </div>
 
-                <div class="mb-3">
-                    <label for="guide_files" class="form-label">Guide Files (Optional)</label>
-                    <input type="file" class="form-control" id="guide_files" name="guide_files">
-                    <small class="text-muted">Upload documentation or guide files (PDF, DOC, etc.)</small>
+            <button type="submit" class="btn btn-primary w-100">Submit Project</button>
+        </form>
+    </div>
+
+    <?php if (!empty($message)) { ?>
+    <div class="modal fade show" style="display: block;" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-<?php echo $messageType; ?>">Message</h5>
+                    <button type="button" class="btn-close" onclick="window.location.href='';"></button>
                 </div>
-
-                <div class="mb-3">
-                    <label for="project_photos" class="form-label">Project Photos (Optional)</label>
-                    <input type="file" class="form-control" id="project_photos" name="project_photos[]" multiple
-                        accept="image/*" onchange="previewImages()">
-                    <small class="text-muted">Upload screenshots or photos of your project (up to 5 images).</small>
-                    <div id="imagePreview"></div>
+                <div class="modal-body">
+                    <p><?php echo htmlspecialchars($message); ?></p>
                 </div>
-
-                <div class="mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="terms" required>
-                        <label class="form-check-label" for="terms">
-                            I confirm that this is my original work and I have the rights to submit it.
-                        </label>
-                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="window.location.href='';">Close</button>
                 </div>
-
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="reset" class="btn btn-secondary">Clear Form</button>
-                    <button type="submit" class="btn btn-primary">Submit Project</button>
-                </div>
-            </form>
-
-            <div class="mt-4 text-center">
-                <a href="view_projects.php" class="btn btn-outline-primary">View All Projects</a>
             </div>
         </div>
     </div>
-
-    <!-- Bootstrap 5 JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="modal-backdrop fade show"></div>
+    <?php } ?>
 
     <script>
-    // Function to preview images before upload
-    function previewImages() {
-        var preview = document.getElementById('imagePreview');
-        preview.innerHTML = ''; // Clear previous previews
+    function toggleProjectType() {
+        const projectType = document.getElementById("projectType").value;
+        const softwareOptions = document.getElementById("softwareOptions");
+        const hardwareOptions = document.getElementById("hardwareOptions");
 
-        var files = document.getElementById('project_photos').files;
-
-        if (files.length > 5) {
-            alert('You can only upload a maximum of 5 images.');
-            document.getElementById('project_photos').value = '';
-            return;
-        }
-
-        for (var i = 0; i < files.length; i++) {
-            var file = files[i];
-
-            // Only process image files
-            if (!file.type.match('image.*')) {
-                continue;
-            }
-
-            var img = document.createElement('img');
-            img.classList.add('preview-image');
-            img.file = file;
-            preview.appendChild(img);
-
-            var reader = new FileReader();
-            reader.onload = (function(aImg) {
-                return function(e) {
-                    aImg.src = e.target.result;
-                };
-            })(img);
-
-            reader.readAsDataURL(file);
-        }
+        softwareOptions.classList.toggle("hidden", projectType !== "software");
+        hardwareOptions.classList.toggle("hidden", projectType !== "hardware");
     }
     </script>
 </body>

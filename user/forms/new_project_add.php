@@ -41,11 +41,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Classification handling
     $classification = null;
     if ($project_type == 'software') {
-        $classification = in_array($_POST['software_classification'], ['web', 'mobile', 'desktop', 'embedded'])
+        $valid_software_types = [
+            'web', 'mobile', 'ai_ml', 'desktop', 'system', 
+            'embedded_iot', 'cybersecurity', 'game', 'data_science', 'cloud'
+        ];
+        $classification = in_array($_POST['software_classification'], $valid_software_types)
             ? $_POST['software_classification']
             : null;
     } elseif ($project_type == 'hardware') {
-        $classification = in_array($_POST['hardware_classification'], ['iot', 'robotics', 'electronics'])
+        $valid_hardware_types = [
+            'embedded', 'iot', 'robotics', 'automation', 'sensor',
+            'communication', 'power', 'wearable', 'mechatronics', 'renewable'
+        ];
+        $classification = in_array($_POST['hardware_classification'], $valid_hardware_types)
             ? $_POST['hardware_classification']
             : null;
     }
@@ -142,6 +150,7 @@ $conn->close();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -149,106 +158,230 @@ $conn->close();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
-        body {
-            background-color: rgb(220, 222, 225);
-        }
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --accent-color: #4895ef;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+    }
 
-        .container {
-            max-width: 700px;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-top: 40px;
-            transition: 0.5s;
-        }
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
 
-        .container:hover {
-            box-shadow: 0px 1px 10px 1px rgba(0, 0, 0, 0.2);
-        }
+    .container {
+        max-width: 800px;
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin: 40px auto;
+        position: relative;
+        overflow: hidden;
+    }
 
-        .hidden {
-            display: none;
-        }
+    .container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    }
 
-        .user-info {
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-        }
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        padding: 10px 15px;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+        border-color: var(--primary-color);
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--secondary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .user-info {
+        margin-bottom: 25px;
+        padding: 15px;
+        background-color: var(--light-color);
+        border-radius: 10px;
+        border-left: 4px solid var(--accent-color);
+    }
+
+    h3 {
+        color: var(--dark-color);
+        margin-bottom: 25px;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    h3::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: var(--primary-color);
+    }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    .modal-content {
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .category-group {
+        margin-bottom: 20px;
+        padding: 15px;
+        border-radius: 10px;
+        background-color: #f8f9fa;
+        border-left: 4px solid var(--accent-color);
+    }
     </style>
 </head>
-<body>
-<div class="container">
-    <h3 class="text-center mb-4">Submit Your Project</h3>
 
-    <div class="user-info">
-        <p><strong>Welcome, <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?>!</strong></p>
-        <p>User ID: <?php echo htmlspecialchars($_SESSION['user_id']); ?></p>
+<body>
+    <div class="container">
+        <h3 class="text-center">Submit Your Project</h3>
+
+        <div class="user-info">
+            <p class="mb-0"><strong>Welcome, <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?>!</strong>
+            </p>
+            <p class="mb-0 text-muted">User ID: <?php echo htmlspecialchars($_SESSION['user_id']); ?></p>
+        </div>
+
+        <form action="" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label class="form-label">Project Name</label>
+                <input type="text" class="form-control" name="project_name" required maxlength="255"
+                    placeholder="Enter your project name">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Project Type</label>
+                <select class="form-select" name="project_type" id="projectType" required
+                    onchange="toggleProjectType()">
+                    <option value="">Select Type</option>
+                    <option value="software">Software</option>
+                    <option value="hardware">Hardware</option>
+                </select>
+            </div>
+
+            <div class="mb-3 category-group hidden" id="softwareOptions">
+                <label class="form-label">Software Classification</label>
+                <select class="form-select" name="software_classification">
+                    <option value="">Select Classification</option>
+                    <option value="web">Web Application (Web App)</option>
+                    <option value="mobile">Mobile Application (Mobile App)</option>
+                    <option value="ai_ml">Artificial Intelligence & Machine Learning (AI/ML)</option>
+                    <option value="desktop">Desktop Application</option>
+                    <option value="system">System Software</option>
+                    <option value="embedded_iot">Embedded Systems / IoT Software</option>
+                    <option value="cybersecurity">Cybersecurity Software</option>
+                    <option value="game">Game Development</option>
+                    <option value="data_science">Data Science & Analytics</option>
+                    <option value="cloud">Cloud-Based Applications</option>
+                </select>
+            </div>
+
+            <div class="mb-3 category-group hidden" id="hardwareOptions">
+                <label class="form-label">Hardware Classification</label>
+                <select class="form-select" name="hardware_classification">
+                    <option value="">Select Classification</option>
+                    <option value="embedded">Embedded Systems Projects</option>
+                    <option value="iot">IoT (Internet of Things) Projects</option>
+                    <option value="robotics">Robotics Projects</option>
+                    <option value="automation">Automation Projects</option>
+                    <option value="sensor">Sensor-Based Projects</option>
+                    <option value="communication">Communication Systems Projects</option>
+                    <option value="power">Power Electronics Projects</option>
+                    <option value="wearable">Wearable Technology Projects</option>
+                    <option value="mechatronics">Mechatronics Projects</option>
+                    <option value="renewable">Renewable Energy Projects</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" name="description" rows="4" required maxlength="1000"
+                    placeholder="Describe your project..."></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Programming Language/Technology</label>
+                <input type="text" class="form-control" name="language" required maxlength="50"
+                    placeholder="e.g., Python, JavaScript, Arduino">
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Upload Image (Max 2MB)</label>
+                    <input type="file" class="form-control" name="images" accept="image/jpeg,image/png,image/gif">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Upload Video (Max 10MB)</label>
+                    <input type="file" class="form-control" name="videos" accept="video/mp4,video/avi,video/quicktime">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Upload Code File</label>
+                    <input type="file" class="form-control" name="code_file" accept=".zip,.rar,.tar,.gz">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Upload Instructions</label>
+                    <input type="file" class="form-control" name="instruction_file" accept=".txt,.pdf,.docx">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Submit Project</button>
+        </form>
     </div>
 
-    <form action="" method="POST" enctype="multipart/form-data">
-        <div class="mb-3">
-            <label class="form-label">Project Name</label>
-            <input type="text" class="form-control" name="project_name" required maxlength="255">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Project Type</label>
-            <select class="form-select" name="project_type" id="projectType" required onchange="toggleProjectType()">
-                <option value="">Select Type</option>
-                <option value="software">Software</option>
-                <option value="hardware">Hardware</option>
-            </select>
-        </div>
-        <div class="mb-3 hidden" id="softwareOptions">
-            <label class="form-label">Software Classification</label>
-            <select class="form-select" name="software_classification">
-                <option value="">Select Classification</option>
-                <option value="web">Web Application</option>
-                <option value="mobile">Mobile Application</option>
-                <option value="desktop">Desktop Software</option>
-                <option value="embedded">Embedded Software</option>
-            </select>
-        </div>
-        <div class="mb-3 hidden" id="hardwareOptions">
-            <label class="form-label">Hardware Classification</label>
-            <select class="form-select" name="hardware_classification">
-                <option value="">Select Classification</option>
-                <option value="iot">IoT Device</option>
-                <option value="robotics">Robotics</option>
-                <option value="electronics">Electronics Circuit</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea class="form-control" name="description" rows="4" required maxlength="1000"></textarea>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Programming Language</label>
-            <input type="text" class="form-control" name="language" required maxlength="50">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Upload Image (Max 2MB)</label>
-            <input type="file" class="form-control" name="images" accept="image/jpeg,image/png,image/gif">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Upload Video (Max 10MB)</label>
-            <input type="file" class="form-control" name="videos" accept="video/mp4,video/avi,video/quicktime">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Upload Code File</label>
-            <input type="file" class="form-control" name="code_file" accept=".zip,.rar,.tar,.gz">
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Upload Instructions</label>
-            <input type="file" class="form-control" name="instruction_file" accept=".txt,.pdf,.docx">
-        </div>
-        <button type="submit" class="btn btn-primary w-100">Submit Project</button>
-    </form>
-</div>
-
-<?php if (!empty($message)) { ?>
+    <?php if (!empty($message)) { ?>
     <div class="modal fade show" style="display: block;" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -259,12 +392,16 @@ $conn->close();
                 <div class="modal-body">
                     <p><?php echo htmlspecialchars($message); ?></p>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="window.location.href='';">Close</button>
+                </div>
             </div>
         </div>
     </div>
-<?php } ?>
+    <div class="modal-backdrop fade show"></div>
+    <?php } ?>
 
-<script>
+    <script>
     function toggleProjectType() {
         const projectType = document.getElementById("projectType").value;
         const softwareOptions = document.getElementById("softwareOptions");
@@ -273,6 +410,7 @@ $conn->close();
         softwareOptions.classList.toggle("hidden", projectType !== "software");
         hardwareOptions.classList.toggle("hidden", projectType !== "hardware");
     }
-</script>
+    </script>
 </body>
+
 </html>
