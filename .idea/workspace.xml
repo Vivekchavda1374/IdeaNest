@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="mail system successfully added">
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="modified ui in recent activities">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Admin/admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/admin.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin/project_notification.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/project_notification.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/logo-no-background.png" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/logo-no-background.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -160,15 +158,7 @@
       <workItem from="1744707190012" duration="1601000" />
       <workItem from="1744708817665" duration="37000" />
       <workItem from="1744769958025" duration="9375000" />
-      <workItem from="1744781878702" duration="2280000" />
-    </task>
-    <task id="LOCAL-00001" summary="composer added">
-      <option name="closed" value="true" />
-      <created>1740558813714</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1740558813714</updated>
+      <workItem from="1744781878702" duration="4078000" />
     </task>
     <task id="LOCAL-00002" summary="composer added --updated">
       <option name="closed" value="true" />
@@ -546,7 +536,23 @@
       <option name="project" value="LOCAL" />
       <updated>1744782983377</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary="modified ui in recent activities">
+      <option name="closed" value="true" />
+      <created>1744784956689</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1744784956689</updated>
+    </task>
+    <task id="LOCAL-00050" summary="modified ui in recent activities">
+      <option name="closed" value="true" />
+      <created>1744784974128</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1744784974130</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -564,8 +570,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="data base fetch from data in dashboard and modified ui and solve bug issue" />
-    <MESSAGE value="modified ui" />
     <MESSAGE value="add successfully idea management system" />
     <MESSAGE value="remove error successfully" />
     <MESSAGE value="blog table added" />
@@ -589,6 +593,8 @@
     <MESSAGE value="user setting page improved" />
     <MESSAGE value="admin view page modified. page refresh error gone" />
     <MESSAGE value="mail system successfully added" />
-    <option name="LAST_COMMIT_MESSAGE" value="mail system successfully added" />
+    <MESSAGE value="mail system successfully added update : modified ui in mail system" />
+    <MESSAGE value="modified ui in recent activities" />
+    <option name="LAST_COMMIT_MESSAGE" value="modified ui in recent activities" />
   </component>
 </project>
