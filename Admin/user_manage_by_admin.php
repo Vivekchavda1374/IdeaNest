@@ -4,7 +4,7 @@ $servername = "localhost";
 $username = "root";
 $password = ""; // Empty password as per your request
 $dbname = "ideanest";
-$site_name = "IdeaNest"; // Added site name variable
+$site_name = "IdeaNest Admin"; // Added site name variable
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -483,7 +483,7 @@ if (!empty($search)) {
         </li>
     </ul>
     <div class="sidebar-footer">
-        <a href="logout.php" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
+        <a href="../Login/Login/logout.php" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
             <i class="bi bi-box-arrow-right me-2"></i> Logout
         </a>
     </div>
@@ -508,7 +508,7 @@ if (!empty($search)) {
                     <li>
                         <hr class="dropdown-divider">
                     </li>
-                    <li><a class="dropdown-item" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i>
+                    <li><a class="dropdown-item" href="../Login/Login/logout.php"><i class="bi bi-box-arrow-right me-2"></i>
                             Logout</a></li>
                 </ul>
             </div>
