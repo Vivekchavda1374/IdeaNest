@@ -5,7 +5,7 @@ include "../Login/Login/db.php";
 // Site name
 $site_name = "IdeaNest Admin";
 
-// Current user information (replace with session variable or actual login system)
+// Start session
 session_start();
 $user_name = "Admin";
 
@@ -149,7 +149,65 @@ function rejectProject($project_id, $rejection_reason, $conn) {
     }
 }
 
+// Get time range filter from URL
+$selected_time_range = isset($_GET['time_range']) ? $_GET['time_range'] : "Last 7 Days";
+$time_ranges = ["Last 7 Days", "Last 30 Days", "Last 3 Months", "Last Year"];
 
+// Get category filter from URL
+$selected_category_range = isset($_GET['category_range']) ? $_GET['category_range'] : "All Time";
+$category_ranges = ["All Time", "This Month", "This Year"];
+
+// Initialize date values based on selected time range
+$start_date = null;
+$end_date = date('Y-m-d');
+
+switch($selected_time_range) {
+    case "Last 7 Days":
+        $start_date = date('Y-m-d', strtotime('-7 days'));
+        $project_chart_labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        break;
+    case "Last 30 Days":
+        $start_date = date('Y-m-d', strtotime('-30 days'));
+        $project_chart_labels = [];
+        for ($i = 29; $i >= 0; $i -= 5) {
+            $project_chart_labels[] = date('M d', strtotime("-$i days"));
+        }
+        break;
+    case "Last 3 Months":
+        $start_date = date('Y-m-d', strtotime('-3 months'));
+        $project_chart_labels = [];
+        for ($i = 3; $i >= 0; $i--) {
+            $project_chart_labels[] = date('M', strtotime("-$i months"));
+        }
+        break;
+    case "Last Year":
+        $start_date = date('Y-m-d', strtotime('-1 year'));
+        $project_chart_labels = [];
+        for ($i = 11; $i >= 0; $i--) {
+            $project_chart_labels[] = date('M', strtotime("-$i months"));
+        }
+        break;
+    default:
+        $start_date = date('Y-m-d', strtotime('-7 days'));
+        $project_chart_labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        break;
+}
+
+// Process category range filter
+$category_where_clause = "";
+switch($selected_category_range) {
+    case "This Month":
+        $category_where_clause = " WHERE DATE_FORMAT(submission_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')";
+        break;
+    case "This Year":
+        $category_where_clause = " WHERE DATE_FORMAT(submission_date, '%Y') = DATE_FORMAT(NOW(), '%Y')";
+        break;
+    default: // "All Time"
+        $category_where_clause = "";
+        break;
+}
+
+// Get project statistics
 $total_projects_query = "SELECT 
     (SELECT COUNT(*) FROM projects) as all_projects,
     (SELECT COUNT(*) FROM admin_approved_projects) as approved_projects,
@@ -159,31 +217,13 @@ $total_projects_query = "SELECT
 $total_projects_result = $conn->query($total_projects_query);
 $counts = $total_projects_result->fetch_assoc();
 
-// Now you can access each count individually
 $all_projects = $counts['all_projects'];
 $approved_projects = $counts['approved_projects'];
 $pending_projects = $counts['pending_projects'];
 $denied_projects = $counts['denied_projects'];
+$total_projects = $approved_projects + $pending_projects + $denied_projects;
 
-// Or if you want a total of all counts
-$total_projects =$approved_projects + $pending_projects + $denied_projects;
-
-// Total approved projects
-$approved_projects_query = "SELECT COUNT(*) as count FROM `admin_approved_projects`";
-$approved_projects_result = $conn->query($approved_projects_query);
-$approved_projects = $approved_projects_result->fetch_assoc()['count'];
-
-// Total pending projects
-$pending_projects_query = "SELECT COUNT(*) as count FROM projects WHERE status = 'pending'";
-$pending_projects_result = $conn->query($pending_projects_query);
-$pending_projects = $pending_projects_result->fetch_assoc()['count'];
-
-// Total rejected projects
-$rejected_projects_query = "SELECT COUNT(*) as count FROM denial_projects";
-$rejected_projects_result = $conn->query($rejected_projects_query);
-$rejected_projects = $rejected_projects_result->fetch_assoc()['count'];
-
-
+// Statistical growth values (these could be calculated from actual data in a real app)
 $total_projects_percentage = 75;
 $total_projects_growth = "12%";
 $approved_projects_percentage = 60;
@@ -193,44 +233,135 @@ $pending_projects_growth = "5%";
 $rejected_projects_percentage = 20;
 $rejected_projects_growth = "3%";
 
-// Time range for charts
-$selected_time_range = "Last 7 Days";
-$time_ranges = ["Last 7 Days", "Last 30 Days", "Last 3 Months", "Last Year"];
-
-$selected_category_range = "All Time";
-$category_ranges = ["All Time", "This Month", "This Year"];
-$project_chart_labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
+// Initialize data arrays for chart
 $submitted_projects_data = [];
 $approved_projects_data = [];
 $rejected_projects_data = [];
 
-// Get today's date
-$today = date('Y-m-d');
+// Get data for the selected time range
+if ($selected_time_range == "Last 7 Days") {
+    // Daily data for last 7 days
+    for ($i = 6; $i >= 0; $i--) {
+        $date = date('Y-m-d', strtotime("-$i days"));
 
-// Loop through last 7 days
-for ($i = 6; $i >= 0; $i--) {
-    $date = date('Y-m-d', strtotime("-$i days"));
-    $next_date = date('Y-m-d', strtotime("-" . ($i - 1) . " days"));
+        // Submitted projects
+        $submitted_query = "SELECT COUNT(*) as count FROM projects WHERE DATE(submission_date) = ?";
+        $submitted_stmt = $conn->prepare($submitted_query);
+        $submitted_stmt->bind_param("s", $date);
+        $submitted_stmt->execute();
+        $submitted_result = $submitted_stmt->get_result();
+        $submitted_projects_data[] = $submitted_result->fetch_assoc()['count'];
 
-    // Submitted projects
-    $submitted_query = "SELECT COUNT(*) as count FROM projects WHERE DATE(submission_date) = '$date'";
-    $submitted_result = $conn->query($submitted_query);
-    $submitted_projects_data[] = $submitted_result->fetch_assoc()['count'];
+        // Approved projects
+        $approved_query = "SELECT COUNT(*) as count FROM admin_approved_projects WHERE DATE(submission_date) = ?";
+        $approved_stmt = $conn->prepare($approved_query);
+        $approved_stmt->bind_param("s", $date);
+        $approved_stmt->execute();
+        $approved_result = $approved_stmt->get_result();
+        $approved_projects_data[] = $approved_result->fetch_assoc()['count'];
 
-    // Approved projects
-    $approved_query = "SELECT COUNT(*) as count FROM `admin_approved_projects` WHERE DATE(submission_date) = '$date'";
-    $approved_result = $conn->query($approved_query);
-    $approved_projects_data[] = $approved_result->fetch_assoc()['count'];
+        // Rejected projects
+        $rejected_query = "SELECT COUNT(*) as count FROM denial_projects WHERE DATE(rejection_date) = ?";
+        $rejected_stmt = $conn->prepare($rejected_query);
+        $rejected_stmt->bind_param("s", $date);
+        $rejected_stmt->execute();
+        $rejected_result = $rejected_stmt->get_result();
+        $rejected_projects_data[] = $rejected_result->fetch_assoc()['count'];
+    }
+} elseif ($selected_time_range == "Last 30 Days") {
+    // Weekly data for last 30 days
+    for ($i = 0; $i < 6; $i++) {
+        $start = date('Y-m-d', strtotime("-" . (30 - $i * 5) . " days"));
+        $end = date('Y-m-d', strtotime("-" . (26 - $i * 5) . " days"));
 
-    // Rejected projects
-    $rejected_query = "SELECT COUNT(*) as count FROM denial_projects WHERE DATE(rejection_date) = '$date'";
-    $rejected_result = $conn->query($rejected_query);
-    $rejected_projects_data[] = $rejected_result->fetch_assoc()['count'];
+        // Submitted projects
+        $submitted_query = "SELECT COUNT(*) as count FROM projects WHERE DATE(submission_date) BETWEEN ? AND ?";
+        $submitted_stmt = $conn->prepare($submitted_query);
+        $submitted_stmt->bind_param("ss", $start, $end);
+        $submitted_stmt->execute();
+        $submitted_result = $submitted_stmt->get_result();
+        $submitted_projects_data[] = $submitted_result->fetch_assoc()['count'];
+
+        // Approved projects
+        $approved_query = "SELECT COUNT(*) as count FROM admin_approved_projects WHERE DATE(submission_date) BETWEEN ? AND ?";
+        $approved_stmt = $conn->prepare($approved_query);
+        $approved_stmt->bind_param("ss", $start, $end);
+        $approved_stmt->execute();
+        $approved_result = $approved_stmt->get_result();
+        $approved_projects_data[] = $approved_result->fetch_assoc()['count'];
+
+        // Rejected projects
+        $rejected_query = "SELECT COUNT(*) as count FROM denial_projects WHERE DATE(rejection_date) BETWEEN ? AND ?";
+        $rejected_stmt = $conn->prepare($rejected_query);
+        $rejected_stmt->bind_param("ss", $start, $end);
+        $rejected_stmt->execute();
+        $rejected_result = $rejected_stmt->get_result();
+        $rejected_projects_data[] = $rejected_result->fetch_assoc()['count'];
+    }
+} elseif ($selected_time_range == "Last 3 Months") {
+    // Monthly data for last 3 months
+    for ($i = 3; $i >= 0; $i--) {
+        $month_start = date('Y-m-01', strtotime("-$i months"));
+        $month_end = date('Y-m-t', strtotime("-$i months"));
+
+        // Submitted projects
+        $submitted_query = "SELECT COUNT(*) as count FROM projects WHERE DATE(submission_date) BETWEEN ? AND ?";
+        $submitted_stmt = $conn->prepare($submitted_query);
+        $submitted_stmt->bind_param("ss", $month_start, $month_end);
+        $submitted_stmt->execute();
+        $submitted_result = $submitted_stmt->get_result();
+        $submitted_projects_data[] = $submitted_result->fetch_assoc()['count'];
+
+        // Approved projects
+        $approved_query = "SELECT COUNT(*) as count FROM admin_approved_projects WHERE DATE(submission_date) BETWEEN ? AND ?";
+        $approved_stmt = $conn->prepare($approved_query);
+        $approved_stmt->bind_param("ss", $month_start, $month_end);
+        $approved_stmt->execute();
+        $approved_result = $approved_stmt->get_result();
+        $approved_projects_data[] = $approved_result->fetch_assoc()['count'];
+
+        // Rejected projects
+        $rejected_query = "SELECT COUNT(*) as count FROM denial_projects WHERE DATE(rejection_date) BETWEEN ? AND ?";
+        $rejected_stmt = $conn->prepare($rejected_query);
+        $rejected_stmt->bind_param("ss", $month_start, $month_end);
+        $rejected_stmt->execute();
+        $rejected_result = $rejected_stmt->get_result();
+        $rejected_projects_data[] = $rejected_result->fetch_assoc()['count'];
+    }
+} else { // Last Year
+    // Monthly data for last year
+    for ($i = 11; $i >= 0; $i--) {
+        $month_start = date('Y-m-01', strtotime("-$i months"));
+        $month_end = date('Y-m-t', strtotime("-$i months"));
+
+        // Submitted projects
+        $submitted_query = "SELECT COUNT(*) as count FROM projects WHERE DATE(submission_date) BETWEEN ? AND ?";
+        $submitted_stmt = $conn->prepare($submitted_query);
+        $submitted_stmt->bind_param("ss", $month_start, $month_end);
+        $submitted_stmt->execute();
+        $submitted_result = $submitted_stmt->get_result();
+        $submitted_projects_data[] = $submitted_result->fetch_assoc()['count'];
+
+        // Approved projects
+        $approved_query = "SELECT COUNT(*) as count FROM admin_approved_projects WHERE DATE(submission_date) BETWEEN ? AND ?";
+        $approved_stmt = $conn->prepare($approved_query);
+        $approved_stmt->bind_param("ss", $month_start, $month_end);
+        $approved_stmt->execute();
+        $approved_result = $approved_stmt->get_result();
+        $approved_projects_data[] = $approved_result->fetch_assoc()['count'];
+
+        // Rejected projects
+        $rejected_query = "SELECT COUNT(*) as count FROM denial_projects WHERE DATE(rejection_date) BETWEEN ? AND ?";
+        $rejected_stmt = $conn->prepare($rejected_query);
+        $rejected_stmt->bind_param("ss", $month_start, $month_end);
+        $rejected_stmt->execute();
+        $rejected_result = $rejected_stmt->get_result();
+        $rejected_projects_data[] = $rejected_result->fetch_assoc()['count'];
+    }
 }
 
-// Category data
-$category_query = "SELECT classification, COUNT(*) as count FROM admin_approved_projects GROUP BY classification";
+// Category data with filter
+$category_query = "SELECT classification, COUNT(*) as count FROM admin_approved_projects" . $category_where_clause . " GROUP BY classification";
 $category_result = $conn->query($category_query);
 
 $category_labels = [];
@@ -340,7 +471,9 @@ while ($row = $pending_projects_result->fetch_assoc()) {
         'icon' => $icon
     ];
 }
-
+$rejected_projects_query = "SELECT COUNT(*) as count FROM denial_projects";
+$rejected_projects_result = $conn->query($rejected_projects_query);
+$rejected_projects = $rejected_projects_result->fetch_assoc()['count'];
 // Helper function to convert MySQL datetime to "time ago" format
 function time_elapsed_string($datetime, $full = false) {
     $now = new DateTime;
