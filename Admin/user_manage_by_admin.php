@@ -4,7 +4,7 @@ $servername = "localhost";
 $username = "root";
 $password = ""; // Empty password as per your request
 $dbname = "ideanest";
-$site_name = "IdeaNest"; // Added site name variable
+$site_name = "IdeaNest Admin"; // Added site name variable
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -34,6 +34,7 @@ if (isset($_POST['block_user'])) {
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
         $result = $stmt->get_result();
+<<<<<<< HEAD
         
         if ($row = $result->fetch_assoc()) {
             // Insert into removed_user table WITH ALL COLUMNS
@@ -46,6 +47,20 @@ if (isset($_POST['block_user'])) {
             $stmt->bind_param("i", $user_id);
             $stmt->execute();
 
+=======
+
+        if ($row = $result->fetch_assoc()) {
+            // Insert into removed_user table WITH ALL COLUMNS
+            $stmt = $conn->prepare("INSERT INTO removed_user (id, name, email, enrollment_number, gr_number, password, about, user_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("isssssss", $row['id'], $row['name'], $row['email'], $row['enrollment_number'], $row['gr_number'], $row['password'], $row['about'], $row['user_image']);
+            $stmt->execute();
+
+            // Then delete from register table
+            $stmt = $conn->prepare("DELETE FROM register WHERE id = ?");
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+
+>>>>>>> refs/remotes/origin/main
             // Commit transaction
             $conn->commit();
 
@@ -74,6 +89,7 @@ if (isset($_POST['restore_access'])) {
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
         $result = $stmt->get_result();
+<<<<<<< HEAD
         
         if ($row = $result->fetch_assoc()) {
             // Insert back into register table WITH ALL COLUMNS
@@ -86,6 +102,20 @@ if (isset($_POST['restore_access'])) {
             $stmt->bind_param("i", $user_id);
             $stmt->execute();
 
+=======
+
+        if ($row = $result->fetch_assoc()) {
+            // Insert back into register table WITH ALL COLUMNS
+            $stmt = $conn->prepare("INSERT INTO register (id, name, email, enrollment_number, gr_number, password, about, user_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("isssssss", $row['id'], $row['name'], $row['email'], $row['enrollment_number'], $row['gr_number'], $row['password'], $row['about'], $row['user_image']);
+            $stmt->execute();
+
+            // Then delete from removed_user table
+            $stmt = $conn->prepare("DELETE FROM removed_user WHERE id = ?");
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+
+>>>>>>> refs/remotes/origin/main
             // Commit transaction
             $conn->commit();
 
@@ -428,7 +458,21 @@ if (!empty($search)) {
     /* Media Queries */
     @media (max-width: 991.98px) {
         .sidebar {
+<<<<<<< HEAD
             transform: translateX(-100%);
+=======
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 250px;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+            transition: all 0.3s;
+            overflow-y: auto;
+            padding: 1rem;
+>>>>>>> refs/remotes/origin/main
         }
 
         .sidebar.show {
@@ -454,6 +498,7 @@ if (!empty($search)) {
                 <i class="bi bi-lightbulb"></i>
                 <span><?php echo $site_name; ?></span>
             </a>
+<<<<<<< HEAD
         </div>
         <ul class="sidebar-menu">
             <li class="sidebar-item">
@@ -486,6 +531,59 @@ if (!empty($search)) {
             <a href="logout.php" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
                 <i class="bi bi-box-arrow-right me-2"></i> Logout
             </a>
+=======
+        </li>
+        <li class="sidebar-item">
+            <a href="admin_view_project.php" class="sidebar-link">
+                <i class="bi bi-kanban"></i>
+                <span>Projects</span>
+            </a>
+        </li>
+        <li class="sidebar-item">
+            <a href="user_manage_by_admin.php" class="sidebar-link active">
+                <i class="bi bi-people"></i>
+                <span>Users Management</span>
+            </a>
+        </li>
+        <hr class="sidebar-divider">
+        <li class="sidebar-item">
+            <a href="settings.php" class="sidebar-link">
+                <i class="bi bi-gear"></i>
+                <span>Settings</span>
+            </a>
+        </li>
+    </ul>
+    <div class="sidebar-footer">
+        <a href="../Login/Login/logout.php" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
+            <i class="bi bi-box-arrow-right me-2"></i> Logout
+        </a>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+        <button class="btn d-lg-none" id="sidebarToggle">
+            <i class="bi bi-list"></i>
+        </button>
+        <h1 class="page-title">User Management</h1>
+        <div class="topbar-actions">
+            <div class="dropdown">
+                <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> Profile</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i> Settings</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="../Login/Login/logout.php"><i class="bi bi-box-arrow-right me-2"></i>
+                            Logout</a></li>
+                </ul>
+            </div>
+>>>>>>> refs/remotes/origin/main
         </div>
     </div>
 
@@ -546,11 +644,20 @@ if (!empty($search)) {
                                     value="<?php echo htmlspecialchars($search); ?>">
                             </div>
                         </div>
+<<<<<<< HEAD
                         <div class="col-md-3">
                             <button type="submit" class="btn btn-primary w-100">
                                 <i class="bi bi-search me-2"></i> Search
                             </button>
                             <?php if(!empty($search)): ?>
+=======
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search me-2"></i> Search
+                        </button>
+                        <?php if(!empty($search)): ?>
+>>>>>>> refs/remotes/origin/main
                             <a href="?tab=<?php echo $active_tab; ?>" class="btn btn-outline-secondary w-100 mt-2">
                                 <i class="bi bi-x-circle me-2"></i> Clear Search
                             </a>
@@ -559,21 +666,36 @@ if (!empty($search)) {
                     </form>
                 </div>
 
+<<<<<<< HEAD
                 <!-- Nav tabs -->
                 <ul class="nav nav-tabs" id="userTabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link <?php echo $active_tab == 'active' ? 'active' : ''; ?>"
+=======
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" id="userTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link <?php echo $active_tab == 'active' ? 'active' : ''; ?>"
+>>>>>>> refs/remotes/origin/main
                             id="active-users-tab" data-bs-toggle="tab" data-bs-target="#active-users" type="button"
                             role="tab" aria-controls="active-users"
                             aria-selected="<?php echo $active_tab == 'active' ? 'true' : 'false'; ?>">
                             <i class="bi bi-person-check me-2"></i> Active Users
                             <?php if ($active_users_result->num_rows > 0): ?>
                             <span class="badge bg-primary ms-1"><?php echo $active_users_result->num_rows; ?></span>
+<<<<<<< HEAD
                             <?php endif; ?>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link <?php echo $active_tab == 'blocked' ? 'active' : ''; ?>"
+=======
+                        <?php endif; ?>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link <?php echo $active_tab == 'blocked' ? 'active' : ''; ?>"
+>>>>>>> refs/remotes/origin/main
                             id="blocked-users-tab" data-bs-toggle="tab" data-bs-target="#blocked-users" type="button"
                             role="tab" aria-controls="blocked-users"
                             aria-selected="<?php echo $active_tab == 'blocked' ? 'true' : 'false'; ?>">

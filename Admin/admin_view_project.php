@@ -52,7 +52,7 @@ $category_filter = isset($_GET['category']) ? $_GET['category'] : 'all';
 $search_filter = isset($_GET['search']) ? $_GET['search'] : '';
 
 $view_mode = isset($_GET['view']) ? $_GET['view'] : 'projects';
-$valid_views = ['projects', 'approved'];
+$valid_views = ['projects', 'approved', 'rejected'];
 if (!in_array($view_mode, $valid_views)) {
     $view_mode = 'projects';
 }
@@ -81,6 +81,10 @@ if ($view_mode == 'projects') {
     $data_query = "SELECT * ";
 } else if ($view_mode == 'approved') {
     $base_query = "FROM admin_approved_projects WHERE 1=1";
+    $count_query = "SELECT COUNT(*) as total ";
+    $data_query = "SELECT * ";
+} else if ($view_mode == 'rejected') {
+    $base_query = "FROM denial_projects WHERE 1=1";
     $count_query = "SELECT COUNT(*) as total ";
     $data_query = "SELECT * ";
 }
@@ -585,13 +589,14 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             </li>
         </ul>
         <div class="sidebar-footer">
-            <a href="logout.php" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
+            <a href="../Login/Login/logout.php" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
                 <i class="bi bi-box-arrow-right me-2"></i> Logout
             </a>
         </div>
     </div>
 
     <!-- Main Content -->
+<<<<<<< HEAD
     <div class="main-content">
         <!-- Topbar -->
         <div class="topbar">
@@ -614,6 +619,26 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                 Logout</a></li>
                     </ul>
                 </div>
+=======
+<div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+        <button class="btn d-lg-none" id="sidebarToggle">
+            <i class="bi bi-list"></i>
+        </button>
+        <h1 class="page-title">Projects Management</h1>
+        <div class="topbar-actions">
+            <div class="dropdown">
+                <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> Profile</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i> Settings</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="../Login/Login/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                </ul>
+>>>>>>> refs/remotes/origin/main
             </div>
         </div>
 
@@ -748,11 +773,54 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                 <textarea class="form-control" name="rejection_reason" rows="3" required></textarea>
                             </div>
                         </div>
+<<<<<<< HEAD
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" name="reject_submit" class="btn btn-danger">Reject Project</button>
                         </div>
                     </form>
+=======
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="reject_submit" class="btn btn-danger">Reject Project</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<?php else: ?>
+    <!-- View Switcher Tabs -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link <?php echo $view_mode == 'projects' ? 'active' : ''; ?>" href="admin_view_project.php?view=projects">
+                <i class="bi bi-folder me-2"></i>All Projects
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link <?php echo $view_mode == 'approved' ? 'active' : ''; ?>" href="admin_view_project.php?view=approved">
+                <i class="bi bi-check-circle me-2"></i>Approved Projects
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link <?php echo $view_mode == 'rejected' ? 'active' : ''; ?>" href="admin_view_project.php?view=rejected">
+                <i class="bi bi-x-circle me-2"></i>Rejected Projects
+            </a>
+        </li>
+    </ul>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <form action="admin_view_project.php" method="get" class="row g-3">
+            <input type="hidden" name="view" value="<?php echo $view_mode; ?>">
+            <div class="col-md-3">
+                <label for="search" class="form-label">Search</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="search" name="search" placeholder="Search projects..." value="<?php echo htmlspecialchars($search_filter); ?>">
+                    <button class="btn btn-outline-primary" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+>>>>>>> refs/remotes/origin/main
                 </div>
             </div>
         </div>

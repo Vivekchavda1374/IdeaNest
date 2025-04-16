@@ -913,7 +913,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             </li>
         </ul>
         <div class="sidebar-footer">
-            <a href="logout.php" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
+            <a href="../Login/Login/logout.php" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
                 <i class="bi bi-box-arrow-right me-2"></i> Logout
             </a>
         </div>
@@ -936,7 +936,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                     <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> Profile</a></li>
                     <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i> Settings</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                    <li><a class="dropdown-item" href="../Login/Login/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
                 </ul>
             </div>
         </div>
