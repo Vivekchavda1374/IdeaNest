@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="admin view page modified. page refresh error gone" />
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="modified ui in recent activities">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Admin/admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/admin.php" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -48,12 +51,16 @@
   &quot;associatedIndex&quot;: 5
 }</component>
   <component name="ProjectId" id="2tZTldR0CdBALDEdlt6IoiBBukk" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;JavaScript Debug.project_notification.php.executor&quot;: &quot;Run&quot;,
     &quot;JavaScript Debug.user_project_search.php.executor&quot;: &quot;Coverage&quot;,
     &quot;PHP Script.progressbar.php.executor&quot;: &quot;Run&quot;,
     &quot;PHP Script.user_project_search.php.executor&quot;: &quot;Run&quot;,
@@ -85,11 +92,11 @@
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\user\forms" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\xampp\htdocs\project\IdeaNest\Admin" />
+      <recent name="C:\xampp\htdocs\project\IdeaNest\assets" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login\Signup" />
-      <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login\Login\image" />
-      <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login\Login" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -149,14 +156,9 @@
       <workItem from="1744705353458" duration="19000" />
       <workItem from="1744705388718" duration="1145000" />
       <workItem from="1744707190012" duration="1601000" />
-    </task>
-    <task id="LOCAL-00001" summary="composer added">
-      <option name="closed" value="true" />
-      <created>1740558813714</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1740558813714</updated>
+      <workItem from="1744708817665" duration="37000" />
+      <workItem from="1744769958025" duration="9375000" />
+      <workItem from="1744781878702" duration="4078000" />
     </task>
     <task id="LOCAL-00002" summary="composer added --updated">
       <option name="closed" value="true" />
@@ -518,7 +520,39 @@
       <option name="project" value="LOCAL" />
       <updated>1744708798094</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="admin view page modified. page refresh error gone">
+      <option name="closed" value="true" />
+      <created>1744708839277</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1744708839278</updated>
+    </task>
+    <task id="LOCAL-00048" summary="mail system successfully added">
+      <option name="closed" value="true" />
+      <created>1744782983377</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1744782983377</updated>
+    </task>
+    <task id="LOCAL-00049" summary="modified ui in recent activities">
+      <option name="closed" value="true" />
+      <created>1744784956689</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1744784956689</updated>
+    </task>
+    <task id="LOCAL-00050" summary="modified ui in recent activities">
+      <option name="closed" value="true" />
+      <created>1744784974128</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1744784974130</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -536,9 +570,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="login error done-final done" />
-    <MESSAGE value="data base fetch from data in dashboard and modified ui and solve bug issue" />
-    <MESSAGE value="modified ui" />
     <MESSAGE value="add successfully idea management system" />
     <MESSAGE value="remove error successfully" />
     <MESSAGE value="blog table added" />
@@ -561,6 +592,9 @@
     <MESSAGE value="admin and admin view page improved" />
     <MESSAGE value="user setting page improved" />
     <MESSAGE value="admin view page modified. page refresh error gone" />
-    <option name="LAST_COMMIT_MESSAGE" value="admin view page modified. page refresh error gone" />
+    <MESSAGE value="mail system successfully added" />
+    <MESSAGE value="mail system successfully added update : modified ui in mail system" />
+    <MESSAGE value="modified ui in recent activities" />
+    <option name="LAST_COMMIT_MESSAGE" value="modified ui in recent activities" />
   </component>
 </project>

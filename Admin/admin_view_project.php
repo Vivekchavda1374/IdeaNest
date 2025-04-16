@@ -1,8 +1,10 @@
 <?php
-// Database connection
+require '../vendor/autoload.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
 include "../Login/Login/db.php";
-
-// Site name
+include "project_notification.php";
 $site_name = "IdeaNest Admin";
 
 session_start();
@@ -197,6 +199,15 @@ function approveProject($project_id, $conn) {
         $update_stmt->bind_param("i", $project_id);
         $update_stmt->execute();
 
+        // Send dynamic email notification with custom options
+        $email_options = [
+            'subject' => 'Congratulations! Your Project "' . $project['project_name'] . '" Has Been Approved',
+            'custom_text' => 'As an approved project creator, you now have access to our developer resources and community forums where you can showcase your work and get feedback from fellow creators.',
+            'include_project_details' => true
+        ];
+
+        sendProjectStatusEmail($project_id, 'approved', '', $email_options);
+
         // Redirect back to projects view with success message
         header("Location: admin_view_project.php?message=Project approved successfully");
         exit;
@@ -206,7 +217,7 @@ function approveProject($project_id, $conn) {
     }
 }
 
-// Function to reject a project
+// And modify your rejectProject function
 function rejectProject($project_id, $rejection_reason, $conn) {
     // Get project details
     $query = "SELECT * FROM projects WHERE id = ?";
@@ -250,6 +261,15 @@ function rejectProject($project_id, $rejection_reason, $conn) {
         $update_stmt->bind_param("i", $project_id);
         $update_stmt->execute();
 
+        // Send dynamic email notification with custom options
+        $email_options = [
+            'subject' => 'Important Update About Your Project "' . $project['project_name'] . '"',
+            'custom_text' => 'Our team is always available to help you improve your project. Feel free to reach out if you need guidance on addressing the issues mentioned.',
+            'include_project_details' => true
+        ];
+
+        sendProjectStatusEmail($project_id, 'rejected', $rejection_reason, $email_options);
+
         // Redirect back to projects view with success message
         header("Location: admin_view_project.php?message=Project rejected successfully");
         exit;
@@ -258,8 +278,6 @@ function rejectProject($project_id, $rejection_reason, $conn) {
         exit;
     }
 }
-
-// Check for messages
 $message = isset($_GET['message']) ? $_GET['message'] : '';
 $error = isset($_GET['error']) ? $_GET['error'] : '';
 ?>
