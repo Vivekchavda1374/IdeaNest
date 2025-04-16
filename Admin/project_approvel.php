@@ -123,6 +123,7 @@ if (isset($_POST['approve_project'])) {
 // Get pending projects
 $pending_sql = "SELECT * FROM projects ORDER BY submission_date DESC";
 $pending_result = $conn->query($pending_sql);
+$pending_count = $pending_result ? $pending_result->num_rows : 0;
 
 // Get approved projects with bookmark status for current user
 $approved_sql = "SELECT admin_approved_projects.*, 
@@ -131,6 +132,7 @@ $approved_sql = "SELECT admin_approved_projects.*,
                 LEFT JOIN bookmark ON admin_approved_projects.id = bookmark.project_id AND bookmark.user_id = '" . session_id() . "'
                 ORDER BY admin_approved_projects.submission_date DESC";
 $approved_result = $conn->query($approved_sql);
+$approved_count = $approved_result ? $approved_result->num_rows : 0;
 ?>
 
 <!DOCTYPE html>
@@ -331,6 +333,20 @@ $approved_result = $conn->query($approved_sql);
         background-color: #f8f9fa;
     }
 
+    .project-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 5px;
+    }
+
     /* Add responsive styling */
     @media (max-width: 768px) {
         .action-buttons {
@@ -362,12 +378,14 @@ $approved_result = $conn->query($approved_sql);
                 <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-projects"
                     type="button" role="tab" aria-controls="pending-projects" aria-selected="true">
                     <i class="bi bi-hourglass me-1"></i>Pending Projects
+                    <span class="project-count"><?php echo $pending_count; ?></span>
                 </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved-projects"
                     type="button" role="tab" aria-controls="approved-projects" aria-selected="false">
                     <i class="bi bi-check-circle me-1"></i>Approved Projects
+                    <span class="project-count"><?php echo $approved_count; ?></span>
                 </button>
             </li>
         </ul>
@@ -377,6 +395,7 @@ $approved_result = $conn->query($approved_sql);
             <div class="tab-pane fade show active" id="pending-projects" role="tabpanel" aria-labelledby="pending-tab">
                 <h2 class="section-title">
                     <i class="bi bi-hourglass me-2"></i>Pending Projects
+                    <small class="text-muted">(<?php echo $pending_count; ?> projects)</small>
                 </h2>
 
                 <?php
@@ -486,6 +505,7 @@ $approved_result = $conn->query($approved_sql);
             <div class="tab-pane fade" id="approved-projects" role="tabpanel" aria-labelledby="approved-tab">
                 <h2 class="section-title">
                     <i class="bi bi-check-circle me-2"></i>Approved Projects
+                    <small class="text-muted">(<?php echo $approved_count; ?> projects)</small>
                 </h2>
 
                 <?php

@@ -1,5 +1,7 @@
 <?php
 // Process form submission
+session_start();
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Set the timezone for accurate datetime
     date_default_timezone_set('Asia/Kolkata'); // Change to your timezone
@@ -53,6 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Close statement and connection
             $stmt->close();
             $conn->close();
+            
         }
     }
 }
@@ -70,289 +73,311 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --success-color: #4cc9f0;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-        }
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --success-color: #4cc9f0;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+    }
 
-        body {
-            background-color: #f5f7fb;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+    }
 
-        .form-container {
-            max-width: 900px;
-            margin: 40px auto;
-        }
+    .form-container {
+        max-width: 900px;
+        margin: 40px auto;
+    }
 
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
 
-        .card-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            padding: 20px;
-            border-bottom: none;
-        }
+    .card-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        padding: 25px;
+        border-bottom: none;
+        position: relative;
+    }
 
-        .card-header h3 {
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
+    .card-header::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), transparent);
+    }
 
-        .card-body {
-            padding: 30px;
-        }
+    .card-header h3 {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
 
-        .form-label {
-            font-weight: 500;
-            color: #495057;
-            margin-bottom: 8px;
-        }
+    .card-body {
+        padding: 30px;
+    }
 
-        .form-control, .form-select {
-            border-radius: 8px;
-            padding: 12px 15px;
-            border: 1px solid #dee2e6;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 8px;
+    }
 
-        .form-control:focus, .form-select:focus {
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
-            border-color: var(--primary-color);
-        }
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+        padding: 12px 15px;
+        border: 1px solid #dee2e6;
+        font-size: 16px;
+        transition: all 0.3s;
+    }
 
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            padding: 12px 20px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
+    .form-control:focus,
+    .form-select:focus {
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+        border-color: var(--primary-color);
+    }
 
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
-        }
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        padding: 12px 20px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
 
-        .btn-outline-secondary {
-            border-color: #6c757d;
-            color: #6c757d;
-            background-color: transparent;
-            padding: 12px 20px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            border-radius: 8px;
-        }
+    .btn-primary:hover {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+    }
 
-        .btn-outline-secondary:hover {
-            background-color: #6c757d;
-            color: white;
-        }
+    .btn-outline-secondary {
+        border-color: #6c757d;
+        color: #6c757d;
+        background-color: transparent;
+        padding: 12px 20px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        border-radius: 8px;
+    }
 
-        .submission-info {
-            font-size: 0.9rem;
-            color: #6c757d;
-            padding: 10px;
-            background-color: rgba(108, 117, 125, 0.1);
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: white;
+    }
 
-        .alert {
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 25px;
-            font-weight: 500;
-        }
+    .submission-info {
+        font-size: 0.9rem;
+        color: #6c757d;
+        padding: 15px;
+        background-color: rgba(108, 117, 125, 0.1);
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid var(--accent-color);
+    }
 
-        .alert-success {
-            background-color: rgba(25, 135, 84, 0.15);
-            border-color: rgba(25, 135, 84, 0.3);
-            color: #198754;
-        }
+    .alert {
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 25px;
+        font-weight: 500;
+    }
 
-        .alert-danger {
-            background-color: rgba(220, 53, 69, 0.15);
-            border-color: rgba(220, 53, 69, 0.3);
-            color: #dc3545;
-        }
+    .alert-success {
+        background-color: rgba(25, 135, 84, 0.15);
+        border-color: rgba(25, 135, 84, 0.3);
+        color: #198754;
+    }
 
-        .priority1-selector {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.15);
+        border-color: rgba(220, 53, 69, 0.3);
+        color: #dc3545;
+    }
 
-        .priority1-selector label {
-            flex: 1;
-            text-align: center;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-            border: 2px solid #dee2e6;
-        }
+    .priority1-selector {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
 
-        .priority1-selector input[type="radio"] {
-            display: none;
-        }
+    .priority1-selector label {
+        flex: 1;
+        text-align: center;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+        border: 2px solid #dee2e6;
+    }
 
-        .priority1-selector input[type="radio"]:checked + label.priority1-low {
-            background-color: rgba(25, 135, 84, 0.2);
-            border-color: #198754;
-            color: #198754;
-        }
+    .priority1-selector input[type="radio"] {
+        display: none;
+    }
 
-        .priority1-selector input[type="radio"]:checked + label.priority1-medium {
-            background-color: rgba(255, 193, 7, 0.2);
-            border-color: #ffc107;
-            color: #664d03;
-        }
+    .priority1-selector input[type="radio"]:checked+label.priority1-low {
+        background-color: rgba(25, 135, 84, 0.2);
+        border-color: #198754;
+        color: #198754;
+    }
 
-        .priority1-selector input[type="radio"]:checked + label.priority1-high {
-            background-color: rgba(220, 53, 69, 0.2);
-            border-color: #dc3545;
-            color: #dc3545;
-        }
+    .priority1-selector input[type="radio"]:checked+label.priority1-medium {
+        background-color: rgba(255, 193, 7, 0.2);
+        border-color: #ffc107;
+        color: #664d03;
+    }
 
-        .status-selector {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+    .priority1-selector input[type="radio"]:checked+label.priority1-high {
+        background-color: rgba(220, 53, 69, 0.2);
+        border-color: #dc3545;
+        color: #dc3545;
+    }
 
-        .status-selector label {
-            flex: 1;
-            min-width: 120px;
-            text-align: center;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-            border: 2px solid #dee2e6;
-        }
+    .status-selector {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
 
-        .status-selector input[type="radio"] {
-            display: none;
-        }
+    .status-selector label {
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+        border: 2px solid #dee2e6;
+    }
 
-        .status-selector input[type="radio"]:checked + label.status-pending {
-            background-color: rgba(255, 193, 7, 0.2);
-            border-color: #ffc107;
-            color: #664d03;
-        }
+    .status-selector input[type="radio"] {
+        display: none;
+    }
 
-        .status-selector input[type="radio"]:checked + label.status-in-progress {
-            background-color: rgba(13, 110, 253, 0.2);
-            border-color: #0d6efd;
-            color: #0d6efd;
-        }
+    .status-selector input[type="radio"]:checked+label.status-pending {
+        background-color: rgba(255, 193, 7, 0.2);
+        border-color: #ffc107;
+        color: #664d03;
+    }
 
-        .status-selector input[type="radio"]:checked + label.status-completed {
-            background-color: rgba(25, 135, 84, 0.2);
-            border-color: #198754;
-            color: #198754;
-        }
+    .status-selector input[type="radio"]:checked+label.status-in-progress {
+        background-color: rgba(13, 110, 253, 0.2);
+        border-color: #0d6efd;
+        color: #0d6efd;
+    }
 
-        .status-selector input[type="radio"]:checked + label.status-rejected {
-            background-color: rgba(220, 53, 69, 0.2);
-            border-color: #dc3545;
-            color: #dc3545;
-        }
+    .status-selector input[type="radio"]:checked+label.status-completed {
+        background-color: rgba(25, 135, 84, 0.2);
+        border-color: #198754;
+        color: #198754;
+    }
 
-        .icon-input {
-            position: relative;
-        }
+    .status-selector input[type="radio"]:checked+label.status-rejected {
+        background-color: rgba(220, 53, 69, 0.2);
+        border-color: #dc3545;
+        color: #dc3545;
+    }
 
-        .icon-input i {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            left: 12px;
-            color: #6c757d;
-        }
+    .icon-input {
+        position: relative;
+    }
 
-        .icon-input input {
-            padding-left: 40px;
-        }
+    .icon-input i {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 12px;
+        color: #6c757d;
+    }
 
-        .form-floating label {
-            padding-left: 40px;
-        }
+    .icon-input input {
+        padding-left: 40px;
+    }
 
-        .form-section {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
+    .form-floating label {
+        padding-left: 40px;
+    }
 
-        .form-section-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: var(--dark-color);
-        }
+    .form-section {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
 
-        .icon-badge {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            margin-right: 12px;
-        }
+    .form-section-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: var(--dark-color);
+    }
 
-        .success-container {
-            text-align: center;
-            padding: 40px 20px;
-        }
+    .icon-badge {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        margin-right: 12px;
+    }
 
-        .success-icon {
-            font-size: 60px;
-            color: #198754;
-            margin-bottom: 20px;
-        }
+    .success-container {
+        text-align: center;
+        padding: 40px 20px;
+    }
 
-        .confirmation-number {
-            background-color: rgba(25, 135, 84, 0.15);
-            border-radius: 8px;
-            padding: 10px 15px;
-            font-size: 24px;
-            font-weight: 600;
-            color: #198754;
-            display: inline-block;
-            margin: 20px 0;
-        }
+    .success-icon {
+        font-size: 60px;
+        color: #198754;
+        margin-bottom: 20px;
+    }
+
+    .confirmation-number {
+        background-color: rgba(25, 135, 84, 0.15);
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 24px;
+        font-weight: 600;
+        color: #198754;
+        display: inline-block;
+        margin: 20px 0;
+    }
+
+    .form-select {
+        background-position: right 15px center;
+    }
     </style>
 </head>
 
 <body>
-<div class="container form-container">
-    <?php if (isset($error_message)): ?>
+    <div class="container form-container">
+        <?php if (isset($error_message)): ?>
         <div class="alert alert-danger" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i> <?php echo $error_message; ?>
         </div>
-    <?php endif; ?>
+        <?php endif; ?>
 
-    <?php if (isset($success_message) && isset($project_id)): ?>
+        <?php if (isset($success_message) && isset($project_id)): ?>
         <div class="card">
             <div class="card-body success-container">
                 <i class="fas fa-check-circle success-icon"></i>
@@ -367,16 +392,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <i class="fas fa-plus me-2"></i> Submit Another Project
                     </a>
                 </div>
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <a href="list-project.php" class="btn btn-outline-secondary me-md-2">
-                        <i class="fas fa-arrow-left me-2"></i>Back to List
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+                    <a href="list-project.php" class="btn btn-outline-secondary">
+                        <i class="fas fa-list me-2"></i>View All Projects
                     </a>
-
                 </div>
-
             </div>
         </div>
-    <?php else: ?>
+        <?php else: ?>
         <div class="card">
             <div class="card-header text-white">
                 <h3 class="mb-0"><i class="fas fa-project-diagram me-2"></i> Project Submission Portal</h3>
@@ -395,8 +418,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <i class="fas fa-id-badge"></i>
                                     <label for="erNumber" class="form-label">ER Number of User</label>
                                     <input type="text" class="form-control" id="erNumber" name="erNumber"
-                                           value="<?php echo isset($erNumber) ? htmlspecialchars($erNumber) : ''; ?>"
-                                           placeholder="Enter your ER number" required>
+                                        value="<?php echo isset($erNumber) ? htmlspecialchars($erNumber) : ''; ?>"
+                                        placeholder="Enter your ER number" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -404,8 +427,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <i class="fas fa-clipboard"></i>
                                     <label for="projectName" class="form-label">Project Name</label>
                                     <input type="text" class="form-control" id="projectName" name="projectName"
-                                           value="<?php echo isset($projectName) ? htmlspecialchars($projectName) : ''; ?>"
-                                           placeholder="Enter project name" required>
+                                        value="<?php echo isset($projectName) ? htmlspecialchars($projectName) : ''; ?>"
+                                        placeholder="Enter project name" required>
                                 </div>
                             </div>
                         </div>
@@ -419,7 +442,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div class="mb-4">
                             <label for="projectType" class="form-label">Project Type</label>
                             <select class="form-select" id="projectType" name="projectType" required
-                                    onchange="updateClassifications()">
+                                onchange="updateClassifications()">
                                 <option value="">Select Project Type</option>
                                 <option value="software"
                                     <?php echo (isset($projectType) && $projectType == 'software') ? 'selected' : ''; ?>>
@@ -465,12 +488,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div class="mb-3">
                             <label for="description" class="form-label">Project Description</label>
                             <textarea class="form-control" id="description" name="description" rows="5"
-                                      placeholder="Provide a detailed description of your project..."
-                                      required><?php echo isset($description) ? htmlspecialchars($description) : ''; ?></textarea>
+                                placeholder="Provide a detailed description of your project..."
+                                required><?php echo isset($description) ? htmlspecialchars($description) : ''; ?></textarea>
                         </div>
                     </div>
 
-                    <!-- Project Status Section (NEW) -->
+                    <!-- Project Status Section -->
                     <div class="form-section">
                         <div class="form-section-title">
                             <span class="icon-badge">3</span>Project Status & Assignment
@@ -511,50 +534,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     <i class="fas fa-user-tie"></i>
                                     <label for="assignedTo" class="form-label">Assigned To (Optional)</label>
                                     <input type="text" class="form-control" id="assignedTo" name="assignedTo"
-                                           value="<?php echo isset($assignedTo) ? htmlspecialchars($assignedTo) : ''; ?>"
-                                           placeholder="Enter team member's name">
+                                        value="<?php echo isset($assignedTo) ? htmlspecialchars($assignedTo) : ''; ?>"
+                                        placeholder="Enter team member's name">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="icon-input mb-3">
                                     <i class="fas fa-calendar-check"></i>
-                                    <label for="completionDate" class="form-label">Expected Completion Date (Optional)</label>
+                                    <label for="completionDate" class="form-label">Expected Completion Date
+                                        (Optional)</label>
                                     <input type="date" class="form-control" id="completionDate" name="completionDate"
-                                           value="<?php echo isset($completionDate) ? htmlspecialchars($completionDate) : ''; ?>">
+                                        value="<?php echo isset($completionDate) ? htmlspecialchars($completionDate) : ''; ?>">
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="submission-info mb-4">
-                        <i class="fas fa-info-circle me-2"></i> Submission Date and Time will be automatically recorded. You'll receive a confirmation number after successful submission.
+                        <i class="fas fa-info-circle me-2"></i> Submission Date and Time will be automatically recorded.
+                        You'll receive a confirmation number after successful submission.
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="list-project.php" class="btn btn-outline-secondary me-md-2">
-                                <i class="fas fa-arrow-left me-2"></i>Back to List
-                            </a>
-
-                        </div>
+                        <a href="list-project.php" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-list me-2"></i>Back to List
+                        </a>
                         <button type="reset" class="btn btn-outline-secondary me-md-2">
                             <i class="fas fa-undo me-2"></i>Reset Form
                         </button>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-paper-plane me-2"></i>Submit Project
                         </button>
-
                     </div>
                 </form>
             </div>
         </div>
-    <?php endif; ?>
-</div>
+        <?php endif; ?>
+    </div>
 
-<!-- Bootstrap 5 JS Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
+    <script>
     function updateClassifications() {
         const projectType = document.getElementById('projectType').value;
         const classificationSelect = document.getElementById('classification');
@@ -564,74 +585,145 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if (projectType === 'software') {
             const softwareOptions = [{
-                value: '',
-                text: 'Select Classification',
-                icon: ''
-            },
+                    value: '',
+                    text: 'Select Classification',
+                    icon: ''
+                },
                 {
-                    value: 'webapp',
-                    text: 'Web Application',
+                    value: 'web',
+                    text: 'Web Application (Web App)',
                     icon: 'fa-globe'
                 },
                 {
-                    value: 'mobileapp',
-                    text: 'Mobile Application',
+                    value: 'mobile',
+                    text: 'Mobile Application (Mobile App)',
                     icon: 'fa-mobile-alt'
                 },
                 {
-                    value: 'desktopapp',
+                    value: 'ai_ml',
+                    text: 'Artificial Intelligence & Machine Learning (AI/ML)',
+                    icon: 'fa-brain'
+                },
+                {
+                    value: 'desktop',
                     text: 'Desktop Application',
                     icon: 'fa-desktop'
                 },
                 {
-                    value: 'embeddedsystem',
-                    text: 'Embedded System',
+                    value: 'system',
+                    text: 'System Software',
+                    icon: 'fa-cogs'
+                },
+                {
+                    value: 'embedded_iot',
+                    text: 'Embedded Systems / IoT Software',
                     icon: 'fa-microchip'
+                },
+                {
+                    value: 'cybersecurity',
+                    text: 'Cybersecurity Software',
+                    icon: 'fa-shield-alt'
+                },
+                {
+                    value: 'game',
+                    text: 'Game Development',
+                    icon: 'fa-gamepad'
+                },
+                {
+                    value: 'data_science',
+                    text: 'Data Science & Analytics',
+                    icon: 'fa-chart-bar'
+                },
+                {
+                    value: 'cloud',
+                    text: 'Cloud-Based Applications',
+                    icon: 'fa-cloud'
                 }
             ];
 
             softwareOptions.forEach(option => {
                 const optionElement = document.createElement('option');
                 optionElement.value = option.value;
-                if (option.icon) {
-                    optionElement.textContent = option.text;
+
+                // Add icon in text if available
+                if (option.icon && option.value !== '') {
+                    optionElement.textContent = `${option.text}`;
                 } else {
                     optionElement.textContent = option.text;
                 }
+
                 classificationSelect.appendChild(optionElement);
             });
 
         } else if (projectType === 'hardware') {
             const hardwareOptions = [{
-                value: '',
-                text: 'Select Classification',
-                icon: ''
-            },
+                    value: '',
+                    text: 'Select Classification',
+                    icon: ''
+                },
                 {
-                    value: 'iotdevice',
-                    text: 'IoT Device',
+                    value: 'embedded',
+                    text: 'Embedded Systems Projects',
+                    icon: 'fa-microchip'
+                },
+                {
+                    value: 'iot',
+                    text: 'IoT (Internet of Things) Projects',
                     icon: 'fa-wifi'
                 },
                 {
                     value: 'robotics',
-                    text: 'Robotics',
+                    text: 'Robotics Projects',
                     icon: 'fa-robot'
                 },
                 {
-                    value: 'electroniccircuit',
-                    text: 'Electronic Circuit',
-                    icon: 'fa-microchip'
+                    value: 'automation',
+                    text: 'Automation Projects',
+                    icon: 'fa-cogs'
+                },
+                {
+                    value: 'sensor',
+                    text: 'Sensor-Based Projects',
+                    icon: 'fa-broadcast-tower'
+                },
+                {
+                    value: 'communication',
+                    text: 'Communication Systems Projects',
+                    icon: 'fa-satellite-dish'
+                },
+                {
+                    value: 'power',
+                    text: 'Power Electronics Projects',
+                    icon: 'fa-bolt'
+                },
+                {
+                    value: 'wearable',
+                    text: 'Wearable Technology Projects',
+                    icon: 'fa-watch'
+                },
+                {
+                    value: 'mechatronics',
+                    text: 'Mechatronics Projects',
+                    icon: 'fa-cog'
+                },
+                {
+                    value: 'renewable',
+                    text: 'Renewable Energy Projects',
+                    icon: 'fa-solar-panel'
                 }
             ];
 
             hardwareOptions.forEach(option => {
                 const optionElement = document.createElement('option');
                 optionElement.value = option.value;
-                if (option.icon) {
-                    optionElement.textContent = option.text;
+
+                // Add icon in text if available
+                if (option.icon && option.value !== '') {
+                    optionElement.textContent = `${option.text}`;
                 } else {
                     optionElement.textContent = option.text;
                 }
+
                 classificationSelect.appendChild(optionElement);
             });
 
@@ -647,22 +739,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     document.addEventListener('DOMContentLoaded', function() {
         if (document.getElementById('projectType').value) {
             updateClassifications();
+
+            // If classification is already set, select it
+            <?php if(isset($classification) && !empty($classification)): ?>
+            setTimeout(() => {
+                document.getElementById('classification').value = '<?php echo $classification; ?>';
+            }, 100);
+            <?php endif; ?>
         }
 
         // Add animation to form sections
         const formSections = document.querySelectorAll('.form-section');
         formSections.forEach((section, index) => {
-            section.style.opacity = '0';
-            section.style.transform = 'translateY(20px)';
-            section.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-
             setTimeout(() => {
                 section.style.opacity = '1';
                 section.style.transform = 'translateY(0)';
             }, 300 + (index * 200));
         });
     });
-</script>
+    </script>
 </body>
 
 </html>

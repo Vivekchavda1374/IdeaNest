@@ -23,24 +23,88 @@ $search_term = "%{$search}%";
 // Handle user block action
 if (isset($_POST['block_user'])) {
     $user_id = $_POST['user_id'];
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $enrollment_number = $_POST['enrollment_number'];
-    $gr_number = $_POST['gr_number'];
     
     // Begin transaction
     $conn->begin_transaction();
     
     try {
-        // First, insert into removed_user table WITH THE SAME ID from register
-        $stmt = $conn->prepare("INSERT INTO removed_user (id, name, email, enrollment_number, gr_number) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("issss", $user_id, $name, $email, $enrollment_number, $gr_number);
-        $stmt->execute();
+        // First, get ALL current data from register table
+        $get_stmt = $conn->prepare("SELECT * FROM register WHERE id = ?");
+        $get_stmt->bind_param("i", $user_id);
+        $get_stmt->execute();
+        $result = $get_stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            throw new Exception("User not found in active users list!");
+        }
+        
+        $user_data = $result->fetch_assoc();
+        
+        // Check if enrollment number already exists in removed_user table
+        if (!empty($user_data['enrollment_number'])) {
+            $check_stmt = $conn->prepare("SELECT COUNT(*) AS count FROM removed_user WHERE enrollment_number = ?");
+            $check_stmt->bind_param("s", $user_data['enrollment_number']);
+            $check_stmt->execute();
+            $check_result = $check_stmt->get_result();
+            $row = $check_result->fetch_assoc();
+            
+            if ($row['count'] > 0) {
+                throw new Exception("User with enrollment number {$user_data['enrollment_number']} is already in the blocked users list!");
+            }
+        }
+        
+        // Delete from removed_user table if user with the same ID exists
+        // This ensures we don't have ID conflicts when inserting
+        $delete_check_stmt = $conn->prepare("DELETE FROM removed_user WHERE id = ?");
+        $delete_check_stmt->bind_param("i", $user_id);
+        $delete_check_stmt->execute();
+        
+        // Build dynamic SQL for inserting all columns
+        $columns = array_keys($user_data);
+        $column_names = implode(", ", $columns);
+        $column_placeholders = str_repeat("?, ", count($columns) - 1) . "?";
+        
+        // Insert into removed_user table WITH THE SAME ID and ALL data from register
+        $insert_sql = "INSERT INTO removed_user ($column_names) VALUES ($column_placeholders)";
+        $insert_stmt = $conn->prepare($insert_sql);
+        
+        // Dynamic binding of parameters
+        $param_type = "";
+        $param_values = array();
+        foreach ($user_data as $value) {
+            if (is_int($value)) {
+                $param_type .= "i";
+            } elseif (is_double($value)) {
+                $param_type .= "d";
+            } else {
+                $param_type .= "s";
+            }
+            $param_values[] = $value;
+        }
+        
+        // Create reference array for bind_param
+        $params = array();
+        $params[] = &$param_type;
+        foreach ($param_values as &$value) {
+            $params[] = &$value;
+        }
+        
+        // Call bind_param with dynamic parameters
+        call_user_func_array(array($insert_stmt, 'bind_param'), $params);
+        $insert_result = $insert_stmt->execute();
+        
+        if (!$insert_result) {
+            throw new Exception("Failed to add user to blocked list: " . $conn->error);
+        }
         
         // Then delete from register table
-        $stmt = $conn->prepare("DELETE FROM register WHERE id = ?");
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
+        $delete_stmt = $conn->prepare("DELETE FROM register WHERE id = ?");
+        $delete_stmt->bind_param("i", $user_id);
+        $delete_result = $delete_stmt->execute();
+        
+        if (!$delete_result) {
+            throw new Exception("Failed to remove user from active list: " . $conn->error);
+        }
         
         // Commit transaction
         $conn->commit();
@@ -57,24 +121,88 @@ if (isset($_POST['block_user'])) {
 // Handle restore access action
 if (isset($_POST['restore_access'])) {
     $user_id = $_POST['user_id'];
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $enrollment_number = $_POST['enrollment_number'];
-    $gr_number = $_POST['gr_number'];
     
     // Begin transaction
     $conn->begin_transaction();
     
     try {
-        // First, insert back into register table WITH THE SAME ID
-        $stmt = $conn->prepare("INSERT INTO register (id, name, email, enrollment_number, gr_number) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("issss", $user_id, $name, $email, $enrollment_number, $gr_number);
-        $stmt->execute();
+        // First, get ALL current data from removed_user table
+        $get_stmt = $conn->prepare("SELECT * FROM removed_user WHERE id = ?");
+        $get_stmt->bind_param("i", $user_id);
+        $get_stmt->execute();
+        $result = $get_stmt->get_result();
+        
+        if ($result->num_rows === 0) {
+            throw new Exception("User not found in blocked users list!");
+        }
+        
+        $user_data = $result->fetch_assoc();
+        
+        // Check if enrollment number already exists in register table
+        if (!empty($user_data['enrollment_number'])) {
+            $check_stmt = $conn->prepare("SELECT COUNT(*) AS count FROM register WHERE enrollment_number = ?");
+            $check_stmt->bind_param("s", $user_data['enrollment_number']);
+            $check_stmt->execute();
+            $check_result = $check_stmt->get_result();
+            $row = $check_result->fetch_assoc();
+            
+            if ($row['count'] > 0) {
+                throw new Exception("User with enrollment number {$user_data['enrollment_number']} is already in the active users list!");
+            }
+        }
+        
+        // Delete from register table if user with the same ID exists
+        // This ensures we don't have ID conflicts when inserting
+        $delete_check_stmt = $conn->prepare("DELETE FROM register WHERE id = ?");
+        $delete_check_stmt->bind_param("i", $user_id);
+        $delete_check_stmt->execute();
+        
+        // Build dynamic SQL for inserting all columns
+        $columns = array_keys($user_data);
+        $column_names = implode(", ", $columns);
+        $column_placeholders = str_repeat("?, ", count($columns) - 1) . "?";
+        
+        // Insert back into register table WITH THE SAME ID and ALL data from removed_user
+        $insert_sql = "INSERT INTO register ($column_names) VALUES ($column_placeholders)";
+        $insert_stmt = $conn->prepare($insert_sql);
+        
+        // Dynamic binding of parameters
+        $param_type = "";
+        $param_values = array();
+        foreach ($user_data as $value) {
+            if (is_int($value)) {
+                $param_type .= "i";
+            } elseif (is_double($value)) {
+                $param_type .= "d";
+            } else {
+                $param_type .= "s";
+            }
+            $param_values[] = $value;
+        }
+        
+        // Create reference array for bind_param
+        $params = array();
+        $params[] = &$param_type;
+        foreach ($param_values as &$value) {
+            $params[] = &$value;
+        }
+        
+        // Call bind_param with dynamic parameters
+        call_user_func_array(array($insert_stmt, 'bind_param'), $params);
+        $insert_result = $insert_stmt->execute();
+        
+        if (!$insert_result) {
+            throw new Exception("Failed to restore user to active list: " . $conn->error);
+        }
         
         // Then delete from removed_user table
-        $stmt = $conn->prepare("DELETE FROM removed_user WHERE id = ?");
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
+        $delete_stmt = $conn->prepare("DELETE FROM removed_user WHERE id = ?");
+        $delete_stmt->bind_param("i", $user_id);
+        $delete_result = $delete_stmt->execute();
+        
+        if (!$delete_result) {
+            throw new Exception("Failed to remove user from blocked list: " . $conn->error);
+        }
         
         // Commit transaction
         $conn->commit();
@@ -88,10 +216,13 @@ if (isset($_POST['restore_access'])) {
     }
 }
 
+// We will not automatically add the unique constraint as it might cause issues
+// Let's handle duplicate enrollment numbers at the application level instead
+
 // Get all active users with search functionality
 if (!empty($search)) {
     $active_users_sql = "SELECT id, name, email, enrollment_number, gr_number FROM register 
-                         WHERE name LIKE ? OR gr_number LIKE ? OR enrollment_number LIKE ?";
+                        WHERE name LIKE ? OR gr_number LIKE ? OR enrollment_number LIKE ?";
     $stmt = $conn->prepare($active_users_sql);
     $stmt->bind_param("sss", $search_term, $search_term, $search_term);
     $stmt->execute();
@@ -104,7 +235,7 @@ if (!empty($search)) {
 // Get all blocked users with search functionality
 if (!empty($search)) {
     $blocked_users_sql = "SELECT id, name, email, enrollment_number, gr_number FROM removed_user 
-                          WHERE name LIKE ? OR gr_number LIKE ? OR enrollment_number LIKE ?";
+                        WHERE name LIKE ? OR gr_number LIKE ? OR enrollment_number LIKE ?";
     $stmt = $conn->prepare($blocked_users_sql);
     $stmt->bind_param("sss", $search_term, $search_term, $search_term);
     $stmt->execute();
@@ -269,10 +400,6 @@ if (!empty($search)) {
                                                     echo "<td>
                                                             <form method='post' action=''>
                                                                 <input type='hidden' name='user_id' value='" . $row["id"] . "'>
-                                                                <input type='hidden' name='name' value='" . htmlspecialchars($row["name"]) . "'>
-                                                                <input type='hidden' name='email' value='" . htmlspecialchars($row["email"]) . "'>
-                                                                <input type='hidden' name='enrollment_number' value='" . htmlspecialchars($row["enrollment_number"]) . "'>
-                                                                <input type='hidden' name='gr_number' value='" . htmlspecialchars($row["gr_number"]) . "'>
                                                                 <button type='submit' name='block_user' class='btn btn-danger btn-sm'>
                                                                     <i class='fas fa-ban me-1'></i> Remove Access
                                                                 </button>
@@ -321,10 +448,6 @@ if (!empty($search)) {
                                                     echo "<td>
                                                             <form method='post' action=''>
                                                                 <input type='hidden' name='user_id' value='" . $row["id"] . "'>
-                                                                <input type='hidden' name='name' value='" . htmlspecialchars($row["name"]) . "'>
-                                                                <input type='hidden' name='email' value='" . htmlspecialchars($row["email"]) . "'>
-                                                                <input type='hidden' name='enrollment_number' value='" . htmlspecialchars($row["enrollment_number"]) . "'>
-                                                                <input type='hidden' name='gr_number' value='" . htmlspecialchars($row["gr_number"]) . "'>
                                                                 <button type='submit' name='restore_access' class='btn btn-success btn-sm'>
                                                                     <i class='fas fa-user-check me-1'></i> Restore Access
                                                                 </button>
@@ -374,7 +497,8 @@ if (!empty($search)) {
         const tabs = document.querySelectorAll('#userTabs button');
         tabs.forEach(function(tab) {
             tab.addEventListener('shown.bs.tab', function(event) {
-                const targetId = event.target.getAttribute('data-bs-target').replace('#', '')
+                const targetId = event.target.getAttribute('data-bs-target').replace('#',
+                        '')
                     .replace('-users', '');
                 // Update URL without refreshing page, preserving search term
                 const searchParam = urlParams.get('search') ? '&search=' + urlParams.get(
@@ -389,7 +513,8 @@ if (!empty($search)) {
             row.style.cursor = 'pointer';
             row.addEventListener('click', function(event) {
                 // Prevent click on form elements from triggering the row click
-                if (event.target.tagName !== 'BUTTON' && event.target.tagName !== 'I' && event
+                if (event.target.tagName !== 'BUTTON' && event.target.tagName !== 'I' &&
+                    event
                     .target.tagName !== 'INPUT') {
                     // You could add functionality here like showing user details in a modal
                     // For now, let's just highlight the row
