@@ -7,11 +7,7 @@ $site_name = "IdeaNest Admin";
 
 // Current user information (replace with session variable or actual login system)
 session_start();
-if(isset($_SESSION['user_name'])) {
-    $user_name = $_SESSION['user_name'];
-} else {
-    $user_name = "Admin"; // Default if not logged in
-}
+$user_name = "Admin";
 
 // Handle project actions
 if(isset($_GET['action']) && isset($_GET['id'])) {
@@ -659,6 +655,74 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             .modal {
                 z-index: 1050;
             }
+            <!-- Current Recent Activity style -->
+            <style>
+                 /* Timeline Styles */
+             .activity-timeline {
+                 position: relative;
+                 padding: 1rem;
+             }
+
+            .activity-item {
+                display: flex;
+                margin-bottom: 1.5rem;
+                position: relative;
+            }
+
+            .activity-item:last-child {
+                margin-bottom: 0;
+            }
+
+            .activity-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1rem;
+                margin-right: 1rem;
+                flex-shrink: 0;
+            }
+
+            .activity-content {
+                flex-grow: 1;
+            }
+
+            .activity-title {
+                font-size: 0.9375rem;
+                font-weight: 600;
+                margin-bottom: 0.25rem;
+            }
+
+            .activity-text {
+                font-size: 0.875rem;
+                color: #6c757d;
+                margin-bottom: 0.25rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-line-clamp: 2; /* Number of lines to show */
+                -webkit-box-orient: vertical;
+            }
+
+            .activity-time {
+                font-size: 0.75rem;
+                color: #adb5bd;
+                display: block;
+            }
+
+            /* Read More Button */
+            .activity-read-more {
+                text-align: center;
+                padding-top: 1rem;
+                border-top: 1px solid #f1f1f1;
+                margin-top: 0.5rem;
+            }
+
+            .activity-read-more .btn {
+                font-size: 0.875rem;
+            }
 
             /* Media Query for Responsive Sidebar */
             @media (max-width: 991.98px) {
@@ -1020,6 +1084,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
 
         <div class="row g-4">
             <!-- Recent Activity -->
+            <!-- Recent Activity -->
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
@@ -1040,6 +1105,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                 </div>
                             <?php endforeach; ?>
                         </div>
+
                     </div>
                 </div>
             </div>
