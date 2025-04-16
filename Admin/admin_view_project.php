@@ -52,7 +52,7 @@ $category_filter = isset($_GET['category']) ? $_GET['category'] : 'all';
 $search_filter = isset($_GET['search']) ? $_GET['search'] : '';
 
 $view_mode = isset($_GET['view']) ? $_GET['view'] : 'projects';
-$valid_views = ['projects', 'approved'];
+$valid_views = ['projects', 'approved', 'rejected'];
 if (!in_array($view_mode, $valid_views)) {
     $view_mode = 'projects';
 }
@@ -81,6 +81,10 @@ if ($view_mode == 'projects') {
     $data_query = "SELECT * ";
 } else if ($view_mode == 'approved') {
     $base_query = "FROM admin_approved_projects WHERE 1=1";
+    $count_query = "SELECT COUNT(*) as total ";
+    $data_query = "SELECT * ";
+} else if ($view_mode == 'rejected') {
+    $base_query = "FROM denial_projects WHERE 1=1";
     $count_query = "SELECT COUNT(*) as total ";
     $data_query = "SELECT * ";
 }
@@ -733,6 +737,11 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         <li class="nav-item">
             <a class="nav-link <?php echo $view_mode == 'approved' ? 'active' : ''; ?>" href="admin_view_project.php?view=approved">
                 <i class="bi bi-check-circle me-2"></i>Approved Projects
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link <?php echo $view_mode == 'rejected' ? 'active' : ''; ?>" href="admin_view_project.php?view=rejected">
+                <i class="bi bi-x-circle me-2"></i>Rejected Projects
             </a>
         </li>
     </ul>

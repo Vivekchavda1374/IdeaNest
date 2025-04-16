@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="modified ui in recent activities">
-      <change afterPath="$PROJECT_DIR$/Admin/setting.php" afterDir="false" />
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="user search page error solve and remove and restore working successfully">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin/admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/admin.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/bookmark.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/bookmark.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,11 +92,11 @@
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\user\forms" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\xampp\htdocs\project\IdeaNest\user" />
       <recent name="C:\xampp\htdocs\project\IdeaNest\Admin" />
       <recent name="C:\xampp\htdocs\project\IdeaNest\assets" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login" />
-      <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login\Signup" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -159,31 +158,7 @@
       <workItem from="1744707190012" duration="1601000" />
       <workItem from="1744708817665" duration="37000" />
       <workItem from="1744769958025" duration="9375000" />
-      <workItem from="1744781878702" duration="5882000" />
-    </task>
-    <task id="LOCAL-00003" summary="backend login/register done">
-      <option name="closed" value="true" />
-      <created>1740560939407</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1740560939407</updated>
-    </task>
-    <task id="LOCAL-00004" summary="changes done">
-      <option name="closed" value="true" />
-      <created>1740804538568</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1740804538568</updated>
-    </task>
-    <task id="LOCAL-00005" summary="changes done">
-      <option name="closed" value="true" />
-      <created>1740804858212</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1740804858212</updated>
+      <workItem from="1744781878702" duration="11782000" />
     </task>
     <task id="LOCAL-00006" summary="changes done">
       <option name="closed" value="true" />
@@ -553,7 +528,31 @@
       <option name="project" value="LOCAL" />
       <updated>1744788331968</updated>
     </task>
-    <option name="localTasksCounter" value="52" />
+    <task id="LOCAL-00052" summary="filter working done">
+      <option name="closed" value="true" />
+      <created>1744790260407</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1744790260407</updated>
+    </task>
+    <task id="LOCAL-00053" summary="ui modified in book mark page">
+      <option name="closed" value="true" />
+      <created>1744794087437</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1744794087437</updated>
+    </task>
+    <task id="LOCAL-00054" summary="user search page error solve and remove and restore working successfully">
+      <option name="closed" value="true" />
+      <created>1744794143892</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1744794143893</updated>
+    </task>
+    <option name="localTasksCounter" value="55" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -571,9 +570,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add successfully idea management system" />
-    <MESSAGE value="remove error successfully" />
-    <MESSAGE value="blog table added" />
     <MESSAGE value="serch file added" />
     <MESSAGE value="login admin done and" />
     <MESSAGE value="project page add with pending request" />
@@ -596,6 +592,9 @@
     <MESSAGE value="mail system successfully added" />
     <MESSAGE value="mail system successfully added update : modified ui in mail system" />
     <MESSAGE value="modified ui in recent activities" />
-    <option name="LAST_COMMIT_MESSAGE" value="modified ui in recent activities" />
+    <MESSAGE value="filter working done" />
+    <MESSAGE value="ui modified in book mark page" />
+    <MESSAGE value="user search page error solve and remove and restore working successfully" />
+    <option name="LAST_COMMIT_MESSAGE" value="user search page error solve and remove and restore working successfully" />
   </component>
 </project>
