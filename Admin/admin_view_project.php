@@ -589,15 +589,15 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             </li>
         </ul>
         <div class="sidebar-footer">
-            <a href="../Login/Login/logout.php" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
+            <a href="../Login/Login/logout.php"
+                class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
                 <i class="bi bi-box-arrow-right me-2"></i> Logout
             </a>
         </div>
     </div>
 
     <!-- Main Content -->
-<<<<<<< HEAD
-    <div class="main-content">
+    <<<<<<< HEAD <div class="main-content">
         <!-- Topbar -->
         <div class="topbar">
             <button class="btn d-lg-none" id="sidebarToggle">
@@ -619,314 +619,346 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                 Logout</a></li>
                     </ul>
                 </div>
-=======
-<div class="main-content">
-    <!-- Topbar -->
-    <div class="topbar">
-        <button class="btn d-lg-none" id="sidebarToggle">
-            <i class="bi bi-list"></i>
-        </button>
-        <h1 class="page-title">Projects Management</h1>
-        <div class="topbar-actions">
-            <div class="dropdown">
-                <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-person"></i>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end shadow">
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> Profile</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i> Settings</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="../Login/Login/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
-                </ul>
->>>>>>> refs/remotes/origin/main
-            </div>
-        </div>
-
-        <!-- Alert Messages -->
-        <?php if($message): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <?php echo $message; ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <?php endif; ?>
-
-        <?php if($error): ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <?php echo $error; ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <?php endif; ?>
-
-        <?php if(isset($action) && $action == 'view' && isset($project)): ?>
-        <!-- Project Details View -->
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Project Details: <?php echo $project['project_name']; ?></h5>
-                <a href="admin_view_project.php" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-1"></i> Back to Projects
-                </a>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="project-details">
-                            <div class="project-detail-label">Project Name:</div>
-                            <div class="project-detail-value"><?php echo $project['project_name']; ?></div>
-
-                            <div class="project-detail-label">Project Type:</div>
-                            <div class="project-detail-value"><?php echo $project['project_type']; ?></div>
-
-                            <div class="project-detail-label">Classification:</div>
-                            <div class="project-detail-value"><?php echo $project['classification']; ?></div>
-
-                            <div class="project-detail-label">Language:</div>
-                            <div class="project-detail-value"><?php echo $project['language']; ?></div>
-
-                            <div class="project-detail-label">Submitted By:</div>
-                            <div class="project-detail-value">User #<?php echo $project['user_id']; ?></div>
-
-                            <div class="project-detail-label">Submission Date:</div>
-                            <div class="project-detail-value">
-                                <?php echo date('F j, Y, g:i a', strtotime($project['submission_date'])); ?></div>
-
-                            <div class="project-detail-label">Status:</div>
-                            <div class="project-detail-value">
-                                <span
-                                    class="badge bg-<?php echo $project['status'] == 'pending' ? 'warning' : ($project['status'] == 'approved' ? 'success' : 'danger'); ?>">
-                                    <?php echo ucfirst($project['status']); ?>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="project-detail-label">Description:</div>
-                        <div class="project-detail-value"><?php echo $project['description']; ?></div>
-
-                        <?php if(!empty($project['image_path'])): ?>
-                        <div class="project-detail-label">Project Image:</div>
-                        <div class="project-detail-value">
-                            <img src="<?php echo $project['image_path']; ?>" alt="Project Image" class="img-fluid mb-3"
-                                style="max-height: 200px;">
-                        </div>
-                        <?php endif; ?>
-
-                        <?php if(!empty($project['video_path'])): ?>
-                        <div class="project-detail-label">Project Video:</div>
-                        <div class="project-detail-value mb-3">
-                            <a href="<?php echo $project['video_path']; ?>" class="btn btn-sm btn-outline-primary"
-                                target="_blank">
-                                <i class="bi bi-play-circle me-1"></i> View Video
-                            </a>
-                        </div>
-                        <?php endif; ?>
-
-                        <?php if(!empty($project['code_file_path'])): ?>
-                        <div class="project-detail-label">Code Files:</div>
-                        <div class="project-detail-value mb-3">
-                            <a href="<?php echo $project['code_file_path']; ?>" class="btn btn-sm btn-outline-primary"
-                                target="_blank">
-                                <i class="bi bi-code-slash me-1"></i> Download Code
-                            </a>
-                        </div>
-                        <?php endif; ?>
-                        <?php if(!empty($project['instruction_file_path'])): ?>
-                        <div class="project-detail-label">Instructions:</div>
-                        <div class="project-detail-value mb-3">
-                            <a href="<?php echo $project['instruction_file_path']; ?>"
-                                class="btn btn-sm btn-outline-primary" target="_blank">
-                                <i class="bi bi-file-text me-1"></i> View Instructions
-                            </a>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <?php if($project['status'] == 'pending'): ?>
-                <div class="d-flex justify-content-center mt-4">
-                    <a href="admin_view_project.php?action=approve&id=<?php echo $project['id']; ?>"
-                        class="btn btn-success me-2"
-                        onclick="return confirm('Are you sure you want to approve this project?')">
-                        <i class="bi bi-check-circle me-1"></i> Approve Project
-                    </a>
-                    <button type="button" class="btn btn-danger" data-bs-toggle="modal"
-                        data-bs-target="#rejectProjectModal">
-                        <i class="bi bi-x-circle me-1"></i> Reject Project
-                    </button>
-                </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <!-- Reject Project Modal -->
-        <div class="modal fade" id="rejectProjectModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Reject Project</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form action="admin_view_project.php" method="post">
-                        <div class="modal-body">
-                            <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
-                            <div class="mb-3">
-                                <label for="rejection_reason" class="form-label">Rejection Reason</label>
-                                <textarea class="form-control" name="rejection_reason" rows="3" required></textarea>
-                            </div>
-                        </div>
-<<<<<<< HEAD
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" name="reject_submit" class="btn btn-danger">Reject Project</button>
-                        </div>
-                    </form>
-=======
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" name="reject_submit" class="btn btn-danger">Reject Project</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-<?php else: ?>
-    <!-- View Switcher Tabs -->
-    <ul class="nav nav-tabs mb-4">
-        <li class="nav-item">
-            <a class="nav-link <?php echo $view_mode == 'projects' ? 'active' : ''; ?>" href="admin_view_project.php?view=projects">
-                <i class="bi bi-folder me-2"></i>All Projects
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link <?php echo $view_mode == 'approved' ? 'active' : ''; ?>" href="admin_view_project.php?view=approved">
-                <i class="bi bi-check-circle me-2"></i>Approved Projects
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link <?php echo $view_mode == 'rejected' ? 'active' : ''; ?>" href="admin_view_project.php?view=rejected">
-                <i class="bi bi-x-circle me-2"></i>Rejected Projects
-            </a>
-        </li>
-    </ul>
-
-    <!-- Filter Bar -->
-    <div class="filter-bar">
-        <form action="admin_view_project.php" method="get" class="row g-3">
-            <input type="hidden" name="view" value="<?php echo $view_mode; ?>">
-            <div class="col-md-3">
-                <label for="search" class="form-label">Search</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="search" name="search" placeholder="Search projects..." value="<?php echo htmlspecialchars($search_filter); ?>">
-                    <button class="btn btn-outline-primary" type="submit">
-                        <i class="bi bi-search"></i>
-                    </button>
->>>>>>> refs/remotes/origin/main
-                </div>
-            </div>
-        </div>
-        <?php else: ?>
-        <!-- View Switcher Tabs -->
-        <ul class="nav nav-tabs mb-4">
-            <li class="nav-item">
-                <a class="nav-link <?php echo $view_mode == 'projects' ? 'active' : ''; ?>"
-                    href="admin_view_project.php?view=projects">
-                    <i class="bi bi-folder me-2"></i>All Projects
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?php echo $view_mode == 'approved' ? 'active' : ''; ?>"
-                    href="admin_view_project.php?view=approved">
-                    <i class="bi bi-check-circle me-2"></i>Approved Projects
-                </a>
-            </li>
-        </ul>
-
-        <!-- Filter Bar -->
-        <div class="filter-bar">
-            <form action="admin_view_project.php" method="get" class="row g-3">
-                <input type="hidden" name="view" value="<?php echo $view_mode; ?>">
-                <div class="col-md-3">
-                    <label for="search" class="form-label">Search</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="search" name="search"
-                            placeholder="Search projects..." value="<?php echo htmlspecialchars($search_filter); ?>">
-                        <button class="btn btn-outline-primary" type="submit">
-                            <i class="bi bi-search"></i>
+                =======
+                <div class="main-content">
+                    <!-- Topbar -->
+                    <div class="topbar">
+                        <button class="btn d-lg-none" id="sidebarToggle">
+                            <i class="bi bi-list"></i>
                         </button>
-                    </div>
-                </div>
+                        <h1 class="page-title">Projects Management</h1>
+                        <div class="topbar-actions">
+                            <div class="dropdown">
+                                <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-person"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> Profile</a>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i> Settings</a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item" href="../Login/Login/logout.php"><i
+                                                class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                                </ul>
+                                >>>>>>> refs/remotes/origin/main
+                            </div>
+                        </div>
 
-                <?php if($view_mode == 'projects'): ?>
-                <div class="col-md-2">
-                    <label for="status" class="form-label">Status</label>
-                    <select class="form-select" id="status" name="status" onchange="this.form.submit()">
-                        <option value="all" <?php echo $status_filter == 'all' ? 'selected' : ''; ?>>All Statuses
-                        </option>
-                        <option value="pending" <?php echo $status_filter == 'pending' ? 'selected' : ''; ?>>Pending
-                        </option>
-                        <option value="approved" <?php echo $status_filter == 'approved' ? 'selected' : ''; ?>>Approved
-                        </option>
-                        <option value="rejected" <?php echo $status_filter == 'rejected' ? 'selected' : ''; ?>>Rejected
-                        </option>
-                    </select>
-                </div>
-                <?php endif; ?>
+                        <!-- Alert Messages -->
+                        <?php if($message): ?>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <?php echo $message; ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <?php endif; ?>
 
-                <div class="col-md-2">
-                    <label for="type" class="form-label">Project Type</label>
-                    <select class="form-select" id="type" name="type" onchange="this.form.submit()">
-                        <option value="all" <?php echo $type_filter == 'all' ? 'selected' : ''; ?>>All Types</option>
-                        <?php foreach($project_types as $type): ?>
-                        <option value="<?php echo $type; ?>" <?php echo $type_filter == $type ? 'selected' : ''; ?>>
-                            <?php echo $type; ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                        <?php if($error): ?>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <?php echo $error; ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <?php endif; ?>
 
-                <div class="col-md-3">
-                    <label for="category" class="form-label">Category</label>
-                    <select class="form-select" id="category" name="category" onchange="this.form.submit()">
-                        <option value="all" <?php echo $category_filter == 'all' ? 'selected' : ''; ?>>All Categories
-                        </option>
-                        <?php foreach($project_categories as $category): ?>
-                        <option value="<?php echo $category; ?>"
-                            <?php echo $category_filter == $category ? 'selected' : ''; ?>>
-                            <?php echo $category; ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                        <?php if(isset($action) && $action == 'view' && isset($project)): ?>
+                        <!-- Project Details View -->
+                        <div class="card mb-4">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">Project Details: <?php echo $project['project_name']; ?>
+                                </h5>
+                                <a href="admin_view_project.php" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left me-1"></i> Back to Projects
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="project-details">
+                                            <div class="project-detail-label">Project Name:</div>
+                                            <div class="project-detail-value"><?php echo $project['project_name']; ?>
+                                            </div>
 
-                <div class="col-md-2 d-flex align-items-end">
-                    <a href="admin_view_project.php?view=<?php echo $view_mode; ?>"
-                        class="btn btn-outline-secondary w-100">
-                        <i class="bi bi-x-circle me-1"></i> Clear Filters
-                    </a>
-                </div>
-            </form>
-        </div>
-        <!-- Projects Table -->
-        <div class="card">
-            <div class="card-body">
-                <?php if ($projects_result->num_rows > 0): ?>
-                <div class="table-responsive">
-                    <table class="table table-hover project-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Project Name</th>
-                                <th>Type</th>
-                                <th>Category</th>
-                                <?php if($view_mode == 'projects'): ?>
-                                <th>Status</th>
+                                            <div class="project-detail-label">Project Type:</div>
+                                            <div class="project-detail-value"><?php echo $project['project_type']; ?>
+                                            </div>
+
+                                            <div class="project-detail-label">Classification:</div>
+                                            <div class="project-detail-value"><?php echo $project['classification']; ?>
+                                            </div>
+
+                                            <div class="project-detail-label">Language:</div>
+                                            <div class="project-detail-value"><?php echo $project['language']; ?></div>
+
+                                            <div class="project-detail-label">Submitted By:</div>
+                                            <div class="project-detail-value">User #<?php echo $project['user_id']; ?>
+                                            </div>
+
+                                            <div class="project-detail-label">Submission Date:</div>
+                                            <div class="project-detail-value">
+                                                <?php echo date('F j, Y, g:i a', strtotime($project['submission_date'])); ?>
+                                            </div>
+
+                                            <div class="project-detail-label">Status:</div>
+                                            <div class="project-detail-value">
+                                                <span
+                                                    class="badge bg-<?php echo $project['status'] == 'pending' ? 'warning' : ($project['status'] == 'approved' ? 'success' : 'danger'); ?>">
+                                                    <?php echo ucfirst($project['status']); ?>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="project-detail-label">Description:</div>
+                                        <div class="project-detail-value"><?php echo $project['description']; ?></div>
+
+                                        <?php if(!empty($project['image_path'])): ?>
+                                        <div class="project-detail-label">Project Image:</div>
+                                        <div class="project-detail-value">
+                                            <img src="<?php echo $project['image_path']; ?>" alt="Project Image"
+                                                class="img-fluid mb-3" style="max-height: 200px;">
+                                        </div>
+                                        <?php endif; ?>
+
+                                        <?php if(!empty($project['video_path'])): ?>
+                                        <div class="project-detail-label">Project Video:</div>
+                                        <div class="project-detail-value mb-3">
+                                            <a href="<?php echo $project['video_path']; ?>"
+                                                class="btn btn-sm btn-outline-primary" target="_blank">
+                                                <i class="bi bi-play-circle me-1"></i> View Video
+                                            </a>
+                                        </div>
+                                        <?php endif; ?>
+
+                                        <?php if(!empty($project['code_file_path'])): ?>
+                                        <div class="project-detail-label">Code Files:</div>
+                                        <div class="project-detail-value mb-3">
+                                            <a href="<?php echo $project['code_file_path']; ?>"
+                                                class="btn btn-sm btn-outline-primary" target="_blank">
+                                                <i class="bi bi-code-slash me-1"></i> Download Code
+                                            </a>
+                                        </div>
+                                        <?php endif; ?>
+                                        <?php if(!empty($project['instruction_file_path'])): ?>
+                                        <div class="project-detail-label">Instructions:</div>
+                                        <div class="project-detail-value mb-3">
+                                            <a href="<?php echo $project['instruction_file_path']; ?>"
+                                                class="btn btn-sm btn-outline-primary" target="_blank">
+                                                <i class="bi bi-file-text me-1"></i> View Instructions
+                                            </a>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+
+                                <?php if($project['status'] == 'pending'): ?>
+                                <div class="d-flex justify-content-center mt-4">
+                                    <a href="admin_view_project.php?action=approve&id=<?php echo $project['id']; ?>"
+                                        class="btn btn-success me-2"
+                                        onclick="return confirm('Are you sure you want to approve this project?')">
+                                        <i class="bi bi-check-circle me-1"></i> Approve Project
+                                    </a>
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                        data-bs-target="#rejectProjectModal">
+                                        <i class="bi bi-x-circle me-1"></i> Reject Project
+                                    </button>
+                                </div>
                                 <?php endif; ?>
-                                <th>Submission Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
+                            </div>
+                        </div>
+
+                        <!-- Reject Project Modal -->
+                        <div class="modal fade" id="rejectProjectModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Reject Project</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <form action="admin_view_project.php" method="post">
+                                        <div class="modal-body">
+                                            <input type="hidden" name="project_id"
+                                                value="<?php echo $project['id']; ?>">
+                                            <div class="mb-3">
+                                                <label for="rejection_reason" class="form-label">Rejection
+                                                    Reason</label>
+                                                <textarea class="form-control" name="rejection_reason" rows="3"
+                                                    required></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" name="reject_submit" class="btn btn-danger">Reject
+                                                Project</button>
+                                        </div>
+                                    </form>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" name="reject_submit" class="btn btn-danger">Reject
+                                        Project</button>
+                                </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <?php else: ?>
+                    <!-- View Switcher Tabs -->
+                    <ul class="nav nav-tabs mb-4">
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $view_mode == 'projects' ? 'active' : ''; ?>"
+                                href="admin_view_project.php?view=projects">
+                                <i class="bi bi-folder me-2"></i>All Projects
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $view_mode == 'approved' ? 'active' : ''; ?>"
+                                href="admin_view_project.php?view=approved">
+                                <i class="bi bi-check-circle me-2"></i>Approved Projects
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $view_mode == 'rejected' ? 'active' : ''; ?>"
+                                href="admin_view_project.php?view=rejected">
+                                <i class="bi bi-x-circle me-2"></i>Rejected Projects
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Filter Bar -->
+                    <div class="filter-bar">
+                        <form action="admin_view_project.php" method="get" class="row g-3">
+                            <input type="hidden" name="view" value="<?php echo $view_mode; ?>">
+                            <div class="col-md-3">
+                                <label for="search" class="form-label">Search</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="search" name="search"
+                                        placeholder="Search projects..."
+                                        value="<?php echo htmlspecialchars($search_filter); ?>">
+                                    <button class="btn btn-outline-primary" type="submit">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                    >>>>>>> refs/remotes/origin/main
+                                </div>
+                            </div>
+                    </div>
+                    <?php else: ?>
+                    <!-- View Switcher Tabs -->
+                    <ul class="nav nav-tabs mb-4">
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $view_mode == 'projects' ? 'active' : ''; ?>"
+                                href="admin_view_project.php?view=projects">
+                                <i class="bi bi-folder me-2"></i>All Projects
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo $view_mode == 'approved' ? 'active' : ''; ?>"
+                                href="admin_view_project.php?view=approved">
+                                <i class="bi bi-check-circle me-2"></i>Approved Projects
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Filter Bar -->
+                    <div class="filter-bar">
+                        <form action="admin_view_project.php" method="get" class="row g-3">
+                            <input type="hidden" name="view" value="<?php echo $view_mode; ?>">
+                            <div class="col-md-3">
+                                <label for="search" class="form-label">Search</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="search" name="search"
+                                        placeholder="Search projects..."
+                                        value="<?php echo htmlspecialchars($search_filter); ?>">
+                                    <button class="btn btn-outline-primary" type="submit">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <?php if($view_mode == 'projects'): ?>
+                            <div class="col-md-2">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-select" id="status" name="status" onchange="this.form.submit()">
+                                    <option value="all" <?php echo $status_filter == 'all' ? 'selected' : ''; ?>>All
+                                        Statuses
+                                    </option>
+                                    <option value="pending"
+                                        <?php echo $status_filter == 'pending' ? 'selected' : ''; ?>>Pending
+                                    </option>
+                                    <option value="approved"
+                                        <?php echo $status_filter == 'approved' ? 'selected' : ''; ?>>Approved
+                                    </option>
+                                    <option value="rejected"
+                                        <?php echo $status_filter == 'rejected' ? 'selected' : ''; ?>>Rejected
+                                    </option>
+                                </select>
+                            </div>
+                            <?php endif; ?>
+
+                            <div class="col-md-2">
+                                <label for="type" class="form-label">Project Type</label>
+                                <select class="form-select" id="type" name="type" onchange="this.form.submit()">
+                                    <option value="all" <?php echo $type_filter == 'all' ? 'selected' : ''; ?>>All Types
+                                    </option>
+                                    <?php foreach($project_types as $type): ?>
+                                    <option value="<?php echo $type; ?>"
+                                        <?php echo $type_filter == $type ? 'selected' : ''; ?>>
+                                        <?php echo $type; ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-select" id="category" name="category" onchange="this.form.submit()">
+                                    <option value="all" <?php echo $category_filter == 'all' ? 'selected' : ''; ?>>All
+                                        Categories
+                                    </option>
+                                    <?php foreach($project_categories as $category): ?>
+                                    <option value="<?php echo $category; ?>"
+                                        <?php echo $category_filter == $category ? 'selected' : ''; ?>>
+                                        <?php echo $category; ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <div class="col-md-2 d-flex align-items-end">
+                                <a href="admin_view_project.php?view=<?php echo $view_mode; ?>"
+                                    class="btn btn-outline-secondary w-100">
+                                    <i class="bi bi-x-circle me-1"></i> Clear Filters
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Projects Table -->
+                    <div class="card">
+                        <div class="card-body">
+                            <?php if ($projects_result->num_rows > 0): ?>
+                            <div class="table-responsive">
+                                <table class="table table-hover project-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Project Name</th>
+                                            <th>Type</th>
+                                            <th>Category</th>
+                                            <?php if($view_mode == 'projects'): ?>
+                                            <th>Status</th>
+                                            <?php endif; ?>
+                                            <th>Submission Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
                 $count = $offset + 1;
                 while($project = $projects_result->fetch_assoc()):
                     // Determine project type class for styling
@@ -950,144 +982,152 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                         }
                     }
                     ?>
-                            <tr>
-                                <td><?php echo $count++; ?></td>
-                                <td>
-                                    <span class="project-title"><?php echo $project['project_name']; ?></span>
-                                </td>
-                                <td>
-                                    <span
-                                        class="<?php echo $type_class; ?>"><?php echo $project['project_type']; ?></span>
-                                </td>
-                                <td><?php echo $project['classification'] ?? 'N/A'; ?></td>
-                                <?php if($view_mode == 'projects'): ?>
-                                <td>
-                                    <span class="badge rounded-pill project-badge <?php echo $status_class; ?>">
-                                        <?php echo ucfirst($project['status']); ?>
-                                    </span>
-                                </td>
-                                <?php endif; ?>
-                                <td>
-                                    <?php echo date('M d, Y', strtotime($project['submission_date'])); ?>
-                                </td>
-                                <td>
-                                    <div class="btn-group">
-                                        <a href="admin_view_project.php?action=view&id=<?php echo $project['id']; ?>"
-                                            class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-eye"></i> View
-                                        </a>
-                                        <?php if($view_mode == 'projects' && $project['status'] == 'pending'): ?>
-                                        <a href="admin_view_project.php?action=approve&id=<?php echo $project['id']; ?>"
-                                            class="btn btn-sm btn-outline-success"
-                                            onclick="return confirm('Are you sure you want to approve this project?')">
-                                            <i class="bi bi-check-circle"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#rejectModal<?php echo $project['id']; ?>">
-                                            <i class="bi bi-x-circle"></i>
-                                        </button>
+                                        <tr>
+                                            <td><?php echo $count++; ?></td>
+                                            <td>
+                                                <span
+                                                    class="project-title"><?php echo $project['project_name']; ?></span>
+                                            </td>
+                                            <td>
+                                                <span
+                                                    class="<?php echo $type_class; ?>"><?php echo $project['project_type']; ?></span>
+                                            </td>
+                                            <td><?php echo $project['classification'] ?? 'N/A'; ?></td>
+                                            <?php if($view_mode == 'projects'): ?>
+                                            <td>
+                                                <span
+                                                    class="badge rounded-pill project-badge <?php echo $status_class; ?>">
+                                                    <?php echo ucfirst($project['status']); ?>
+                                                </span>
+                                            </td>
+                                            <?php endif; ?>
+                                            <td>
+                                                <?php echo date('M d, Y', strtotime($project['submission_date'])); ?>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="admin_view_project.php?action=view&id=<?php echo $project['id']; ?>"
+                                                        class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </a>
+                                                    <?php if($view_mode == 'projects' && $project['status'] == 'pending'): ?>
+                                                    <a href="admin_view_project.php?action=approve&id=<?php echo $project['id']; ?>"
+                                                        class="btn btn-sm btn-outline-success"
+                                                        onclick="return confirm('Are you sure you want to approve this project?')">
+                                                        <i class="bi bi-check-circle"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#rejectModal<?php echo $project['id']; ?>">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </button>
 
-                                        <!-- Reject Modal for each project -->
-                                        <div class="modal fade" id="rejectModal<?php echo $project['id']; ?>"
-                                            tabindex="-1" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Reject Project</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
-                                                    </div>
-                                                    <form action="admin_view_project.php" method="post">
-                                                        <div class="modal-body">
-                                                            <input type="hidden" name="project_id"
-                                                                value="<?php echo $project['id']; ?>">
-                                                            <div class="mb-3">
-                                                                <label
-                                                                    for="rejection_reason<?php echo $project['id']; ?>"
-                                                                    class="form-label">Rejection Reason</label>
-                                                                <textarea class="form-control"
-                                                                    id="rejection_reason<?php echo $project['id']; ?>"
-                                                                    name="rejection_reason" rows="3"
-                                                                    required></textarea>
+                                                    <!-- Reject Modal for each project -->
+                                                    <div class="modal fade"
+                                                        id="rejectModal<?php echo $project['id']; ?>" tabindex="-1"
+                                                        aria-hidden="true">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Reject Project</h5>
+                                                                    <button type="button" class="btn-close"
+                                                                        data-bs-dismiss="modal"
+                                                                        aria-label="Close"></button>
+                                                                </div>
+                                                                <form action="admin_view_project.php" method="post">
+                                                                    <div class="modal-body">
+                                                                        <input type="hidden" name="project_id"
+                                                                            value="<?php echo $project['id']; ?>">
+                                                                        <div class="mb-3">
+                                                                            <label
+                                                                                for="rejection_reason<?php echo $project['id']; ?>"
+                                                                                class="form-label">Rejection
+                                                                                Reason</label>
+                                                                            <textarea class="form-control"
+                                                                                id="rejection_reason<?php echo $project['id']; ?>"
+                                                                                name="rejection_reason" rows="3"
+                                                                                required></textarea>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary"
+                                                                            data-bs-dismiss="modal">Cancel</button>
+                                                                        <button type="submit" name="reject_submit"
+                                                                            class="btn btn-danger">Reject
+                                                                            Project</button>
+                                                                    </div>
+                                                                </form>
                                                             </div>
                                                         </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary"
-                                                                data-bs-dismiss="modal">Cancel</button>
-                                                            <button type="submit" name="reject_submit"
-                                                                class="btn btn-danger">Reject Project</button>
-                                                        </div>
-                                                    </form>
+                                                    </div>
+                                                    <?php endif; ?>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
+                                            </td>
+                                        </tr>
+                                        <?php endwhile; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- Pagination -->
+                            <?php if ($total_pages > 1): ?>
+                            <nav aria-label="Projects pagination" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item <?php echo $current_page <= 1 ? 'disabled' : ''; ?>">
+                                        <a class="page-link"
+                                            href="admin_view_project.php?view=<?php echo $view_mode; ?>&page=<?php echo $current_page - 1; ?>&status=<?php echo $status_filter; ?>&type=<?php echo $type_filter; ?>&category=<?php echo $category_filter; ?>&search=<?php echo urlencode($search_filter); ?>">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </a>
+                                    </li>
+
+                                    <?php for($i = 1; $i <= $total_pages; $i++): ?>
+                                    <li class="page-item <?php echo $current_page == $i ? 'active' : ''; ?>">
+                                        <a class="page-link"
+                                            href="admin_view_project.php?view=<?php echo $view_mode; ?>&page=<?php echo $i; ?>&status=<?php echo $status_filter; ?>&type=<?php echo $type_filter; ?>&category=<?php echo $category_filter; ?>&search=<?php echo urlencode($search_filter); ?>">
+                                            <?php echo $i; ?>
+                                        </a>
+                                    </li>
+                                    <?php endfor; ?>
+
+                                    <li
+                                        class="page-item <?php echo $current_page >= $total_pages ? 'disabled' : ''; ?>">
+                                        <a class="page-link"
+                                            href="admin_view_project.php?view=<?php echo $view_mode; ?>&page=<?php echo $current_page + 1; ?>&status=<?php echo $status_filter; ?>&type=<?php echo $type_filter; ?>&category=<?php echo $category_filter; ?>&search=<?php echo urlencode($search_filter); ?>">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                            <?php endif; ?>
+
+                            <?php else: ?>
+                            <div class="alert alert-info text-center">
+                                <i class="bi bi-info-circle me-2"></i> No projects found matching your criteria.
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                 </div>
-                <!-- Pagination -->
-                <?php if ($total_pages > 1): ?>
-                <nav aria-label="Projects pagination" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item <?php echo $current_page <= 1 ? 'disabled' : ''; ?>">
-                            <a class="page-link"
-                                href="admin_view_project.php?view=<?php echo $view_mode; ?>&page=<?php echo $current_page - 1; ?>&status=<?php echo $status_filter; ?>&type=<?php echo $type_filter; ?>&category=<?php echo $category_filter; ?>&search=<?php echo urlencode($search_filter); ?>">
-                                <i class="bi bi-chevron-left"></i>
-                            </a>
-                        </li>
 
-                        <?php for($i = 1; $i <= $total_pages; $i++): ?>
-                        <li class="page-item <?php echo $current_page == $i ? 'active' : ''; ?>">
-                            <a class="page-link"
-                                href="admin_view_project.php?view=<?php echo $view_mode; ?>&page=<?php echo $i; ?>&status=<?php echo $status_filter; ?>&type=<?php echo $type_filter; ?>&category=<?php echo $category_filter; ?>&search=<?php echo urlencode($search_filter); ?>">
-                                <?php echo $i; ?>
-                            </a>
-                        </li>
-                        <?php endfor; ?>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js">
+                </script>
+                <script>
+                // Toggle sidebar on mobile
+                document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+                    document.querySelector('.sidebar').classList.toggle('show');
+                });
 
-                        <li class="page-item <?php echo $current_page >= $total_pages ? 'disabled' : ''; ?>">
-                            <a class="page-link"
-                                href="admin_view_project.php?view=<?php echo $view_mode; ?>&page=<?php echo $current_page + 1; ?>&status=<?php echo $status_filter; ?>&type=<?php echo $type_filter; ?>&category=<?php echo $category_filter; ?>&search=<?php echo urlencode($search_filter); ?>">
-                                <i class="bi bi-chevron-right"></i>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                <?php endif; ?>
-
-                <?php else: ?>
-                <div class="alert alert-info text-center">
-                    <i class="bi bi-info-circle me-2"></i> No projects found matching your criteria.
-                </div>
-                <?php endif; ?>
-            </div>
-        </div>
-        <?php endif; ?>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-    // Toggle sidebar on mobile
-    document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-        document.querySelector('.sidebar').classList.toggle('show');
-    });
-
-    // Auto dismiss alerts after 5 seconds
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function(alert) {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
-    });
-    </script>
+                // Auto dismiss alerts after 5 seconds
+                document.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(function() {
+                        const alerts = document.querySelectorAll('.alert');
+                        alerts.forEach(function(alert) {
+                            const bsAlert = new bootstrap.Alert(alert);
+                            bsAlert.close();
+                        });
+                    }, 5000);
+                });
+                </script>
 </body>
 
 </html>
