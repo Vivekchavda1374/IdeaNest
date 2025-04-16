@@ -82,7 +82,6 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $e
     $user_email = $project['email'];
     $user_name = $project['name'];
 
-    // Using name instead of username as there's no username column in the register table
     $username = $project['name'];
 
     $project_name = $project['project_name'];
@@ -92,7 +91,7 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $e
     // Default email options
     $default_options = [
         'company_name' => 'IdeaNest',
-        'logo_url' => '../assets/logo-no-background.png',
+        'logo_url' => 'logo-no-background.png',
         'support_email' => 'ideanest.ict@gmail.com',
         'company_address' => 'Marwadi University',
         'website_url' => 'http://localhost/project/IdeaNest/user/index.php',
@@ -230,13 +229,13 @@ function createApprovedEmailContent($user_name, $project, $options) {
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
             .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
-            .header { background-color: #4361ee; color: white; padding: 20px; text-align: center; }
+            .header { background-color: #43ee68; color: white; padding: 20px; text-align: center; }
             .content { padding: 20px; background-color: #ffffff; }
             .footer { text-align: center; margin-top: 20px; padding: 20px; font-size: 12px; color: #777; background-color: #f9f9f9; }
-            .button { display: inline-block; background-color: #4361ee; color: white !important; padding: 12px 24px; 
+            .button { display: inline-block; background-color: #43ee68; color: white !important; padding: 12px 24px; 
                 text-decoration: none; border-radius: 4px; margin-top: 15px; font-weight: bold; }
-            .button:hover { background-color: #3651d4; }
-            .highlight { color: #4361ee; font-weight: bold; }
+            .button:hover { background-color: #43ee68; }
+            .highlight { color: #43ee68; font-weight: bold; }
             @media (max-width: 600px) {
                 .container { width: 100% !important; }
                 .content { padding: 15px !important; }
@@ -330,14 +329,14 @@ function createRejectedEmailContent($user_name, $project, $rejection_reason, $op
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
             .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
-            .header { background-color: #6c757d; color: white; padding: 20px; text-align: center; }
+            .header { background-color: #c10909; color: white; padding: 20px; text-align: center; }
             .content { padding: 20px; background-color: #ffffff; }
-            .reason { background-color: #f8f9fa; padding: 15px; border-left: 4px solid #6c757d; margin: 15px 0; }
-            .footer { text-align: center; margin-top: 20px; padding: 20px; font-size: 12px; color: #777; background-color: #f9f9f9; }
+            .reason { background-color: #f8f9fa; padding: 15px; border-left: 4px solid #c10909; margin: 15px 0; }
+            .footer { text-align: center; margin-top: 20px; padding: 20px; font-size: 12px; color: #c10909; background-color: #f9f9f9; }
             .button { display: inline-block; background-color: #4361ee; color: white !important; padding: 12px 24px; 
                 text-decoration: none; border-radius: 4px; margin-top: 15px; font-weight: bold; }
             .button:hover { background-color: #3651d4; }
-            .highlight { color: #6c757d; font-weight: bold; }
+            .highlight { color: #5f5f5f; font-weight: bold; }
             @media (max-width: 600px) {
                 .container { width: 100% !important; }
                 .content { padding: 15px !important; }
