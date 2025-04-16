@@ -7,11 +7,7 @@ $site_name = "IdeaNest Admin";
 
 // Current user information (replace with session variable or actual login system)
 session_start();
-if(isset($_SESSION['user_name'])) {
-    $user_name = $_SESSION['user_name'];
-} else {
-    $user_name = "Admin"; // Default if not logged in
-}
+$user_name = "Admin";
 
 // Handle project actions
 if(isset($_GET['action']) && isset($_GET['id'])) {
@@ -659,6 +655,74 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             .modal {
                 z-index: 1050;
             }
+            <!-- Current Recent Activity style -->
+            <style>
+                 /* Timeline Styles */
+             .activity-timeline {
+                 position: relative;
+                 padding: 1rem;
+             }
+
+            .activity-item {
+                display: flex;
+                margin-bottom: 1.5rem;
+                position: relative;
+            }
+
+            .activity-item:last-child {
+                margin-bottom: 0;
+            }
+
+            .activity-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1rem;
+                margin-right: 1rem;
+                flex-shrink: 0;
+            }
+
+            .activity-content {
+                flex-grow: 1;
+            }
+
+            .activity-title {
+                font-size: 0.9375rem;
+                font-weight: 600;
+                margin-bottom: 0.25rem;
+            }
+
+            .activity-text {
+                font-size: 0.875rem;
+                color: #6c757d;
+                margin-bottom: 0.25rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-line-clamp: 2; /* Number of lines to show */
+                -webkit-box-orient: vertical;
+            }
+
+            .activity-time {
+                font-size: 0.75rem;
+                color: #adb5bd;
+                display: block;
+            }
+
+            /* Read More Button */
+            .activity-read-more {
+                text-align: center;
+                padding-top: 1rem;
+                border-top: 1px solid #f1f1f1;
+                margin-top: 0.5rem;
+            }
+
+            .activity-read-more .btn {
+                font-size: 0.875rem;
+            }
 
             /* Media Query for Responsive Sidebar */
             @media (max-width: 991.98px) {
@@ -1019,11 +1083,10 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         </div>
 
         <div class="row g-4">
-            <!-- Recent Activity -->
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Recent Activity</h5>
+                        <h5 class="card-title mb-0">Recent Activity - Projects</h5>
                     </div>
                     <div class="card-body p-0">
                         <div class="activity-timeline">
@@ -1040,75 +1103,11 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Pending Projects -->
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Pending Projects</h5>
 
                     </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Project</th>
-                                        <th scope="col">Type</th>
-                                        <th scope="col">Technologies</th>
-                                        <th scope="col">Submitted By</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if(count($pending_projects_list) > 0): ?>
-                                        <?php foreach ($pending_projects_list as $project): ?>
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="avatar-sm bg-light text-primary rounded me-2">
-                                                            <i class="bi bi-<?php echo $project['icon']; ?>"></i>
-                                                        </div>
-                                                        <div>
-                                                            <?php echo $project['name']; ?>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td><?php echo $project['type']; ?></td>
-                                                <td><?php echo $project['technologies']; ?></td>
-                                                <td><?php echo $project['submitted_by']; ?></td>
-                                                <td>
-                                                    <span class="badge bg-<?php echo $project['status_class']; ?>"><?php echo $project['status']; ?></span>
-                                                </td>
-                                                <td>
-                                                    <div class="d-flex">
-                                                        <a href="admin.php?action=view&id=<?php echo $project['id']; ?>" class="btn btn-sm btn-outline-primary me-1">
-                                                            <i class="bi bi-eye"></i>
-                                                        </a>
-                                                        <a href="admin.php?action=approve&id=<?php echo $project['id']; ?>" class="btn btn-sm btn-outline-success me-1" onclick="return confirm('Are you sure you want to approve this project?')">
-                                                            <i class="bi bi-check"></i>
-                                                        </a>
-                                                        <a href="admin.php?action=reject&id=<?php echo $project['id']; ?>" class="btn btn-sm btn-outline-danger">
-                                                            <i class="bi bi-x"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="6" class="text-center py-4">No pending projects found</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
                 </div>
             </div>
+
         </div>
     </div>
     <?php endif; ?>
