@@ -226,7 +226,7 @@ $stmt->close();
             </a>
         </li>
         <li>
-            <a href="../bksony/bookmark/bookmark.php">
+            <a href="bookmark.php">
                 <i class="fas fa-bookmark"></i>
                 <span>Bookmarks</span>
             </a>
