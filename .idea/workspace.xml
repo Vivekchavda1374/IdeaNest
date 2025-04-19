@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="multiple page improved ui and changes in admin panel and approved project">
+      <change afterPath="$PROJECT_DIR$/.gitIgnore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/project_details.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/project_details.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user/user_project_search.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/user_project_search.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -162,6 +162,8 @@
       <workItem from="1744781878702" duration="13803000" />
       <workItem from="1744814549388" duration="1078000" />
       <workItem from="1744817754563" duration="5308000" />
+      <workItem from="1744970206610" duration="603000" />
+      <workItem from="1745038613665" duration="1094000" />
     </task>
     <task id="LOCAL-00012" summary="dashboard ui design modified - final done">
       <option name="closed" value="true" />
