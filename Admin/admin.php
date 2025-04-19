@@ -1,12 +1,11 @@
 <?php
 // Database connection
 include "../Login/Login/db.php";
-
+require_once('../Login/Login/admin_auth.php');
 // Site name
 $site_name = "IdeaNest Admin";
 
 // Start session
-session_start();
 $user_name = "Admin";
 
 // Handle project actions

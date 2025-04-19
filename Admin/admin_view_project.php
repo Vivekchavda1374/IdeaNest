@@ -6,13 +6,9 @@ use PHPMailer\PHPMailer\SMTP;
 include "../Login/Login/db.php";
 include "project_notification.php";
 $site_name = "IdeaNest Admin";
+require_once('../Login/Login/admin_auth.php');
 
-session_start();
-if(isset($_SESSION['user_name'])) {
-    $user_name = $_SESSION['user_name'];
-} else {
-    $user_name = "Admin";
-}
+
 
 $total_projects_query = "SELECT 
      (SELECT COUNT(*) FROM projects) as all_projects,
