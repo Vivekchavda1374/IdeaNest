@@ -4,15 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="admin session management done">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/Blog/edit.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/Blog/edit.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/Blog/form.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/Blog/form.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/Blog/list-project.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/Blog/idea_dashboard.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/bookmark.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/bookmark.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/index.php" afterDir="false" />
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="all pages improved">
       <change beforePath="$PROJECT_DIR$/user/user_profile_setting.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/user_profile_setting.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/user_project_search.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/user_project_search.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -168,15 +161,7 @@
       <workItem from="1744814549388" duration="1078000" />
       <workItem from="1744817754563" duration="5308000" />
       <workItem from="1744970206610" duration="603000" />
-      <workItem from="1745038613665" duration="6183000" />
-    </task>
-    <task id="LOCAL-00013" summary="form added for new projects">
-      <option name="closed" value="true" />
-      <created>1740817918990</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1740817918990</updated>
+      <workItem from="1745038613665" duration="6843000" />
     </task>
     <task id="LOCAL-00014" summary="form validation completed">
       <option name="closed" value="true" />
@@ -562,7 +547,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745041381867</updated>
     </task>
-    <option name="localTasksCounter" value="62" />
+    <task id="LOCAL-00062" summary="all pages improved">
+      <option name="closed" value="true" />
+      <created>1745045506094</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1745045506094</updated>
+    </task>
+    <option name="localTasksCounter" value="63" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -580,7 +573,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Typo error removed" />
     <MESSAGE value="admin page code improved with php" />
     <MESSAGE value="admin page error solved successfully 1. admin view reject and approved project error solve successfully" />
     <MESSAGE value="admin page error solved successfully 1. admin view reject and approved project error solve successfully 2. user management working and error removed in admin.php" />
@@ -605,6 +597,7 @@
     <MESSAGE value="user setting and user project page improved with ui" />
     <MESSAGE value="multiple page improved ui and changes in admin panel and approved project" />
     <MESSAGE value="admin session management done" />
-    <option name="LAST_COMMIT_MESSAGE" value="admin session management done" />
+    <MESSAGE value="all pages improved" />
+    <option name="LAST_COMMIT_MESSAGE" value="all pages improved" />
   </component>
 </project>

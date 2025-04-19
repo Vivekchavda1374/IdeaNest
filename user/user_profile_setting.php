@@ -25,6 +25,18 @@ $stmt->execute();
 $result = $stmt->get_result();
 $userData = $result->fetch_assoc();
 
+// Fetch user projects
+$projectSql = "SELECT * FROM projects WHERE user_id = ?";
+$projectStmt = $conn->prepare($projectSql);
+$projectStmt->bind_param("i", $user_id);
+$projectStmt->execute();
+$projectResult = $projectStmt->get_result();
+$userProjects = [];
+while ($row = $projectResult->fetch_assoc()) {
+    $userProjects[] = $row;
+}
+$projectStmt->close();
+
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['update_profile'])) {
@@ -187,6 +199,18 @@ $stmt->close();
             color: white;
             cursor: pointer;
         }
+        .project-card {
+            transition: transform 0.2s;
+            border-left: 4px solid #4361ee;
+        }
+        .project-card:hover {
+            transform: translateY(-3px);
+        }
+        .project-badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+        }
     </style>
 </head>
 
@@ -323,10 +347,13 @@ $stmt->close();
                                 <button class="nav-link active" id="profile-tab" data-bs-toggle="pill" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="true">
                                     <i class="fas fa-user me-2"></i> Profile Information
                                 </button>
+                                <button class="nav-link" id="projects-tab" data-bs-toggle="pill" data-bs-target="#projects" type="button" role="tab" aria-controls="projects" aria-selected="false">
+                                    <i class="fas fa-project-diagram me-2"></i> My Projects
+                                </button>
                                 <button class="nav-link" id="security-tab" data-bs-toggle="pill" data-bs-target="#security" type="button" role="tab" aria-controls="security" aria-selected="false">
                                     <i class="fas fa-lock me-2"></i> Security
                                 </button>
-                              </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -370,6 +397,68 @@ $stmt->close();
                                         <button type="submit" name="update_profile" class="btn btn-primary px-4">Save Changes</button>
                                     </div>
                                 </form>
+                            </div>
+
+                            <!-- My Projects Tab -->
+                            <div class="tab-pane fade" id="projects" role="tabpanel" aria-labelledby="projects-tab">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h4 class="card-title mb-0">My Projects</h4>
+                                    <a href="user_project_search.php" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-plus me-1"></i> Add New Project
+                                    </a>
+                                </div>
+
+                                <?php if (count($userProjects) > 0): ?>
+                                    <div class="row">
+                                        <?php foreach ($userProjects as $project): ?>
+                                            <div class="col-md-6 mb-3">
+                                                <div class="card project-card h-100">
+                                                    <div class="card-body">
+                                                        <div class="d-flex justify-content-between align-items-start">
+                                                            <h5 class="card-title mb-1"><?php echo htmlspecialchars($project['project_name']); ?></h5>
+                                                            <span class="badge bg-<?php echo $project['status'] == 'completed' ? 'success' : ($project['status'] == 'in progress' ? 'warning' : 'info'); ?> project-badge">
+                                                                <?php echo ucfirst(htmlspecialchars($project['status'])); ?>
+                                                            </span>
+                                                        </div>
+                                                        <p class="text-muted small mb-2">
+                                                            <i class="fas fa-code me-1"></i> <?php echo htmlspecialchars($project['language']); ?>
+                                                            <span class="mx-2">|</span>
+                                                            <i class="fas fa-tag me-1"></i> <?php echo htmlspecialchars($project['project_type']); ?>
+                                                        </p>
+                                                        <p class="card-text small mb-3">
+                                                            <?php
+                                                            $desc = htmlspecialchars($project['description']);
+                                                            echo strlen($desc) > 100 ? substr($desc, 0, 100) . '...' : $desc;
+                                                            ?>
+                                                        </p>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <small class="text-muted">Submitted: <?php echo date('M d, Y', strtotime($project['submission_date'])); ?></small>
+                                                            <div>
+                                                                <a href="view_project.php?id=<?php echo $project['id']; ?>" class="btn btn-sm btn-outline-primary">
+                                                                    <i class="fas fa-eye me-1"></i> View
+                                                                </a>
+                                                                <a href="edit_project.php?id=<?php echo $project['id']; ?>" class="btn btn-sm btn-outline-secondary ms-1">
+                                                                    <i class="fas fa-edit me-1"></i> Edit
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="text-center p-5">
+                                        <div class="mb-3">
+                                            <i class="fas fa-project-diagram fa-4x text-muted"></i>
+                                        </div>
+                                        <h5>No projects found</h5>
+                                        <p class="text-muted">You haven't added any projects yet.</p>
+                                        <a href="user_project_search.php" class="btn btn-primary mt-2">
+                                            <i class="fas fa-plus me-1"></i> Add Your First Project
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
                             </div>
 
                             <!-- Security Tab -->
@@ -430,8 +519,6 @@ $stmt->close();
                                     </div>
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
                 </div>
