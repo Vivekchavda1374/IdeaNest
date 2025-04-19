@@ -944,11 +944,13 @@ $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'profile';
                                         <span class="badge bg-success">Active</span>
                                     </div>
                                 </div>
-                                <button class="btn btn-outline-danger">Logout from All Devices</button>
+                                <a href="../Login/Login/logout.php" class="btn btn-outline-danger">
+                                    Log Out
+                                </a>
                             <?php elseif ($active_tab == 'projects'): ?>
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <h4 class="card-title mb-0">My Projects</h4>
-                                    <a href="add_project.php" class="btn btn-primary">
+                                    <a href="./forms/new_project_add.php" class="btn btn-primary">
                                         <i class="fas fa-plus me-2"></i> Add New Project
                                     </a>
                                 </div>
@@ -995,7 +997,7 @@ $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'profile';
                                         <i class="fas fa-project-diagram display-1 text-muted mb-3"></i>
                                         <h5>No projects yet</h5>
                                         <p class="text-muted">Start showcasing your work by adding your first project.</p>
-                                        <a href="add_project.php" class="btn btn-primary mt-2">
+                                        <a href="./forms/new_project_add.php" class="btn btn-primary mt-2">
                                             <i class="fas fa-plus me-2"></i> Add Your First Project
                                         </a>
                                     </div>
@@ -1010,7 +1012,6 @@ $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'profile';
     </div>
 </div>
 
-<!-- JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script>
     // Sidebar toggle functionality
