@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="all pages improved">
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="user setting page new file added : my projects">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Login/Login/admin_auth.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/admin_auth.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Login/Login/login.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/login.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user/user_profile_setting.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/user_profile_setting.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -161,15 +164,7 @@
       <workItem from="1744814549388" duration="1078000" />
       <workItem from="1744817754563" duration="5308000" />
       <workItem from="1744970206610" duration="603000" />
-      <workItem from="1745038613665" duration="6843000" />
-    </task>
-    <task id="LOCAL-00014" summary="form validation completed">
-      <option name="closed" value="true" />
-      <created>1740821863238</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1740821863238</updated>
+      <workItem from="1745038613665" duration="9929000" />
     </task>
     <task id="LOCAL-00015" summary="form validation completed">
       <option name="closed" value="true" />
@@ -555,7 +550,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745045506094</updated>
     </task>
-    <option name="localTasksCounter" value="63" />
+    <task id="LOCAL-00063" summary="user setting page new file added : my projects">
+      <option name="closed" value="true" />
+      <created>1745046233077</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1745046233077</updated>
+    </task>
+    <option name="localTasksCounter" value="64" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -573,7 +576,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="admin page code improved with php" />
     <MESSAGE value="admin page error solved successfully 1. admin view reject and approved project error solve successfully" />
     <MESSAGE value="admin page error solved successfully 1. admin view reject and approved project error solve successfully 2. user management working and error removed in admin.php" />
     <MESSAGE value="new page added with admin view all projects" />
@@ -598,6 +600,7 @@
     <MESSAGE value="multiple page improved ui and changes in admin panel and approved project" />
     <MESSAGE value="admin session management done" />
     <MESSAGE value="all pages improved" />
-    <option name="LAST_COMMIT_MESSAGE" value="all pages improved" />
+    <MESSAGE value="user setting page new file added : my projects" />
+    <option name="LAST_COMMIT_MESSAGE" value="user setting page new file added : my projects" />
   </component>
 </project>
