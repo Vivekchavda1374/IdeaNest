@@ -1,7 +1,7 @@
 <?php
 include "../Login/Login/db.php";
 require_once('../Login/Login/admin_auth.php');
-$site_name = "IdeaNest"; // Added site name variable
+$site_name = "IdeaNest Admin"; // Added site name variable
 
 
 
@@ -12,80 +12,56 @@ $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'active';
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $search_term = "%{$search}%";
 
-// Handle user block action
 if (isset($_POST['block_user'])) {
     $user_id = $_POST['user_id'];
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $enrollment_number = $_POST['enrollment_number'];
-    $gr_number = $_POST['gr_number'];
 
     // Begin transaction
     $conn->begin_transaction();
 
     try {
-        // First, insert into removed_user table WITH THE SAME ID from register
-        $stmt = $conn->prepare("INSERT INTO removed_user (id, name, email, enrollment_number, gr_number) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("issss", $user_id, $name, $email, $enrollment_number, $gr_number);
-        $stmt->execute();
-
-        // Then delete from register table
-        $stmt = $conn->prepare("DELETE FROM register WHERE id = ?");
-        // First get all data from register table
+        // First get user data
         $stmt = $conn->prepare("SELECT id, name, email, enrollment_number, gr_number, password, about, user_image FROM register WHERE id = ?");
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($row = $result->fetch_assoc()) {
-            // Insert into removed_user table WITH ALL COLUMNS
+            // Insert into removed_user
             $stmt = $conn->prepare("INSERT INTO removed_user (id, name, email, enrollment_number, gr_number, password, about, user_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("isssssss", $row['id'], $row['name'], $row['email'], $row['enrollment_number'], $row['gr_number'], $row['password'], $row['about'], $row['user_image']);
             $stmt->execute();
 
-            // Commit transaction
-            $conn->commit();
+            // First delete from child table to avoid foreign key constraint error
+            $stmt = $conn->prepare("DELETE FROM admin_approved_projects WHERE user_id = ?");
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+
             // Then delete from register table
             $stmt = $conn->prepare("DELETE FROM register WHERE id = ?");
             $stmt->bind_param("i", $user_id);
             $stmt->execute();
 
-            // Set success message
-            $success_message = "User access removed successfully!";
             // Commit transaction
             $conn->commit();
-
-            // Set success message
             $success_message = "User access removed successfully!";
         } else {
             throw new Exception("User not found");
         }
     } catch (Exception $e) {
-        // Roll back transaction on error
         $conn->rollback();
         $error_message = "Error: " . $e->getMessage();
     }
 }
 
+
 // Handle restore access action
 if (isset($_POST['restore_access'])) {
     $user_id = $_POST['user_id'];
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $enrollment_number = $_POST['enrollment_number'];
-    $gr_number = $_POST['gr_number'];
 
     // Begin transaction
     $conn->begin_transaction();
 
     try {
-        // First, insert back into register table WITH THE SAME ID
-        $stmt = $conn->prepare("INSERT INTO register (id, name, email, enrollment_number, gr_number) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("issss", $user_id, $name, $email, $enrollment_number, $gr_number);
-        $stmt->execute();
-
-        // Then delete from removed_user table
-        $stmt = $conn->prepare("DELETE FROM removed_user WHERE id = ?");
         // First get all data from removed_user table
         $stmt = $conn->prepare("SELECT id, name, email, enrollment_number, gr_number, password, about, user_image FROM removed_user WHERE id = ?");
         $stmt->bind_param("i", $user_id);
@@ -93,20 +69,16 @@ if (isset($_POST['restore_access'])) {
         $result = $stmt->get_result();
 
         if ($row = $result->fetch_assoc()) {
-            // Insert back into register table WITH ALL COLUMNS
+            // Insert back into register table with all columns
             $stmt = $conn->prepare("INSERT INTO register (id, name, email, enrollment_number, gr_number, password, about, user_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("isssssss", $row['id'], $row['name'], $row['email'], $row['enrollment_number'], $row['gr_number'], $row['password'], $row['about'], $row['user_image']);
             $stmt->execute();
 
-            // Commit transaction
-            $conn->commit();
             // Then delete from removed_user table
             $stmt = $conn->prepare("DELETE FROM removed_user WHERE id = ?");
             $stmt->bind_param("i", $user_id);
             $stmt->execute();
 
-            // Set success message
-            $success_message = "User access restored successfully!";
             // Commit transaction
             $conn->commit();
 
@@ -121,8 +93,6 @@ if (isset($_POST['restore_access'])) {
         $error_message = "Error: " . $e->getMessage();
     }
 }
-
-// Get all active users with search functionality
 if (!empty($search)) {
     $active_users_sql = "SELECT id, name, email, enrollment_number, gr_number FROM register 
                           WHERE name LIKE ? OR gr_number LIKE ? OR enrollment_number LIKE ?";
@@ -519,7 +489,7 @@ if (!empty($search)) {
             <i class="bi bi-list"></i>
         </button>
         <h1 class="page-title" >User Management</h1>
-        <h1 class="page-title">User Management</h1>
+
         <div class="topbar-actions">
             <div class="dropdown">
                 <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
@@ -750,7 +720,7 @@ if (!empty($search)) {
             tab.addEventListener('shown.bs.tab', function(event) {
                 const targetId = event.target.getAttribute('data-bs-target').replace('#', '').replace('-users', '');
 
-                    .replace('-users', '');
+
 
                 const searchParam = urlParams.get('search') ? '&search=' + urlParams.get('search') : '';
 
