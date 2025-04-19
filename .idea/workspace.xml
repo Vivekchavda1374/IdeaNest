@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="all file modified">
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/user_project_search.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/user_project_search.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -164,15 +162,7 @@
       <workItem from="1744817754563" duration="5308000" />
       <workItem from="1744970206610" duration="603000" />
       <workItem from="1745038613665" duration="11499000" />
-      <workItem from="1745052465895" duration="10983000" />
-    </task>
-    <task id="LOCAL-00019" summary="login error done">
-      <option name="closed" value="true" />
-      <created>1740830231830</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1740830231830</updated>
+      <workItem from="1745052465895" duration="12763000" />
     </task>
     <task id="LOCAL-00020" summary="login error done-final done">
       <option name="closed" value="true" />
@@ -558,7 +548,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745063473302</updated>
     </task>
-    <option name="localTasksCounter" value="68" />
+    <task id="LOCAL-00068" summary="bookmark working successfully">
+      <option name="closed" value="true" />
+      <created>1745065681176</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1745065681176</updated>
+    </task>
+    <option name="localTasksCounter" value="69" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -576,7 +574,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="dymanic book mark card successfully changes and show real time data" />
     <MESSAGE value="progressbar data successfully change with admin approved project" />
     <MESSAGE value="user management site work well with same style and also changed in admin site" />
     <MESSAGE value="admin user management  page improved" />
@@ -601,6 +598,7 @@
     <MESSAGE value="login page improved" />
     <MESSAGE value="user setting page updated with edit and view button" />
     <MESSAGE value="all file modified" />
-    <option name="LAST_COMMIT_MESSAGE" value="all file modified" />
+    <MESSAGE value="bookmark working successfully" />
+    <option name="LAST_COMMIT_MESSAGE" value="bookmark working successfully" />
   </component>
 </project>
