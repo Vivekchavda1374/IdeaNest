@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['is_admin'] = true;
                 $_SESSION['admin_type'] = 'primary';
 
-                header("Location: ../Admin/admin.php");
+                header("Location: ../../Admin/admin.php");
                 exit(); // Stop execution after redirect
             }
             
@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $_SESSION['is_admin'] = true;
                         $_SESSION['admin_type'] = 'sub';
                         
-                        header("Location: ../..//Admin/admin.php");
+                        header("Location: ../Admin/admin.php");
                         exit();
                     } else {
                         $error_message = "Incorrect password for admin account!";

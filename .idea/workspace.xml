@@ -5,9 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="multiple page improved ui and changes in admin panel and approved project">
+      <change afterPath="$PROJECT_DIR$/Login/Login/admin_auth.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/project_details.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/project_details.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/user_project_search.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/user_project_search.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Admin/admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/admin.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Admin/admin_view_project.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/admin_view_project.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Admin/project_approvel.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Admin/project_notification.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/project_notification.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Admin/user_manage_by_admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/user_manage_by_admin.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Login/Login/login.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/login.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,11 +98,11 @@
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\user\forms" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\xampp\htdocs\project\IdeaNest\Login\Login" />
       <recent name="C:\xampp\htdocs\project\IdeaNest\user" />
       <recent name="C:\xampp\htdocs\project\IdeaNest\Admin" />
       <recent name="C:\xampp\htdocs\project\IdeaNest\assets" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest" />
-      <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -162,6 +167,8 @@
       <workItem from="1744781878702" duration="13803000" />
       <workItem from="1744814549388" duration="1078000" />
       <workItem from="1744817754563" duration="5308000" />
+      <workItem from="1744970206610" duration="603000" />
+      <workItem from="1745038613665" duration="2715000" />
     </task>
     <task id="LOCAL-00012" summary="dashboard ui design modified - final done">
       <option name="closed" value="true" />

@@ -1,18 +1,9 @@
 <?php
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = ""; // Empty password as per your request
-$dbname = "ideanest";
+include "../Login/Login/db.php";
+require_once('../Login/Login/admin_auth.php');
 $site_name = "IdeaNest"; // Added site name variable
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
 // Set default active tab
 $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'active';
