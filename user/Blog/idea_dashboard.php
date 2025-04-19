@@ -373,6 +373,11 @@ function getpriority1Class($priority1) {
 ?>
 
     <div class="dashboard-container">
+        <div class="mb-3">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back
+            </a>
+        </div>
         <!-- Page Header -->
         <div class="page-header d-flex justify-content-between align-items-center">
             <div>

@@ -214,7 +214,7 @@ $stmt->close();
             </a>
         </li>
         <li>
-            <a href="Blog/list-project.php">
+            <a href="Blog/idea_dashboard.php">
                 <i class="fas fa-file-alt"></i>
                 <span>Idea Posts</span>
             </a>

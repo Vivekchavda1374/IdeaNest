@@ -39,17 +39,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $error_message = "Connection failed: " . $conn->connect_error;
         } else {
             // Prepare and bind the SQL statement to prevent SQL injection
-            $stmt = $conn->prepare("INSERT INTO blog (er_number, project_name, project_type, classification, description, submission_datetime, priority1, status, assigned_to, completion_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssssssssss", $erNumber, $projectName, $projectType, $classification, $description, $submissionDateTime, $priority1, $status, $assignedTo, $completionDate);
+            // Check if the user exists in the register table
+            $stmt = $conn->prepare("SELECT id FROM register WHERE enrollment_number = ?");
+            $stmt->bind_param("s", $erNumber);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-            // Execute the statement
-            if ($stmt->execute()) {
-                $success_message = "Project submitted successfully on " . $submissionDateTime;
-                $project_id = $conn->insert_id;
-                // Clear form data after successful submission
-                $erNumber = $projectName = $projectType = $classification = $description = $assignedTo = $completionDate = "";
+            if ($result->num_rows === 0) {
+                $error_message = "Error: User with ER number " . $erNumber . " does not exist in the system.";
             } else {
-                $error_message = "Error: " . $stmt->error;
+                $row = $result->fetch_assoc();
+                $register_id = $row['id'];
+
+                // Prepare and bind the SQL statement to prevent SQL injection - now including register_id
+                $stmt = $conn->prepare("INSERT INTO blog (er_number, project_name, project_type, classification, description, submission_datetime, priority1, status, assigned_to, completion_date, register_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("ssssssssssi", $erNumber, $projectName, $projectType, $classification, $description, $submissionDateTime, $priority1, $status, $assignedTo, $completionDate, $register_id);
+
+                // Execute the statement
+                if ($stmt->execute()) {
+                    $success_message = "Project submitted successfully on " . $submissionDateTime;
+                    $project_id = $conn->insert_id;
+                    // Clear form data after successful submission
+                    $erNumber = $projectName = $projectType = $classification = $description = $assignedTo = $completionDate = "";
+                } else {
+                    $error_message = "Error: " . $stmt->error;
+                }
             }
 
             // Close statement and connection
@@ -393,7 +407,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </a>
                 </div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
-                    <a href="list-project.php" class="btn btn-outline-secondary">
+                    <a href="idea_dashboard.php" class="btn btn-outline-secondary">
                         <i class="fas fa-list me-2"></i>View All Projects
                     </a>
                 </div>
@@ -556,7 +570,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="list-project.php" class="btn btn-outline-secondary me-md-2">
+                        <a href="idea_dashboard.php" class="btn btn-outline-secondary me-md-2">
                             <i class="fas fa-list me-2"></i>Back to List
                         </a>
                         <button type="reset" class="btn btn-outline-secondary me-md-2">

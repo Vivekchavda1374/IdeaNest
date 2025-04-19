@@ -670,11 +670,17 @@ $search_term = isset($_GET['search']) ? $_GET['search'] : '';
     <div class="main-content">
         <!-- Page header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back
+                </a>
+
             <h2 class="section-title mb-0">
                 <i class="bi bi-check-circle-fill"></i>
                 Approved Projects
             </h2>
-            <a href="submit_project.php" class="btn btn-primary">
+
+            <a href="./forms/new_project_add.php" class="btn btn-primary">
                 <i class="bi bi-plus-circle me-2"></i>Submit New Project
             </a>
         </div>
