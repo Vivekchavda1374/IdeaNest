@@ -53,6 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -60,103 +61,117 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
-        body {
-            background: url('./image/register_image.jpg') no-repeat center center/cover;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .login-container {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
-            width: 80%;
-            max-width: 900px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            padding: 40px;
-            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
-        }
-        .login-box {
-            flex: 1;
-            padding: 20px;
-        }
-        .login-box h2 {
-            color: #00838f;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-        .form-control {
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-        .btn-container {
-            display: flex;
-            gap: 10px;
-        }
-        .btn-login, .btn-register {
-            flex: 1;
-            padding: 10px;
-            border-radius: 5px;
-            font-weight: bold;
-            text-align: center;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-login {
-            background: #00838f;
-            color: white;
-        }
-        .btn-login:hover {
-            background: #005f6b;
-        }
-        .btn-register {
-            background: #f57c00;
-            color: white;
-        }
-        .btn-register:hover {
-            background: #d65a00;
-        }
-        .forgot-password {
-            display: block;
-            margin-top: 10px;
-            color: #555;
-            text-decoration: none;
-        }
-        .admin-info {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #e8f5e9;
-            border-radius: 5px;
-            font-size: 0.9em;
-        }
+    body {
+        background: url('./image/register_image.jpg') no-repeat center center/cover;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-container {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        width: 80%;
+        max-width: 900px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        padding: 40px;
+        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .login-box {
+        flex: 1;
+        padding: 20px;
+    }
+
+    .login-box h2 {
+        color: #00838f;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .form-control {
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+
+    .btn-container {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-login,
+    .btn-register {
+        flex: 1;
+        padding: 10px;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-login {
+        background: #00838f;
+        color: white;
+    }
+
+    .btn-login:hover {
+        background: #005f6b;
+    }
+
+    .btn-register {
+        background: #f57c00;
+        color: white;
+    }
+
+    .btn-register:hover {
+        background: #d65a00;
+    }
+
+    .forgot-password {
+        display: block;
+        margin-top: 10px;
+        color: #555;
+        text-decoration: none;
+    }
+
+    .admin-info {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #e8f5e9;
+        border-radius: 5px;
+        font-size: 0.9em;
+    }
     </style>
 </head>
 
 <body>
-<div class="login-container">
-    <div class="login-box">
-        <h2>LOGIN</h2>
-        <p>Please login with your ER number and Password</p>
-        <form action="login.php" method="post">
-            <input type="text" name="er_number" class="form-control" placeholder="ER Number / GR Number" required>
-            <input type="password" name="password" class="form-control" placeholder="Password" required>
+    <div class="login-container">
+        <div class="login-box">
+            <h2>LOGIN</h2>
+            <p>Please login with your ER number and Password</p>
+            <form action="login.php" method="post">
+                <input type="text" name="er_number" class="form-control" placeholder="Enrollment Number " required>
+                <input type="password" name="password" class="form-control" placeholder="Password" required>
 
-            <div class="btn-container">
-                <button type="submit" class="btn btn-login">LOGIN</button>
-                <a href="./register.php" class="btn btn-register">REGISTER</a>
-            </div>
+                <div class="btn-container">
+                    <button type="submit" class="btn btn-login">LOGIN</button>
+                    <a href="./register.php" class="btn btn-register">REGISTER</a>
+                </div>
 
-            <a href="#" class="forgot-password">Forgot Password?</a>
+                <a href="#" class="forgot-password">Forgot Password?</a>
 
 
-        </form>
+            </form>
+        </div>
     </div>
-</div>
 
-<?php if (isset($error_message)) : ?>
-    <div class="modal fade show" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" style="display:block;">
+    <?php if (isset($error_message)) : ?>
+    <div class="modal fade show" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true"
+        style="display:block;">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -174,11 +189,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script>
-        function closeModal() {
-            document.getElementById('errorModal').style.display = 'none';
-        }
+    function closeModal() {
+        document.getElementById('errorModal').style.display = 'none';
+    }
     </script>
-<?php endif; ?>
+    <?php endif; ?>
 
 </body>
+
 </html>
