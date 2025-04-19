@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="user setting page new file added : my projects">
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="login page improved">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Login/Login/admin_auth.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/admin_auth.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Login/Login/login.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/login.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Admin/user_manage_by_admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/user_manage_by_admin.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user/user_profile_setting.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/user_profile_setting.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/user_project_search.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/user_project_search.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -164,15 +164,8 @@
       <workItem from="1744814549388" duration="1078000" />
       <workItem from="1744817754563" duration="5308000" />
       <workItem from="1744970206610" duration="603000" />
-      <workItem from="1745038613665" duration="9929000" />
-    </task>
-    <task id="LOCAL-00015" summary="form validation completed">
-      <option name="closed" value="true" />
-      <created>1740821875108</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1740821875108</updated>
+      <workItem from="1745038613665" duration="11499000" />
+      <workItem from="1745052465895" duration="1171000" />
     </task>
     <task id="LOCAL-00016" summary="dynamic project view and next some project view done">
       <option name="closed" value="true" />
@@ -558,7 +551,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745046233077</updated>
     </task>
-    <option name="localTasksCounter" value="64" />
+    <task id="LOCAL-00064" summary="login page improved">
+      <option name="closed" value="true" />
+      <created>1745050976983</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1745050976983</updated>
+    </task>
+    <option name="localTasksCounter" value="65" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -576,7 +577,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="admin page error solved successfully 1. admin view reject and approved project error solve successfully" />
     <MESSAGE value="admin page error solved successfully 1. admin view reject and approved project error solve successfully 2. user management working and error removed in admin.php" />
     <MESSAGE value="new page added with admin view all projects" />
     <MESSAGE value="dymanic book mark card successfully changes and show real time data" />
@@ -601,6 +601,7 @@
     <MESSAGE value="admin session management done" />
     <MESSAGE value="all pages improved" />
     <MESSAGE value="user setting page new file added : my projects" />
-    <option name="LAST_COMMIT_MESSAGE" value="user setting page new file added : my projects" />
+    <MESSAGE value="login page improved" />
+    <option name="LAST_COMMIT_MESSAGE" value="login page improved" />
   </component>
 </project>

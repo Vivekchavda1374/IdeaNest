@@ -164,11 +164,65 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $project_id = $_POST['project_id'];
         $project_name = trim($_POST['project_name']);
         $project_type = trim($_POST['project_type']);
+        $classification = trim($_POST['classification']);
         $language = trim($_POST['language']);
         $description = trim($_POST['description']);
-        $repository_link = trim($_POST['repository_link']);
-        $live_demo_link = trim($_POST['live_demo_link']);
+
         $status = trim($_POST['status']);
+
+        // Handle file uploads if included
+        $image_path = isset($project_data['image_path']) ? $project_data['image_path'] : null;
+        $video_path = isset($project_data['video_path']) ? $project_data['video_path'] : null;
+        $code_file_path = isset($project_data['code_file_path']) ? $project_data['code_file_path'] : null;
+        $instruction_file_path = isset($project_data['instruction_file_path']) ? $project_data['instruction_file_path'] : null;
+
+        // Process image upload if present
+        if(isset($_FILES['project_image']) && $_FILES['project_image']['size'] > 0) {
+            $target_dir = "uploads/images/";
+            if(!is_dir($target_dir)) {
+                mkdir($target_dir, 0777, true);
+            }
+            $image_file = $target_dir . basename($_FILES["project_image"]["name"]);
+            if(move_uploaded_file($_FILES["project_image"]["tmp_name"], $image_file)) {
+                $image_path = $image_file;
+            }
+        }
+
+        // Process video upload if present
+        if(isset($_FILES['project_video']) && $_FILES['project_video']['size'] > 0) {
+            $target_dir = "uploads/videos/";
+            if(!is_dir($target_dir)) {
+                mkdir($target_dir, 0777, true);
+            }
+            $video_file = $target_dir . basename($_FILES["project_video"]["name"]);
+            if(move_uploaded_file($_FILES["project_video"]["tmp_name"], $video_file)) {
+                $video_path = $video_file;
+            }
+        }
+
+        // Process code file upload if present
+        if(isset($_FILES['code_file']) && $_FILES['code_file']['size'] > 0) {
+            $target_dir = "uploads/code/";
+            if(!is_dir($target_dir)) {
+                mkdir($target_dir, 0777, true);
+            }
+            $code_file = $target_dir . basename($_FILES["code_file"]["name"]);
+            if(move_uploaded_file($_FILES["code_file"]["tmp_name"], $code_file)) {
+                $code_file_path = $code_file;
+            }
+        }
+
+        // Process instruction file upload if present
+        if(isset($_FILES['instruction_file']) && $_FILES['instruction_file']['size'] > 0) {
+            $target_dir = "uploads/instructions/";
+            if(!is_dir($target_dir)) {
+                mkdir($target_dir, 0777, true);
+            }
+            $instruction_file = $target_dir . basename($_FILES["instruction_file"]["name"]);
+            if(move_uploaded_file($_FILES["instruction_file"]["tmp_name"], $instruction_file)) {
+                $instruction_file_path = $instruction_file;
+            }
+        }
 
         // Validate required fields
         if (empty($project_name) || empty($project_type) || empty($language)) {
@@ -179,22 +233,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $updateProjectSql = "UPDATE projects SET 
                 project_name = ?, 
                 project_type = ?, 
+                classification = ?,
                 language = ?, 
                 description = ?, 
-                repository_link = ?, 
-                live_demo_link = ?, 
+                
+                image_path = ?,
+                video_path = ?,
+                code_file_path = ?,
+                instruction_file_path = ?,
                 status = ? 
                 WHERE id = ? AND user_id = ?";
 
             $updateProjectStmt = $conn->prepare($updateProjectSql);
             $updateProjectStmt->bind_param(
-                "sssssssii",
+                "ssssssssssssii",
                 $project_name,
                 $project_type,
+                $classification,
                 $language,
                 $description,
-                $repository_link,
-                $live_demo_link,
+
+                $image_path,
+                $video_path,
+                $code_file_path,
+                $instruction_file_path,
                 $status,
                 $project_id,
                 $user_id
@@ -486,13 +548,13 @@ $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'profile';
                             </div>
                             <h4 class="card-title mb-1"><?php echo htmlspecialchars($project_data['project_name']); ?></h4>
                             <div class="mb-4">
-                                <span class="badge bg-<?php echo $project_data['status'] == 'completed' ? 'success' : ($project_data['status'] == 'in progress' ? 'warning' : 'info'); ?>">
-                                    <?php echo ucfirst(htmlspecialchars($project_data['status'])); ?>
-                                </span>
+                        <span class="badge bg-<?php echo $project_data['status'] == 'completed' ? 'success' : ($project_data['status'] == 'in progress' ? 'warning' : 'info'); ?>">
+                            <?php echo ucfirst(htmlspecialchars($project_data['status'])); ?>
+                        </span>
                                 <span class="text-muted small ms-3">
-                                    <i class="far fa-calendar-alt me-1"></i>
-                                    Submitted: <?php echo date('F d, Y', strtotime($project_data['submission_date'])); ?>
-                                </span>
+                            <i class="far fa-calendar-alt me-1"></i>
+                            Submitted: <?php echo date('F d, Y', strtotime($project_data['submission_date'])); ?>
+                        </span>
                             </div>
 
                             <div class="row mb-4">
@@ -511,46 +573,69 @@ $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'profile';
                                             <dt class="col-sm-3">Language/Framework</dt>
                                             <dd class="col-sm-9"><?php echo htmlspecialchars($project_data['language']); ?></dd>
 
-                                            <?php if (!empty($project_data['repository_link'])): ?>
-                                                <dt class="col-sm-3">Repository</dt>
-                                                <dd class="col-sm-9">
-                                                    <a href="<?php echo htmlspecialchars($project_data['repository_link']); ?>" target="_blank" class="text-decoration-none">
-                                                        <i class="fas fa-code-branch me-1"></i>
-                                                        <?php echo htmlspecialchars($project_data['repository_link']); ?>
-                                                    </a>
-                                                </dd>
-                                            <?php endif; ?>
-
-                                            <?php if (!empty($project_data['live_demo_link'])): ?>
-                                                <dt class="col-sm-3">Live Demo</dt>
-                                                <dd class="col-sm-9">
-                                                    <a href="<?php echo htmlspecialchars($project_data['live_demo_link']); ?>" target="_blank" class="text-decoration-none">
-                                                        <i class="fas fa-external-link-alt me-1"></i>
-                                                        <?php echo htmlspecialchars($project_data['live_demo_link']); ?>
-                                                    </a>
-                                                </dd>
-                                            <?php endif; ?>
+                                            <dt class="col-sm-3">Classification</dt>
+                                            <dd class="col-sm-9"><?php echo htmlspecialchars($project_data['classification']); ?></dd>
                                         </dl>
+                                    </div>
+
+                                    <!-- Project Files Section -->
+                                    <div class="mb-4">
+                                        <h5 class="mb-3">Project Files</h5>
+                                        <div class="row">
+                                            <?php
+                                            // Define file types and their properties
+                                            $file_types = [
+                                                'image_path' => ['icon' => 'fas fa-image', 'title' => 'Project Image', 'color' => 'primary'],
+                                                'video_path' => ['icon' => 'fas fa-video', 'title' => 'Project Video', 'color' => 'danger'],
+                                                'code_file_path' => ['icon' => 'fas fa-code', 'title' => 'Code File', 'color' => 'success'],
+                                                'instruction_file_path' => ['icon' => 'fas fa-file-alt', 'title' => 'Instructions', 'color' => 'warning']
+                                            ];
+
+                                            $has_files = false;
+
+                                            foreach($file_types as $field => $props):
+                                                if(!empty($project_data[$field])):
+                                                    $has_files = true;
+                                                    $file_name = basename($project_data[$field]);
+                                                    ?>
+                                                    <div class="col-md-6 mb-3">
+                                                        <div class="card h-100">
+                                                            <div class="card-body d-flex flex-column">
+                                                                <div class="d-flex align-items-center mb-3">
+                                                                    <div class="rounded-circle bg-<?php echo $props['color']; ?>-light p-3 me-3">
+                                                                        <i class="<?php echo $props['icon']; ?> text-<?php echo $props['color']; ?>"></i>
+                                                                    </div>
+                                                                    <div>
+                                                                        <h6 class="mb-0"><?php echo $props['title']; ?></h6>
+                                                                        <p class="text-muted small mb-0"><?php echo htmlspecialchars($file_name); ?></p>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mt-auto text-end">
+                                                                    <a href="<?php echo htmlspecialchars($project_data[$field]); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                                                                        <i class="fas fa-external-link-alt me-1"></i> View
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <?php
+                                                endif;
+                                            endforeach;
+
+                                            if(!$has_files):
+                                                ?>
+                                                <div class="col-12">
+                                                    <div class="alert alert-info mb-0">
+                                                        <i class="fas fa-info-circle me-2"></i> No project files have been uploaded.
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="card bg-light">
                                         <div class="card-body">
-                                            <h5 class="card-title mb-3">Project Stats</h5>
-                                            <div class="mb-3">
-                                                <div class="d-flex justify-content-between mb-2">
-                                                    <span class="text-muted">Views</span>
-                                                    <span class="fw-bold">124</span>
-                                                </div>
-                                                <div class="d-flex justify-content-between mb-2">
-                                                    <span class="text-muted">Likes</span>
-                                                    <span class="fw-bold">34</span>
-                                                </div>
-                                                <div class="d-flex justify-content-between">
-                                                    <span class="text-muted">Comments</span>
-                                                    <span class="fw-bold">12</span>
-                                                </div>
-                                            </div>
                                             <hr>
                                             <h6 class="mb-2">Tags</h6>
                                             <div>
@@ -590,75 +675,161 @@ $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'profile';
                 </div>
             </div>
         <?php elseif ($project_edit_mode): ?>
-        <!-- Edit Project Section -->
-        <div class="row">
-            <div class="col-12">
-                <a href="user_profile_setting.php?tab=projects" class="btn btn-outline-primary back-button">
-                    <i class="fas fa-arrow-left me-2"></i> Back to Projects
-                </a>
-                <div class="card settings-card">
-                    <div class="card-body p-4">
-                        <h4 class="card-title mb-4">Edit Project</h4>
-                        <form method="POST" action="">
-                            <input type="hidden" name="project_id" value="<?php echo $project_data['id']; ?>">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="project_name" class="form-label">Project Name</label>
-                                    <input type="text" class="form-control" id="project_name" name="project_name" value="<?php echo htmlspecialchars($project_data['project_name']); ?>" required>
+            <div class="row">
+                <div class="col-12">
+                    <a href="user_profile_setting.php?tab=projects" class="btn btn-outline-primary back-button">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Projects
+                    </a>
+                    <div class="card settings-card">
+                        <div class="card-body p-4">
+                            <h4 class="card-title mb-4">Edit Project</h4>
+                            <form method="POST" action="" enctype="multipart/form-data">
+                                <input type="hidden" name="project_id" value="<?php echo $project_data['id']; ?>">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="project_name" class="form-label">Project Name</label>
+                                        <input type="text" class="form-control" id="project_name" name="project_name" value="<?php echo htmlspecialchars($project_data['project_name']); ?>" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="status" class="form-label">Status</label>
+                                        <select class="form-select" id="status" name="status" required>
+                                            <option value="planning" <?php echo ($project_data['status'] == 'planning') ? 'selected' : ''; ?>>Planning</option>
+                                            <option value="in progress" <?php echo ($project_data['status'] == 'in progress') ? 'selected' : ''; ?>>In Progress</option>
+                                            <option value="completed" <?php echo ($project_data['status'] == 'completed') ? 'selected' : ''; ?>>Completed</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="status" class="form-label">Status</label>
-                                    <select class="form-select" id="status" name="status" required>
-                                        <option value="planning" <?php echo ($project_data['status'] == 'planning') ? 'selected' : ''; ?>>Planning</option>
-                                        <option value="in progress" <?php echo ($project_data['status'] == 'in progress') ? 'selected' : ''; ?>>In Progress</option>
-                                        <option value="completed" <?php echo ($project_data['status'] == 'completed') ? 'selected' : ''; ?>>Completed</option>
-                                    </select>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="project_type" class="form-label">Project Type</label>
+                                        <select class="form-select" id="project_type" name="project_type" required>
+                                            <option value="Web Application" <?php echo ($project_data['project_type'] == 'Web Application') ? 'selected' : ''; ?>>Web Application</option>
+                                            <option value="Mobile App" <?php echo ($project_data['project_type'] == 'Mobile App') ? 'selected' : ''; ?>>Mobile App</option>
+                                            <option value="API" <?php echo ($project_data['project_type'] == 'API') ? 'selected' : ''; ?>>API</option>
+                                            <option value="Desktop Application" <?php echo ($project_data['project_type'] == 'Desktop Application') ? 'selected' : ''; ?>>Desktop Application</option>
+                                            <option value="Library/Framework" <?php echo ($project_data['project_type'] == 'Library/Framework') ? 'selected' : ''; ?>>Library/Framework</option>
+                                            <option value="Game" <?php echo ($project_data['project_type'] == 'Game') ? 'selected' : ''; ?>>Game</option>
+                                            <option value="Other" <?php echo ($project_data['project_type'] == 'Other') ? 'selected' : ''; ?>>Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="language" class="form-label">Language/Framework</label>
+                                        <input type="text" class="form-control" id="language" name="language" value="<?php echo htmlspecialchars($project_data['language']); ?>" required>
+                                        <div class="form-text">Main language or framework used (e.g., PHP, React, Python)</div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="project_type" class="form-label">Project Type</label>
-                                    <select class="form-select" id="project_type" name="project_type" required>
-                                        <option value="Web Application" <?php echo ($project_data['project_type'] == 'Web Application') ? 'selected' : ''; ?>>Web Application</option>
-                                        <option value="Mobile App" <?php echo ($project_data['project_type'] == 'Mobile App') ? 'selected' : ''; ?>>Mobile App</option>
-                                        <option value="API" <?php echo ($project_data['project_type'] == 'API') ? 'selected' : ''; ?>>API</option>
-                                        <option value="Desktop Application" <?php echo ($project_data['project_type'] == 'Desktop Application') ? 'selected' : ''; ?>>Desktop Application</option>
-                                        <option value="Library/Framework" <?php echo ($project_data['project_type'] == 'Library/Framework') ? 'selected' : ''; ?>>Library/Framework</option>
-                                        <option value="Game" <?php echo ($project_data['project_type'] == 'Game') ? 'selected' : ''; ?>>Game</option>
-                                        <option value="Other" <?php echo ($project_data['project_type'] == 'Other') ? 'selected' : ''; ?>>Other</option>
-                                    </select>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="classification" class="form-label">Classification</label>
+                                        <select class="form-select" id="classification" name="classification">
+                                            <option value="Beginner" <?php echo ($project_data['classification'] == 'Beginner') ? 'selected' : ''; ?>>Beginner</option>
+                                            <option value="Intermediate" <?php echo ($project_data['classification'] == 'Intermediate') ? 'selected' : ''; ?>>Intermediate</option>
+                                            <option value="Advanced" <?php echo ($project_data['classification'] == 'Advanced') ? 'selected' : ''; ?>>Advanced</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="language" class="form-label">Language/Framework</label>
-                                    <input type="text" class="form-control" id="language" name="language" value="<?php echo htmlspecialchars($project_data['language']); ?>" required>
-                                    <div class="form-text">Main language or framework used (e.g., PHP, React, Python)</div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Project Description</label>
+                                    <textarea class="form-control" id="description" name="description" rows="5" required><?php echo htmlspecialchars($project_data['description']); ?></textarea>
                                 </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="description" class="form-label">Project Description</label>
-                                <textarea class="form-control" id="description" name="description" rows="5" required><?php echo htmlspecialchars($project_data['description']); ?></textarea>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="repository_link" class="form-label">Repository Link</label>
-                                    <input type="url" class="form-control" id="repository_link" name="repository_link" value="<?php echo htmlspecialchars($project_data['repository_link']); ?>">
-                                    <div class="form-text">GitHub, GitLab, or other repository URL</div>
+
+                                <!-- File Upload Section -->
+                                <h5 class="mb-3 mt-4">Project Files</h5>
+                                <div class="row">
+                                    <!-- Project Image -->
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Project Image</h6>
+                                                <?php if(!empty($project_data['image_path'])): ?>
+                                                    <div class="mb-3">
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fas fa-image text-primary me-2"></i>
+                                                            <span class="small text-muted"><?php echo basename($project_data['image_path']); ?></span>
+                                                        </div>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <div class="input-group">
+                                                    <input type="file" class="form-control" id="project_image" name="project_image" accept="image/*">
+                                                </div>
+                                                <div class="form-text">Upload a new image to replace the existing one.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Project Video -->
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Project Video</h6>
+                                                <?php if(!empty($project_data['video_path'])): ?>
+                                                    <div class="mb-3">
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fas fa-video text-danger me-2"></i>
+                                                            <span class="small text-muted"><?php echo basename($project_data['video_path']); ?></span>
+                                                        </div>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <div class="input-group">
+                                                    <input type="file" class="form-control" id="project_video" name="project_video" accept="video/*">
+                                                </div>
+                                                <div class="form-text">Upload a new video to replace the existing one.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Project Code File -->
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Code File</h6>
+                                                <?php if(!empty($project_data['code_file_path'])): ?>
+                                                    <div class="mb-3">
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fas fa-code text-success me-2"></i>
+                                                            <span class="small text-muted"><?php echo basename($project_data['code_file_path']); ?></span>
+                                                        </div>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <div class="input-group">
+                                                    <input type="file" class="form-control" id="code_file" name="code_file">
+                                                </div>
+                                                <div class="form-text">Upload a new code file to replace the existing one.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Project Instruction File -->
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Instruction File</h6>
+                                                <?php if(!empty($project_data['instruction_file_path'])): ?>
+                                                    <div class="mb-3">
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fas fa-file-alt text-warning me-2"></i>
+                                                            <span class="small text-muted"><?php echo basename($project_data['instruction_file_path']); ?></span>
+                                                        </div>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <div class="input-group">
+                                                    <input type="file" class="form-control" id="instruction_file" name="instruction_file">
+                                                </div>
+                                                <div class="form-text">Upload a new instruction file to replace the existing one.</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="live_demo_link" class="form-label">Live Demo Link</label>
-                                    <input type="url" class="form-control" id="live_demo_link" name="live_demo_link" value="<?php echo htmlspecialchars($project_data['live_demo_link']); ?>">
-                                    <div class="form-text">URL where the project is deployed (if available)</div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                    <a href="user_profile_setting.php?tab=projects" class="btn btn-secondary me-md-2">Cancel</a>
+                                    <button type="submit" name="update_project" class="btn btn-primary">Save Changes</button>
                                 </div>
-                            </div>
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                                <a href="user_profile_setting.php?tab=projects" class="btn btn-secondary me-md-2">Cancel</a>
-                                <button type="submit" name="update_project" class="btn btn-primary">Save Changes</button>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         <?php else: ?>
             <!-- Settings Layout -->
             <div class="row">
@@ -691,12 +862,7 @@ $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'profile';
                                 <a class="nav-link <?php echo ($active_tab == 'projects') ? 'active' : ''; ?>" href="?tab=projects">
                                     <i class="fas fa-project-diagram me-2"></i> Projects
                                 </a>
-                                <a class="nav-link <?php echo ($active_tab == 'integrations') ? 'active' : ''; ?>" href="?tab=integrations">
-                                    <i class="fas fa-plug me-2"></i> Integrations
-                                </a>
-                                <a class="nav-link <?php echo ($active_tab == 'notifications') ? 'active' : ''; ?>" href="?tab=notifications">
-                                    <i class="fas fa-bell me-2"></i> Notifications
-                                </a>
+
                             </div>
                         </div>
                     </div>
@@ -834,48 +1000,6 @@ $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'profile';
                                         </a>
                                     </div>
                                 <?php endif; ?>
-                            <?php elseif ($active_tab == 'integrations'): ?>
-                                <h4 class="card-title mb-4">Integrations</h4>
-                                <p class="text-muted mb-4">Connect your account with these services to enhance your experience.</p>
-
-                                <div class="list-group mb-4">
-                                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center">
-                                            <div class="me-3">
-                                                <i class="fab fa-github fa-2x"></i>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-1">GitHub</h6>
-                                                <p class="text-muted mb-0 small">Connect to import your repositories</p>
-                                            </div>
-                                        </div>
-                                        <button class="btn btn-sm btn-outline-primary">Connect</button>
-                                    </div>
-                                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center">
-                                            <div class="me-3">
-                                                <i class="fab fa-gitlab fa-2x"></i>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-1">GitLab</h6>
-                                                <p class="text-muted mb-0 small">Connect to import your repositories</p>
-                                            </div>
-                                        </div>
-                                        <button class="btn btn-sm btn-outline-primary">Connect</button>
-                                    </div>
-                                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center">
-                                            <div class="me-3">
-                                                <i class="fab fa-slack fa-2x"></i>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-1">Slack</h6>
-                                                <p class="text-muted mb-0 small">Receive notifications on Slack</p>
-                                            </div>
-                                        </div>
-                                        <button class="btn btn-sm btn-outline-primary">Connect</button>
-                                    </div>
-                                </div>
                             <?php endif; ?>
 
                         </div>

@@ -1014,7 +1014,7 @@ $search_term = isset($_GET['search']) ? $_GET['search'] : '';
                         <i class="bi bi-arrow-counterclockwise me-2"></i>Reset Filters
                     </a>
                 <?php else: ?>
-                    <a href="submit_project.php" class="btn btn-primary">
+                    <a href="./forms/new_project_add.php" class="btn btn-primary">
                         <i class="bi bi-plus-circle me-2"></i>Submit a Project
                     </a>
                 <?php endif; ?>
