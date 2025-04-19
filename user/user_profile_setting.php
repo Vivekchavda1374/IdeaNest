@@ -455,12 +455,7 @@ $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'profile';
                 <span>Mentorship</span>
             </a>
         </li>
-        <li>
-            <a href="bookmark.php">
-                <i class="fas fa-bookmark"></i>
-                <span>Bookmarks</span>
-            </a>
-        </li>
+
         <li>
             <a href="#">
                 <i class="fas fa-chart-bar"></i>

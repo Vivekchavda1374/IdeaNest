@@ -99,12 +99,7 @@ $conn->close();
                 <span>Mentorship</span>
             </a>
         </li>
-        <li>
-            <a href="bookmark.php">
-                <i class="fas fa-bookmark"></i>
-                <span>Bookmarks</span>
-            </a>
-        </li>
+
 
         <li>
             <a href="user_profile_setting.php">
