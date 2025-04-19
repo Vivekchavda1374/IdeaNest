@@ -24,7 +24,7 @@ $blogResult = $conn->query($blogSql);
 $blogRow = $blogResult->fetch_assoc();
 $blogCount = $blogRow['blog_count'];
 
-$bookMarkSql = "SELECT COUNT(*) AS bookmark_count FROM bookmark";
+$bookMarkSql = "SELECT COUNT(*) AS bookmark_count FROM user_bookmarks";
 $bookMarkResult = $conn->query($bookMarkSql);
 $bookMarkRow = $bookMarkResult->fetch_assoc();
 $bookMarkCount = $bookMarkRow['bookmark_count'];

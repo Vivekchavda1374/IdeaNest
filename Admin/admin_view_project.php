@@ -159,6 +159,7 @@ if(isset($_POST['reject_submit'])) {
 }
 
 // Function to approve a project
+// Function to approve a project
 function approveProject($project_id, $conn) {
     // Get project details
     $query = "SELECT * FROM projects WHERE id = ?";
@@ -172,14 +173,15 @@ function approveProject($project_id, $conn) {
 
         // Insert into approved projects table
         $approve_query = "INSERT INTO admin_approved_projects (
-             project_name, project_type, classification, description, 
+             user_id, project_name, project_type, classification, description, 
              language, image_path, video_path, code_file_path, 
              instruction_file_path, submission_date, status
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')";
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')";
 
         $approve_stmt = $conn->prepare($approve_query);
         $approve_stmt->bind_param(
-            "ssssssssss",
+            "issssssssss",
+            $project['user_id'],  // Added user_id to fix foreign key constraint
             $project['project_name'],
             $project['project_type'],
             $project['classification'],
@@ -218,7 +220,7 @@ function approveProject($project_id, $conn) {
     }
 }
 
-// And modify your rejectProject function
+// Function to reject a project
 function rejectProject($project_id, $rejection_reason, $conn) {
     // Get project details
     $query = "SELECT * FROM projects WHERE id = ?";

@@ -1,87 +1,12 @@
 <?php
 include "../Login/Login/db.php";
+error_reporting(E_ERROR);
+ini_set('display_errors', 0);
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-// Process bookmark toggle
-$alert_message = '';
-$alert_type = '';
 
-// Process bookmark toggle with improved error handling
-if (isset($_POST['toggle_bookmark'])) {
-    $project_id = $_POST['project_id'];
-    $session_id = session_id();
-
-    // Debug - uncomment to check values
-    // echo "Project ID: " . $project_id . " Session ID: " . $session_id;
-
-    try {
-        // Check if bookmark already exists for this project
-        $check_sql = "SELECT * FROM bookmark WHERE project_id = ? AND user_id = ?";
-        $check_stmt = $conn->prepare($check_sql);
-        if (!$check_stmt) {
-            throw new Exception("Prepare failed: " . $conn->error);
-        }
-
-        $check_stmt->bind_param("is", $project_id, $session_id);
-        if (!$check_stmt->execute()) {
-            throw new Exception("Execute failed: " . $check_stmt->error);
-        }
-
-        $check_result = $check_stmt->get_result();
-
-        if ($check_result->num_rows > 0) {
-            // Bookmark exists, so remove it
-            $delete_sql = "DELETE FROM bookmark WHERE project_id = ? AND user_id = ?";
-            $delete_stmt = $conn->prepare($delete_sql);
-            if (!$delete_stmt) {
-                throw new Exception("Prepare failed: " . $conn->error);
-            }
-
-            $delete_stmt->bind_param("is", $project_id, $session_id);
-
-            if ($delete_stmt->execute()) {
-                $alert_message = 'Project removed from bookmarks!';
-                $alert_type = 'info';
-            } else {
-                throw new Exception("Delete failed: " . $delete_stmt->error);
-            }
-            $delete_stmt->close();
-        } else {
-            // Add new bookmark
-            $idea_id = 0; // Default value for idea_id
-
-            $insert_sql = "INSERT INTO bookmark (project_id, user_id, idea_id) VALUES (?, ?, ?)";
-            $insert_stmt = $conn->prepare($insert_sql);
-            if (!$insert_stmt) {
-                throw new Exception("Prepare failed: " . $conn->error);
-            }
-
-            $insert_stmt->bind_param("isi", $project_id, $session_id, $idea_id);
-
-            if ($insert_stmt->execute()) {
-                $alert_message = 'Project added to bookmarks!';
-                $alert_type = 'success';
-            } else {
-                throw new Exception("Insert failed: " . $insert_stmt->error);
-            }
-            $insert_stmt->close();
-        }
-        $check_stmt->close();
-    } catch (Exception $e) {
-        $alert_message = 'Error: ' . $e->getMessage();
-        $alert_type = 'danger';
-    }
-
-    // For AJAX requests, return JSON response
-    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-        header('Content-Type: application/json');
-        echo json_encode(['message' => $alert_message, 'type' => $alert_type]);
-        exit;
-    }
-}
-// Get projects with pagination
 $items_per_page = 8; // Number of projects per page
 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $offset = ($page - 1) * $items_per_page;
@@ -107,26 +32,91 @@ $recent_sql = "SELECT COUNT(*) as recent FROM admin_approved_projects WHERE subm
 $recent_result = $conn->query($recent_sql);
 $recent_count = $recent_result->fetch_assoc()['recent'];
 
-// Get bookmarked projects count for current user
-$bookmarked_sql = "SELECT COUNT(*) as bookmarked FROM bookmark WHERE user_id = ?";
-$bookmarked_stmt = $conn->prepare($bookmarked_sql);
-$bookmarked_stmt->bind_param("s", $session_id);
-$bookmarked_stmt->execute();
-$bookmarked_result = $bookmarked_stmt->get_result();
-$bookmarked_count = $bookmarked_result->fetch_assoc()['bookmarked'];
-$bookmarked_stmt->close();
+function isProjectBookmarked($project_id, $user_id, $conn) {
+    $sql = "SELECT * FROM user_bookmarks WHERE project_id = ? AND user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $project_id, $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->num_rows > 0;
+}
+
+function toggleBookmark($project_id, $user_id, $conn) {
+    try {
+        if (isProjectBookmarked($project_id, $user_id, $conn)) {
+            // Remove bookmark
+            $sql = "DELETE FROM user_bookmarks WHERE project_id = ? AND user_id = ?";
+            $stmt = $conn->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Prepare failed: " . $conn->error);
+            }
+            $stmt->bind_param("ii", $project_id, $user_id);
+            if (!$stmt->execute()) {
+                throw new Exception("Execute failed: " . $stmt->error);
+            }
+            return ["status" => "removed", "message" => "Bookmark removed"];
+        } else {
+            // Add bookmark
+            $sql = "INSERT INTO user_bookmarks (project_id, user_id, bookmarked_at) VALUES (?, ?, NOW())";
+            $stmt = $conn->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Prepare failed: " . $conn->error);
+            }
+            $stmt->bind_param("ii", $project_id, $user_id);
+            if (!$stmt->execute()) {
+                throw new Exception("Execute failed: " . $stmt->error);
+            }
+            return ["status" => "added", "message" => "Project bookmarked"];
+        }
+    } catch (Exception $e) {
+        return ["status" => "error", "message" => $e->getMessage()];
+    }
+}
+
+// Handle bookmark toggle AJAX request
+if (isset($_POST['action']) && $_POST['action'] == 'toggle_bookmark' && isset($_POST['project_id'])) {
+    // Make sure user is logged in
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(["status" => "error", "message" => "You must be logged in to bookmark projects"]);
+        exit;
+    }
+
+    // Enable more detailed error reporting just for this section
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+
+    try {
+        $project_id = intval($_POST['project_id']);
+        $user_id = $_SESSION['user_id'];
+
+        $result = toggleBookmark($project_id, $user_id, $conn);
+        echo json_encode($result);
+    } catch (Exception $e) {
+        echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+    }
+    exit;
+}
+function getBookmarkCount($project_id, $conn) {
+    $sql = "SELECT COUNT(*) as count FROM user_bookmarks WHERE project_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $project_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    return $row['count'];
+}
+
+// Initialize filter parameters
+$filter_conditions = [];
+$filter_params = [];
+$param_types = "";
 
 // Build the query for projects with filtering and sorting
 $sql = "SELECT admin_approved_projects.*, 
-        CASE WHEN bookmark.project_id IS NOT NULL THEN 1 ELSE 0 END AS is_bookmarked
-        FROM admin_approved_projects 
-        LEFT JOIN bookmark ON admin_approved_projects.id = bookmark.project_id AND bookmark.user_id = ?";
+        (SELECT COUNT(*) FROM user_bookmarks WHERE project_id = admin_approved_projects.id) AS bookmark_count
+        FROM admin_approved_projects";
 
-// Apply filters if provided
-$filter_conditions = [];
-$filter_params = [$session_id]; // Start with session_id for bookmark join
-$param_types = "s"; // Start with string type for session_id
-
+// Handle search filtering
 if (isset($_GET['search']) && !empty($_GET['search'])) {
     $search = $_GET['search'];
     $filter_conditions[] = "(project_name LIKE ? OR description LIKE ?)";
@@ -135,15 +125,12 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
     $param_types .= "ss"; // Add two string types
 }
 
+// Handle type filtering
 if (isset($_GET['type']) && $_GET['type'] != 'all') {
     $project_type = $_GET['type'];
     $filter_conditions[] = "project_type = ?";
     $filter_params[] = $project_type;
     $param_types .= "s"; // Add string type
-}
-
-if (isset($_GET['bookmarked']) && $_GET['bookmarked'] == '1') {
-    $filter_conditions[] = "bookmark.project_id IS NOT NULL";
 }
 
 // Add WHERE clause if filters are applied
@@ -176,18 +163,39 @@ $filter_params[] = $items_per_page;
 $param_types .= "ii"; // Add two integer types
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param($param_types, ...$filter_params);
+
+// Only bind parameters if we have any
+if (!empty($filter_params)) {
+    $stmt->bind_param($param_types, ...$filter_params);
+}
+
 $stmt->execute();
 $result = $stmt->get_result();
-
-// Check if we should show bookmarked only
-$show_bookmarked = isset($_GET['bookmarked']) && $_GET['bookmarked'] == '1';
 
 // Check if we're filtering by type
 $selected_type = isset($_GET['type']) ? $_GET['type'] : 'all';
 
 // Get search term if any
 $search_term = isset($_GET['search']) ? $_GET['search'] : '';
+
+// Helper functions for query parameters
+function remove_query_param($param) {
+    $params = $_GET;
+    unset($params[$param]);
+    return '?' . http_build_query($params);
+}
+
+function update_query_params($new_params) {
+    $params = $_GET;
+    foreach ($new_params as $key => $value) {
+        $params[$key] = $value;
+    }
+    return '?' . http_build_query($params);
+}
+// After including db.php
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 ?>
 
     <!DOCTYPE html>
@@ -408,27 +416,6 @@ $search_term = isset($_GET['search']) ? $_GET['search'] : '';
             .category-pill:hover {
                 background-color: var(--primary-light);
                 color: var(--primary-color);
-            }
-
-            /* Bookmark button */
-            .bookmark-btn {
-                background: none;
-                border: none;
-                color: var(--gray-400);
-                font-size: 1.25rem;
-                cursor: pointer;
-                transition: var(--transition);
-                margin-left: 0.75rem;
-                padding: 0.25rem;
-            }
-
-            .bookmark-btn:hover {
-                color: var(--warning-color);
-                transform: scale(1.1);
-            }
-
-            .bookmark-btn.active {
-                color: var(--warning-color);
             }
 
             /* File link styles */
@@ -663,554 +650,364 @@ $search_term = isset($_GET['search']) ? $_GET['search'] : '';
                 width: 3rem;
                 height: 3rem;
             }
+
+            .bookmark-btn {
+                background: none;
+                border: none;
+                padding: 0.25rem 0.5rem;
+                transition: all 0.2s ease;
+            }
+
+            .bookmark-btn:hover {
+                color: var(--primary-color);
+            }
+
+            .bookmark-btn.bookmarked {
+                color: var(--primary-color);
+            }
+
+            .bookmark-count {
+                font-size: 0.8rem;
+                margin-left: 0.25rem;
+            }
+
+            /* Bookmark animation */
+            @keyframes bookmark-pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.2); }
+                100% { transform: scale(1); }
+            }
+
+            .bookmark-animate {
+                animation: bookmark-pulse 0.3s ease-in-out;
+            }
         </style>
     </head>
 
-    <body>
-    <div class="main-content">
-        <!-- Page header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
+<body>
+<div class="main-content">
+    <!-- Page header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="javascript:history.back()" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back
+        </a>
 
-                <a href="javascript:history.back()" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Back
-                </a>
+        <h2 class="section-title mb-0">
+            <i class="bi bi-check-circle-fill"></i>
+            Approved Projects
+        </h2>
 
-            <h2 class="section-title mb-0">
-                <i class="bi bi-check-circle-fill"></i>
-                Approved Projects
-            </h2>
-
-            <a href="./forms/new_project_add.php" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-2"></i>Submit New Project
-            </a>
-        </div>
-
-        <!-- Project Stats -->
-        <div class="project-stats">
-            <div class="stat-item">
-                <div class="stat-value"><?php echo $total_projects; ?></div>
-                <div class="stat-label">Total Projects</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value"><?php echo $bookmarked_count; ?></div>
-                <div class="stat-label">Bookmarked</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value"><?php echo $recent_count; ?></div>
-                <div class="stat-label">Recent (7d)</div>
-            </div>
-            <?php foreach ($type_counts as $type => $count): ?>
-                <div class="stat-item">
-                    <div class="stat-value"><?php echo $count; ?></div>
-                    <div class="stat-label"><?php echo htmlspecialchars($type); ?></div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-
-        <!-- Alert Container -->
-        <?php if (!empty($alert_message)): ?>
-            <div class="alert alert-<?php echo $alert_type; ?> alert-dismissible fade show" role="alert">
-                <div class="d-flex align-items-center">
-                    <?php if ($alert_type == 'success'): ?>
-                        <i class="bi bi-check-circle-fill me-2"></i>
-                    <?php elseif ($alert_type == 'info'): ?>
-                        <i class="bi bi-info-circle-fill me-2"></i>
-                    <?php elseif ($alert_type == 'danger'): ?>
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <?php endif; ?>
-                    <strong><?php echo $alert_message; ?></strong>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        <?php endif; ?>
-
-        <!-- Toast Container -->
-        <div class="toast-container"></div>
-
-        <!-- Search and Filter Section -->
-        <div class="search-filter-container">
-            <form action="" method="get" id="filterForm">
-                <div class="row align-items-center">
-                    <div class="col-md-6 mb-3 mb-md-0">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0">
-                                <i class="bi bi-search"></i>
-                            </span>
-                            <input type="text" class="form-control search-input border-start-0"
-                                   name="search" id="searchProjects" value="<?php echo htmlspecialchars($search_term); ?>"
-                                   placeholder="Search projects by name or description...">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="row">
-                            <div class="col-6 col-sm-4 mb-3 mb-sm-0">
-                                <select class="form-select" name="type" id="projectTypeFilter">
-                                    <option value="all" <?php echo ($selected_type == 'all') ? 'selected' : ''; ?>>All Types</option>
-                                    <?php foreach ($type_counts as $type => $count): ?>
-                                        <option value="<?php echo htmlspecialchars($type); ?>" <?php echo ($selected_type == $type) ? 'selected' : ''; ?>>
-                                            <?php echo htmlspecialchars($type); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-6 col-sm-4 mb-3 mb-sm-0">
-                                <select class="form-select" name="sort" id="sortByFilter">
-                                    <option value="newest" <?php echo (!isset($_GET['sort']) || $_GET['sort'] == 'newest') ? 'selected' : ''; ?>>Newest First</option>
-                                    <option value="oldest" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'oldest') ? 'selected' : ''; ?>>Oldest First</option>
-                                    <option value="a-z" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'a-z') ? 'selected' : ''; ?>>A-Z</option>
-                                    <option value="z-a" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'z-a') ? 'selected' : ''; ?>>Z-A</option>
-                                </select>
-                            </div>
-                            <div class="col-12 col-sm-4">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="bookmarked" value="1"
-                                           id="bookmarkedFilter" <?php echo $show_bookmarked ? 'checked' : ''; ?>>
-                                    <label class="form-check-label" for="bookmarkedFilter">Bookmarked Only</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Active filters section -->
-                <?php if (!empty($search_term) || $selected_type != 'all' || $show_bookmarked): ?>
-                    <div class="active-filters mt-3">
-                        <?php if (!empty($search_term)): ?>
-                            <div class="filter-badge">
-                                <span>Search: <?php echo htmlspecialchars($search_term); ?></span>
-                                <a href="<?php echo remove_query_param('search'); ?>" class="close-icon text-decoration-none">&times;</a>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if ($selected_type != 'all'): ?>
-                            <div class="filter-badge">
-                                <span>Type: <?php echo htmlspecialchars($selected_type); ?></span>
-                                <a href="<?php echo remove_query_param('type'); ?>" class="close-icon text-decoration-none">&times;</a>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if ($show_bookmarked): ?>
-                            <div class="filter-badge">
-                                <span>Bookmarked Only</span>
-                                <a href="<?php echo remove_query_param('bookmarked'); ?>" class="close-icon text-decoration-none">&times;</a>
-                            </div>
-                        <?php endif; ?>
-
-                        <a href="?" class="btn btn-sm btn-outline-secondary ms-2">
-                            <i class="bi bi-x-circle me-1"></i>Clear All
-                        </a>
-                    </div>
-                <?php endif; ?>
-            </form>
-        </div>
-
-        <!-- Loading spinner -->
-        <div class="loading-spinner" id="loadingSpinner">
-            <div class="spinner-border" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2">Loading projects...</p>
-        </div>
-
-        <?php if ($result && $result->num_rows > 0): ?>
-            <div class="row" id="projectContainer">
-                <?php while($row = $result->fetch_assoc()): ?>
-                    <div class="col-lg-6 project-item">
-                        <div class="project-card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0 fw-bold text-truncate" title="<?php echo htmlspecialchars($row["project_name"]); ?>">
-                                    <?php echo htmlspecialchars($row["project_name"]); ?>
-                                </h5>
-                                <div class="d-flex align-items-center">
-                                    <span class="badge badge-approved">Approved</span>
-                                    <form method="post" class="d-inline bookmark-form">
-                                        <input type="hidden" name="project_id" value="<?php echo $row["id"]; ?>">
-                                        <button type="submit" name="toggle_bookmark" class="bookmark-btn <?php echo $row["is_bookmarked"] ? 'active' : ''; ?>">
-                                            <i class="bi <?php echo $row["is_bookmarked"] ? 'bi-bookmark-fill' : 'bi-bookmark'; ?>"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="description-container mb-3">
-                                    <?php echo htmlspecialchars($row["description"]); ?></p>
-                                </div>
-                                <button class="show-more-btn" data-bs-toggle="modal" data-bs-target="#projectDetailModal<?php echo $row["id"]; ?>">
-                                    <i class="bi bi-three-dots"></i> Show details
-                                </button>
-
-                                <div class="row mt-3">
-                                    <div class="col-6">
-                                        <div class="project-detail">
-                                            <strong>Type</strong>
-                                            <p><?php echo htmlspecialchars($row["project_type"]); ?></p>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="project-detail">
-                                            <strong>Submitted</strong>
-                                            <p><?php echo date("M d, Y", strtotime($row["submission_date"])); ?></p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <?php if(!empty($row["file_path"])): ?>
-                                    <div class="files-container mt-3">
-                                        <a href="download.php?file=<?php echo urlencode($row["file_path"]); ?>" class="file-link">
-                                            <i class="bi bi-file-earmark-arrow-down"></i>
-                                            Download Project Files
-                                        </a>
-                                    </div>
-                                <?php endif; ?>
-
-                                <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <a href="project_details.php?id=<?php echo $row["id"]; ?>" class="btn btn-sm btn-primary">
-                                        <i class="bi bi-eye me-1"></i> View Details
-                                    </a>
-                                    <span class="category-pill">
-                                        <?php echo htmlspecialchars($row["classification"]); ?>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Project Detail Modal -->
-                        <div class="modal fade" id="projectDetailModal<?php echo $row["id"]; ?>" tabindex="-1" aria-labelledby="projectDetailModalLabel<?php echo $row["id"]; ?>" aria-hidden="true">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="projectDetailModalLabel<?php echo $row["id"]; ?>"><?php echo htmlspecialchars($row["project_name"]); ?></h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <h6 class="mb-3">Description</h6>
-                                        <p><?php echo htmlspecialchars($row["description"]); ?></p>
-
-                                        <div class="row mt-4">
-                                            <div class="col-md-6">
-                                                <h6 class="mb-3">Project Details</h6>
-                                                <table class="table table-borderless">
-                                                    <tr>
-                                                        <th>Type:</th>
-                                                        <td><?php echo htmlspecialchars($row["project_type"]); ?></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Category:</th>
-                                                        <td><?php echo htmlspecialchars($row["classification"]); ?></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Submitted:</th>
-                                                        <td><?php echo date("F d, Y", strtotime($row["submission_date"])); ?></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Status:</th>
-                                                        <td><span class="badge badge-approved">Approved</span></td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <?php if(!empty($row["file_path"])): ?>
-                                                    <h6 class="mb-3">Resources</h6>
-                                                    <div class="files-container">
-                                                        <a href="download.php?file=<?php echo urlencode($row["file_path"]); ?>" class="file-link">
-                                                            <i class="bi bi-file-earmark-arrow-down"></i>
-                                                            Download Project Files
-                                                        </a>
-                                                    </div>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <a href="project_details.php?id=<?php echo $row["id"]; ?>" class="btn btn-primary">
-                                            <i class="bi bi-eye me-1"></i> View Complete Details
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <?php endwhile; ?>
-            </div>
-
-            <!-- Pagination -->
-            <div class="d-flex justify-content-center mt-4">
-                <nav aria-label="Project pagination">
-                    <ul class="pagination">
-                        <?php if($page > 1): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="<?php echo update_query_params(['page' => $page - 1]); ?>" aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
-                            </li>
-                        <?php else: ?>
-                            <li class="page-item disabled">
-                                <span class="page-link">&laquo;</span>
-                            </li>
-                        <?php endif; ?>
-
-                        <?php
-                        $start_page = max(1, $page - 2);
-                        $end_page = min($start_page + 4, $total_pages);
-
-                        if ($start_page > 1): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="<?php echo update_query_params(['page' => 1]); ?>">1</a>
-                            </li>
-                            <?php if($start_page > 2): ?>
-                                <li class="page-item disabled">
-                                    <span class="page-link">...</span>
-                                </li>
-                            <?php endif; ?>
-                        <?php endif; ?>
-
-                        <?php for($i = $start_page; $i <= $end_page; $i++): ?>
-                            <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
-                                <a class="page-link" href="<?php echo update_query_params(['page' => $i]); ?>"><?php echo $i; ?></a>
-                            </li>
-                        <?php endfor; ?>
-
-                        <?php if($end_page < $total_pages): ?>
-                            <?php if($end_page < $total_pages - 1): ?>
-                                <li class="page-item disabled">
-                                    <span class="page-link">...</span>
-                                </li>
-                            <?php endif; ?>
-                            <li class="page-item">
-                                <a class="page-link" href="<?php echo update_query_params(['page' => $total_pages]); ?>"><?php echo $total_pages; ?></a>
-                            </li>
-                        <?php endif; ?>
-
-                        <?php if($page < $total_pages): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="<?php echo update_query_params(['page' => $page + 1]); ?>" aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
-                            </li>
-                        <?php else: ?>
-                            <li class="page-item disabled">
-                                <span class="page-link">&raquo;</span>
-                            </li>
-                        <?php endif; ?>
-                    </ul>
-                </nav>
-            </div>
-        <?php else: ?>
-            <!-- Empty state when no projects found -->
-            <div class="empty-projects">
-                <i class="bi bi-folder-x"></i>
-                <h3>No projects found</h3>
-                <p>
-                    <?php if(!empty($search_term) || $selected_type != 'all' || $show_bookmarked): ?>
-                        We couldn't find any projects matching your criteria.<br>
-                        Try adjusting your filters or search terms.
-                    <?php else: ?>
-                        There are no approved projects available at the moment.
-                    <?php endif; ?>
-                </p>
-                <?php if(!empty($search_term) || $selected_type != 'all' || $show_bookmarked): ?>
-                    <a href="?" class="btn btn-outline-primary">
-                        <i class="bi bi-arrow-counterclockwise me-2"></i>Reset Filters
-                    </a>
-                <?php else: ?>
-                    <a href="submit_project.php" class="btn btn-primary">
-                        <i class="bi bi-plus-circle me-2"></i>Submit a Project
-                    </a>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
+        <a href="./forms/new_project_add.php" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>Submit New Project
+        </a>
     </div>
 
-    <!-- Helper functions for query parameters -->
-    <?php
-    function remove_query_param($param) {
-        $params = $_GET;
-        unset($params[$param]);
-        return '?' . http_build_query($params);
-    }
+    <!-- Project Stats -->
+    <div class="project-stats">
+        <div class="stat-item">
+            <div class="stat-value"><?php echo $total_projects; ?></div>
+            <div class="stat-label">Total Projects</div>
+        </div>
 
-    function update_query_params($new_params) {
-        $params = $_GET;
-        foreach ($new_params as $key => $value) {
-            $params[$key] = $value;
-        }
-        return '?' . http_build_query($params);
-    }
-    ?>
+        <div class="stat-item">
+            <div class="stat-value"><?php echo $recent_count; ?></div>
+            <div class="stat-label">Recent (7d)</div>
+        </div>
+        <?php foreach ($type_counts as $type => $count): ?>
+            <div class="stat-item">
+                <div class="stat-value"><?php echo $count; ?></div>
+                <div class="stat-label"><?php echo htmlspecialchars($type); ?></div>
+            </div>
+        <?php endforeach; ?>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Handle filter changes
-            const filterForm = document.getElementById('filterForm');
-            const projectTypeFilter = document.getElementById('projectTypeFilter');
-            const sortByFilter = document.getElementById('sortByFilter');
-            const bookmarkedFilter = document.getElementById('bookmarkedFilter');
-            const searchInput = document.getElementById('searchProjects');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            const projectContainer = document.getElementById('projectContainer');
+    <!-- Alert Container -->
+    <div id="alertContainer"></div>
 
-            // Function to show loading spinner
-            function showLoading() {
-                if (loadingSpinner) {
-                    loadingSpinner.style.display = 'block';
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+
+    <!-- Search and Filter Section -->
+    <div class="search-filter-container">
+        <form action="" method="get" id="filterForm">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control search-input border-start-0"
+                               name="search" id="searchProjects" value="<?php echo htmlspecialchars($search_term); ?>"
+                               placeholder="Search projects by name or description...">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-6 col-sm-4 mb-3 mb-sm-0">
+                            <select class="form-select" name="type" id="projectTypeFilter">
+                                <option value="all" <?php echo ($selected_type == 'all') ? 'selected' : ''; ?>>All Types</option>
+                                <?php foreach ($type_counts as $type => $count): ?>
+                                    <option value="<?php echo htmlspecialchars($type); ?>" <?php echo ($selected_type == $type) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($type); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-6 col-sm-4 mb-3 mb-sm-0">
+                            <select class="form-select" name="sort" id="sortByFilter">
+                                <option value="newest" <?php echo (!isset($_GET['sort']) || $_GET['sort'] == 'newest') ? 'selected' : ''; ?>>Newest First</option>
+                                <option value="oldest" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'oldest') ? 'selected' : ''; ?>>Oldest First</option>
+                                <option value="a-z" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'a-z') ? 'selected' : ''; ?>>A-Z</option>
+                                <option value="z-a" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'z-a') ? 'selected' : ''; ?>>Z-A</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="active-filters mt-3">
+                <?php if (!empty($search_term)): ?>
+                    <div class="filter-badge">
+                        <span>Search: <?php echo htmlspecialchars($search_term); ?></span>
+                        <a href="<?php echo remove_query_param('search'); ?>" class="close-icon text-decoration-none">&times;</a>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($selected_type != 'all'): ?>
+                    <div class="filter-badge">
+                        <span>Type: <?php echo htmlspecialchars($selected_type); ?></span>
+                        <a href="<?php echo remove_query_param('type'); ?>" class="close-icon text-decoration-none">&times;</a>
+                    </div>
+                <?php endif; ?>
+
+
+            </div>
+        </form>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Projects Container -->
+<?php if ($result->num_rows > 0): ?>
+    <div class="project-container">
+    <?php while ($row = $result->fetch_assoc()): ?>
+        <div class="project-item">
+            <div class="project-card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h5 class="card-title mb-0"><?php echo htmlspecialchars($row['project_name']); ?></h5>
+                        <button class="btn btn-sm ms-2 bookmark-btn <?php echo (isset($_SESSION['user_id']) && isProjectBookmarked($row['id'], $_SESSION['user_id'], $conn)) ? 'bookmarked' : ''; ?>"
+                                data-project-id="<?php echo $row['id']; ?>"
+                                data-bs-toggle="tooltip"
+                                title="<?php echo (isset($_SESSION['user_id']) && isProjectBookmarked($row['id'], $_SESSION['user_id'], $conn)) ? 'Remove Bookmark' : 'Bookmark Project'; ?>">
+                            <i class="bi <?php echo (isset($_SESSION['user_id']) && isProjectBookmarked($row['id'], $_SESSION['user_id'], $conn)) ? 'bi-bookmark-fill text-primary' : 'bi-bookmark'; ?>"></i>
+                            <span class="bookmark-count"><?php echo getBookmarkCount($row['id'], $conn); ?></span>
+                        </button>
+                    </div>
+                    <div class="mt-2">
+                        <span class="category-pill"><?php echo htmlspecialchars($row['project_type']); ?></span>
+                        <span class="badge badge-approved">Approved</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="description-container">
+                        <p><?php echo nl2br(htmlspecialchars($row['description'])); ?></p>
+                    </div>
+                    <button class="show-more-btn" data-bs-toggle="modal" data-bs-target="#descriptionModal<?php echo $row['id']; ?>">
+                        Read more
+                    </button>
+
+                    <div class="project-detail mt-3">
+                        <strong>Submitted by</strong>
+                        <p><?php echo htmlspecialchars($row['submitter_name']); ?></p>
+                    </div>
+
+                    <div class="project-detail">
+                        <strong>Submission Date</strong>
+                        <p><?php echo date('M d, Y', strtotime($row['submission_date'])); ?></p>
+                    </div>
+
+                    <div class="mt-3">
+                        <a href="user_project_search.php?id=<?php echo $row['id']; ?>" class="btn btn-primary btn-sm w-100">
+                            <i class="bi bi-eye me-2"></i>View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description Modal -->
+    <div class="modal fade" id="descriptionModal<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="descriptionModalLabel<?php echo $row['id']; ?>" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 id="descriptionModalLabel<?php echo $row['id']; ?>"><?php echo htmlspecialchars($row['project_name']); ?></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Project Description</h6>
+                        <p><?php echo nl2br(htmlspecialchars($row['description'])); ?></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <a href="user_project_search.php?id=<?php echo $row['id']; ?>" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endwhile; ?>
+    </div>
+
+    <!-- Pagination -->
+    <?php if ($total_pages > 1): ?>
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
+                    <a class="page-link" href="<?php echo update_query_params(['page' => $page - 1]); ?>" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                    <li class="page-item <?php echo ($page == $i) ? 'active' : ''; ?>">
+                        <a class="page-link" href="<?php echo update_query_params(['page' => $i]); ?>"><?php echo $i; ?></a>
+                    </li>
+                <?php endfor; ?>
+
+                <li class="page-item <?php echo ($page >= $total_pages) ? 'disabled' : ''; ?>">
+                    <a class="page-link" href="<?php echo update_query_params(['page' => $page + 1]); ?>" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    <?php endif; ?>
+<?php else: ?>
+    <!-- Empty state when no projects are found -->
+    <div class="empty-projects">
+        <i class="bi bi-clipboard-x"></i>
+        <h3>No projects found</h3>
+        <p>There are no projects that match your current filters.</p>
+        <a href="user_project_search.php" class="btn btn-primary">Clear Filters</a>
+    </div>
+<?php endif; ?>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
+        // Auto-submit form when filters change
+        $('#projectTypeFilter, #sortByFilter').change(function() {
+            $('#filterForm').submit();
+        });
+
+        // Show loading spinner when form is submitted
+        $('#filterForm').submit(function() {
+            $('#loadingSpinner').show();
+        });
+
+        // Handle bookmark buttons
+        $('.bookmark-btn').click(function() {
+            var button = $(this);
+            var projectId = button.data('project-id');
+
+            // Check if user is logged in
+            <?php if (!isset($_SESSION['user_id'])): ?>
+            // Create toast for login required
+            showToast('You must be logged in to bookmark projects', 'warning');
+            return false;
+            <?php endif; ?>
+
+            // Add animation
+            button.addClass('bookmark-animate');
+            setTimeout(function() {
+                button.removeClass('bookmark-animate');
+            }, 300);
+
+            // Toggle bookmark via AJAX
+            $.ajax({
+                url: '<?php echo $_SERVER['PHP_SELF']; ?>',
+                type: 'POST',
+                data: {
+                    action: 'toggle_bookmark',
+                    project_id: projectId
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'added') {
+                        button.addClass('bookmarked');
+                        button.find('i').removeClass('bi-bookmark').addClass('bi-bookmark-fill text-primary');
+                        button.attr('title', 'Remove Bookmark');
+                        // Update count
+                        var count = parseInt(button.find('.bookmark-count').text()) + 1;
+                        button.find('.bookmark-count').text(count);
+                        showToast('Project bookmarked successfully', 'success');
+                    } else if (response.status === 'removed') {
+                        button.removeClass('bookmarked');
+                        button.find('i').removeClass('bi-bookmark-fill text-primary').addClass('bi-bookmark');
+                        button.attr('title', 'Bookmark Project');
+                        // Update count
+                        var count = parseInt(button.find('.bookmark-count').text()) - 1;
+                        button.find('.bookmark-count').text(count);
+                        showToast('Bookmark removed', 'info');
+                    } else {
+                        showToast('An error occurred', 'danger');
+                    }
+
+                    // Refresh tooltips
+                    var tooltip = bootstrap.Tooltip.getInstance(button[0]);
+                    if (tooltip) {
+                        tooltip.dispose();
+                    }
+                    new bootstrap.Tooltip(button[0]);
+                },
+                error: function() {
+                    showToast('An error occurred while processing your request', 'danger');
                 }
-                if (projectContainer) {
-                    projectContainer.style.opacity = '0.5';
-                }
-            }
-
-            // Submit form when filters change
-            if (projectTypeFilter) {
-                projectTypeFilter.addEventListener('change', function() {
-                    showLoading();
-                    filterForm.submit();
-                });
-            }
-
-            if (sortByFilter) {
-                sortByFilter.addEventListener('change', function() {
-                    showLoading();
-                    filterForm.submit();
-                });
-            }
-
-            if (bookmarkedFilter) {
-                bookmarkedFilter.addEventListener('change', function() {
-                    showLoading();
-                    filterForm.submit();
-                });
-            }
-
-            // Handle search with debounce
-            let searchTimeout;
-            if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    clearTimeout(searchTimeout);
-                    searchTimeout = setTimeout(function() {
-                        showLoading();
-                        filterForm.submit();
-                    }, 500); // Submit after 500ms of inactivity
-                });
-            }
-
-            // Handle bookmark toggle with AJAX
-            const bookmarkForms = document.querySelectorAll('.bookmark-form');
-            bookmarkForms.forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const formData = new FormData(this);
-                    const bookmarkBtn = this.querySelector('.bookmark-btn');
-
-                    fetch(window.location.href, {
-                        method: 'POST',
-                        body: formData
-                    })
-                        .then(response => response.text())
-                        .then(() => {
-                            // Toggle bookmark icon
-                            bookmarkBtn.classList.toggle('active');
-                            const icon = bookmarkBtn.querySelector('i');
-                            if (icon.classList.contains('bi-bookmark')) {
-                                icon.classList.replace('bi-bookmark', 'bi-bookmark-fill');
-                                showToast('Project added to bookmarks!', 'success');
-                            } else {
-                                icon.classList.replace('bi-bookmark-fill', 'bi-bookmark');
-                                showToast('Project removed from bookmarks!', 'info');
-                            }
-                        })
-                        .catch(error => {
-                            showToast('Error updating bookmark status.', 'danger');
-                            console.error('Error:', error);
-                        });
-                });
             });
-            // Toast notification function
-            function showToast(message, type) {
-                const toastContainer = document.querySelector('.toast-container');
-                const toastId = 'toast-' + Date.now();
+        });
 
-                const toast = document.createElement('div');
-                toast.className = `toast align-items-center border-0 bg-${type === 'success' ? 'success' : type === 'info' ? 'info' : 'danger'} text-white`;
-                toast.setAttribute('role', 'alert');
-                toast.setAttribute('aria-live', 'assertive');
-                toast.setAttribute('aria-atomic', 'true');
-                toast.setAttribute('id', toastId);
-
-                const toastContent = `
+        // Function to show toast messages
+        function showToast(message, type) {
+            var toastId = 'toast-' + Date.now();
+            var toastHtml = `
+                <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="d-flex">
                         <div class="toast-body">
-                            <i class="bi ${type === 'success' ? 'bi-check-circle' : type === 'info' ? 'bi-info-circle' : 'bi-x-circle'} me-2"></i>
                             ${message}
                         </div>
                         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
-                `;
+                </div>
+            `;
 
-                toast.innerHTML = toastContent;
-                toastContainer.appendChild(toast);
-
-                const bsToast = new bootstrap.Toast(toast, {
-                    autohide: true,
-                    delay: 3000
-                });
-
-                bsToast.show();
-
-                toast.addEventListener('hidden.bs.toast', function () {
-                    toast.remove();
-                });
-            }
-        });
-        // Handle bookmark toggle with AJAX
-        document.addEventListener('DOMContentLoaded', function() {
-            const bookmarkForms = document.querySelectorAll('.bookmark-form');
-            bookmarkForms.forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const formData = new FormData(this);
-                    const bookmarkBtn = this.querySelector('.bookmark-btn');
-
-                    fetch(window.location.href, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            // Toggle bookmark icon
-                            bookmarkBtn.classList.toggle('active');
-                            const icon = bookmarkBtn.querySelector('i');
-
-                            if (icon.classList.contains('bi-bookmark')) {
-                                icon.classList.replace('bi-bookmark', 'bi-bookmark-fill');
-                            } else {
-                                icon.classList.replace('bi-bookmark-fill', 'bi-bookmark');
-                            }
-
-                            // Show toast with the response message
-                            showToast(data.message, data.type);
-                        })
-                        .catch(error => {
-                            showToast('Error updating bookmark status.', 'danger');
-                            console.error('Error:', error);
-                        });
-                });
+            $('.toast-container').append(toastHtml);
+            var toastElement = document.getElementById(toastId);
+            var toast = new bootstrap.Toast(toastElement, {
+                autohide: true,
+                delay: 3000
             });
-        });
-    </script>
-    </body>
-    </html>
-<?php
-// Close connection
-$stmt->close();
-$conn->close();
-?>
+            toast.show();
+
+            // Remove toast from DOM after it's hidden
+            $(toastElement).on('hidden.bs.toast', function() {
+                $(this).remove();
+            });
+        }
+    });
+</script>
+</body>
+</html>
