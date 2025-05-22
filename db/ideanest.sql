@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 06, 2025 at 09:18 AM
+-- Generation Time: May 22, 2025 at 06:48 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -28,7 +28,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `admin_approved_projects` (
-  `id` int(5) NOT NULL,
+  `id` int(11) NOT NULL,
   `project_name` varchar(255) NOT NULL,
   `project_type` varchar(50) NOT NULL,
   `classification` varchar(100) DEFAULT NULL,
@@ -39,19 +39,19 @@ CREATE TABLE `admin_approved_projects` (
   `code_file_path` varchar(255) DEFAULT NULL,
   `instruction_file_path` varchar(255) DEFAULT NULL,
   `submission_date` timestamp NULL DEFAULT current_timestamp(),
-  `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending'
+  `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+  `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `admin_approved_projects`
 --
 
-INSERT INTO `admin_approved_projects` (`id`, `project_name`, `project_type`, `classification`, `description`, `language`, `image_path`, `video_path`, `code_file_path`, `instruction_file_path`, `submission_date`, `status`) VALUES
-(1, 'Arduino Project', 'hardware', 'web', 'this is my project', 'C++', 'uploads/images/WhatsApp Image 2025-03-01 at 13.13.29_3991b76d.jpg', '', '', '', '2025-03-01 23:50:01', 'approved'),
-(2, 'bhaviik', 'hardware', 'web', 'vasd', 'vda', '', '', '', '', '2025-03-01 06:41:51', 'approved'),
-(3, 'IdeaNest', 'software', 'web', 'Collaboration with your Mentors ', 'HTML, CSS, JS, PHP, MYSQL', 'uploads/images/Screenshot 2025-03-01 125741.png', 'uploads/videos/2278095-hd_1920_1080_30fps.mp4', 'uploads/code_files/.gitignore', 'uploads/instructions/11.pdf', '2025-03-01 05:37:32', 'approved'),
-(4, 'Github', 'software', 'web', 'This is a Test', 'Test13', '', '', '', '', '2025-04-06 02:51:09', 'pending'),
-(5, 'vivek', 'hardware', 'web', 'dsa', 'ac', 'uploads/images/IdeaNest_Deployment_Diagram (1).png', '', '', '', '2025-03-26 01:25:40', 'pending');
+INSERT INTO `admin_approved_projects` (`id`, `project_name`, `project_type`, `classification`, `description`, `language`, `image_path`, `video_path`, `code_file_path`, `instruction_file_path`, `submission_date`, `status`, `user_id`) VALUES
+(2, '1', 'software', 'mobile', '1', '1', NULL, NULL, NULL, NULL, '2025-05-21 00:14:23', 'approved', 61),
+(3, 'IdeaNest', 'software', 'data_science', 'deployment', 'HTML, CSS, JS, PHP, MYSQL', NULL, NULL, NULL, NULL, '2025-04-19 11:21:06', 'approved', 61),
+(4, 'IdeaNest', 'software', 'data_science', 'deployment', 'HTML, CSS, JS, PHP, MYSQL', NULL, NULL, NULL, NULL, '2025-04-19 11:21:06', 'approved', 61),
+(5, '1', 'software', 'mobile', '1', '1', NULL, NULL, NULL, NULL, '2025-05-21 00:14:23', 'approved', 61);
 
 -- --------------------------------------------------------
 
@@ -72,46 +72,64 @@ CREATE TABLE `blog` (
   `assigned_to` varchar(100) DEFAULT NULL,
   `completion_date` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `register_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `blog`
 --
 
-INSERT INTO `blog` (`id`, `er_number`, `project_name`, `project_type`, `classification`, `description`, `submission_datetime`, `status`, `priority1`, `assigned_to`, `completion_date`, `created_at`, `updated_at`) VALUES
-(1, '92200133026', 'few', 'software', 'mobileapp', 'absjbhjavks', '2025-03-22 15:19:23', 'in_progress', 'medium', 'ad', '2025-03-22', '2025-03-22 03:10:26', '2025-03-22 04:19:23'),
-(2, '92200133027', 'j', 'hardware', 'iotdevice', 'vvj', '2025-03-22 14:17:25', 'pending', 'medium', NULL, NULL, '2025-03-22 03:17:25', '2025-03-22 03:17:25'),
-(3, '92200133052', '00000', 'software', 'webapp', 'vra', '2025-03-22 16:46:22', 'in_progress', 'high', 'ad', '2025-03-22', '2025-03-22 03:38:30', '2025-03-22 05:46:22'),
-(4, '92200133027', 'j', 'software', 'webapp', 'z', '2025-03-22 14:39:32', 'completed', 'medium', 'ad', '2025-03-22', '2025-03-22 03:39:32', '2025-03-22 03:39:32'),
-(5, '92200133027', 'viv', 'hardware', 'robotics', 'sfbsb', '2025-03-22 15:29:19', 'pending', 'medium', 'sB', '2025-03-29', '2025-03-22 04:29:19', '2025-03-22 04:29:19'),
-(6, '92200133027', 'viv', 'hardware', 'robotics', 'sfbsb', '2025-03-22 15:34:27', 'pending', 'medium', 'sB', '2025-03-29', '2025-03-22 04:34:27', '2025-03-22 04:34:27'),
-(7, 'f', 'vsd', 'hardware', 'iotdevice', 'dsvvs', '2025-03-22 15:34:54', 'in_progress', 'medium', 'sd', '2025-03-27', '2025-03-22 04:34:54', '2025-03-22 04:34:54'),
-(8, '92200133026', 'few', 'hardware', 'iotdevice', 'sfz', '2025-03-22 15:39:18', 'rejected', 'low', 'wvc', NULL, '2025-03-22 04:39:18', '2025-03-22 04:39:18'),
-(9, '92200133026', 'viv', 'software', 'mobileapp', 'fs', '2025-03-22 15:48:36', 'in_progress', 'low', 'cd', '2025-03-21', '2025-03-22 04:48:36', '2025-03-22 04:48:36'),
-(10, '92200133027', 'viv', 'software', 'webapp', 'a', '2025-03-22 16:39:37', 'pending', 'medium', '', NULL, '2025-03-22 05:39:37', '2025-03-22 05:39:37'),
-(11, '92200133026', 'dcs', 'software', 'desktopapp', 'sd', '2025-03-22 16:42:23', 'in_progress', 'low', '', NULL, '2025-03-22 05:42:23', '2025-03-22 05:42:23');
+INSERT INTO `blog` (`id`, `er_number`, `project_name`, `project_type`, `classification`, `description`, `submission_datetime`, `status`, `priority1`, `assigned_to`, `completion_date`, `created_at`, `updated_at`, `register_id`) VALUES
+(1, '92200133041', 'Dhruvi', 'hardware', 'robotics', 'this is just a test case for each user', '2025-05-21 13:56:39', 'pending', 'high', 'me and priyanshi', '1999-12-09', '2025-05-21 08:26:39', '2025-05-21 08:26:39', 62),
+(2, '92200133002', 'harsh', 'software', 'game', 'this is just a test case for each user', '2025-05-21 13:58:52', 'pending', 'medium', 'me alon', '2025-01-11', '2025-05-21 08:28:52', '2025-05-21 08:28:52', 63),
+(3, '92200133040', 'this is just a test case for each user', 'software', 'ai_ml', 'this is just a test case for each user', '2025-05-21 14:00:34', 'rejected', 'low', 'umang', '2025-01-22', '2025-05-21 08:30:34', '2025-05-21 08:30:34', 64),
+(4, '92200133016', 'test case', 'hardware', 'automation', 'this is just a test case for each user', '2025-05-21 14:02:21', 'in_progress', 'medium', 'this is just a test case for each user', '2025-05-05', '2025-05-21 08:32:22', '2025-05-21 08:32:22', 65),
+(5, '92200133027', 'tesing this function', 'hardware', 'wearable', 'this is just a test case for each user', '2025-05-21 14:04:12', 'rejected', 'medium', 'me', '2024-06-06', '2025-05-21 08:34:12', '2025-05-21 08:34:12', 66);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `bookmark`
+-- Table structure for table `denial_projects`
 --
 
-CREATE TABLE `bookmark` (
+CREATE TABLE `denial_projects` (
   `id` int(11) NOT NULL,
-  `project_id` int(11) NOT NULL,
-  `user_id` varchar(255) NOT NULL,
-  `idea_id` int(11) DEFAULT 0,
-  `bookmarked_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `user_id` int(15) NOT NULL,
+  `project_name` varchar(255) NOT NULL,
+  `project_type` varchar(50) NOT NULL,
+  `classification` varchar(100) DEFAULT NULL,
+  `description` text NOT NULL,
+  `language` varchar(100) NOT NULL,
+  `image_path` varchar(255) DEFAULT NULL,
+  `video_path` varchar(255) DEFAULT NULL,
+  `code_file_path` varchar(255) DEFAULT NULL,
+  `instruction_file_path` varchar(255) DEFAULT NULL,
+  `submission_date` timestamp NULL DEFAULT current_timestamp(),
+  `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+  `rejection_date` datetime DEFAULT NULL,
+  `rejection_reason` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `bookmark`
+-- Dumping data for table `denial_projects`
 --
 
-INSERT INTO `bookmark` (`id`, `project_id`, `user_id`, `idea_id`, `bookmarked_at`) VALUES
-(1, 1, '6ilreg4qmldhnhkm89982dq455', 0, '2025-03-26 05:07:37');
+INSERT INTO `denial_projects` (`id`, `user_id`, `project_name`, `project_type`, `classification`, `description`, `language`, `image_path`, `video_path`, `code_file_path`, `instruction_file_path`, `submission_date`, `status`, `rejection_date`, `rejection_reason`) VALUES
+(1, 65, 'mallahar', 'hardware', 'power', 'this is just a test case for each user', 'this is just a test case for each user', NULL, NULL, NULL, NULL, '2025-05-21 05:01:39', 'rejected', '2025-05-21 14:16:15', 'just because this is mallhar\'s project ');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `idea_bookmarks`
+--
+
+CREATE TABLE `idea_bookmarks` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `idea_id` int(11) NOT NULL,
+  `bookmarked_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -125,13 +143,6 @@ CREATE TABLE `login` (
   `password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `login`
---
-
-INSERT INTO `login` (`id`, `email`, `password`) VALUES
-(1, 'viveksinhchavda@gmail.com', '$2y$10$wFnaiYlO0rMZLGh52kEmiOF8VMPjl6FCEohD.F5C/KiFBnLITW7ta');
-
 -- --------------------------------------------------------
 
 --
@@ -139,7 +150,7 @@ INSERT INTO `login` (`id`, `email`, `password`) VALUES
 --
 
 CREATE TABLE `projects` (
-  `id` int(5) NOT NULL,
+  `id` int(11) NOT NULL,
   `user_id` int(15) NOT NULL,
   `project_name` varchar(255) NOT NULL,
   `project_type` varchar(50) NOT NULL,
@@ -159,8 +170,13 @@ CREATE TABLE `projects` (
 --
 
 INSERT INTO `projects` (`id`, `user_id`, `project_name`, `project_type`, `classification`, `description`, `language`, `image_path`, `video_path`, `code_file_path`, `instruction_file_path`, `submission_date`, `status`) VALUES
-(3, 8, 'vivek', 'hardware', 'iot', 'gewG', 'FSB', NULL, NULL, NULL, NULL, '2025-04-06 03:25:05', 'pending'),
-(4, 7, '123', 'software', 'web', 'EFC', 'EC', NULL, NULL, NULL, NULL, '2025-04-06 03:27:18', 'pending');
+(2, 61, 'IdeaNest', 'software', 'data_science', 'deployment', 'HTML, CSS, JS, PHP, MYSQL', NULL, NULL, NULL, NULL, '2025-04-19 11:21:06', 'approved'),
+(3, 61, '1', 'software', 'mobile', '1', '1', NULL, NULL, NULL, NULL, '2025-05-21 00:14:23', 'approved'),
+(4, 62, 'business', 'software', 'mobile', 'test', 'test', NULL, NULL, NULL, NULL, '2025-05-21 04:55:11', 'pending'),
+(5, 63, 'Harsh', 'hardware', 'power', 'this is just a test case for each user', 'test', NULL, NULL, NULL, NULL, '2025-05-21 04:58:00', 'pending'),
+(6, 64, 'this is just a test case for each user', 'hardware', 'sensor', 'this is just a test case for each user', 'this is just a test case for each user', NULL, NULL, NULL, NULL, '2025-05-21 04:59:47', 'pending'),
+(7, 65, 'mallahar', 'hardware', 'power', 'this is just a test case for each user', 'this is just a test case for each user', NULL, NULL, NULL, NULL, '2025-05-21 05:01:39', 'rejected'),
+(8, 66, 'rishit', 'software', 'cybersecurity', 'this is just a test case for each user', 'tase case', NULL, NULL, NULL, NULL, '2025-05-21 05:03:26', 'pending');
 
 -- --------------------------------------------------------
 
@@ -184,14 +200,30 @@ CREATE TABLE `register` (
 --
 
 INSERT INTO `register` (`id`, `name`, `email`, `enrollment_number`, `gr_number`, `password`, `about`, `user_image`) VALUES
-(7, 'Vivek Chavda', 'vivek.chavda119486@marwadiuniversity.ac.in', '92200133026', '119486', '$2y$10$X6u9dGCmkn/gXMsUDJdjaeCWyNT.of8Rpi/V47eWKMqJqMPnAjG/K', '', ''),
-(8, 'Vivek Chavda', 'bhavik@marwadiuniversity.ac.in', '92200133027', '253163', '$2y$10$ufcxPIuvhe0LYqMNtw6n0eFTLlfBbbGh9oVnqI.IDF7nYHyIOH2Ka', '', ''),
-(10, 'ViveChavda', 'vive6@marwadiuniversity.ac.in', '922001330244', '526321', '$2y$10$yhbg99gU4ApxumEuK0niwuw3xruw0Vh/539csDaoYJKr69XDUQq32', '', ''),
-(11, 'bhavik kaladiya', 'bhavik.kaladiya@marwadiuniversity.ac.in', '92310133008', '121187', '$2y$10$Qu8HbKhhUWAESV0iOsaqPe.z8fKPhJ92elXSabRVNEmH5R03L38Z2', '', ''),
-(12, 'github', 'vivek@marwadiuniversity.edu.in', '565656', '123456', '$2y$10$PBOpuEAEgFUcFDj2gMhji.oJIthBZpfD9cubUZ9b/kevyi5LnCJQu', '', ''),
-(13, 'Rohan', 'rohanroy.121022@marwadiuniversity.ac.in', '92310133003', '111111', '$2y$10$.bk2fgklT//M5sdxRrzy0e8pjDW5.bBUZxOe6sh3UvK.M8B.rIgXa', '', ''),
-(14, 'Neel kumar', 'neel.rayani123452@marwadiuniversity.ac.in', '92310133019', '123452', '$2y$10$DEMahNeMkP4TpQBBoQJuTOE4InSpNwa.scW0A8xjXBNfknKct.m0O', 'i am in sem 6 5TK1', 'uploads/profile_images/user_14_1742689001.png'),
-(15, 'github', 'github@marwadiuniversity.ac.in', '92200133024', '123789', '$2y$10$.mCbmDSd2A02hly2wT1Rhu42cNy7b/GfjC1p6TB74Xfr1PTZMs8WO', '', '');
+(61, 'vivek chavda', 'vivek.chavda119486@marwadiuniversity.ac.in', '92200133026', '119486', '$2y$10$n7v4FIYXewWPq3VZERRoVOZr20I4k4.xwygJr5DNUHS330j6ehpnW', '', '0'),
+(62, 'dhruvi', 'dhruvi@marwadiuniversity.ac.in', '92200133041', '867132', '$2y$10$gYTahB4DwC5J8c2Y2KzkAeV/T6yofzLu2PuVMsnONUCDf3I8gSXr6', '', ''),
+(63, 'harsh doshi', 'harsh@marwadiuniversity.ac.in', '92200133002', '126598', '$2y$10$SOLukju9cEXcg0bXaWL.BeL7djeE86uKnR5xM.bITXjYaLLCHpBZm', '', ''),
+(64, 'jay', 'jay @marwadiuniversity.ac.in', '92200133040', '984651', '$2y$10$3icYsYU/xt7jaSm.Dh5/cuFydkIcNQdW4KDJpKY9oV/Msx8WBMkOC', '', ''),
+(65, 'Malharkrishna', 'mahllar@marwadiuniversity.ac.in', '92200133016', '978465', '$2y$10$UjsPoOEsew5TnVEfuxkaiuBKnHEvtYVeM8GlOLGq3mwZOV8efcUaa', '', ''),
+(66, 'rishit', 'rishit@marwadiuniversity.ac.in', '92200133027', '156489', '$2y$10$kSVO9FiTGCP0PzQ0mtcuz.bNf0iuA2oKXXzvwEfCcYvG/fnfPf84C', '', ''),
+(67, 'harshvardhan', 'harshvardhan@marwadiuniversity.ac.in', '92200133028', '146851', '$2y$10$ONZpFfeAXDh/s9twb4/ofesHIKo2wSbB.utISc6AsrUNjoxW1d2Di', '', '');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `removed_user`
+--
+
+CREATE TABLE `removed_user` (
+  `id` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `email` text NOT NULL,
+  `enrollment_number` bigint(12) NOT NULL,
+  `gr_number` int(7) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `about` varchar(254) NOT NULL,
+  `user_image` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -208,6 +240,27 @@ CREATE TABLE `users` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_bookmarks`
+--
+
+CREATE TABLE `user_bookmarks` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `project_id` int(11) NOT NULL,
+  `bookmarked_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_bookmarks`
+--
+
+INSERT INTO `user_bookmarks` (`id`, `user_id`, `project_id`, `bookmarked_at`) VALUES
+(5, 61, 1, '2025-04-19 19:09:02'),
+(6, 61, 5, '2025-05-21 09:19:32');
+
 --
 -- Indexes for dumped tables
 --
@@ -216,7 +269,8 @@ CREATE TABLE `users` (
 -- Indexes for table `admin_approved_projects`
 --
 ALTER TABLE `admin_approved_projects`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_user_id` (`user_id`);
 
 --
 -- Indexes for table `blog`
@@ -226,14 +280,22 @@ ALTER TABLE `blog`
   ADD KEY `idx_er_number` (`er_number`),
   ADD KEY `idx_project_type` (`project_type`),
   ADD KEY `idx_classification` (`classification`),
-  ADD KEY `idx_status` (`status`);
+  ADD KEY `idx_status` (`status`),
+  ADD KEY `fk_register_blog` (`register_id`);
 
 --
--- Indexes for table `bookmark`
+-- Indexes for table `denial_projects`
 --
-ALTER TABLE `bookmark`
+ALTER TABLE `denial_projects`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `idea_bookmarks`
+--
+ALTER TABLE `idea_bookmarks`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_bookmark` (`project_id`,`user_id`);
+  ADD UNIQUE KEY `unique_bookmark` (`user_id`,`idea_id`),
+  ADD KEY `idea_id` (`idea_id`);
 
 --
 -- Indexes for table `login`
@@ -246,7 +308,8 @@ ALTER TABLE `login`
 -- Indexes for table `projects`
 --
 ALTER TABLE `projects`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `register`
@@ -255,7 +318,17 @@ ALTER TABLE `register`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`),
   ADD UNIQUE KEY `er_number` (`enrollment_number`),
-  ADD UNIQUE KEY `gr_number` (`gr_number`);
+  ADD UNIQUE KEY `gr_number` (`gr_number`),
+  ADD KEY `idx_user_search` (`name`,`email`);
+
+--
+-- Indexes for table `removed_user`
+--
+ALTER TABLE `removed_user`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `enrollment_number_idx` (`enrollment_number`),
+  ADD UNIQUE KEY `email` (`email`,`enrollment_number`,`gr_number`) USING HASH,
+  ADD UNIQUE KEY `email_2` (`email`,`enrollment_number`,`gr_number`) USING HASH;
 
 --
 -- Indexes for table `users`
@@ -265,6 +338,13 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+-- Indexes for table `user_bookmarks`
+--
+ALTER TABLE `user_bookmarks`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_id` (`user_id`,`project_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -272,37 +352,49 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `admin_approved_projects`
 --
 ALTER TABLE `admin_approved_projects`
-  MODIFY `id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `blog`
 --
 ALTER TABLE `blog`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- AUTO_INCREMENT for table `bookmark`
+-- AUTO_INCREMENT for table `denial_projects`
 --
-ALTER TABLE `bookmark`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+ALTER TABLE `denial_projects`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `idea_bookmarks`
+--
+ALTER TABLE `idea_bookmarks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `login`
 --
 ALTER TABLE `login`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `register`
 --
 ALTER TABLE `register`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
+
+--
+-- AUTO_INCREMENT for table `removed_user`
+--
+ALTER TABLE `removed_user`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -311,14 +403,40 @@ ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `user_bookmarks`
+--
+ALTER TABLE `user_bookmarks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
 -- Constraints for dumped tables
 --
 
 --
--- Constraints for table `bookmark`
+-- Constraints for table `admin_approved_projects`
 --
-ALTER TABLE `bookmark`
-  ADD CONSTRAINT `bookmark_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `admin_approved_projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `admin_approved_projects`
+  ADD CONSTRAINT `fk_approved_projects_user_id` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`),
+  ADD CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `blog`
+--
+ALTER TABLE `blog`
+  ADD CONSTRAINT `fk_register_blog` FOREIGN KEY (`register_id`) REFERENCES `register` (`id`);
+
+--
+-- Constraints for table `idea_bookmarks`
+--
+ALTER TABLE `idea_bookmarks`
+  ADD CONSTRAINT `idea_bookmarks_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`),
+  ADD CONSTRAINT `idea_bookmarks_ibfk_2` FOREIGN KEY (`idea_id`) REFERENCES `blog` (`id`);
+
+--
+-- Constraints for table `projects`
+--
+ALTER TABLE `projects`
+  ADD CONSTRAINT `user_id` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

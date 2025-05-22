@@ -806,7 +806,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="team-card">
                         <div class="team-img-container">
-                            <img src="me 4.png" class="team-img" alt="Bhavik Kaladiya">
+                            <img src="me.jpeg" class="team-img" alt="Bhavik Kaladiya">
                         </div>
                         <div class="team-info">
                             <h4>Bhavik Kaladiya</h4>

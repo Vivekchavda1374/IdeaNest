@@ -24,7 +24,7 @@ $blogResult = $conn->query($blogSql);
 $blogRow = $blogResult->fetch_assoc();
 $blogCount = $blogRow['blog_count'];
 
-$bookMarkSql = "SELECT COUNT(*) AS bookmark_count FROM bookmark";
+$bookMarkSql = "SELECT COUNT(*) AS bookmark_count FROM user_bookmarks";
 $bookMarkResult = $conn->query($bookMarkSql);
 $bookMarkRow = $bookMarkResult->fetch_assoc();
 $bookMarkCount = $bookMarkRow['bookmark_count'];
@@ -82,13 +82,13 @@ $conn->close();
             </a>
         </li>
         <li>
-            <a href="../Admin/user_project_search.php">
+            <a href="user_project_search.php">
                 <i class="fas fa-project-diagram"></i>
                 <span>Projects</span>
             </a>
         </li>
         <li>
-            <a href="./Blog/list-project.php">
+            <a href="Blog/idea_dashboard.php">
                 <i class="fas fa-file-alt"></i>
                 <span>Idea Posts</span>
             </a>
@@ -100,7 +100,7 @@ $conn->close();
             </a>
         </li>
         <li>
-            <a href="../bksony/bookmark/bookmark.php">
+            <a href="bookmarks.php">
                 <i class="fas fa-bookmark"></i>
                 <span>Bookmarks</span>
             </a>
@@ -110,6 +110,13 @@ $conn->close();
             <a href="user_profile_setting.php">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
+            </a>
+        </li>
+        
+        <li>
+            <a href="Blog/idea_bookmarks.php">
+                <i class="fas fa-bookmark"></i>
+                <span>Idea Bookmarks</span>
             </a>
         </li>
     </ul>
@@ -136,6 +143,17 @@ $conn->close();
 
             <!-- Right-side menu items -->
             <ul class="navbar-nav ms-auto align-items-center">
+             <!-- Message Notification -->
+                <li class="nav-item ms-2 position-relative">
+                    <a href="messages.php" class="nav-link">
+                        <i class="fas fa-envelope"></i>
+                        <span id="unreadMessageBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">
+                            0
+                            <span class="visually-hidden">unread messages</span>
+                        </span>
+                    </a>
+                </li>
+
              <!-- User Profile Dropdown -->
                 <li class="nav-item dropdown ms-2">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -320,6 +338,26 @@ include './forms/progressbar_idea.php';
                 fetchResults();
             }
         });
+
+        // Function to check unread messages
+        function checkUnreadMessages() {
+            fetch('get_unread_messages.php')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('unreadMessageBadge');
+                    if (data.success && data.unread_count > 0) {
+                        badge.textContent = data.unread_count;
+                        badge.style.display = 'block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Check unread messages on page load and every 5 minutes
+        document.addEventListener('DOMContentLoaded', checkUnreadMessages);
+        setInterval(checkUnreadMessages, 5 * 60 * 1000);
     </script>
 </body>
 </html>
