@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="modified ui in recent activities">
-      <change afterPath="$PROJECT_DIR$/Admin/setting.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin/admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/admin.php" afterDir="false" />
-    </list>
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -70,7 +66,7 @@
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/xampp/htdocs/project/IdeaNest/Admin&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/xampp/htdocs/IdeaNest&quot;,
     &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -88,16 +84,17 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\xampp\htdocs\IdeaNest" />
       <recent name="C:\xampp\htdocs\project\IdeaNest\Admin" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Admin" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\user\forms" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\xampp\htdocs\project\IdeaNest\Login\Login" />
+      <recent name="C:\xampp\htdocs\project\IdeaNest\user" />
       <recent name="C:\xampp\htdocs\project\IdeaNest\Admin" />
       <recent name="C:\xampp\htdocs\project\IdeaNest\assets" />
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest" />
-      <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login" />
-      <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\Login\Signup" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -159,151 +156,20 @@
       <workItem from="1744707190012" duration="1601000" />
       <workItem from="1744708817665" duration="37000" />
       <workItem from="1744769958025" duration="9375000" />
-      <workItem from="1744781878702" duration="5882000" />
-    </task>
-    <task id="LOCAL-00003" summary="backend login/register done">
-      <option name="closed" value="true" />
-      <created>1740560939407</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1740560939407</updated>
-    </task>
-    <task id="LOCAL-00004" summary="changes done">
-      <option name="closed" value="true" />
-      <created>1740804538568</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1740804538568</updated>
-    </task>
-    <task id="LOCAL-00005" summary="changes done">
-      <option name="closed" value="true" />
-      <created>1740804858212</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1740804858212</updated>
-    </task>
-    <task id="LOCAL-00006" summary="changes done">
-      <option name="closed" value="true" />
-      <created>1740805144675</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1740805144676</updated>
-    </task>
-    <task id="LOCAL-00007" summary="login and register pages added with email id validation and database connected">
-      <option name="closed" value="true" />
-      <created>1740807316242</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1740807316242</updated>
-    </task>
-    <task id="LOCAL-00008" summary="dashboard ui design">
-      <option name="closed" value="true" />
-      <created>1740809246977</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1740809246977</updated>
-    </task>
-    <task id="LOCAL-00009" summary="dashboard ui design modified">
-      <option name="closed" value="true" />
-      <created>1740811522749</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1740811522749</updated>
-    </task>
-    <task id="LOCAL-00010" summary="dashboard ui design modified">
-      <option name="closed" value="true" />
-      <created>1740811746702</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1740811746702</updated>
-    </task>
-    <task id="LOCAL-00011" summary="dashboard ui design modified">
-      <option name="closed" value="true" />
-      <created>1740813430736</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1740813430736</updated>
-    </task>
-    <task id="LOCAL-00012" summary="dashboard ui design modified - final done">
-      <option name="closed" value="true" />
-      <created>1740813478486</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1740813478486</updated>
-    </task>
-    <task id="LOCAL-00013" summary="form added for new projects">
-      <option name="closed" value="true" />
-      <created>1740817918990</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1740817918990</updated>
-    </task>
-    <task id="LOCAL-00014" summary="form validation completed">
-      <option name="closed" value="true" />
-      <created>1740821863238</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1740821863238</updated>
-    </task>
-    <task id="LOCAL-00015" summary="form validation completed">
-      <option name="closed" value="true" />
-      <created>1740821875108</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1740821875108</updated>
-    </task>
-    <task id="LOCAL-00016" summary="dynamic project view and next some project view done">
-      <option name="closed" value="true" />
-      <created>1740828856874</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1740828856874</updated>
-    </task>
-    <task id="LOCAL-00017" summary="dynamic project view and next some project view done">
-      <option name="closed" value="true" />
-      <created>1740829368343</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1740829368343</updated>
-    </task>
-    <task id="LOCAL-00018" summary="modified code done">
-      <option name="closed" value="true" />
-      <created>1740829570028</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1740829570028</updated>
-    </task>
-    <task id="LOCAL-00019" summary="login error done">
-      <option name="closed" value="true" />
-      <created>1740830231830</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1740830231830</updated>
-    </task>
-    <task id="LOCAL-00020" summary="login error done-final done">
-      <option name="closed" value="true" />
-      <created>1740831468756</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1740831468756</updated>
+      <workItem from="1744781878702" duration="13803000" />
+      <workItem from="1744814549388" duration="1078000" />
+      <workItem from="1744817754563" duration="5308000" />
+      <workItem from="1744970206610" duration="603000" />
+      <workItem from="1745038613665" duration="11499000" />
+      <workItem from="1745052465895" duration="12763000" />
+      <workItem from="1745067031867" duration="76000" />
+      <workItem from="1745069708188" duration="3452000" />
+      <workItem from="1747798936104" duration="2585000" />
+      <workItem from="1747815690399" duration="1214000" />
+      <workItem from="1747884047523" duration="1973000" />
+      <workItem from="1747886052917" duration="44000" />
+      <workItem from="1747886185470" duration="200000" />
+      <workItem from="1747887078761" duration="1505000" />
     </task>
     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
       <option name="closed" value="true" />
@@ -553,7 +419,151 @@
       <option name="project" value="LOCAL" />
       <updated>1744788331968</updated>
     </task>
-    <option name="localTasksCounter" value="52" />
+    <task id="LOCAL-00052" summary="filter working done">
+      <option name="closed" value="true" />
+      <created>1744790260407</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1744790260407</updated>
+    </task>
+    <task id="LOCAL-00053" summary="ui modified in book mark page">
+      <option name="closed" value="true" />
+      <created>1744794087437</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1744794087437</updated>
+    </task>
+    <task id="LOCAL-00054" summary="user search page error solve and remove and restore working successfully">
+      <option name="closed" value="true" />
+      <created>1744794143892</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1744794143893</updated>
+    </task>
+    <task id="LOCAL-00055" summary="now admin can see rejected idea also in admin view page">
+      <option name="closed" value="true" />
+      <created>1744797513011</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1744797513011</updated>
+    </task>
+    <task id="LOCAL-00056" summary="logout page successfully worked in admin panel">
+      <option name="closed" value="true" />
+      <created>1744797927532</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1744797927532</updated>
+    </task>
+    <task id="LOCAL-00057" summary="error solved successfully">
+      <option name="closed" value="true" />
+      <created>1744815628110</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1744815628110</updated>
+    </task>
+    <task id="LOCAL-00058" summary="remove pages">
+      <option name="closed" value="true" />
+      <created>1744822329465</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1744822329465</updated>
+    </task>
+    <task id="LOCAL-00059" summary="user setting and user project page improved with ui">
+      <option name="closed" value="true" />
+      <created>1744822358330</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1744822358330</updated>
+    </task>
+    <task id="LOCAL-00060" summary="multiple page improved ui and changes in admin panel and approved project">
+      <option name="closed" value="true" />
+      <created>1744822400006</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1744822400006</updated>
+    </task>
+    <task id="LOCAL-00061" summary="admin session management done">
+      <option name="closed" value="true" />
+      <created>1745041381867</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1745041381867</updated>
+    </task>
+    <task id="LOCAL-00062" summary="all pages improved">
+      <option name="closed" value="true" />
+      <created>1745045506094</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1745045506094</updated>
+    </task>
+    <task id="LOCAL-00063" summary="user setting page new file added : my projects">
+      <option name="closed" value="true" />
+      <created>1745046233077</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1745046233077</updated>
+    </task>
+    <task id="LOCAL-00064" summary="login page improved">
+      <option name="closed" value="true" />
+      <created>1745050976983</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1745050976983</updated>
+    </task>
+    <task id="LOCAL-00065" summary="user setting page updated with edit and view button">
+      <option name="closed" value="true" />
+      <created>1745053844831</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1745053844832</updated>
+    </task>
+    <task id="LOCAL-00066" summary="user setting page updated with edit and view button">
+      <option name="closed" value="true" />
+      <created>1745054400005</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1745054400005</updated>
+    </task>
+    <task id="LOCAL-00067" summary="all file modified">
+      <option name="closed" value="true" />
+      <created>1745063473302</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1745063473302</updated>
+    </task>
+    <task id="LOCAL-00068" summary="bookmark working successfully">
+      <option name="closed" value="true" />
+      <created>1745065681176</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1745065681176</updated>
+    </task>
+    <task id="LOCAL-00069" summary="bookmark working successfully">
+      <option name="closed" value="true" />
+      <created>1745067095309</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1745067095311</updated>
+    </task>
+    <option name="localTasksCounter" value="70" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -571,22 +581,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add successfully idea management system" />
-    <MESSAGE value="remove error successfully" />
-    <MESSAGE value="blog table added" />
-    <MESSAGE value="serch file added" />
-    <MESSAGE value="login admin done and" />
-    <MESSAGE value="project page add with pending request" />
-    <MESSAGE value="progressbar for idea page added" />
-    <MESSAGE value="progressbar for idea page added &#10;index page modified" />
-    <MESSAGE value="book mark project working well. error show because of id is not auto increment" />
-    <MESSAGE value=" project working well. error show because of id is not auto increment" />
-    <MESSAGE value="Typo error removed" />
-    <MESSAGE value="admin page code improved with php" />
-    <MESSAGE value="admin page error solved successfully 1. admin view reject and approved project error solve successfully" />
-    <MESSAGE value="admin page error solved successfully 1. admin view reject and approved project error solve successfully 2. user management working and error removed in admin.php" />
-    <MESSAGE value="new page added with admin view all projects" />
-    <MESSAGE value="dymanic book mark card successfully changes and show real time data" />
     <MESSAGE value="progressbar data successfully change with admin approved project" />
     <MESSAGE value="user management site work well with same style and also changed in admin site" />
     <MESSAGE value="admin user management  page improved" />
@@ -596,6 +590,22 @@
     <MESSAGE value="mail system successfully added" />
     <MESSAGE value="mail system successfully added update : modified ui in mail system" />
     <MESSAGE value="modified ui in recent activities" />
-    <option name="LAST_COMMIT_MESSAGE" value="modified ui in recent activities" />
+    <MESSAGE value="filter working done" />
+    <MESSAGE value="ui modified in book mark page" />
+    <MESSAGE value="user search page error solve and remove and restore working successfully" />
+    <MESSAGE value="now admin can see rejected idea also in admin view page" />
+    <MESSAGE value="logout page successfully worked in admin panel" />
+    <MESSAGE value="error solved successfully" />
+    <MESSAGE value="remove pages" />
+    <MESSAGE value="user setting and user project page improved with ui" />
+    <MESSAGE value="multiple page improved ui and changes in admin panel and approved project" />
+    <MESSAGE value="admin session management done" />
+    <MESSAGE value="all pages improved" />
+    <MESSAGE value="user setting page new file added : my projects" />
+    <MESSAGE value="login page improved" />
+    <MESSAGE value="user setting page updated with edit and view button" />
+    <MESSAGE value="all file modified" />
+    <MESSAGE value="bookmark working successfully" />
+    <option name="LAST_COMMIT_MESSAGE" value="bookmark working successfully" />
   </component>
 </project>

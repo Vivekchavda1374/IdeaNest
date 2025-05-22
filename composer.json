@@ -1,24 +1,12 @@
 {
-    "name": "ideanest/project-management",
-    "description": "A comprehensive web application for student project management and collaboration.",
+    "name": "ideanest/student-project-management",
+    "description": "A web application for student project management and collaboration",
     "type": "project",
     "license": "proprietary",
-    "keywords": [
-        "student",
-        "project",
-        "management",
-        "web application"
-    ],
-    "homepage": "https://github.com/yourusername/ideanest",
-    "support": {
-        "issues": "https://github.com/yourusername/ideanest/issues",
-        "source": "https://github.com/yourusername/ideanest"
-    },
     "authors": [
         {
             "name": "IdeaNest Development Team",
-            "email": "contact@ideanest.com",
-            "role": "Developer"
+            "role": "Developers"
         }
     ],
     "require": {
@@ -33,13 +21,9 @@
             "IdeaNest\\": "src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "IdeaNest\\Tests\\": "tests/"
-        }
-    },
     "scripts": {
-        "test": "phpunit tests"
+        "test": "phpunit tests",
+        "validate": "composer validate --strict"
     },
     "config": {
         "platform": {
@@ -47,7 +31,7 @@
         },
         "preferred-install": {
             "*": "dist"
-        }
+    }
     },
     "minimum-stability": "stable",
     "prefer-stable": true

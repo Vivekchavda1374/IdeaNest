@@ -1,11 +1,22 @@
 <?php
 include "../Login/Login/db.php";
+require_once('../Login/Login/admin_auth.php');
 
 // Try multiple paths to find the vendor autoloader
 $possible_paths = [
-    require_once 'D:/study/study/sem6/HCD/Student Project/IdeaNest/vendor/phpmailer/phpmailer/src/Exception.php',
-    require_once 'D:/study/study/sem6/HCD/Student Project/IdeaNest/vendor/phpmailer/phpmailer/src/PHPMailer.php',
-    require_once 'D:/study/study/sem6/HCD/Student Project/IdeaNest/vendor/phpmailer/phpmailer/src/SMTP.php',
+    // vivek
+     require_once 'D:/study/study/sem6/HCD/Student Project/IdeaNest/vendor/phpmailer/phpmailer/src/Exception.php',
+     require_once 'D:/study/study/sem6/HCD/Student Project/IdeaNest/vendor/phpmailer/phpmailer/src/PHPMailer.php',
+     require_once 'D:/study/study/sem6/HCD/Student Project/IdeaNest/vendor/phpmailer/phpmailer/src/SMTP.php',
+
+
+
+//    // bk sony
+//    // require_once 'C:\xampp\htdocs\HDC\IdeaNest\Admin\project_notification.php',
+//    require_once 'C:/xampp/htdocs/HDC/IdeaNest/vendor/phpmailer/phpmailer/src/Exception.php',
+//    require_once 'C:/xampp/htdocs/HDC/IdeaNest/vendor/phpmailer/phpmailer/src/PHPMailer.php',
+//    require_once 'C:/xampp/htdocs/HDC/IdeaNest/vendor/phpmailer/phpmailer/src/SMTP.php',
+    
 
     $_SERVER['DOCUMENT_ROOT'] . '/project/IdeaNest/vendor/autoload.php',
     'vendor/autoload.php',

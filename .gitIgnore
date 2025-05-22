@@ -1,0 +1,8 @@
+vendor
+composer.json
+composer.lock
+composer.phar
+idea\workspace.xml
+bksony
+db
+.idea

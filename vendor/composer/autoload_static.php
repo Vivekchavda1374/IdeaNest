@@ -17,6 +17,11 @@ class ComposerStaticInit77aa61a4d6b96e7b495e19fa74ac677c
             'PhpParser\\' => 10,
             'PHPMailer\\PHPMailer\\' => 20,
         ),
+        'I' => 
+        array (
+            'IdeaNest\\Tests\\' => 15,
+            'IdeaNest\\' => 9,
+        ),
         'D' => 
         array (
             'Doctrine\\Instantiator\\' => 22,
@@ -32,6 +37,14 @@ class ComposerStaticInit77aa61a4d6b96e7b495e19fa74ac677c
         'PHPMailer\\PHPMailer\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
+        ),
+        'IdeaNest\\Tests\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/tests',
+        ),
+        'IdeaNest\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
         ),
         'Doctrine\\Instantiator\\' => 
         array (

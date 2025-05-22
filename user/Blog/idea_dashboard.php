@@ -11,213 +11,230 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
     :root {
-        --primary-color: #3a86ff;
-        --secondary-color: #8338ec;
-        --success-color: #38b000;
-        --warning-color: #ffbe0b;
-        --danger-color: #ff006e;
-        --info-color: #3a86ff;
-        --light-color: #f8f9fa;
-        --dark-color: #343a40;
+        --primary-color: #4361ee;
+        --primary-light: rgba(67, 97, 238, 0.1);
+        --primary-dark: #fbfbff;
+        --secondary-color: #f50057;
+        --success-color: #10b981;
+        --success-light: rgba(16, 185, 129, 0.1);
+        --warning-color: #f59e0b;
+        --warning-light: rgba(245, 158, 11, 0.1);
+        --danger-color: #ef4444;
+        --danger-light: rgba(239, 68, 68, 0.1);
+        --info-color: #0ea5e9;
+        --info-light: rgba(14, 165, 233, 0.1);
+        --light-bg: #f8fafc;
+        --dark-text: #1e293b;
+        --light-text: #64748b;
+        --gray-100: #f1f5f9;
+        --gray-200: #e2e8f0;
+        --gray-300: #cbd5e1;
+        --gray-400: #94a3b8;
+        --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        --card-hover-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
+        --border-radius: 0.75rem;
+        --border-radius-sm: 0.5rem;
+        --font-primary: 'Inter', sans-serif;
     }
 
     body {
-        background-color: #f8f9fa;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--light-bg);
+        font-family: var(--font-primary);
+        color: var(--dark-text);
+        line-height: 1.6;
     }
 
     .dashboard-container {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 20px;
+        padding: 1.5rem;
     }
 
     .page-header {
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        color: white;
-        padding: 30px;
-        border-radius: 15px;
-        margin-bottom: 30px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--card-shadow);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .page-header h1 {
+        margin-bottom: 0.5rem;
+        color: var(--dark-text);
+        font-weight: 700;
     }
 
     .stats-card {
-        border-radius: 15px;
-        border: none;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-        transition: transform 0.3s ease;
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 1.25rem;
+        box-shadow: var(--card-shadow);
+        transition: var(--transition);
         height: 100%;
     }
 
     .stats-card:hover {
         transform: translateY(-5px);
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    .stats-card .category-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+
+    .stats-card h3 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .stats-card p {
+        color: var(--light-text);
+        font-size: 0.9rem;
+    }
+
+    .filter-container {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--card-shadow);
     }
 
     .category-tab {
-        cursor: pointer;
-        border-radius: 8px;
-        padding: 12px 20px;
-        transition: all 0.3s ease;
-        margin: 0 5px;
+        border-radius: var(--border-radius-sm);
+        padding: 0.75rem 1.25rem;
+        margin: 0 0.5rem;
         font-weight: 600;
+        transition: var(--transition);
+        border: 1px solid var(--gray-200);
+        color: var(--light-text);
     }
 
     .category-tab.active {
         background-color: var(--primary-color);
         color: white;
+        border-color: var(--primary-color);
     }
 
     .project-card {
-        border-radius: 12px;
-        border: none;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        margin-bottom: 20px;
-        overflow: hidden;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        transition: var(--transition);
+        height: 100%;
+        border: 1px solid var(--gray-200);
     }
 
     .project-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+        box-shadow: var(--card-hover-shadow);
     }
 
     .project-card .card-header {
-        padding: 15px 20px;
+        background: white;
+        border-bottom: 1px solid var(--gray-200);
+        padding: 1rem;
+    }
+
+    .project-card .card-header h5 {
+        margin-bottom: 0;
         font-weight: 600;
-    }
-
-    .priority1-badge {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
-
-    .priority1-high {
-        background-color: var(--danger-color);
-        color: white;
-    }
-
-    .priority1-medium {
-        background-color: var(--warning-color);
-        color: var(--dark-color);
-    }
-
-    .priority1-low {
-        background-color: var(--success-color);
-        color: white;
-    }
-
-    .status-badge {
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
-
-    .filter-container {
-        background-color: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        margin-bottom: 30px;
-    }
-
-    .filter-button {
-        border-radius: 20px;
-        padding: 8px 20px;
-    }
-
-    .project-details {
-        padding: 20px;
     }
 
     .project-meta {
         display: flex;
         flex-wrap: wrap;
-        gap: 12px;
-        margin-bottom: 15px;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
     }
 
     .meta-item {
-        background-color: #f8f9fa;
-        padding: 8px 15px;
-        border-radius: 8px;
-        font-size: 0.9rem;
+        background-color: var(--gray-100);
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--border-radius-sm);
+        font-size: 0.875rem;
+        color: var(--light-text);
     }
 
-    .project-description {
-        background-color: #f8f9fa;
-        padding: 15px;
-        border-radius: 8px;
-        margin-top: 15px;
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--border-radius-sm);
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .empty-state {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 3rem;
+        text-align: center;
+        box-shadow: var(--card-shadow);
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        color: var(--gray-300);
+        margin-bottom: 1.5rem;
     }
 
     .action-buttons {
         display: flex;
-        gap: 10px;
+        gap: 0.5rem;
     }
 
     .action-btn {
-        border-radius: 20px;
-        padding: 8px 20px;
+        border-radius: var(--border-radius-sm);
+        padding: 0.5rem 1rem;
     }
 
-    .search-input {
-        border-radius: 20px;
-        padding: 10px 20px;
+    .priority1-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        border-radius: var(--border-radius-sm);
+        padding: 0.25rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 500;
     }
 
-    .pagination-container {
-        margin-top: 30px;
+    .priority1-high {
+        background-color: var(--danger-light);
+        color: var(--danger-color);
     }
 
-    .page-link {
-        border-radius: 8px;
-        margin: 0 3px;
-        color: var(--primary-color);
+    .priority1-medium {
+        background-color: var(--warning-light);
+        color: var(--warning-color);
     }
 
-    .page-item.active .page-link {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
+    .priority1-low {
+        background-color: var(--success-light);
+        color: var(--success-color);
     }
 
-    .category-icon {
-        font-size: 2rem;
-        margin-bottom: 10px;
-    }
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
 
-    .project-tag {
-        display: inline-block;
-        padding: 5px 10px;
-        background-color: #e9ecef;
-        border-radius: 15px;
-        margin-right: 5px;
-        margin-bottom: 5px;
-        font-size: 0.85rem;
-        color: var(--dark-color);
-    }
+        .page-header {
+            flex-direction: column;
+            text-align: center;
+        }
 
-    .project-progress {
-        height: 8px;
-        margin-top: 10px;
-        border-radius: 4px;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 60px 0;
-        color: #6c757d;
-    }
-
-    .empty-state-icon {
-        font-size: 60px;
-        margin-bottom: 20px;
-        opacity: 0.6;
+        .category-tab {
+            margin: 0.25rem;
+            padding: 0.5rem 1rem;
+        }
     }
     </style>
 </head>
@@ -373,15 +390,20 @@ function getpriority1Class($priority1) {
 ?>
 
     <div class="dashboard-container">
+        <div class="mb-3">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back
+            </a>
+        </div>
         <!-- Page Header -->
-        <div class="page-header d-flex justify-content-between align-items-center">
+        <div class="page-header">
             <div>
-                <h1 class="mb-1"><i class="fas fa-project-diagram me-2"></i>Idea Management Dashboard</h1>
-                <p class="mb-0">Track, manage, and organize all your ideas in one place</p>
+                <h1><i class="fas fa-lightbulb me-2"></i>Idea Management Dashboard</h1>
+                <p class="text-muted mb-0">Track, manage, and organize all your ideas in one place</p>
             </div>
             <div>
-                <a href="form.php" class="btn btn-light btn-lg">
-                    <i class="fas fa-plus me-2"></i>Your Idea
+                <a href="form.php" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>New Idea
                 </a>
             </div>
         </div>
@@ -394,49 +416,41 @@ function getpriority1Class($priority1) {
         <?php endif; ?>
 
         <!-- Statistics Cards -->
-        <div class="row mb-4">
+        <div class="row g-4 mb-4">
             <div class="col-md-3 mb-3">
-                <div class="stats-card card bg-white">
-                    <div class="card-body text-center">
-                        <div class="category-icon text-primary">
-                            <i class="fas fa-clipboard-list"></i>
-                        </div>
-                        <h3 class="mb-0"><?php echo $stats['total']; ?></h3>
-                        <p class="text-muted mb-0">Total Your Ideas</p>
+                <div class="stats-card">
+                    <div class="category-icon">
+                        <i class="fas fa-clipboard-list"></i>
                     </div>
+                    <h3><?php echo $stats['total']; ?></h3>
+                    <p>Total Ideas</p>
                 </div>
             </div>
             <div class="col-md-3 mb-3">
-                <div class="stats-card card bg-white">
-                    <div class="card-body text-center">
-                        <div class="category-icon text-info">
-                            <i class="fas fa-laptop-code"></i>
-                        </div>
-                        <h3 class="mb-0"><?php echo $stats['software']; ?></h3>
-                        <p class="text-muted mb-0">Software Your Ideas</p>
+                <div class="stats-card">
+                    <div class="category-icon">
+                        <i class="fas fa-laptop-code"></i>
                     </div>
+                    <h3><?php echo $stats['software']; ?></h3>
+                    <p>Software Ideas</p>
                 </div>
             </div>
             <div class="col-md-3 mb-3">
-                <div class="stats-card card bg-white">
-                    <div class="card-body text-center">
-                        <div class="category-icon text-warning">
-                            <i class="fas fa-microchip"></i>
-                        </div>
-                        <h3 class="mb-0"><?php echo $stats['hardware']; ?></h3>
-                        <p class="text-muted mb-0">Hardware Your Ideas</p>
+                <div class="stats-card">
+                    <div class="category-icon">
+                        <i class="fas fa-microchip"></i>
                     </div>
+                    <h3><?php echo $stats['hardware']; ?></h3>
+                    <p>Hardware Ideas</p>
                 </div>
             </div>
             <div class="col-md-3 mb-3">
-                <div class="stats-card card bg-white">
-                    <div class="card-body text-center">
-                        <div class="category-icon text-danger">
-                            <i class="fas fa-exclamation-circle"></i>
-                        </div>
-                        <h3 class="mb-0"><?php echo $stats['high_priority1']; ?></h3>
-                        <p class="text-muted mb-0">High priority1</p>
+                <div class="stats-card">
+                    <div class="category-icon">
+                        <i class="fas fa-exclamation-circle"></i>
                     </div>
+                    <h3><?php echo $stats['high_priority1']; ?></h3>
+                    <p>High Priority Ideas</p>
                 </div>
             </div>
         </div>
@@ -446,50 +460,76 @@ function getpriority1Class($priority1) {
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="GET" class="row g-3">
                 <div class="col-md-4">
                     <div class="input-group">
-                        <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
-                        <input type="text" class="form-control search-input" placeholder="Search Your Ideas..."
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" placeholder="Search ideas..."
                             name="search" value="<?php echo htmlspecialchars($search_term); ?>">
                     </div>
                 </div>
                 <div class="col-md-2">
                     <select class="form-select" name="type">
                         <option value="">All Types</option>
-                        <option value="software" <?php echo ($filter_type == 'software') ? 'selected' : ''; ?>>Software
+                        <option value="software" <?php echo ($filter_type == 'software') ? 'selected' : ''; ?>>
+                            Software
                         </option>
-                        <option value="hardware" <?php echo ($filter_type == 'hardware') ? 'selected' : ''; ?>>Hardware
+                        <option value="hardware" <?php echo ($filter_type == 'hardware') ? 'selected' : ''; ?>>
+                            Hardware
                         </option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select class="form-select" name="status">
                         <option value="">All Statuses</option>
-                        <option value="pending" <?php echo ($filter_status == 'pending') ? 'selected' : ''; ?>>Pending
+                        <option value="pending" <?php echo ($filter_status == 'pending') ? 'selected' : ''; ?>>
+                            Pending
                         </option>
                         <option value="in_progress" <?php echo ($filter_status == 'in_progress') ? 'selected' : ''; ?>>
-                            In Progress</option>
+                            In Progress
+                        </option>
                         <option value="completed" <?php echo ($filter_status == 'completed') ? 'selected' : ''; ?>>
-                            Completed</option>
+                            Completed
+                        </option>
                         <option value="rejected" <?php echo ($filter_status == 'rejected') ? 'selected' : ''; ?>>
-                            Rejected</option>
+                            Rejected
+                        </option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select class="form-select" name="priority1">
                         <option value="">All Priorities</option>
-                        <option value="high" <?php echo ($filter_priority1 == 'high') ? 'selected' : ''; ?>>High
+                        <option value="high" <?php echo ($filter_priority1 == 'high') ? 'selected' : ''; ?>>
+                            High
                         </option>
-                        <option value="medium" <?php echo ($filter_priority1 == 'medium') ? 'selected' : ''; ?>>Medium
+                        <option value="medium" <?php echo ($filter_priority1 == 'medium') ? 'selected' : ''; ?>>
+                            Medium
                         </option>
-                        <option value="low" <?php echo ($filter_priority1 == 'low') ? 'selected' : ''; ?>>Low</option>
+                        <option value="low" <?php echo ($filter_priority1 == 'low') ? 'selected' : ''; ?>>
+                            Low
+                        </option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100 filter-button">
+                    <button type="submit" class="btn btn-primary w-100">
                         <i class="fas fa-filter me-2"></i>Apply Filters
                     </button>
                 </div>
             </form>
         </div>
+
+        <!-- Empty State -->
+        <?php if (empty($projects)): ?>
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-clipboard"></i>
+            </div>
+            <h3>No Ideas Found</h3>
+            <p class="text-muted">Try changing your search criteria or add a new idea</p>
+            <a href="form.php" class="btn btn-primary mt-3">
+                <i class="fas fa-plus me-2"></i>Add New Idea
+            </a>
+        </div>
+        <?php endif; ?>
 
         <!-- Category Tabs -->
         <ul class="nav nav-pills mb-4" id="projectTabs" role="tablist">
@@ -540,20 +580,19 @@ function getpriority1Class($priority1) {
                     <div class="col-lg-4 col-md-6 mb-4">
                         <div class="project-card card h-100 position-relative">
                             <span class="priority1-badge <?php echo getpriority1Class($project['priority1']); ?>">
-                                <?php echo ucfirst($project['priority1']); ?> priority11. </span>
-                            <div class="card-header bg-white position-relative">
-                                <h5 class="card-title mb-0"><?php echo htmlspecialchars($project['project_name']); ?>
-                                </h5>
+                                <?php echo ucfirst($project['priority1']); ?> Priority
+                            </span>
+                            <div class="card-header">
+                                <h5><?php echo htmlspecialchars($project['project_name']); ?></h5>
                             </div>
-                            <div class="project-details">
+                            <div class="card-body">
                                 <div class="project-meta">
                                     <div class="meta-item">
                                         <i class="fas fa-hashtag me-1"></i>
                                         <?php echo htmlspecialchars($project['er_number']); ?>
                                     </div>
                                     <div class="meta-item">
-                                        <i
-                                            class="<?php echo ($project['project_type'] == 'software') ? 'fas fa-laptop-code' : 'fas fa-microchip'; ?> me-1"></i>
+                                        <i class="<?php echo ($project['project_type'] == 'software') ? 'fas fa-laptop-code' : 'fas fa-microchip'; ?> me-1"></i>
                                         <?php echo ucfirst($project['project_type']); ?>
                                     </div>
                                     <div class="meta-item">
@@ -566,30 +605,19 @@ function getpriority1Class($priority1) {
                                     <?php echo ucfirst(str_replace('_', ' ', $project['status'])); ?>
                                 </span>
 
-                                <div class="project-description">
-                                    <p class="mb-0">
+                                <div class="mt-3">
+                                    <p class="text-muted small">
                                         <?php
-                                            $desc = htmlspecialchars($project['description']);
-                                            echo (strlen($desc) > 100) ? substr($desc, 0, 100) . '...' : $desc;
-                                            ?>
+                                        $desc = htmlspecialchars($project['description']);
+                                        echo (strlen($desc) > 100) ? substr($desc, 0, 100) . '...' : $desc;
+                                        ?>
                                     </p>
                                 </div>
 
-                                <?php if ($project['status'] == 'in_progress'): ?>
-                                <div class="mt-3">
-                                    <small class="text-muted">Progress</small>
-                                    <div class="project-progress">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 65%"
-                                            aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                                <?php endif; ?>
-
                                 <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <div>
-                                        <small class="text-muted">Submitted:
-                                            <?php echo date('M d, Y', strtotime($project['submission_datetime'])); ?></small>
-                                    </div>
+                                    <small class="text-muted">
+                                        Submitted: <?php echo date('M d, Y', strtotime($project['submission_datetime'])); ?>
+                                    </small>
                                     <div class="action-buttons">
                                         <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
                                             data-bs-target="#projectModal<?php echo $project['id']; ?>">
@@ -628,14 +656,13 @@ function getpriority1Class($priority1) {
                     <div class="col-lg-4 col-md-6 mb-4">
                         <div class="project-card card h-100 position-relative">
                             <span class="priority1-badge <?php echo getpriority1Class($project['priority1']); ?>">
-                                <?php echo ucfirst($project['priority1']); ?> priority11 </span>
-                            <div class="card-header bg-white position-relative">
-                                <h5 class="card-title mb-0"><?php echo htmlspecialchars($project['project_name']); ?>
-                                </h5>
+                                <?php echo ucfirst($project['priority1']); ?> Priority
+                            </span>
+                            <div class="card-header">
+                                <h5><?php echo htmlspecialchars($project['project_name']); ?></h5>
                             </div>
-                            <div class="project-details">
+                            <div class="card-body">
                                 <div class="project-meta">
-                                    <!-- Continuing from the SoftwareYour Ideas Tab section -->
                                     <div class="meta-item">
                                         <i class="fas fa-hashtag me-1"></i>
                                         <?php echo htmlspecialchars($project['er_number']); ?>
@@ -654,30 +681,19 @@ function getpriority1Class($priority1) {
                                     <?php echo ucfirst(str_replace('_', ' ', $project['status'])); ?>
                                 </span>
 
-                                <div class="project-description">
-                                    <p class="mb-0">
+                                <div class="mt-3">
+                                    <p class="text-muted small">
                                         <?php
-                                    $desc = htmlspecialchars($project['description']);
-                                    echo (strlen($desc) > 100) ? substr($desc, 0, 100) . '...' : $desc;
-                                    ?>
+                                        $desc = htmlspecialchars($project['description']);
+                                        echo (strlen($desc) > 100) ? substr($desc, 0, 100) . '...' : $desc;
+                                        ?>
                                     </p>
                                 </div>
 
-                                <?php if ($project['status'] == 'in_progress'): ?>
-                                <div class="mt-3">
-                                    <small class="text-muted">Progress</small>
-                                    <div class="progress project-progress">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 65%"
-                                            aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                                <?php endif; ?>
-
                                 <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <div>
-                                        <small class="text-muted">Submitted:
-                                            <?php echo date('M d, Y', strtotime($project['submission_datetime'])); ?></small>
-                                    </div>
+                                    <small class="text-muted">
+                                        Submitted: <?php echo date('M d, Y', strtotime($project['submission_datetime'])); ?>
+                                    </small>
                                     <div class="action-buttons">
                                         <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
                                             data-bs-target="#projectModal<?php echo $project['id']; ?>">
@@ -716,12 +732,12 @@ function getpriority1Class($priority1) {
                     <div class="col-lg-4 col-md-6 mb-4">
                         <div class="project-card card h-100 position-relative">
                             <span class="priority1-badge <?php echo getpriority1Class($project['priority1']); ?>">
-                                <?php echo ucfirst($project['priority1']); ?> priority11 </span>
-                            <div class="card-header bg-white position-relative">
-                                <h5 class="card-title mb-0"><?php echo htmlspecialchars($project['project_name']); ?>
-                                </h5>
+                                <?php echo ucfirst($project['priority1']); ?> Priority
+                            </span>
+                            <div class="card-header">
+                                <h5><?php echo htmlspecialchars($project['project_name']); ?></h5>
                             </div>
-                            <div class="project-details">
+                            <div class="card-body">
                                 <div class="project-meta">
                                     <div class="meta-item">
                                         <i class="fas fa-hashtag me-1"></i>
@@ -741,30 +757,19 @@ function getpriority1Class($priority1) {
                                     <?php echo ucfirst(str_replace('_', ' ', $project['status'])); ?>
                                 </span>
 
-                                <div class="project-description">
-                                    <p class="mb-0">
+                                <div class="mt-3">
+                                    <p class="text-muted small">
                                         <?php
-                                            $desc = htmlspecialchars($project['description']);
-                                            echo (strlen($desc) > 100) ? substr($desc, 0, 100) . '...' : $desc;
-                                            ?>
+                                        $desc = htmlspecialchars($project['description']);
+                                        echo (strlen($desc) > 100) ? substr($desc, 0, 100) . '...' : $desc;
+                                        ?>
                                     </p>
                                 </div>
 
-                                <?php if ($project['status'] == 'in_progress'): ?>
-                                <div class="mt-3">
-                                    <small class="text-muted">Progress</small>
-                                    <div class="progress project-progress">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 65%"
-                                            aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                                <?php endif; ?>
-
                                 <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <div>
-                                        <small class="text-muted">Submitted:
-                                            <?php echo date('M d, Y', strtotime($project['submission_datetime'])); ?></small>
-                                    </div>
+                                    <small class="text-muted">
+                                        Submitted: <?php echo date('M d, Y', strtotime($project['submission_datetime'])); ?>
+                                    </small>
                                     <div class="action-buttons">
                                         <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
                                             data-bs-target="#projectModal<?php echo $project['id']; ?>">

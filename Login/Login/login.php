@@ -2,6 +2,19 @@
 session_start();
 include 'db.php';
 
+function preventDirectAccess() {
+    // Only allow access from form submission or legitimate referrers
+    if ($_SERVER["REQUEST_METHOD"] != "POST" && !isset($_SESSION['is_admin'])) {
+        // If someone is trying to directly access admin pages
+        if (strpos($_SERVER['PHP_SELF'], 'admin') !== false) {
+            header("Location: ../../../login.php");
+            exit();
+        }
+    }
+}
+
+preventDirectAccess();
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!isset($_POST['er_number'], $_POST['password'])) {
         $error_message = "Invalid form submission";
@@ -9,50 +22,65 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $er_number = $_POST['er_number'];
         $password = $_POST['password'];
 
-        // Check for admin credentials first
-        if($er_number === "admin@ict.com" && $password === "admin@ICT123"){
+        // Check for admin credentials
+        if ($er_number === "admin@ict.com" && $password === "admin@ICT123") {
             // Set admin session variables
             $_SESSION['user_id'] = 'admin';
             $_SESSION['er_number'] = $er_number;
             $_SESSION['user_name'] = 'Administrator';
             $_SESSION['is_admin'] = true;
+            $_SESSION['admin_token'] = bin2hex(random_bytes(32)); // Generate secure token
+            $_SESSION['login_time'] = time();
 
             header("Location: ../../Admin/admin.php");
             exit(); // Stop execution after redirect
-        }
+        } elseif ($er_number === "ideanest.ict@gmail.com" && $password === "ideanest@133") {
+            // Set admin session variables for second admin account
+            $_SESSION['user_id'] = 'admin';
+            $_SESSION['er_number'] = $er_number;
+            $_SESSION['user_name'] = 'Administrator';
+            $_SESSION['is_admin'] = true;
+            $_SESSION['admin_token'] = bin2hex(random_bytes(32)); // Generate secure token
+            $_SESSION['login_time'] = time();
 
-        // If not admin, proceed with regular user login
-        $stmt = $conn->prepare("SELECT id, password, name FROM register WHERE enrollment_number = ? ");
-        $stmt->bind_param("s", $er_number);
-        $stmt->execute();
-        $stmt->store_result();
-
-        if ($stmt->num_rows > 0) {
-            $stmt->bind_result($user_id, $hashed_password, $user_name);
-            $stmt->fetch();
-
-            if (password_verify($password, $hashed_password)) {
-                $_SESSION['user_id'] = $user_id;
-                $_SESSION['er_number'] = $er_number;
-                $_SESSION['user_name'] = $user_name;
-                $_SESSION['is_admin'] = false;
-
-                header("Location: ../../user/index.php");
-                exit();
-            } else {
-                $error_message = "Incorrect Password!";
-            }
+            header("Location: ../../Admin/admin.php");
+            exit(); // Stop execution after redirect
         } else {
-            $error_message = "User not found! Please register.";
-        }
+            // If not admin, proceed with regular user login
+            $stmt = $conn->prepare("SELECT id, password, name FROM register WHERE enrollment_number = ? ");
+            $stmt->bind_param("s", $er_number);
+            $stmt->execute();
+            $stmt->store_result();
 
-        $stmt->close();
+            if ($stmt->num_rows > 0) {
+                $stmt->bind_result($user_id, $hashed_password, $user_name);
+                $stmt->fetch();
+
+                if (password_verify($password, $hashed_password)) {
+                    $_SESSION['user_id'] = $user_id;
+                    $_SESSION['er_number'] = $er_number;
+                    $_SESSION['user_name'] = $user_name;
+                    $_SESSION['is_admin'] = false;
+                    $_SESSION['login_time'] = time();
+
+                    header("Location: ../../user/index.php");
+                    exit();
+                } else {
+                    $error_message = "Incorrect Password!";
+                }
+            } else {
+                $error_message = "User not found! Please register.";
+            }
+
+            $stmt->close();
+        }
     }
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -67,6 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             justify-content: center;
             align-items: center;
         }
+
         .login-container {
             display: flex;
             justify-content: flex-start;
@@ -78,24 +107,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 40px;
             box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
         }
+
         .login-box {
             flex: 1;
             padding: 20px;
         }
+
         .login-box h2 {
             color: #00838f;
             font-weight: bold;
             margin-bottom: 20px;
         }
+
         .form-control {
             border-radius: 5px;
             margin-bottom: 15px;
         }
+
         .btn-container {
             display: flex;
             gap: 10px;
         }
-        .btn-login, .btn-register {
+
+        .btn-login,
+        .btn-register {
             flex: 1;
             padding: 10px;
             border-radius: 5px;
@@ -104,26 +139,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border: none;
             cursor: pointer;
         }
+
         .btn-login {
             background: #00838f;
             color: white;
         }
+
         .btn-login:hover {
             background: #005f6b;
         }
+
         .btn-register {
             background: #f57c00;
             color: white;
         }
+
         .btn-register:hover {
             background: #d65a00;
         }
+
         .forgot-password {
             display: block;
             margin-top: 10px;
             color: #555;
             text-decoration: none;
         }
+
         .admin-info {
             margin-top: 20px;
             padding: 10px;
@@ -140,7 +181,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <h2>LOGIN</h2>
         <p>Please login with your ER number and Password</p>
         <form action="login.php" method="post">
-            <input type="text" name="er_number" class="form-control" placeholder="ER Number / GR Number" required>
+            <input type="text" name="er_number" class="form-control" placeholder="Enrollment Number " required>
             <input type="password" name="password" class="form-control" placeholder="Password" required>
 
             <div class="btn-container">
@@ -149,14 +190,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <a href="#" class="forgot-password">Forgot Password?</a>
-
-
         </form>
     </div>
 </div>
 
 <?php if (isset($error_message)) : ?>
-    <div class="modal fade show" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" style="display:block;">
+    <div class="modal fade show" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true"
+         style="display:block;">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
