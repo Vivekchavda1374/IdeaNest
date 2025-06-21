@@ -432,7 +432,7 @@ $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'profile';
 
     <ul class="sidebar-menu">
         <li>
-            <a href="index.php">
+            <a href="../index.php">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
             </a>

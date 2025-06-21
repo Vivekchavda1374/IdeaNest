@@ -159,7 +159,7 @@ $stmt->close();
 
     <ul class="sidebar-menu">
         <li>
-            <a href="index.php" class="<?php echo ($current_page == 'index.php') ? 'active' : ''; ?>">
+            <a href="../index.php" class="<?php echo ($current_page == 'index.php') ? 'active' : ''; ?>">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
             </a>
