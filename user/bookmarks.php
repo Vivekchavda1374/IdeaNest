@@ -72,7 +72,7 @@ $stmt->close();
 
     <ul class="sidebar-menu">
         <li>
-            <a href="index.php">
+            <a href="../index.php">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
             </a>
