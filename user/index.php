@@ -186,7 +186,7 @@ $conn->close();
     <div class="container-fluid px-0">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-bold">Welcome, <?php echo htmlspecialchars($user_name); ?></h2>
-            <a href="forms/new_project_add.php" class="btn btn-primary"><i class="fas fa-plus me-2"></i> New Project</a>
+            <a href="./forms/new_project_add.php" class="btn btn-primary"><i class="fas fa-plus me-2"></i> New Project</a>
         </div>
 
         <!-- Quick Stats -->
