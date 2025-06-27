@@ -62,8 +62,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     $stmt_check->close();
 
-    $stmt = $conn->prepare("INSERT INTO register (name, email, enrollment_number, gr_number, password) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssss", $name, $email, $enrollment_number, $gr_number, $hashed_password);
+    $default_about = "Hello! I am a new user.";
+    $default_image = "image/ict3.png"; // Using an existing image as default
+    $stmt = $conn->prepare("INSERT INTO register (name, email, enrollment_number, gr_number, password, about, user_image) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssssss", $name, $email, $enrollment_number, $gr_number, $hashed_password, $default_about, $default_image);
 
     if ($stmt->execute()) {
         echo "<script>alert('Registration successful! You can now log in.'); window.location.href='login.php';</script>";
