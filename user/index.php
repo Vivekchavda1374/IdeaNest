@@ -61,7 +61,7 @@ $conn->close();
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 
-    <link href="user/style.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
 </head>
 
 <body>
@@ -82,13 +82,13 @@ $conn->close();
             </a>
         </li>
         <li>
-            <a href="user/user_project_search.php">
+            <a href="user_project_search.php">
                 <i class="fas fa-project-diagram"></i>
                 <span>Projects</span>
             </a>
         </li>
         <li>
-            <a href="user/Blog/idea_dashboard.php">
+            <a href="Blog/idea_dashboard.php">
                 <i class="fas fa-file-alt"></i>
                 <span>Idea Posts</span>
             </a>
@@ -100,21 +100,21 @@ $conn->close();
             </a>
         </li>
         <li>
-            <a href="user/bookmarks.php">
+            <a href="bookmarks.php">
                 <i class="fas fa-bookmark"></i>
                 <span>Bookmarks</span>
             </a>
         </li>
 
         <li>
-            <a href="user/user_profile_setting.php">
+            <a href="user_profile_setting.php">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </a>
         </li>
         
         <li>
-            <a href="user/Blog/idea_bookmarks.php">
+            <a href="Blog/idea_bookmarks.php">
                 <i class="fas fa-bookmark"></i>
                 <span>Idea Bookmarks</span>
             </a>
@@ -145,7 +145,7 @@ $conn->close();
             <ul class="navbar-nav ms-auto align-items-center">
              <!-- Message Notification -->
                 <li class="nav-item ms-2 position-relative">
-                    <a href="user/messages.php" class="nav-link">
+                    <a href="messages.php" class="nav-link">
                         <i class="fas fa-envelope"></i>
                         <span id="unreadMessageBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">
                             0
@@ -173,9 +173,9 @@ $conn->close();
                             </div>
                         </li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="user/user_profile_setting.php"><i class="fas fa-user me-2"></i> My Profile</a></li>
+                        <li><a class="dropdown-item" href="user_profile_setting.php"><i class="fas fa-user me-2"></i> My Profile</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="Login/Login/logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        <li><a class="dropdown-item text-danger" href="../Login/Login/logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
                     </ul>
                 </li>
             </ul>
@@ -186,7 +186,7 @@ $conn->close();
     <div class="container-fluid px-0">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-bold">Welcome, <?php echo htmlspecialchars($user_name); ?></h2>
-            <a href="user/forms/new_project_add.php" class="btn btn-primary"><i class="fas fa-plus me-2"></i> New Project</a>
+            <a href="forms/new_project_add.php" class="btn btn-primary"><i class="fas fa-plus me-2"></i> New Project</a>
         </div>
 
         <!-- Quick Stats -->

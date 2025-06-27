@@ -536,7 +536,7 @@ $related_result = $related_stmt->get_result();
 
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="../index.php">Home</a></li>
+                <li class="breadcrumb-item"><a href="index.php">Home</a></li>
                 <li class="breadcrumb-item"><a href="user_project_search.php">Projects</a></li>
                 <li class="breadcrumb-item active"><?php echo htmlspecialchars($project['project_name']); ?></li>
             </ol>
@@ -768,7 +768,7 @@ $related_result = $related_stmt->get_result();
                     <div class="col-6">
                         <h5 class="mb-3">Quick Links</h5>
                         <ul class="list-unstyled">
-                            <li class="mb-2"><a href="../index.php" class="text-white-50">Home</a></li>
+                            <li class="mb-2"><a href="index.php" class="text-white-50">Home</a></li>
                             <li class="mb-2"><a href="user_project_search.php" class="text-white-50">Projects</a></li>
                             <li class="mb-2"><a href="faq.php" class="text-white-50">FAQ</a></li>
                             <li class="mb-2"><a href="contact.php" class="text-white-50">Contact Us</a></li>
