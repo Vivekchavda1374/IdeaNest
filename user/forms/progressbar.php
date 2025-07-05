@@ -1,17 +1,6 @@
 <?php
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "ideanest";
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+include '../Login/Login/db.php';
 
 // First, check if the table exists
 $table_check_sql = "SHOW TABLES LIKE 'admin_approved_projects'";
@@ -377,6 +366,42 @@ $conn->close();
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             }
         }
+
+        .glass-card {
+            background: rgba(255,255,255,0.7);
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(58,134,255,0.10);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.18);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 2rem;
+        }
+        .glass-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 16px 48px 0 rgba(58,134,255,0.18);
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            box-shadow: 0 2px 8px rgba(58,134,255,0.10);
+        }
+        .progress {
+            height: 16px;
+            border-radius: 8px;
+            background: #e9ecef;
+            overflow: hidden;
+        }
+        .progress-bar {
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
     </style>
 </head>
 <body>
@@ -385,142 +410,51 @@ $conn->close();
     <div class="dashboard">
         <h1 class="dashboard-title">Project Classification Dashboard</h1>
 
-        <?php if(isset($classifications) && count($classifications) > 0): ?>
-            <?php foreach($classifications as $item): ?>
-                <?php
-                $percentage = ($item["count"] / $total_count) * 100;
-                $color = isset($colors[$item["classification"]]) ? $colors[$item["classification"]] : "#6c757d";
-
-                // Determine icon based on classification
-                $icon = 'fas fa-code';
-                switch($item["classification"]) {
-                    case 'Web Application':
-                        $icon = 'fas fa-globe web-icon';
-                        break;
-                    case 'Mobile Application':
-                        $icon = 'fas fa-mobile-alt mobile-icon';
-                        break;
-                    case 'Desktop Software':
-                        $icon = 'fas fa-desktop desktop-icon';
-                        break;
-                    case 'Embedded Software':
-                        $icon = 'fas fa-microchip embedded-icon';
-                        break;
-                    case 'IoT Device':
-                        $icon = 'fas fa-network-wired iot-icon';
-                        break;
-                    case 'Robotics':
-                        $icon = 'fas fa-robot robotics-icon';
-                        break;
-                    case 'Electronics Circuit':
-                        $icon = 'fas fa-bolt electronics-icon';
-                        break;
-                }
-                ?>
-                <div class="progress-container">
-                    <div class="progress-header">
-                        <div class="classification-name">
-                            <i class="<?php echo $icon; ?>"></i>
-                            <?php echo htmlspecialchars($item["classification"]); ?>
-                        </div>
-                        <div class="progress-stats">
-                            <span class="count-badge" style="background-color: <?php echo $color; ?>80;">
-                                <?php echo $item["count"]; ?> projects
-                            </span>
-                            <span class="percentage"><?php echo number_format($percentage, 1); ?>%</span>
-                        </div>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: <?php echo $percentage; ?>%; background-color: <?php echo $color; ?>">
-                        </div>
-                        <?php if($percentage > 5): ?>
-                            <div class="progress-label">
-                                <?php echo number_format($percentage, 1); ?>%
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-
-            <div class="summary-section">
-                <div class="summary-card">
-                    <div class="summary-icon">
-                        <i class="fas fa-project-diagram"></i>
-                    </div>
-                    <div class="summary-value"><?php echo $total_count; ?></div>
-                    <div class="summary-label">Total Projects</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-icon">
-                        <i class="fas fa-layer-group"></i>
-                    </div>
-                    <div class="summary-value"><?php echo count($classifications); ?></div>
-                    <div class="summary-label">Categories</div>
-                </div>
-                <div class="summary-card">
+        <div class="glass-card p-4">
+            <h2 class="fw-bold mb-4" style="color: #3a86ff;">Project Classifications</h2>
+            <?php if(isset($classifications) && count($classifications) > 0): ?>
+                <?php foreach($classifications as $item): ?>
                     <?php
-                    $max_classification = "";
-                    $max_count = 0;
-                    foreach($classifications as $item) {
-                        if($item["count"] > $max_count) {
-                            $max_count = $item["count"];
-                            $max_classification = $item["classification"];
-                        }
-                    }
-
-                    // Get icon for top category
-                    $top_icon = 'fas fa-code';
-                    $top_icon_color = isset($colors[$max_classification]) ? $colors[$max_classification] : "#6c757d";
-                    switch($max_classification) {
-                        case 'Web Application':
-                            $top_icon = 'fas fa-globe';
-                            break;
-                        case 'Mobile Application':
-                            $top_icon = 'fas fa-mobile-alt';
-                            break;
-                        case 'Desktop Software':
-                            $top_icon = 'fas fa-desktop';
-                            break;
-                        case 'Embedded Software':
-                            $top_icon = 'fas fa-microchip';
-                            break;
-                        case 'IoT Device':
-                            $top_icon = 'fas fa-network-wired';
-                            break;
-                        case 'Robotics':
-                            $top_icon = 'fas fa-robot';
-                            break;
-                        case 'Electronics Circuit':
-                            $top_icon = 'fas fa-bolt';
-                            break;
+                    $percentage = ($item["count"] / $total_count) * 100;
+                    $color = isset($colors[$item["classification"]]) ? $colors[$item["classification"]] : "#6c757d";
+                    $icon = 'fas fa-code';
+                    switch($item["classification"]) {
+                        case 'Web Application': $icon = 'fas fa-globe'; break;
+                        case 'Mobile Application': $icon = 'fas fa-mobile-alt'; break;
+                        case 'Desktop Software': $icon = 'fas fa-desktop'; break;
+                        case 'Embedded Software': $icon = 'fas fa-microchip'; break;
+                        case 'IoT Device': $icon = 'fas fa-network-wired'; break;
+                        case 'Robotics': $icon = 'fas fa-robot'; break;
+                        case 'Electronics Circuit': $icon = 'fas fa-bolt'; break;
                     }
                     ?>
-                    <div class="summary-icon" style="color: <?php echo $top_icon_color; ?>; background: <?php echo $top_icon_color; ?>20;">
-                        <i class="<?php echo $top_icon; ?>"></i>
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="stat-icon" style="background: <?php echo $color; ?>20; color: <?php echo $color; ?>;">
+                                <i class="<?php echo $icon; ?>"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold" style="font-size: 1.1rem; color: <?php echo $color; ?>;">
+                                    <?php echo htmlspecialchars($item["classification"]); ?>
+                                </div>
+                                <div class="text-muted small">Projects: <?php echo $item["count"]; ?> (<?php echo number_format($percentage, 1); ?>%)</div>
+                            </div>
+                        </div>
+                        <div class="progress mb-2">
+                            <div class="progress-bar" style="width: <?php echo $percentage; ?>%; background: <?php echo $color; ?>;">
+                                <?php echo number_format($percentage, 1); ?>%
+                            </div>
+                        </div>
                     </div>
-                    <div class="summary-value" style="color: <?php echo $top_icon_color; ?>;">
-                        <?php echo htmlspecialchars($max_classification); ?>
-                    </div>
-                    <div class="summary-label">Top Category</div>
+                <?php endforeach; ?>
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <div class="fw-bold text-secondary">Total Projects: <?php echo $total_count; ?></div>
+                    <div class="fw-bold text-secondary">Categories: <?php echo count($classifications); ?></div>
                 </div>
-                <div class="summary-card">
-                    <div class="summary-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="summary-value">
-                        <?php
-                        // Calculate average projects per category
-                        echo number_format($total_count / count($classifications), 1);
-                        ?>
-                    </div>
-                    <div class="summary-label">Avg. Projects per Category</div>
-                </div>
-            </div>
-        <?php else: ?>
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-triangle"></i> No classification data available or query failed.
-            </div>
-        <?php endif; ?>
+            <?php else: ?>
+                <div class="alert alert-danger">No classification data available.</div>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
 

@@ -573,7 +573,7 @@ if ($id> 0) {
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="idea_dashboard.php" class="btn btn-outline-secondary me-md-2">
+                        <a href="list-project.php" class="btn btn-outline-secondary me-md-2">
                             <i class="fas fa-arrow-left me-2"></i>Back to List
                         </a>
                         <button type="submit" name="update" class="btn btn-primary">

@@ -1,7 +1,7 @@
 <?php
-$host = "127.0.0.1";
+$host = "localhost";
 $user = "root";
-$pass = "your_password";
+$pass = "";
 $dbname = "ideanest";
 
 $conn = new mysqli($host, $user, $pass, $dbname);
