@@ -1,11 +1,12 @@
 <?php
 // Database connection
 include "../Login/Login/db.php";
-require_once('../Login/Login/admin_auth.php');
+
 // Site name
 $site_name = "IdeaNest Admin";
 
 // Start session
+session_start();
 $user_name = "Admin";
 
 // Handle project actions
@@ -519,423 +520,423 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+        <style>
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 250px;
+                background-color: #fff;
+                box-shadow: 0 0 15px rgba(0,0,0,0.05);
+                z-index: 1000;
+                transition: all 0.3s;
+                overflow-y: auto;
+                padding: 1rem;
+            }
+
+            .sidebar-header {
+                padding: 1rem 0;
+                text-align: center;
+                border-bottom: 1px solid #f1f1f1;
+                margin-bottom: 1rem;
+            }
+
+            .sidebar-brand {
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: #4361ee;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 1rem;
+            }
+
+            .sidebar-brand i {
+                margin-right: 0.5rem;
+            }
+
+            .sidebar-menu {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .sidebar-item {
+                margin-bottom: 0.5rem;
+            }
+
+            .sidebar-link {
+                display: flex;
+                align-items: center;
+                padding: 0.75rem 1rem;
+                color: #6c757d;
+                text-decoration: none;
+                border-radius: 0.25rem;
+                transition: all 0.2s;
+            }
+
+            .sidebar-link i {
+                margin-right: 0.75rem;
+                font-size: 1.25rem;
+            }
+
+            .sidebar-link.active {
+                background-color: #4361ee;
+                color: #fff;
+            }
+
+            .sidebar-link:hover:not(.active) {
+                background-color: #f8f9fa;
+                color: #4361ee;
+            }
+
+            .sidebar-divider {
+                margin: 1rem 0;
+                border-top: 1px solid #f1f1f1;
+            }
+
+            .sidebar-footer {
+                padding: 1rem 0;
+                border-top: 1px solid #f1f1f1;
+                margin-top: 1rem;
+            }
+
+            /* Main Content Styles */
+            .main-content {
+                margin-left: 250px;
+                padding: 1rem;
+                transition: all 0.3s;
+            }
+
+            /* Topbar Styles */
+            .topbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 1rem 0;
+                margin-bottom: 2rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+                font-weight: 600;
+                margin: 0;
+            }
+
+            .topbar-actions {
+                display: flex;
+                align-items: center;
+            }
+
+            .topbar-action {
+                font-size: 1.25rem;
+                color: #6c757d;
+                margin-left: 1rem;
+                position: relative;
+            }
+
+            .user-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background-color: #f8f9fa;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #4361ee;
+                margin-left: 1rem;
+            }
+
+            /* Stats Card Styles */
+            .stats-card {
+                background-color: #fff;
+                border-radius: 0.5rem;
+                box-shadow: 0 0 15px rgba(0,0,0,0.05);
+                padding: 1.5rem;
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+
+            .stats-icon {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .stats-icon.primary { background-color: rgba(67, 97, 238, 0.1); color: #4361ee; }
+            .stats-icon.success { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+            .stats-icon.warning { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+            .stats-icon.danger { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+            .stats-info {
+                flex-grow: 1;
+            }
+
+            .stats-label {
+                font-size: 0.875rem;
+                color: #6c757d;
+                margin-bottom: 0.5rem;
+            }
+
+            .stats-value {
+                font-size: 1.5rem;
+                font-weight: 700;
+                margin-bottom: 1rem;
+            }
+
+            .stats-progress {
+                margin-top: auto;
+            }
+
+            .stats-percentage {
+                font-size: 0.75rem;
+                color: #6c757d;
+                margin-top: 0.5rem;
+                text-align: right;
+            }
+
+            /* Timeline Styles */
+            .timeline {
+                position: relative;
+            }
+
+            .timeline-item {
+                padding-left: 2rem;
+                position: relative;
+                padding-bottom: 1.5rem;
+            }
+
+            .timeline-item:last-child {
+                padding-bottom: 0;
+            }
+
+            .timeline-icon {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .timeline-icon.primary { background-color: rgba(67, 97, 238, 0.1); border: 2px solid #4361ee; }
+            .timeline-icon.success { background-color: rgba(16, 185, 129, 0.1); border: 2px solid #10b981; }
+            .timeline-icon.danger { background-color: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; }
+
+            .timeline-content {
+                position: relative;
+            }
+
+            .timeline-title {
+                font-size: 0.9375rem;
+                margin-bottom: 0.25rem;
+            }
+
+            .timeline-text {
+                font-size: 0.875rem;
+                color: #6c757d;
+                margin-bottom: 0.25rem;
+            }
+
+            .timeline-time {
+                font-size: 0.75rem;
+                color: #adb5bd;
+            }
+
+            /* Chart Container */
+            .chart-container {
+                position: relative;
+                height: 300px;
+            }
+
+            /* Alert banner */
+            .alert-banner {
+                margin-bottom: 20px;
+            }
+
+            /* Project Details Styles */
+            .project-details {
+                margin-bottom: 20px;
+            }
+
+            .project-detail-label {
+                font-weight: 600;
+                margin-bottom: 5px;
+            }
+
+            .project-detail-value {
+                margin-bottom: 15px;
+            }
+
+            /* Modal styles */
+            .modal-backdrop {
+                z-index: 1040;
+            }
+
+            .modal {
+                z-index: 1050;
+            }
+            <!-- Current Recent Activity style -->
             <style>
+                 /* Timeline Styles */
+             .activity-timeline {
+                 position: relative;
+                 padding: 1rem;
+             }
 
+            .activity-item {
+                display: flex;
+                margin-bottom: 1.5rem;
+                position: relative;
+            }
+
+            .activity-item:last-child {
+                margin-bottom: 0;
+            }
+
+            .activity-icon {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1rem;
+                margin-right: 1rem;
+                flex-shrink: 0;
+            }
+
+            .activity-content {
+                flex-grow: 1;
+            }
+
+            .activity-title {
+                font-size: 0.9375rem;
+                font-weight: 600;
+                margin-bottom: 0.25rem;
+            }
+
+            .activity-text {
+                font-size: 0.875rem;
+                color: #6c757d;
+                margin-bottom: 0.25rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-line-clamp: 2; /* Number of lines to show */
+                -webkit-box-orient: vertical;
+            }
+
+            .activity-time {
+                font-size: 0.75rem;
+                color: #adb5bd;
+                display: block;
+            }
+
+            /* Read More Button */
+            .activity-read-more {
+                text-align: center;
+                padding-top: 1rem;
+                border-top: 1px solid #f1f1f1;
+                margin-top: 0.5rem;
+            }
+
+            .activity-read-more .btn {
+                font-size: 0.875rem;
+            }
+
+            /* Media Query for Responsive Sidebar */
+            @media (max-width: 991.98px) {
                 .sidebar {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    bottom: 0;
-                    width: 250px;
-                    background-color: #fff;
-                    box-shadow: 0 0 15px rgba(0,0,0,0.05);
-                    z-index: 1000;
-                    transition: all 0.3s;
-                    overflow-y: auto;
-                    padding: 1rem;
+                    transform: translateX(-100%);
                 }
-
-                .sidebar-header {
-                    padding: 1rem 0;
-                    text-align: center;
-                    border-bottom: 1px solid #f1f1f1;
-                    margin-bottom: 1rem;
+                .sidebar.show {
+                    transform: translateX(0);
                 }
-
-                .sidebar-brand {
-                    font-size: 1.5rem;
-                    font-weight: 600;
-                    color: #4361ee;
-                    text-decoration: none;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin-bottom: 1rem;
-                }
-
-                .sidebar-brand i {
-                    margin-right: 0.5rem;
-                }
-
-                .sidebar-menu {
-                    list-style: none;
-                    padding: 0;
-                    margin: 0;
-                }
-
-                .sidebar-item {
-                    margin-bottom: 0.5rem;
-                }
-
-                .sidebar-link {
-                    display: flex;
-                    align-items: center;
-                    padding: 0.75rem 1rem;
-                    color: #6c757d;
-                    text-decoration: none;
-                    border-radius: 0.25rem;
-                    transition: all 0.2s;
-                }
-
-                .sidebar-link i {
-                    margin-right: 0.75rem;
-                    font-size: 1.25rem;
-                }
-
-                .sidebar-link.active {
-                    background-color: #4361ee;
-                    color: #fff;
-                }
-
-                .sidebar-link:hover:not(.active) {
-                    background-color: #f8f9fa;
-                    color: #4361ee;
-                }
-
-                .sidebar-divider {
-                    margin: 1rem 0;
-                    border-top: 1px solid #f1f1f1;
-                }
-
-                .sidebar-footer {
-                    padding: 1rem 0;
-                    border-top: 1px solid #f1f1f1;
-                    margin-top: 1rem;
-                }
-
-                /* Main Content Styles */
                 .main-content {
+                    margin-left: 0;
+                }
+                .main-content.pushed {
                     margin-left: 250px;
-                    padding: 1rem;
-                    transition: all 0.3s;
                 }
+            }
+        </style>
 
-                /* Topbar Styles */
-                .topbar {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 1rem 0;
-                    margin-bottom: 2rem;
-                }
-
-                .page-title {
-                    font-size: 1.5rem;
-                    font-weight: 600;
-                    margin: 0;
-                }
-
-                .topbar-actions {
-                    display: flex;
-                    align-items: center;
-                }
-
-                .topbar-action {
-                    font-size: 1.25rem;
-                    color: #6c757d;
-                    margin-left: 1rem;
-                    position: relative;
-                }
-
-                .user-avatar {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
-                    background-color: #f8f9fa;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: #4361ee;
-                    margin-left: 1rem;
-                }
-
-                /* Stats Card Styles */
-                .stats-card {
-                    background-color: #fff;
-                    border-radius: 0.5rem;
-                    box-shadow: 0 0 15px rgba(0,0,0,0.05);
-                    padding: 1.5rem;
-                    display: flex;
-                    flex-direction: column;
-                    height: 100%;
-                }
-
-                .stats-icon {
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 1.5rem;
-                    margin-bottom: 1rem;
-                }
-
-                .stats-icon.primary { background-color: rgba(67, 97, 238, 0.1); color: #4361ee; }
-                .stats-icon.success { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
-                .stats-icon.warning { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-                .stats-icon.danger { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
-
-                .stats-info {
-                    flex-grow: 1;
-                }
-
-                .stats-label {
-                    font-size: 0.875rem;
-                    color: #6c757d;
-                    margin-bottom: 0.5rem;
-                }
-
-                .stats-value {
-                    font-size: 1.5rem;
-                    font-weight: 700;
-                    margin-bottom: 1rem;
-                }
-
-                .stats-progress {
-                    margin-top: auto;
-                }
-
-                .stats-percentage {
-                    font-size: 0.75rem;
-                    color: #6c757d;
-                    margin-top: 0.5rem;
-                    text-align: right;
-                }
-
-                /* Timeline Styles */
-                .timeline {
-                    position: relative;
-                }
-
-                .timeline-item {
-                    padding-left: 2rem;
-                    position: relative;
-                    padding-bottom: 1.5rem;
-                }
-
-                .timeline-item:last-child {
-                    padding-bottom: 0;
-                }
-
-                .timeline-icon {
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    width: 24px;
-                    height: 24px;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-
-                .timeline-icon.primary { background-color: rgba(67, 97, 238, 0.1); border: 2px solid #4361ee; }
-                .timeline-icon.success { background-color: rgba(16, 185, 129, 0.1); border: 2px solid #10b981; }
-                .timeline-icon.danger { background-color: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; }
-
-                .timeline-content {
-                    position: relative;
-                }
-
-                .timeline-title {
-                    font-size: 0.9375rem;
-                    margin-bottom: 0.25rem;
-                }
-
-                .timeline-text {
-                    font-size: 0.875rem;
-                    color: #6c757d;
-                    margin-bottom: 0.25rem;
-                }
-
-                .timeline-time {
-                    font-size: 0.75rem;
-                    color: #adb5bd;
-                }
-
-                /* Chart Container */
-                .chart-container {
-                    position: relative;
-                    height: 300px;
-                }
-
-                /* Alert banner */
-                .alert-banner {
-                    margin-bottom: 20px;
-                }
-
-                /* Project Details Styles */
-                .project-details {
-                    margin-bottom: 20px;
-                }
-
-                .project-detail-label {
-                    font-weight: 600;
-                    margin-bottom: 5px;
-                }
-
-                .project-detail-value {
-                    margin-bottom: 15px;
-                }
-
-                /* Modal styles */
-                .modal-backdrop {
-                    z-index: 1040;
-                }
-
-                .modal {
-                    z-index: 1050;
-                }
-                <!-- Current Recent Activity style -->
-                <style>
-                     /* Timeline Styles */
-                 .activity-timeline {
-                     position: relative;
-                     padding: 1rem;
-                 }
-
-                .activity-item {
-                    display: flex;
-                    margin-bottom: 1.5rem;
-                    position: relative;
-                }
-
-                .activity-item:last-child {
-                    margin-bottom: 0;
-                }
-
-                .activity-icon {
-                    width: 36px;
-                    height: 36px;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 1rem;
-                    margin-right: 1rem;
-                    flex-shrink: 0;
-                }
-
-                .activity-content {
-                    flex-grow: 1;
-                }
-
-                .activity-title {
-                    font-size: 0.9375rem;
-                    font-weight: 600;
-                    margin-bottom: 0.25rem;
-                }
-
-                .activity-text {
-                    font-size: 0.875rem;
-                    color: #6c757d;
-                    margin-bottom: 0.25rem;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    display: -webkit-box;
-                    -webkit-line-clamp: 2; /* Number of lines to show */
-                    -webkit-box-orient: vertical;
-                }
-
-                .activity-time {
-                    font-size: 0.75rem;
-                    color: #adb5bd;
-                    display: block;
-                }
-
-                /* Read More Button */
-                .activity-read-more {
-                    text-align: center;
-                    padding-top: 1rem;
-                    border-top: 1px solid #f1f1f1;
-                    margin-top: 0.5rem;
-                }
-
-                .activity-read-more .btn {
-                    font-size: 0.875rem;
-                }
-
-                /* Media Query for Responsive Sidebar */
-                @media (max-width: 991.98px) {
-                    .sidebar {
-                        transform: translateX(-100%);
-                    }
-                    .sidebar.show {
-                        transform: translateX(0);
-                    }
-                    .main-content {
-                        margin-left: 0;
-                    }
-                    .main-content.pushed {
-                        margin-left: 250px;
-                    }
-                }
-            </style>
-
-        </head>
-    <body>
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <a href="#" class="sidebar-brand">
-                    <i class="bi bi-lightbulb"></i>
-                    <span><?php echo $site_name; ?></span>
-                </a>
-            </div>
-            <ul class="sidebar-menu">
-                <li class="sidebar-item">
-                    <a href="admin.php" class="sidebar-link active">
-                        <i class="bi bi-grid-1x2"></i>
-                        <span>admin</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="admin_view_project.php" class="sidebar-link">
-                        <i class="bi bi-kanban"></i>
-                        <span>Projects</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="user_manage_by_admin.php" class="sidebar-link">
-                        <i class="bi bi-people"></i>
-                        <span>Users Management</span>
-                    </a>
-                </li>
-
-                <hr class="sidebar-divider">
-                <li class="sidebar-item">
-                    <a href="settings.php" class="sidebar-link">
-                        <i class="bi bi-gear"></i>
-                        <span>Settings</span>
-                    </a>
-                </li>
-            </ul>
-            <div class="sidebar-footer">
-                <a href="../Login/Login/logout.php" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
-                    <i class="bi bi-box-arrow-right me-2"></i> Logout
-                </a>
-            </div>
+    </head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">
+                <i class="bi bi-lightbulb"></i>
+                <span><?php echo $site_name; ?></span>
+            </a>
         </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="admin.php" class="sidebar-link active">
+                    <i class="bi bi-grid-1x2"></i>
+                    <span>admin</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="admin_view_project.php" class="sidebar-link">
+                    <i class="bi bi-kanban"></i>
+                    <span>Projects</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="user_manage_by_admin.php" class="sidebar-link">
+                    <i class="bi bi-people"></i>
+                    <span>Users Management</span>
+                </a>
+            </li>
 
-        <!-- Main Content -->
-    <div class="main-content">
-        <!-- Topbar -->
-        <div class="topbar">
-            <button class="btn d-lg-none" id="sidebarToggle">
-                <i class="bi bi-list"></i>
-            </button>
-            <h1 class="page-title">Welcome!! Admin</h1>
-            <div class="topbar-actions">
-                <div class="dropdown">
-                    <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person"></i>
-                    </a>
+            <hr class="sidebar-divider">
+            <li class="sidebar-item">
+                <a href="settings.php" class="sidebar-link">
+                    <i class="bi bi-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <a href="logout.php" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
+                <i class="bi bi-box-arrow-right me-2"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+<div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+        <button class="btn d-lg-none" id="sidebarToggle">
+            <i class="bi bi-list"></i>
+        </button>
+        <h1 class="page-title">admin</h1>
+        <div class="topbar-actions">
+            <div class="dropdown">
+                <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person"></i>
+                </a>
                 <ul class="dropdown-menu dropdown-menu-end shadow">
                     <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> Profile</a></li>
                     <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i> Settings</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="../Login/Login/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                    <li><a class="dropdown-item" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
                 </ul>
             </div>
         </div>

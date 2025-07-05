@@ -2,37 +2,12 @@
 // Process form submission
 session_start();
 
-// Include database connection
-include '../../Login/Login/db.php';
-
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../../Login/Login/login.php");
-    exit();
-}
-
-// Fetch enrollment number from register database
-$user_id = $_SESSION['user_id'];
-$enrollment_query = "SELECT enrollment_number FROM register WHERE id = ?";
-$stmt = $conn->prepare($enrollment_query);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows > 0) {
-    $user_row = $result->fetch_assoc();
-    $user_enrollment_number = $user_row['enrollment_number'];
-} else {
-    $user_enrollment_number = ''; // Fallback if no enrollment number found
-}
-$stmt->close();
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Set the timezone for accurate datetime
     date_default_timezone_set('Asia/Kolkata'); // Change to your timezone
 
     // Collect form data
-    $erNumber = $user_enrollment_number;
+    $erNumber = trim($_POST['erNumber']);
     $projectName = trim($_POST['projectName']);
     $projectType = $_POST['projectType'];
     $classification = $_POST['classification'];
@@ -64,31 +39,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $error_message = "Connection failed: " . $conn->connect_error;
         } else {
             // Prepare and bind the SQL statement to prevent SQL injection
-            // Check if the user exists in the register table
-            $stmt = $conn->prepare("SELECT id FROM register WHERE enrollment_number = ?");
-            $stmt->bind_param("s", $erNumber);
-            $stmt->execute();
-            $result = $stmt->get_result();
+            $stmt = $conn->prepare("INSERT INTO blog (er_number, project_name, project_type, classification, description, submission_datetime, priority1, status, assigned_to, completion_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssssssssss", $erNumber, $projectName, $projectType, $classification, $description, $submissionDateTime, $priority1, $status, $assignedTo, $completionDate);
 
-            if ($result->num_rows === 0) {
-                $error_message = "Error: User with ER number " . $erNumber . " does not exist in the system.";
+            // Execute the statement
+            if ($stmt->execute()) {
+                $success_message = "Project submitted successfully on " . $submissionDateTime;
+                $project_id = $conn->insert_id;
+                // Clear form data after successful submission
+                $erNumber = $projectName = $projectType = $classification = $description = $assignedTo = $completionDate = "";
             } else {
-                $row = $result->fetch_assoc();
-                $register_id = $row['id'];
-
-                // Prepare and bind the SQL statement to prevent SQL injection - now including register_id
-                $stmt = $conn->prepare("INSERT INTO blog (er_number, project_name, project_type, classification, description, submission_datetime, priority1, status, assigned_to, completion_date, register_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("ssssssssssi", $erNumber, $projectName, $projectType, $classification, $description, $submissionDateTime, $priority1, $status, $assignedTo, $completionDate, $register_id);
-
-                // Execute the statement
-                if ($stmt->execute()) {
-                    $success_message = "Project submitted successfully on " . $submissionDateTime;
-                    $project_id = $conn->insert_id;
-                    // Clear form data after successful submission
-                    $erNumber = $projectName = $projectType = $classification = $description = $assignedTo = $completionDate = "";
-                } else {
-                    $error_message = "Error: " . $stmt->error;
-                }
+                $error_message = "Error: " . $stmt->error;
             }
 
             // Close statement and connection
@@ -113,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <style>
     :root {
-        --primary-color: #4562ee;
+        --primary-color: #4361ee;
         --secondary-color: #3f37c9;
         --success-color: #4cc9f0;
         --light-color: #f8f9fa;
@@ -432,7 +393,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </a>
                 </div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
-                    <a href="idea_dashboard.php" class="btn btn-outline-secondary">
+                    <a href="list-project.php" class="btn btn-outline-secondary">
                         <i class="fas fa-list me-2"></i>View All Projects
                     </a>
                 </div>
@@ -455,10 +416,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="col-md-6">
                                 <div class="icon-input mb-3">
                                     <i class="fas fa-id-badge"></i>
-                                    <label for="erNumber" class="form-label">ER Number</label>
+                                    <label for="erNumber" class="form-label">ER Number of User</label>
                                     <input type="text" class="form-control" id="erNumber" name="erNumber"
-                                        value="<?php echo htmlspecialchars($user_enrollment_number); ?>" readonly
-                                        placeholder="Your ER Number">
+                                        value="<?php echo isset($erNumber) ? htmlspecialchars($erNumber) : ''; ?>"
+                                        placeholder="Enter your ER number" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -595,7 +556,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="idea_dashboard.php" class="btn btn-outline-secondary me-md-2">
+                        <a href="list-project.php" class="btn btn-outline-secondary me-md-2">
                             <i class="fas fa-list me-2"></i>Back to List
                         </a>
                         <button type="reset" class="btn btn-outline-secondary me-md-2">

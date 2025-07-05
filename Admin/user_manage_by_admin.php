@@ -1,9 +1,18 @@
 <?php
-include "../Login/Login/db.php";
-require_once('../Login/Login/admin_auth.php');
-$site_name = "IdeaNest Admin"; // Added site name variable
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = ""; // Empty password as per your request
+$dbname = "ideanest";
+$site_name = "IdeaNest"; // Added site name variable
 
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
 
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 
 // Set default active tab
 $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'active';
@@ -12,90 +21,78 @@ $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'active';
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $search_term = "%{$search}%";
 
+// Handle user block action
 if (isset($_POST['block_user'])) {
     $user_id = $_POST['user_id'];
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $enrollment_number = $_POST['enrollment_number'];
+    $gr_number = $_POST['gr_number'];
 
     // Begin transaction
     $conn->begin_transaction();
 
     try {
-        // First get user data
-        $stmt = $conn->prepare("SELECT id, name, email, enrollment_number, gr_number, password, about, user_image FROM register WHERE id = ?");
+        // First, insert into removed_user table WITH THE SAME ID from register
+        $stmt = $conn->prepare("INSERT INTO removed_user (id, name, email, enrollment_number, gr_number) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("issss", $user_id, $name, $email, $enrollment_number, $gr_number);
+        $stmt->execute();
+
+        // Then delete from register table
+        $stmt = $conn->prepare("DELETE FROM register WHERE id = ?");
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
-        $result = $stmt->get_result();
 
-        if ($row = $result->fetch_assoc()) {
-            // Insert into removed_user
-            $stmt = $conn->prepare("INSERT INTO removed_user (id, name, email, enrollment_number, gr_number, password, about, user_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("isssssss", $row['id'], $row['name'], $row['email'], $row['enrollment_number'], $row['gr_number'], $row['password'], $row['about'], $row['user_image']);
-            $stmt->execute();
+        // Commit transaction
+        $conn->commit();
 
-            // First delete from child table to avoid foreign key constraint error
-            $stmt = $conn->prepare("DELETE FROM admin_approved_projects WHERE user_id = ?");
-            $stmt->bind_param("i", $user_id);
-            $stmt->execute();
-
-            // Then delete from register table
-            $stmt = $conn->prepare("DELETE FROM register WHERE id = ?");
-            $stmt->bind_param("i", $user_id);
-            $stmt->execute();
-
-            // Commit transaction
-            $conn->commit();
-            $success_message = "User access removed successfully!";
-        } else {
-            throw new Exception("User not found");
-        }
-    } catch (Exception $e) {
-        $conn->rollback();
-        $error_message = "Error: " . $e->getMessage();
-    }
-}
-
-
-// Handle restore access action
-if (isset($_POST['restore_access'])) {
-    $user_id = $_POST['user_id'];
-
-    // Begin transaction
-    $conn->begin_transaction();
-
-    try {
-        // First get all data from removed_user table
-        $stmt = $conn->prepare("SELECT id, name, email, enrollment_number, gr_number, password, about, user_image FROM removed_user WHERE id = ?");
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($row = $result->fetch_assoc()) {
-            // Insert back into register table with all columns
-            $stmt = $conn->prepare("INSERT INTO register (id, name, email, enrollment_number, gr_number, password, about, user_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("isssssss", $row['id'], $row['name'], $row['email'], $row['enrollment_number'], $row['gr_number'], $row['password'], $row['about'], $row['user_image']);
-            $stmt->execute();
-
-            // Then delete from removed_user table
-            $stmt = $conn->prepare("DELETE FROM removed_user WHERE id = ?");
-            $stmt->bind_param("i", $user_id);
-            $stmt->execute();
-
-            // Commit transaction
-            $conn->commit();
-
-            // Set success message
-            $success_message = "User access restored successfully!";
-        } else {
-            throw new Exception("User not found");
-        }
+        // Set success message
+        $success_message = "User access removed successfully!";
     } catch (Exception $e) {
         // Roll back transaction on error
         $conn->rollback();
         $error_message = "Error: " . $e->getMessage();
     }
 }
+
+// Handle restore access action
+if (isset($_POST['restore_access'])) {
+    $user_id = $_POST['user_id'];
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $enrollment_number = $_POST['enrollment_number'];
+    $gr_number = $_POST['gr_number'];
+
+    // Begin transaction
+    $conn->begin_transaction();
+
+    try {
+        // First, insert back into register table WITH THE SAME ID
+        $stmt = $conn->prepare("INSERT INTO register (id, name, email, enrollment_number, gr_number) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("issss", $user_id, $name, $email, $enrollment_number, $gr_number);
+        $stmt->execute();
+
+        // Then delete from removed_user table
+        $stmt = $conn->prepare("DELETE FROM removed_user WHERE id = ?");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+
+        // Commit transaction
+        $conn->commit();
+
+        // Set success message
+        $success_message = "User access restored successfully!";
+    } catch (Exception $e) {
+        // Roll back transaction on error
+        $conn->rollback();
+        $error_message = "Error: " . $e->getMessage();
+    }
+}
+
+// Get all active users with search functionality
 if (!empty($search)) {
     $active_users_sql = "SELECT id, name, email, enrollment_number, gr_number FROM register 
-                          WHERE name LIKE ? OR gr_number LIKE ? OR enrollment_number LIKE ?";
+                         WHERE name LIKE ? OR gr_number LIKE ? OR enrollment_number LIKE ?";
     $stmt = $conn->prepare($active_users_sql);
     $stmt->bind_param("sss", $search_term, $search_term, $search_term);
     $stmt->execute();
@@ -108,7 +105,7 @@ if (!empty($search)) {
 // Get all blocked users with search functionality
 if (!empty($search)) {
     $blocked_users_sql = "SELECT id, name, email, enrollment_number, gr_number FROM removed_user 
-                           WHERE name LIKE ? OR gr_number LIKE ? OR enrollment_number LIKE ?";
+                          WHERE name LIKE ? OR gr_number LIKE ? OR enrollment_number LIKE ?";
     $stmt = $conn->prepare($blocked_users_sql);
     $stmt->bind_param("sss", $search_term, $search_term, $search_term);
     $stmt->execute();
@@ -139,7 +136,6 @@ if (!empty($search)) {
             width: 250px;
             background-color: #fff;
             box-shadow: 0 0 15px rgba(0,0,0,0.05);
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
             z-index: 1000;
             transition: all 0.3s;
             overflow-y: auto;
@@ -489,7 +485,6 @@ if (!empty($search)) {
             <i class="bi bi-list"></i>
         </button>
         <h1 class="page-title" >User Management</h1>
-
         <div class="topbar-actions">
             <div class="dropdown">
                 <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
@@ -499,11 +494,7 @@ if (!empty($search)) {
                     <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> Profile</a></li>
                     <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i> Settings</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="../Login/Login/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-
+                    <li><a class="dropdown-item" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
                 </ul>
             </div>
         </div>
@@ -545,12 +536,11 @@ if (!empty($search)) {
                             <i class="bi bi-search me-2"></i> Search
                         </button>
                         <?php if(!empty($search)): ?>
-                        <a href="?tab=<?php echo $active_tab; ?>"
-                           class="btn btn-outline-secondary w-100 mt-2">
-                            <a href="?tab=<?php echo $active_tab; ?>" class="btn btn-outline-secondary w-100 mt-2">
+                            <a href="?tab=<?php echo $active_tab; ?>"
+                               class="btn btn-outline-secondary w-100 mt-2">
                                 <i class="bi bi-x-circle me-2"></i> Clear Search
                             </a>
-                            <?php endif; ?>
+                        <?php endif; ?>
                     </div>
                 </form>
             </div>
@@ -561,8 +551,6 @@ if (!empty($search)) {
                     <button class="nav-link <?php echo $active_tab == 'active' ? 'active' : ''; ?>"
                             id="active-users-tab" data-bs-toggle="tab" data-bs-target="#active-users"
                             type="button" role="tab" aria-controls="active-users"
-                            id="active-users-tab" data-bs-toggle="tab" data-bs-target="#active-users" type="button"
-                            role="tab" aria-controls="active-users"
                             aria-selected="<?php echo $active_tab == 'active' ? 'true' : 'false'; ?>">
                         <i class="bi bi-person-check me-2"></i> Active Users
                         <?php if ($active_users_result->num_rows > 0): ?>
@@ -574,8 +562,6 @@ if (!empty($search)) {
                     <button class="nav-link <?php echo $active_tab == 'blocked' ? 'active' : ''; ?>"
                             id="blocked-users-tab" data-bs-toggle="tab" data-bs-target="#blocked-users"
                             type="button" role="tab" aria-controls="blocked-users"
-                            id="blocked-users-tab" data-bs-toggle="tab" data-bs-target="#blocked-users" type="button"
-                            role="tab" aria-controls="blocked-users"
                             aria-selected="<?php echo $active_tab == 'blocked' ? 'true' : 'false'; ?>">
                         <i class="bi bi-person-x me-2"></i> Blocked Users
                         <?php if ($blocked_users_result->num_rows > 0): ?>
@@ -613,17 +599,17 @@ if (!empty($search)) {
                                     echo "<td>" . htmlspecialchars($row["enrollment_number"]) . "</td>";
                                     echo "<td>" . htmlspecialchars($row["gr_number"]) . "</td>";
                                     echo "<td>
-                                                     <form method='post' action=''>
-                                                         <input type='hidden' name='user_id' value='" . $row["id"] . "'>
-                                                         <input type='hidden' name='name' value='" . htmlspecialchars($row["name"]) . "'>
-                                                         <input type='hidden' name='email' value='" . htmlspecialchars($row["email"]) . "'>
-                                                         <input type='hidden' name='enrollment_number' value='" . htmlspecialchars($row["enrollment_number"]) . "'>
-                                                         <input type='hidden' name='gr_number' value='" . htmlspecialchars($row["gr_number"]) . "'>
-                                                         <button type='submit' name='block_user' class='btn btn-danger btn-sm'>
-                                                             <i class='bi bi-slash-circle me-1'></i> Remove Access
-                                                         </button>
-                                                     </form>
-                                                 </td>";
+                                                    <form method='post' action=''>
+                                                        <input type='hidden' name='user_id' value='" . $row["id"] . "'>
+                                                        <input type='hidden' name='name' value='" . htmlspecialchars($row["name"]) . "'>
+                                                        <input type='hidden' name='email' value='" . htmlspecialchars($row["email"]) . "'>
+                                                        <input type='hidden' name='enrollment_number' value='" . htmlspecialchars($row["enrollment_number"]) . "'>
+                                                        <input type='hidden' name='gr_number' value='" . htmlspecialchars($row["gr_number"]) . "'>
+                                                        <button type='submit' name='block_user' class='btn btn-danger btn-sm'>
+                                                            <i class='bi bi-slash-circle me-1'></i> Remove Access
+                                                        </button>
+                                                    </form>
+                                                </td>";
                                     echo "</tr>";
                                 }
                             } else {
@@ -665,17 +651,17 @@ if (!empty($search)) {
                                     echo "<td>" . htmlspecialchars($row["enrollment_number"]) . "</td>";
                                     echo "<td>" . htmlspecialchars($row["gr_number"]) . "</td>";
                                     echo "<td>
-                                                     <form method='post' action=''>
-                                                         <input type='hidden' name='user_id' value='" . $row["id"] . "'>
-                                                         <input type='hidden' name='name' value='" . htmlspecialchars($row["name"]) . "'>
-                                                         <input type='hidden' name='email' value='" . htmlspecialchars($row["email"]) . "'>
-                                                         <input type='hidden' name='enrollment_number' value='" . htmlspecialchars($row["enrollment_number"]) . "'>
-                                                         <input type='hidden' name='gr_number' value='" . htmlspecialchars($row["gr_number"]) . "'>
-                                                         <button type='submit' name='restore_access' class='btn btn-success btn-sm'>
-                                                             <i class='bi bi-person-check me-1'></i> Restore Access
-                                                         </button>
-                                                     </form>
-                                                 </td>";
+                                                    <form method='post' action=''>
+                                                        <input type='hidden' name='user_id' value='" . $row["id"] . "'>
+                                                        <input type='hidden' name='name' value='" . htmlspecialchars($row["name"]) . "'>
+                                                        <input type='hidden' name='email' value='" . htmlspecialchars($row["email"]) . "'>
+                                                        <input type='hidden' name='enrollment_number' value='" . htmlspecialchars($row["enrollment_number"]) . "'>
+                                                        <input type='hidden' name='gr_number' value='" . htmlspecialchars($row["gr_number"]) . "'>
+                                                        <button type='submit' name='restore_access' class='btn btn-success btn-sm'>
+                                                            <i class='bi bi-person-check me-1'></i> Restore Access
+                                                        </button>
+                                                    </form>
+                                                </td>";
                                     echo "</tr>";
                                 }
                             } else {
@@ -707,7 +693,6 @@ if (!empty($search)) {
         if (tabParam) {
             // If tab parameter exists in URL, activate that tab
             const tabToActivate = document.querySelector('#userTabs button[data-bs-target="#' + tabParam + '-users"]');
-
             if (tabToActivate) {
                 const tab = new bootstrap.Tab(tabToActivate);
                 tab.show();
@@ -719,16 +704,13 @@ if (!empty($search)) {
         tabs.forEach(function(tab) {
             tab.addEventListener('shown.bs.tab', function(event) {
                 const targetId = event.target.getAttribute('data-bs-target').replace('#', '').replace('-users', '');
-
-
-
+                // Update URL without refreshing page, preserving search term
                 const searchParam = urlParams.get('search') ? '&search=' + urlParams.get('search') : '';
-
                 history.replaceState(null, null, '?tab=' + targetId + searchParam);
             });
         });
 
-
+        // Sidebar toggle functionality for mobile
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
         const mainContent = document.querySelector('.main-content');
@@ -742,4 +724,5 @@ if (!empty($search)) {
     });
 </script>
 </body>
- </html>
+
+</html>

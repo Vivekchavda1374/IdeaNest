@@ -1,267 +1,326 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
-include 'db.php';
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (!isset($_POST['name'], $_POST['email'], $_POST['enrollment_number'], $_POST['gr_number'], $_POST['password'], $_POST['confirm_password'])) {
-        echo "<script>alert('Please fill in all fields!'); window.location.href='register.php';</script>";
-        exit();
+$error = '';
+$success = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Database connection
+    $conn = new mysqli("localhost", "root", "", "ideanest");
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
 
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $enrollment_number = trim($_POST['enrollment_number']);
-    $gr_number = trim($_POST['gr_number']);
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm_password'];
+    $name = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $enrollment_number = trim($_POST['enrollment_number'] ?? '');
+    $gr_number = trim($_POST['gr_number'] ?? '');
+    $about = trim($_POST['about'] ?? '');
+    $phone_no = trim($_POST['phone_no'] ?? '');
+    $department = trim($_POST['department'] ?? '');
+    $passout_year = trim($_POST['passout_year'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $confirm = $_POST['confirm'] ?? '';
 
-    // Validate ER number is exactly 11 digits
-    if (!preg_match("/^\d{11}$/", $enrollment_number)) {
-        echo "<script>alert('ER Number must be exactly 11 digits!'); window.location.href='register.php';</script>";
-        exit();
-    }
-
-    // Validate GR number is exactly 6 digits
-    if (!preg_match("/^\d{6}$/", $gr_number)) {
-        echo "<script>alert('GR Number must be exactly 6 digits!'); window.location.href='register.php';</script>";
-        exit();
-    }
-
-    $allowed_domains = ["marwadiuniversity.ac.in", "marwadiuniversity.edu.in"];
-    $email_domain = substr(strrchr($email, "@"), 1);
-
-    if (!in_array($email_domain, $allowed_domains)) {
-        echo "<script>alert('Please use a Marwadi University email ID!'); window.location.href='register.php';</script>";
-        exit();
-    }
-    if ($password !== $confirm_password) {
-        echo "<script>alert('Passwords do not match!'); window.location.href='register.php';</script>";
-        exit();
-    }
-    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-
-    $stmt_email_check = $conn->prepare("SELECT id FROM register WHERE email = ?");
-    $stmt_email_check->bind_param("s", $email);
-    $stmt_email_check->execute();
-    $stmt_email_check->store_result();
-
-    if ($stmt_email_check->num_rows > 0) {
-        echo "<script>alert('This email is already registered! Please log in.'); window.location.href='login.php';</script>";
-        exit();
-    }
-    $stmt_email_check->close();
-
-    $stmt_check = $conn->prepare("SELECT id FROM register WHERE enrollment_number = ?");
-    $stmt_check->bind_param("s", $enrollment_number);
-    $stmt_check->execute();
-    $stmt_check->store_result();
-
-    if ($stmt_check->num_rows > 0) {
-        echo "<script>alert('This ER Number is already registered!'); window.location.href='register.php';</script>";
-        exit();
-    }
-    $stmt_check->close();
-
-    $default_about = "Hello! I am a new user.";
-    $default_image = "image/ict3.png"; // Using an existing image as default
-    $stmt = $conn->prepare("INSERT INTO register (name, email, enrollment_number, gr_number, password, about, user_image) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssss", $name, $email, $enrollment_number, $gr_number, $hashed_password, $default_about, $default_image);
-
-    if ($stmt->execute()) {
-        echo "<script>alert('Registration successful! You can now log in.'); window.location.href='login.php';</script>";
+    // Validation
+    if (!$name || !$email || !$enrollment_number || !$gr_number || !$password || !$confirm || !$passout_year) {
+        $error = 'All fields are required.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Invalid email address.';
+    } elseif ($password !== $confirm) {
+        $error = 'Passwords do not match.';
     } else {
-        echo "<script>alert('Error during registration. Please try again!');</script>";
-    }
+        // Check for duplicate email
+        $stmt = $conn->prepare("SELECT id FROM register WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
+            $error = 'Email already registered.';
+        } else {
+            // Hash password
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // Close connections
-    $stmt->close();
+            // Insert user
+            $user_image = ""; // or a default image path if you want
+            $stmt = $conn->prepare("INSERT INTO register (name, email, enrollment_number, gr_number, password, about, phone_no, department, passout_year, user_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssssssssss", $name, $email, $enrollment_number, $gr_number, $hashed_password, $about, $phone_no, $department, $passout_year, $user_image);
+
+            if ($stmt->execute()) {
+        $success = 'Registration successful! You can now <a href="login.php">login</a>.';
+            } else {
+                $error = 'Registration failed. Please try again.';
+            }
+        }
+        $stmt->close();
+    }
     $conn->close();
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
+    <title>Register | IdeaNest</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-    body {
-        background: url('image/register_image.jpg') no-repeat center center/cover;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .register-container {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        width: 80%;
-        max-width: 900px;
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 10px;
-        padding: 40px;
-        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .register-box {
-        flex: 1;
-        padding: 20px;
-    }
-
-    .register-box h2 {
-        color: #00838f;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
-
-    .form-control {
-        border-radius: 5px;
-        margin-bottom: 15px;
-    }
-
-    .btn-register {
-        background: #00838f;
-        color: white;
-        width: 100%;
-        padding: 10px;
-        border-radius: 5px;
-        font-weight: bold;
-        border: none;
-        cursor: pointer;
-    }
-
-    .btn-register:hover {
-        background: #005f6b;
-    }
-
-    .login-link {
-        display: block;
-        margin-top: 10px;
-        color: #555;
-        text-decoration: none;
-    }
-
-    .email-input-group {
-        display: flex;
-        margin-bottom: 15px;
-    }
-
-    .email-input-group input {
-        border-radius: 5px 0 0 5px;
-        border-right: none;
-    }
-
-    .email-input-group select {
-        border-radius: 0 5px 5px 0;
-        border-left: none;
-        min-width: 220px;
-        background-color: #f8f9fa;
-    }
-
-    .form-hint {
-        font-size: 12px;
-        color: #666;
-        margin-top: -12px;
-        margin-bottom: 10px;
-    }
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #ec4899;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-700: #374151;
+            --white: #fff;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+        }
+        .register-card {
+            position: relative;
+            z-index: 1;
+            margin: 2rem 0;
+            max-width: 600px;
+            width: 100%;
+            padding: 3.5rem 2.5rem 2.5rem 2.5rem;
+            background: var(--white);
+            border-radius: 1.5rem;
+            box-shadow: 0 12px 40px rgba(99,102,241,0.13), 0 2px 8px rgba(0,0,0,0.06);
+            animation: fadeInUp 0.7s;
+        }
+        .register-card .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+        .register-card h2 {
+            font-weight: 700;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .register-card p {
+            color: var(--gray-200);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-label {
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 1.5px solid var(--gray-200);
+            background: var(--gray-50);
+            font-size: 1rem;
+            color: var(--gray-700);
+            transition: border-color 0.2s;
+        }
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            background: var(--white);
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            font-weight: 700;
+            border: none;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.08);
+            transition: background 0.2s, transform 0.2s;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
+            transform: translateY(-2px) scale(1.01);
+        }
+        .error-message {
+            background: #fee2e2;
+            color: #b91c1c;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
+        .success-message {
+            background: #d1fae5;
+            color: #047857;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
+        .register-card .login-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--primary);
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .register-card .login-link:hover {
+            color: var(--accent);
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        @media (max-width: 500px) {
+            .register-card { padding: 1.5rem 0.5rem; }
+        }
+        .register-bg {
+            min-height: 100vh;
+            width: 100vw;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .register-bg::before {
+            content: "";
+            position: absolute;
+            top: -100px; left: -100px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, #fff3 0%, transparent 70%);
+            z-index: 0;
+        }
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .form-row .form-group {
+            flex: 1 1 0;
+            margin-bottom: 0;
+        }
+        .floating {
+            position: relative;
+        }
+        .floating .form-control {
+            padding-top: 1.25rem;
+            padding-bottom: 0.5rem;
+        }
+        .floating .form-label {
+            position: absolute;
+            top: 0.9rem;
+            left: 1rem;
+            color: #888;
+            font-size: 1rem;
+            pointer-events: none;
+            transition: 0.2s;
+            background: transparent;
+        }
+        .floating .form-control:focus + .form-label,
+        .floating .form-control:not(:placeholder-shown):not([value=""]) + .form-label {
+            top: 0.2rem;
+            left: 0.9rem;
+            font-size: 0.85rem;
+            color: var(--primary);
+            background: var(--white);
+            padding: 0 0.25rem;
+        }
+        @media (max-width: 700px) {
+            .form-row { flex-direction: column; gap: 0; }
+        }
     </style>
 </head>
-
 <body>
-
-    <div class="register-container">
-        <div class="register-box">
-            <h2>REGISTER</h2>
-            <p>Please fill in the details to create an account</p>
-            <form id="registerForm" action="register.php" method="post">
-                <input type="text" name="name" class="form-control" placeholder="Full Name" required>
-
-                <div class="email-input-group">
-                    <input type="text" name="email_username" id="email_username" class="form-control"
-                        placeholder="Email Username" required>
-                    <select name="email_domain" id="email_domain" class="form-control">
-                        <option value="@marwadiuniversity.ac.in">@marwadiuniversity.ac.in</option>
-                        <option value="@marwadiuniversity.edu.in">@marwadiuniversity.edu.in</option>
-                    </select>
-                </div>
-                <input type="hidden" name="email" id="complete_email">
-
-                <input type="text" name="enrollment_number" id="enrollment_number" class="form-control"
-                    placeholder="ER Number" maxlength="11" pattern="\d{11}" title="ER Number must be exactly 11 digits"
-                    required>
-                <div class="form-hint">ER Number must be exactly 11 digits</div>
-
-                <input type="text" name="gr_number" id="gr_number" class="form-control" placeholder="GR Number"
-                    maxlength="6" pattern="\d{6}" title="GR Number must be exactly 6 digits" required>
-                <div class="form-hint">GR Number must be exactly 6 digits</div>
-
-                <input type="password" name="password" class="form-control" placeholder="Password" required>
-                <input type="password" name="confirm_password" class="form-control" placeholder="Confirm Password"
-                    required>
-
-                <button type="submit" class="btn btn-register">REGISTER</button>
-
-                <a href="login.php" class="login-link">Already have an account? Login here</a>
-            </form>
+    <div class="register-bg">
+    <form class="register-card" method="post" autocomplete="off">
+        <div class="logo">
+            <i class="fas fa-lightbulb"></i>
         </div>
+        <h2>Create Account</h2>
+        <p>Sign up for your IdeaNest account</p>
+        <?php if ($error): ?>
+            <div class="error-message"><?php echo htmlspecialchars($error); ?></div>
+        <?php endif; ?>
+        <?php if ($success): ?>
+            <div class="success-message"><?php echo $success; ?></div>
+        <?php endif; ?>
+            <div class="form-row">
+                <div class="form-group floating">
+                    <input class="form-control" type="text" id="username" name="username" required autofocus placeholder=" ">
+                    <label class="form-label" for="username">Full Name</label>
+        </div>
+                <div class="form-group floating">
+                    <input class="form-control" type="email" id="email" name="email" required placeholder=" ">
+            <label class="form-label" for="email">Email</label>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group floating">
+                    <input class="form-control" type="text" id="enrollment_number" name="enrollment_number" required placeholder=" ">
+                    <label class="form-label" for="enrollment_number">Enrollment Number</label>
+                </div>
+                <div class="form-group floating">
+                    <input class="form-control" type="text" id="gr_number" name="gr_number" required placeholder=" ">
+                    <label class="form-label" for="gr_number">GR Number</label>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group floating">
+                    <input class="form-control" type="text" id="about" name="about" maxlength="500" placeholder=" ">
+                    <label class="form-label" for="about">About</label>
+                </div>
+                <div class="form-group floating">
+                    <input class="form-control" type="text" id="phone_no" name="phone_no" maxlength="20" placeholder=" ">
+                    <label class="form-label" for="phone_no">Phone Number</label>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group floating">
+                    <input class="form-control" type="text" id="department" name="department" maxlength="100" placeholder=" ">
+                    <label class="form-label" for="department">Department</label>
+                </div>
+                <div class="form-group floating">
+                    <input class="form-control" type="number" id="passout_year" name="passout_year" min="1900" max="2099" required placeholder=" ">
+                    <label class="form-label" for="passout_year">Passout Year</label>
+                </div>
+        </div>
+            <div class="form-row">
+                <div class="form-group floating">
+                    <input class="form-control" type="password" id="password" name="password" required placeholder=" ">
+            <label class="form-label" for="password">Password</label>
+        </div>
+                <div class="form-group floating">
+                    <input class="form-control" type="password" id="confirm" name="confirm" required placeholder=" ">
+            <label class="form-label" for="confirm">Confirm Password</label>
+                </div>
+        </div>
+        <button class="btn-primary" type="submit">
+            <i class="fas fa-user-plus me-2"></i> Register
+        </button>
+        <a class="login-link" href="login.php">Already have an account? Login</a>
+    </form>
     </div>
-
-    <script>
-    document.getElementById("registerForm").addEventListener("submit", function(event) {
-        // Combine email username and domain
-        const emailUsername = document.getElementById("email_username").value;
-        const emailDomain = document.getElementById("email_domain").value;
-        const completeEmail = emailUsername + emailDomain;
-
-        // Set the complete email to the hidden field
-        document.getElementById("complete_email").value = completeEmail;
-
-        // Validate ER Number - must be exactly 11 digits
-        const erNumber = document.getElementById("enrollment_number").value;
-        if (!/^\d{11}$/.test(erNumber)) {
-            alert("ER Number must be exactly 11 digits!");
-            event.preventDefault();
-            return;
-        }
-
-        // Validate GR Number - must be exactly 6 digits
-        const grNumber = document.getElementById("gr_number").value;
-        if (!/^\d{6}$/.test(grNumber)) {
-            alert("GR Number must be exactly 6 digits!");
-            event.preventDefault();
-            return;
-        }
-
-        // Email domain validation (backup)
-        let validDomains = ["@marwadiuniversity.ac.in", "@marwadiuniversity.edu.in"];
-        let emailDomainPart = emailDomain;
-
-        if (!validDomains.includes(emailDomainPart)) {
-            alert("Please use a Marwadi University email ID!");
-            event.preventDefault();
-        }
-    });
-
-    // Input restrictions for ER and GR numbers - only allow digits
-    document.getElementById("enrollment_number").addEventListener("input", function(e) {
-        this.value = this.value.replace(/[^0-9]/g, '');
-        if (this.value.length > 11) {
-            this.value = this.value.slice(0, 11);
-        }
-    });
-
-    document.getElementById("gr_number").addEventListener("input", function(e) {
-        this.value = this.value.replace(/[^0-9]/g, '');
-        if (this.value.length > 6) {
-            this.value = this.value.slice(0, 6);
-        }
-    });
-    </script>
-
 </body>
-
 </html>

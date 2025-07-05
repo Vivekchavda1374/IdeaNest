@@ -2,19 +2,6 @@
 session_start();
 include 'db.php';
 
-function preventDirectAccess() {
-    // Only allow access from form submission or legitimate referrers
-    if ($_SERVER["REQUEST_METHOD"] != "POST" && !isset($_SESSION['is_admin'])) {
-        // If someone is trying to directly access admin pages
-        if (strpos($_SERVER['PHP_SELF'], 'admin') !== false) {
-            header("Location: ../../../login.php");
-            exit();
-        }
-    }
-}
-
-preventDirectAccess();
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!isset($_POST['er_number'], $_POST['password'])) {
         $error_message = "Invalid form submission";
@@ -22,203 +9,196 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $er_number = $_POST['er_number'];
         $password = $_POST['password'];
 
-        // Check for admin credentials
-        if ($er_number === "admin@ict.com" && $password === "admin@ICT123") {
+        // Check for admin credentials first
+        if($er_number === "admin@ict.com" && $password === "admin@ICT123"){
             // Set admin session variables
             $_SESSION['user_id'] = 'admin';
             $_SESSION['er_number'] = $er_number;
             $_SESSION['user_name'] = 'Administrator';
             $_SESSION['is_admin'] = true;
-            $_SESSION['admin_token'] = bin2hex(random_bytes(32)); // Generate secure token
-            $_SESSION['login_time'] = time();
 
             header("Location: ../../Admin/admin.php");
             exit(); // Stop execution after redirect
-        } elseif ($er_number === "ideanest.ict@gmail.com" && $password === "ideanest@133") {
-            // Set admin session variables for second admin account
-            $_SESSION['user_id'] = 'admin';
-            $_SESSION['er_number'] = $er_number;
-            $_SESSION['user_name'] = 'Administrator';
-            $_SESSION['is_admin'] = true;
-            $_SESSION['admin_token'] = bin2hex(random_bytes(32)); // Generate secure token
-            $_SESSION['login_time'] = time();
-
-            header("Location: ../../Admin/admin.php");
-            exit(); // Stop execution after redirect
-        } else {
-            // If not admin, proceed with regular user login
-            $stmt = $conn->prepare("SELECT id, password, name FROM register WHERE enrollment_number = ? ");
-            $stmt->bind_param("s", $er_number);
-            $stmt->execute();
-            $stmt->store_result();
-
-            if ($stmt->num_rows > 0) {
-                $stmt->bind_result($user_id, $hashed_password, $user_name);
-                $stmt->fetch();
-
-                if (password_verify($password, $hashed_password)) {
-                    $_SESSION['user_id'] = $user_id;
-                    $_SESSION['er_number'] = $er_number;
-                    $_SESSION['user_name'] = $user_name;
-                    $_SESSION['is_admin'] = false;
-                    $_SESSION['login_time'] = time();
-
-                    header("Location: ../../user/index.php");
-                    exit();
-                } else {
-                    $error_message = "Incorrect Password!";
-                }
-            } else {
-                $error_message = "User not found! Please register.";
-            }
-
-            $stmt->close();
         }
+
+        // If not admin, proceed with regular user login
+        $stmt = $conn->prepare("SELECT id, password, name FROM register WHERE enrollment_number = ? ");
+        $stmt->bind_param("s", $er_number);
+        $stmt->execute();
+        $stmt->store_result();
+
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result($user_id, $hashed_password, $user_name);
+            $stmt->fetch();
+
+            if (password_verify($password, $hashed_password)) {
+                $_SESSION['user_id'] = $user_id;
+                $_SESSION['er_number'] = $er_number;
+                $_SESSION['user_name'] = $user_name;
+                $_SESSION['is_admin'] = false;
+
+                header("Location: ../../user/index.php");
+                exit();
+            } else {
+                $error_message = "Incorrect Password!";
+            }
+        } else {
+            $error_message = "User not found! Please register.";
+        }
+
+        $stmt->close();
     }
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <title>Login | IdeaNest</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #ec4899;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-700: #374151;
+            --white: #fff;
+        }
         body {
-            background: url('./image/register_image.jpg') no-repeat center center/cover;
-            height: 100vh;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: center;
+            font-family: 'Inter', sans-serif;
         }
-
-        .login-container {
+        .login-card {
+            background: var(--white);
+            border-radius: 1.25rem;
+            box-shadow: 0 8px 32px rgba(99,102,241,0.10), 0 1.5px 4px rgba(0,0,0,0.04);
+            padding: 2.5rem 2rem 2rem 2rem;
+            max-width: 400px;
+            width: 100%;
+            animation: fadeInUp 0.7s;
+        }
+        .login-card .logo {
             display: flex;
-            justify-content: flex-start;
             align-items: center;
-            width: 80%;
-            max-width: 900px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            padding: 40px;
-            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+            justify-content: center;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
         }
-
-        .login-box {
-            flex: 1;
-            padding: 20px;
-        }
-
-        .login-box h2 {
-            color: #00838f;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .form-control {
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-
-        .btn-container {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-login,
-        .btn-register {
-            flex: 1;
-            padding: 10px;
-            border-radius: 5px;
-            font-weight: bold;
+        .login-card h2 {
+            font-weight: 700;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
             text-align: center;
-            border: none;
-            cursor: pointer;
         }
-
-        .btn-login {
-            background: #00838f;
-            color: white;
+        .login-card p {
+            color: var(--gray-200);
+            text-align: center;
+            margin-bottom: 2rem;
         }
-
-        .btn-login:hover {
-            background: #005f6b;
+        .form-group {
+            margin-bottom: 1.25rem;
         }
-
-        .btn-register {
-            background: #f57c00;
-            color: white;
-        }
-
-        .btn-register:hover {
-            background: #d65a00;
-        }
-
-        .forgot-password {
+        .form-label {
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
             display: block;
-            margin-top: 10px;
-            color: #555;
-            text-decoration: none;
         }
-
-        .admin-info {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #e8f5e9;
-            border-radius: 5px;
-            font-size: 0.9em;
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 1.5px solid var(--gray-200);
+            background: var(--gray-50);
+            font-size: 1rem;
+            color: var(--gray-700);
+            transition: border-color 0.2s;
+        }
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            background: var(--white);
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            font-weight: 700;
+            border: none;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.08);
+            transition: background 0.2s, transform 0.2s;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
+            transform: translateY(-2px) scale(1.01);
+        }
+        .error-message {
+            background: #fee2e2;
+            color: #b91c1c;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
+        .login-card .register-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--primary);
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .login-card .register-link:hover {
+            color: var(--accent);
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        @media (max-width: 500px) {
+            .login-card { padding: 1.5rem 0.5rem; }
         }
     </style>
 </head>
 
 <body>
-<div class="login-container">
-    <div class="login-box">
-        <h2>LOGIN</h2>
-        <p>Please login with your ER number and Password</p>
-        <form action="login.php" method="post">
-            <input type="text" name="er_number" class="form-control" placeholder="Enrollment Number " required>
-            <input type="password" name="password" class="form-control" placeholder="Password" required>
-
-            <div class="btn-container">
-                <button type="submit" class="btn btn-login">LOGIN</button>
-                <a href="./register.php" class="btn btn-register">REGISTER</a>
+    <form class="login-card" method="post" autocomplete="off">
+        <div class="logo">
+            <i class="fas fa-lightbulb"></i>
             </div>
-
-            <a href="#" class="forgot-password">Forgot Password?</a>
-        </form>
-    </div>
-</div>
-
+        <h2>Welcome Back</h2>
+        <p>Sign in to your IdeaNest account</p>
 <?php if (isset($error_message)) : ?>
-    <div class="modal fade show" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true"
-         style="display:block;">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="errorModalLabel">Login Failed</h5>
-                    <button type="button" class="btn-close" onclick="closeModal()"></button>
+            <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
+        <?php endif; ?>
+        <div class="form-group">
+            <label class="form-label" for="er_number">ER Number</label>
+            <input class="form-control" type="text" id="er_number" name="er_number" required autofocus>
                 </div>
-                <div class="modal-body text-center">
-                    <p><?php echo $error_message; ?></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
-                </div>
-            </div>
+        <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input class="form-control" type="password" id="password" name="password" required>
         </div>
-    </div>
-
-    <script>
-        function closeModal() {
-            document.getElementById('errorModal').style.display = 'none';
-        }
-    </script>
-<?php endif; ?>
-
+        <button class="btn-primary" type="submit">
+            <i class="fas fa-sign-in-alt me-2"></i> Login
+        </button>
+        <a class="register-link" href="register.php">Don't have an account? Register</a>
+    </form>
 </body>
 </html>
