@@ -380,17 +380,13 @@ function getpriority1Class($priority1) {
 
     <div class="dashboard-container">
         <!-- Page Header -->
-        <div class="page-header d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="mb-1"><i class="fas fa-project-diagram me-2"></i>Idea Management Dashboard</h1>
-                <p class="mb-0">Track, manage, and organize all your ideas in one place</p>
-            </div>
-            <div>
-                <a href="form.php" class="btn btn-light btn-lg">
+   
+            <div class="d-flex justify-content-end mb-3">
+                <a href="form.php" class="btn btn-primary btn-lg ms-auto me-2">
                     <i class="fas fa-plus me-2"></i>Your Idea
                 </a>
             </div>
-        </div>
+     
 
         <?php if (isset($error_message)): ?>
         <div class="alert alert-danger" role="alert">

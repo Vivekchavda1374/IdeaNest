@@ -47,40 +47,62 @@ $conn->close();
 ?>
 
 <style>
-/* Glassmorphism and modern dashboard styles */
-.dashboard-hero {
+body {
+    background: linear-gradient(120deg, #f8f9fa 60%, #e0c3fc 100%);
+    min-height: 100vh;
+}
+.hero-section {
     background: linear-gradient(120deg, #3a86ff 0%, #8338ec 100%);
     border-radius: 2rem;
-    padding: 3rem 2rem 2rem 2rem;
+    padding: 2.5rem 2rem 2rem 2rem;
     margin-bottom: 2.5rem;
     box-shadow: 0 8px 32px 0 rgba(58,134,255,0.15);
     color: #fff;
     position: relative;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
 }
-.dashboard-hero .avatar {
-    width: 80px;
-    height: 80px;
-    background: rgba(255,255,255,0.15);
+.hero-avatar {
+    width: 90px;
+    height: 90px;
+    background: rgba(255,255,255,0.18);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.5rem;
+    font-size: 2.7rem;
     font-weight: bold;
-    margin-bottom: 1rem;
     box-shadow: 0 4px 24px rgba(67,97,238,0.10);
     border: 2px solid rgba(255,255,255,0.25);
 }
-.glass-card {
+.hero-content h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+.hero-content p {
+    font-size: 1.1rem;
+    margin-bottom: 0.2rem;
+}
+.stats-row {
+    margin-bottom: 2.5rem;
+}
+.stat-card {
     background: rgba(255,255,255,0.7);
     border-radius: 1.5rem;
     box-shadow: 0 8px 32px 0 rgba(58,134,255,0.10);
     backdrop-filter: blur(8px);
     border: 1px solid rgba(255,255,255,0.18);
+    padding: 2rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
     transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
 }
-.glass-card:hover {
+.stat-card:hover {
     transform: translateY(-4px) scale(1.02);
     box-shadow: 0 16px 48px 0 rgba(58,134,255,0.18);
 }
@@ -92,7 +114,6 @@ $conn->close();
     align-items: center;
     justify-content: center;
     font-size: 2rem;
-    margin-right: 1rem;
     box-shadow: 0 2px 8px rgba(58,134,255,0.10);
 }
 .stat-projects { background: linear-gradient(135deg, #3a86ff 60%, #4cc9f0 100%); color: #fff; }
@@ -100,72 +121,68 @@ $conn->close();
 .stat-bookmarks { background: linear-gradient(135deg, #38b000 60%, #3a86ff 100%); color: #fff; }
 .stat-label { font-size: 1.1rem; color: #6c757d; }
 .stat-value { font-size: 2.2rem; font-weight: 700; }
-@media (max-width: 767px) {
-    .dashboard-hero { padding: 2rem 1rem 1.5rem 1rem; }
-    .glass-card { border-radius: 1rem; }
+.progress-section {
+    margin-bottom: 2rem;
+}
+@media (max-width: 991px) {
+    .hero-section { flex-direction: column; text-align: center; gap: 1.5rem; }
+    .hero-avatar { margin: 0 auto; }
+    .hero-content { width: 100%; }
 }
 </style>
 
-<div class="container-fluid px-0" style="background: #f8f9fa; min-height: 100vh;">
-    <div class="row justify-content-center">
-        <div class="col-12 col-lg-10">
-            <!-- Hero Section -->
-            <div class="dashboard-hero text-center mb-5">
-                <div class="avatar mx-auto mb-2">
-                    <?php echo htmlspecialchars($user_initial); ?>
-                </div>
-                <h1 class="fw-bold mb-2">Welcome, <?php echo htmlspecialchars($user_name); ?>!</h1>
-                <p class="mb-1 fs-5">Your innovation dashboard at a glance</p>
-                <p class="mb-0 text-white-50">Email: <?php echo htmlspecialchars($user_email); ?></p>
-                <a href="./forms/new_project_add.php" class="btn btn-light btn-lg mt-4 shadow-sm px-4 fw-semibold">
-                    <i class="fas fa-plus me-2"></i> New Project
-                </a>
-            </div>
-            <!-- Stats Cards -->
-            <div class="row g-4 mb-4">
-                <div class="col-md-4">
-                    <div class="glass-card p-4 d-flex align-items-center h-100">
-                        <div class="stat-icon stat-projects me-3">
-                            <i class="fas fa-project-diagram"></i>
-                        </div>
-                        <div>
-                            <div class="stat-label">Projects</div>
-                            <div class="stat-value"><?php echo $projectCount; ?></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="glass-card p-4 d-flex align-items-center h-100">
-                        <div class="stat-icon stat-ideas me-3">
-                            <i class="fas fa-lightbulb"></i>
-                        </div>
-                        <div>
-                            <div class="stat-label">Ideas</div>
-                            <div class="stat-value"><?php echo $blogCount; ?></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="glass-card p-4 d-flex align-items-center h-100">
-                        <div class="stat-icon stat-bookmarks me-3">
-                            <i class="fas fa-bookmark"></i>
-                        </div>
-                        <div>
-                            <div class="stat-label">Bookmarks</div>
-                            <div class="stat-value"><?php echo $bookMarkCount; ?></div>
-                        </div>
-                    </div>
+<div class="container-fluid px-0" style="min-height: 100vh;">
+    <!-- Hero Section -->
+    <div class="hero-section mb-4">
+        <div class="hero-avatar">
+            <?php echo htmlspecialchars($user_initial); ?>
+        </div>
+        <div class="hero-content">
+            <h1>Welcome, <?php echo htmlspecialchars($user_name); ?>!</h1>
+            <p>Your innovation dashboard at a glance</p>
+            <p class="mb-0 text-white-50">Email: <?php echo htmlspecialchars($user_email); ?></p>
+        </div>
+        <a href="./forms/new_project_add.php" class="btn btn-light btn-lg shadow-sm px-4 fw-semibold ms-auto">
+            <i class="fas fa-plus me-2"></i> New Project
+        </a>
+    </div>
+    <!-- Stats Cards -->
+    <div class="row stats-row g-4 mb-4">
+        <div class="col-12 col-md-4 d-flex">
+            <div class="stat-card stat-projects w-100">
+                <div class="stat-icon stat-projects"><i class="fas fa-project-diagram"></i></div>
+                <div>
+                    <div class="stat-label">Projects</div>
+                    <div class="stat-value"><?php echo $projectCount; ?></div>
                 </div>
             </div>
-            <!-- Main Content Cards (Progress bars, etc.) -->
-            <div class="row g-4 mb-4 align-items-stretch">
-                <div class="col-12 col-md-6 d-flex">
-                    <?php include './forms/progressbar.php'; ?>
-                </div>
-                <div class="col-12 col-md-6 d-flex">
-                    <?php include './forms/progressbar_idea.php'; ?>
+        </div>
+        <div class="col-12 col-md-4 d-flex">
+            <div class="stat-card stat-ideas w-100">
+                <div class="stat-icon stat-ideas"><i class="fas fa-lightbulb"></i></div>
+                <div>
+                    <div class="stat-label">Ideas</div>
+                    <div class="stat-value"><?php echo $blogCount; ?></div>
                 </div>
             </div>
+        </div>
+        <div class="col-12 col-md-4 d-flex">
+            <div class="stat-card stat-bookmarks w-100">
+                <div class="stat-icon stat-bookmarks"><i class="fas fa-bookmark"></i></div>
+                <div>
+                    <div class="stat-label">Bookmarks</div>
+                    <div class="stat-value"><?php echo $bookMarkCount; ?></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Progress Bar Cards -->
+    <div class="row g-4 mb-4 align-items-stretch" style="width:100%; margin:0;">
+        <div class="col-12 col-md-6 d-flex" style="padding:0 1rem;">
+            <?php include './forms/progressbar.php'; ?>
+        </div>
+        <div class="col-12 col-md-6 d-flex" style="width: 100%;padding:0 1rem;">
+            <?php include './forms/progressbar_idea.php'; ?>
         </div>
     </div>
 </div>
