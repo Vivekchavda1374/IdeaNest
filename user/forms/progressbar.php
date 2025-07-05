@@ -410,39 +410,34 @@ $conn->close();
     <div class="dashboard">
         <h1 class="dashboard-title">Project Classification Dashboard</h1>
 
-        <div class="glass-card p-4">
+        <div class="glass-card p-4" style="width:100%;">
             <h2 class="fw-bold mb-4" style="color: #3a86ff;">Project Classifications</h2>
             <?php if(isset($classifications) && count($classifications) > 0): ?>
                 <?php foreach($classifications as $item): ?>
                     <?php
                     $percentage = ($item["count"] / $total_count) * 100;
-                    $color = isset($colors[$item["classification"]]) ? $colors[$item["classification"]] : "#6c757d";
-                    $icon = 'fas fa-code';
-                    switch($item["classification"]) {
-                        case 'Web Application': $icon = 'fas fa-globe'; break;
-                        case 'Mobile Application': $icon = 'fas fa-mobile-alt'; break;
-                        case 'Desktop Software': $icon = 'fas fa-desktop'; break;
-                        case 'Embedded Software': $icon = 'fas fa-microchip'; break;
-                        case 'IoT Device': $icon = 'fas fa-network-wired'; break;
-                        case 'Robotics': $icon = 'fas fa-robot'; break;
-                        case 'Electronics Circuit': $icon = 'fas fa-bolt'; break;
-                    }
                     ?>
                     <div class="mb-4">
-                        <div class="d-flex align-items-center mb-2">
-                            <div class="stat-icon" style="background: <?php echo $color; ?>20; color: <?php echo $color; ?>;">
-                                <i class="<?php echo $icon; ?>"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold" style="font-size: 1.1rem; color: <?php echo $color; ?>;">
-                                    <?php echo htmlspecialchars($item["classification"]); ?>
+                        <div class="d-flex align-items-center mb-2 justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="stat-icon" style="background: #3a86ff20; color: #3a86ff;">
+                                    <i class="fas fa-code"></i>
                                 </div>
-                                <div class="text-muted small">Projects: <?php echo $item["count"]; ?> (<?php echo number_format($percentage, 1); ?>%)</div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold" style="font-size: 1.1rem; color: #3a86ff;">
+                                        <?php echo htmlspecialchars($item["classification"]); ?>
+                                    </div>
+                                    <div class="text-muted small">Projects: <?php echo $item["count"]; ?></div>
+                                </div>
+                            </div>
+                            <div class="fw-bold text-secondary" style="min-width: 56px; text-align: right;">
+                                <?php echo number_format($percentage, 1); ?>%
                             </div>
                         </div>
-                        <div class="progress mb-2">
-                            <div class="progress-bar" style="width: <?php echo $percentage; ?>%; background: <?php echo $color; ?>;">
-                                <?php echo number_format($percentage, 1); ?>%
+                        <div class="progress modern-progress mb-2" style="height: 18px; background: #e9ecef; border-radius: 12px; width: 100%;">
+                            <div class="progress-bar" role="progressbar"
+                                 style="width: <?php echo $percentage; ?>%; background: linear-gradient(90deg, #3a86ff 0%, #8338ec 100%); font-weight: 600; font-size: 1rem; border-radius: 12px;"
+                                 aria-valuenow="<?php echo $percentage; ?>" aria-valuemin="0" aria-valuemax="100">
                             </div>
                         </div>
                     </div>
