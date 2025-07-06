@@ -1,12 +1,25 @@
 <?php
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Database connection
 include "../Login/Login/db.php";
+include "project_notification.php";
 
 // Site name
 $site_name = "IdeaNest Admin";
 
 // Start session
 session_start();
+
+// Check if admin is logged in
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    // Redirect to admin login page if not logged in
+    header("Location: ../Login/Login/login.php");
+    exit();
+}
+
 $user_name = "Admin";
 
 // Handle project actions
@@ -87,6 +100,15 @@ function approveProject($project_id, $conn) {
         $update_stmt->bind_param("i", $project_id);
         $update_stmt->execute();
 
+        // Send email notification
+        $email_options = [
+            'subject' => 'Congratulations! Your Project "' . $project['project_name'] . '" Has Been Approved',
+            'custom_text' => 'As an approved project creator, you now have access to our developer resources and community forums where you can showcase your work and get feedback from fellow creators.',
+            'include_project_details' => true
+        ];
+
+        sendProjectStatusEmail($project_id, 'approved', '', $email_options);
+
         // Redirect back to admin with success message
         header("Location: admin.php?message=Project approved successfully");
         exit;
@@ -139,6 +161,15 @@ function rejectProject($project_id, $rejection_reason, $conn) {
         $update_stmt = $conn->prepare($update_query);
         $update_stmt->bind_param("i", $project_id);
         $update_stmt->execute();
+
+        // Send email notification
+        $email_options = [
+            'subject' => 'Important Update About Your Project "' . $project['project_name'] . '"',
+            'custom_text' => 'Our team is always available to help you improve your project. Feel free to reach out if you need guidance on addressing the issues mentioned.',
+            'include_project_details' => true
+        ];
+
+        sendProjectStatusEmail($project_id, 'rejected', $rejection_reason, $email_options);
 
         // Redirect back to admin with success message
         header("Location: admin.php?message=Project rejected successfully");
@@ -215,6 +246,9 @@ $total_projects_query = "SELECT
     (SELECT COUNT(*) FROM denial_projects) as denied_projects";
 
 $total_projects_result = $conn->query($total_projects_query);
+if (!$total_projects_result) {
+    die("Error in query: " . $conn->error);
+}
 $counts = $total_projects_result->fetch_assoc();
 
 $all_projects = $counts['all_projects'];
@@ -363,6 +397,9 @@ if ($selected_time_range == "Last 7 Days") {
 // Category data with filter
 $category_query = "SELECT classification, COUNT(*) as count FROM admin_approved_projects" . $category_where_clause . " GROUP BY classification";
 $category_result = $conn->query($category_query);
+if (!$category_result) {
+    die("Error in category query: " . $conn->error);
+}
 
 $category_labels = [];
 $category_data = [];
@@ -386,6 +423,9 @@ $recent_activities = [];
 // Get recent project submissions
 $recent_submissions_query = "SELECT id, project_name, user_id, submission_date FROM projects ORDER BY submission_date DESC LIMIT 3";
 $recent_submissions_result = $conn->query($recent_submissions_query);
+if (!$recent_submissions_result) {
+    die("Error in recent submissions query: " . $conn->error);
+}
 
 while ($row = $recent_submissions_result->fetch_assoc()) {
     $time_ago = time_elapsed_string($row['submission_date']);
@@ -400,6 +440,9 @@ while ($row = $recent_submissions_result->fetch_assoc()) {
 // Get recent approvals
 $recent_approvals_query = "SELECT project_name, submission_date FROM `admin_approved_projects` ORDER BY submission_date DESC LIMIT 2";
 $recent_approvals_result = $conn->query($recent_approvals_query);
+if (!$recent_approvals_result) {
+    die("Error in recent approvals query: " . $conn->error);
+}
 
 while ($row = $recent_approvals_result->fetch_assoc()) {
     $time_ago = time_elapsed_string($row['submission_date']);
@@ -414,6 +457,9 @@ while ($row = $recent_approvals_result->fetch_assoc()) {
 // Get recent rejections
 $recent_rejections_query = "SELECT project_name, rejection_date, rejection_reason FROM denial_projects ORDER BY rejection_date DESC LIMIT 2";
 $recent_rejections_result = $conn->query($recent_rejections_query);
+if (!$recent_rejections_result) {
+    die("Error in recent rejections query: " . $conn->error);
+}
 
 while ($row = $recent_rejections_result->fetch_assoc()) {
     $time_ago = time_elapsed_string($row['rejection_date']);
@@ -438,6 +484,9 @@ $pending_projects_query = "SELECT p.id, p.project_name, p.project_type, p.classi
                           ORDER BY p.submission_date DESC 
                           LIMIT 5";
 $pending_projects_result = $conn->query($pending_projects_query);
+if (!$pending_projects_result) {
+    die("Error in pending projects query: " . $conn->error);
+}
 
 while ($row = $pending_projects_result->fetch_assoc()) {
     // Determine icon based on project type
@@ -473,15 +522,22 @@ while ($row = $pending_projects_result->fetch_assoc()) {
 }
 $rejected_projects_query = "SELECT COUNT(*) as count FROM denial_projects";
 $rejected_projects_result = $conn->query($rejected_projects_query);
+if (!$rejected_projects_result) {
+    die("Error in rejected projects query: " . $conn->error);
+}
 $rejected_projects = $rejected_projects_result->fetch_assoc()['count'];
+
+// Initialize variables to prevent undefined variable errors
+$show_rejection_form = false;
+$reject_project_id = null;
 // Helper function to convert MySQL datetime to "time ago" format
 function time_elapsed_string($datetime, $full = false) {
     $now = new DateTime;
     $ago = new DateTime($datetime);
     $diff = $now->diff($ago);
 
-    $diff->w = floor($diff->d / 7);
-    $diff->d -= $diff->w * 7;
+    $weeks = floor($diff->d / 7);
+    $diff->d -= $weeks * 7;
 
     $string = array(
         'y' => 'year',
@@ -493,16 +549,17 @@ function time_elapsed_string($datetime, $full = false) {
         's' => 'second',
     );
 
-    foreach ($string as $k => &$v) {
-        if ($diff->$k) {
-            $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? 's' : '');
-        } else {
-            unset($string[$k]);
+    $result = [];
+    foreach ($string as $k => $v) {
+        if ($k == 'w' && $weeks) {
+            $result[] = $weeks . ' week' . ($weeks > 1 ? 's' : '');
+        } elseif ($k != 'w' && $diff->$k) {
+            $result[] = $diff->$k . ' ' . $v . ($diff->$k > 1 ? 's' : '');
         }
     }
 
-    if (!$full) $string = array_slice($string, 0, 1);
-    return $string ? implode(', ', $string) . ' ago' : 'just now';
+    if (!$full) $result = array_slice($result, 0, 1);
+    return $result ? implode(', ', $result) . ' ago' : 'just now';
 }
 
 // Check for messages
@@ -788,13 +845,12 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             .modal {
                 z-index: 1050;
             }
-            <!-- Current Recent Activity style -->
-            <style>
-                 /* Timeline Styles */
-             .activity-timeline {
-                 position: relative;
-                 padding: 1rem;
-             }
+
+            /* Timeline Styles */
+            .activity-timeline {
+                position: relative;
+                padding: 1rem;
+            }
 
             .activity-item {
                 display: flex;
@@ -835,7 +891,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                 overflow: hidden;
                 text-overflow: ellipsis;
                 display: -webkit-box;
-                -webkit-line-clamp: 2; /* Number of lines to show */
+                -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
             }
 
@@ -855,6 +911,54 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
 
             .activity-read-more .btn {
                 font-size: 0.875rem;
+            }
+
+            /* Additional required styles */
+            .stat-card {
+                border: none;
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+                border-radius: 0.5rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+            }
+
+            .stat-icon-container {
+                width: 3rem;
+                height: 3rem;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .stat-icon {
+                font-size: 1.5rem;
+            }
+
+            .bg-primary-light {
+                background-color: rgba(67, 97, 238, 0.1);
+            }
+
+            .bg-success-light {
+                background-color: rgba(16, 185, 129, 0.1);
+            }
+
+            .bg-warning-light {
+                background-color: rgba(245, 158, 11, 0.1);
+            }
+
+            .bg-danger-light {
+                background-color: rgba(239, 68, 68, 0.1);
+            }
+
+            .stat-progress-text {
+                font-size: 0.75rem;
+                color: #28a745;
+                margin-top: 0.25rem;
             }
 
             /* Media Query for Responsive Sidebar */
@@ -1178,48 +1282,50 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                     <h5 class="card-title mb-0">Project Activity</h5>
                     <div class="dropdown">
                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <?php echo $selected_time_range; ?>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <?php foreach ($time_ranges as $range): ?>
-                                    <li><a class="dropdown-item <?php echo $range == $selected_time_range ? 'active' : ''; ?>" href="?time_range=<?php echo urlencode($range); ?>"><?php echo $range; ?></a></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="projectsChart" height="300"></canvas>
+                            <?php echo htmlspecialchars($selected_time_range); ?>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <?php foreach ($time_ranges as $range): ?>
+                                <li><a class="dropdown-item <?php echo $range == $selected_time_range ? 'active' : ''; ?>" href="?time_range=<?php echo urlencode($range); ?>"><?php echo htmlspecialchars($range); ?></a></li>
+                            <?php endforeach; ?>
+                        </ul>
                     </div>
                 </div>
-            </div>
-            <!-- Project Categories Chart -->
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Project Categories</h5>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <?php echo $selected_category_range; ?>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <?php foreach ($category_ranges as $range): ?>
-                                    <li><a class="dropdown-item <?php echo $range == $selected_category_range ? 'active' : ''; ?>" href="?category_range=<?php echo urlencode($range); ?>"><?php echo $range; ?></a></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="categoriesChart" height="300"></canvas>
-                    </div>
+                <div class="card-body">
+                    <canvas id="projectsChart" height="300"></canvas>
                 </div>
             </div>
         </div>
+        
+        <!-- Project Categories Chart -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Project Categories</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <?php echo htmlspecialchars($selected_category_range); ?>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <?php foreach ($category_ranges as $range): ?>
+                                <li><a class="dropdown-item <?php echo $range == $selected_category_range ? 'active' : ''; ?>" href="?category_range=<?php echo urlencode($range); ?>"><?php echo htmlspecialchars($range); ?></a></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoriesChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 
+        <!-- Recent Activity and Pending Projects Row -->
         <div class="row g-4">
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Recent Activity - Projects</h5>
+                        <h5 class="card-title mb-0">Recent Activity</h5>
                     </div>
                     <div class="card-body p-0">
                         <div class="activity-timeline">
@@ -1229,23 +1335,91 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                         <i class="bi bi-<?php echo $activity['type'] == 'primary' ? 'plus-circle' : ($activity['type'] == 'success' ? 'check-circle' : 'x-circle'); ?>"></i>
                                     </div>
                                     <div class="activity-content">
-                                        <h6 class="activity-title"><?php echo $activity['title']; ?></h6>
-                                        <p class="activity-text"><?php echo $activity['description']; ?></p>
-                                        <span class="activity-time"><?php echo $activity['time_ago']; ?></span>
+                                        <h6 class="activity-title"><?php echo htmlspecialchars($activity['title']); ?></h6>
+                                        <p class="activity-text"><?php echo htmlspecialchars($activity['description']); ?></p>
+                                        <span class="activity-time"><?php echo htmlspecialchars($activity['time_ago']); ?></span>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
-
                     </div>
                 </div>
             </div>
 
+            <!-- Pending Projects List -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Pending Projects</h5>
+                        <a href="admin_view_project.php" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <?php if (empty($pending_projects_list)): ?>
+                            <div class="text-center py-4">
+                                <i class="bi bi-inbox" style="font-size: 3rem; color: #dee2e6;"></i>
+                                <p class="text-muted mt-2">No pending projects at the moment</p>
+                            </div>
+                        <?php else: ?>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Project</th>
+                                            <th>Type</th>
+                                            <th>Technologies</th>
+                                            <th>Submitted By</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($pending_projects_list as $project): ?>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="project-icon me-2">
+                                                            <i class="bi bi-<?php echo $project['icon']; ?>" style="font-size: 1.25rem; color: #4361ee;"></i>
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="mb-0"><?php echo htmlspecialchars($project['name']); ?></h6>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td><?php echo htmlspecialchars($project['type']); ?></td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark"><?php echo htmlspecialchars($project['technologies']); ?></span>
+                                                </td>
+                                                <td><?php echo htmlspecialchars($project['submitted_by']); ?></td>
+                                                <td>
+                                                    <span class="badge bg-<?php echo $project['status_class']; ?>">
+                                                        <?php echo htmlspecialchars($project['status']); ?>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm" role="group">
+                                                        <a href="admin.php?action=view&id=<?php echo $project['id']; ?>" class="btn btn-outline-primary btn-sm">
+                                                            <i class="bi bi-eye"></i> View
+                                                        </a>
+                                                        <a href="admin.php?action=approve&id=<?php echo $project['id']; ?>" class="btn btn-outline-success btn-sm" onclick="return confirm('Are you sure you want to approve this project?')">
+                                                            <i class="bi bi-check"></i> Approve
+                                                        </a>
+                                                        <a href="admin.php?action=reject&id=<?php echo $project['id']; ?>" class="btn btn-outline-danger btn-sm">
+                                                            <i class="bi bi-x"></i> Reject
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
     <?php endif; ?>
-    </div>
-    </div>
+    </div> <!-- Close main-content -->
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
@@ -1255,8 +1429,8 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
     <script>
         // Sidebar Toggle
         document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('show');
-            document.querySelector('.main-content').classList.toggle('pushed');
+            document.querySelector('.sidebar')?.classList.toggle('show');
+            document.querySelector('.main-content')?.classList.toggle('pushed');
         });
 
         // Project chart
@@ -1265,11 +1439,11 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             var projectsChart = new Chart(projectCtx, {
                 type: 'line',
                 data: {
-                    labels: <?php echo json_encode($project_chart_labels); ?>,
+                    labels: <?php echo json_encode($project_chart_labels ?? []); ?>,
                     datasets: [
                         {
                             label: 'Submitted',
-                            data: <?php echo json_encode($submitted_projects_data); ?>,
+                            data: <?php echo json_encode($submitted_projects_data ?? []); ?>,
                             borderColor: '#4361ee',
                             backgroundColor: 'rgba(67, 97, 238, 0.1)',
                             tension: 0.4,
@@ -1277,7 +1451,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                         },
                         {
                             label: 'Approved',
-                            data: <?php echo json_encode($approved_projects_data); ?>,
+                            data: <?php echo json_encode($approved_projects_data ?? []); ?>,
                             borderColor: '#10b981',
                             backgroundColor: 'rgba(16, 185, 129, 0.1)',
                             tension: 0.4,
@@ -1285,7 +1459,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                         },
                         {
                             label: 'Rejected',
-                            data: <?php echo json_encode($rejected_projects_data); ?>,
+                            data: <?php echo json_encode($rejected_projects_data ?? []); ?>,
                             borderColor: '#ef4444',
                             backgroundColor: 'rgba(239, 68, 68, 0.1)',
                             tension: 0.4,
@@ -1319,10 +1493,10 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             var categoriesChart = new Chart(categoryCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: <?php echo json_encode($category_labels); ?>,
+                    labels: <?php echo json_encode($category_labels ?? []); ?>,
                     datasets: [{
-                        data: <?php echo json_encode($category_data); ?>,
-                        backgroundColor: <?php echo json_encode($category_colors); ?>,
+                        data: <?php echo json_encode($category_data ?? []); ?>,
+                        backgroundColor: <?php echo json_encode($category_colors ?? []); ?>,
                         borderWidth: 0
                     }]
                 },

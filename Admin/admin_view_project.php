@@ -1,13 +1,29 @@
 <?php
-require '../vendor/autoload.php';
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Include PHPMailer directly
+require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/Exception.php';
+require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/PHPMailer.php';
+require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/SMTP.php';
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
+
 include "../Login/Login/db.php";
 include "project_notification.php";
 $site_name = "IdeaNest Admin";
 
 session_start();
+
+// Check if admin is logged in
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    // Redirect to admin login page if not logged in
+    header("Location: ../Login/Login/login.php");
+    exit();
+}
 if(isset($_SESSION['user_name'])) {
     $user_name = $_SESSION['user_name'];
 } else {
