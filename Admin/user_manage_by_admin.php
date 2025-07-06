@@ -488,6 +488,12 @@ if (!empty($search)) {
         </li>
         <hr class="sidebar-divider">
         <li class="sidebar-item">
+            <a href="notifications.php" class="sidebar-link">
+                <i class="bi bi-bell"></i>
+                <span>Notifications</span>
+            </a>
+        </li>
+        <li class="sidebar-item">
             <a href="settings.php" class="sidebar-link">
                 <i class="bi bi-gear"></i>
                 <span>Settings</span>
