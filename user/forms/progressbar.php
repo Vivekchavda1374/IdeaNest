@@ -180,6 +180,7 @@ $conn->close();
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
             margin-bottom: 30px;
+            width: 100%;
         }
 
         .dashboard-title {

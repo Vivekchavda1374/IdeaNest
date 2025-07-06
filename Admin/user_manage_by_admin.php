@@ -1,4 +1,8 @@
 <?php
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Database connection
 $servername = "localhost";
 $username = "root";
@@ -12,6 +16,14 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
+}
+
+// Start session and check if admin is logged in
+session_start();
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    // Redirect to admin login page if not logged in
+    header("Location: ../Login/Login/login.php");
+    exit();
 }
 
 // Set default active tab
@@ -94,12 +106,18 @@ if (!empty($search)) {
     $active_users_sql = "SELECT id, name, email, enrollment_number, gr_number FROM register 
                          WHERE name LIKE ? OR gr_number LIKE ? OR enrollment_number LIKE ?";
     $stmt = $conn->prepare($active_users_sql);
+    if (!$stmt) {
+        die("Error preparing active users query: " . $conn->error);
+    }
     $stmt->bind_param("sss", $search_term, $search_term, $search_term);
     $stmt->execute();
     $active_users_result = $stmt->get_result();
 } else {
     $active_users_sql = "SELECT id, name, email, enrollment_number, gr_number FROM register";
     $active_users_result = $conn->query($active_users_sql);
+    if (!$active_users_result) {
+        die("Error in active users query: " . $conn->error);
+    }
 }
 
 // Get all blocked users with search functionality
@@ -107,12 +125,18 @@ if (!empty($search)) {
     $blocked_users_sql = "SELECT id, name, email, enrollment_number, gr_number FROM removed_user 
                           WHERE name LIKE ? OR gr_number LIKE ? OR enrollment_number LIKE ?";
     $stmt = $conn->prepare($blocked_users_sql);
+    if (!$stmt) {
+        die("Error preparing blocked users query: " . $conn->error);
+    }
     $stmt->bind_param("sss", $search_term, $search_term, $search_term);
     $stmt->execute();
     $blocked_users_result = $stmt->get_result();
 } else {
     $blocked_users_sql = "SELECT id, name, email, enrollment_number, gr_number FROM removed_user";
     $blocked_users_result = $conn->query($blocked_users_sql);
+    if (!$blocked_users_result) {
+        die("Error in blocked users query: " . $conn->error);
+    }
 }
 ?>
 

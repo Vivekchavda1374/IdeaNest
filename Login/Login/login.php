@@ -10,12 +10,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = $_POST['password'];
 
         // Check for admin credentials first
-        if($er_number === "admin@ict.com" && $password === "admin@ICT123"){
+        if($er_number === "ideanest.ict@gmail.com" && $password === "ideanest133"){
             // Set admin session variables
             $_SESSION['user_id'] = 'admin';
             $_SESSION['er_number'] = $er_number;
             $_SESSION['user_name'] = 'Administrator';
             $_SESSION['is_admin'] = true;
+            $_SESSION['admin_logged_in'] = true; // Add this line for admin session validation
 
             header("Location: ../../Admin/admin.php");
             exit(); // Stop execution after redirect
@@ -186,6 +187,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <p>Sign in to your IdeaNest account</p>
 <?php if (isset($error_message)) : ?>
             <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
+        <?php endif; ?>
+<?php if (isset($_GET['logout']) && $_GET['logout'] === 'success') : ?>
+            <div class="success-message" style="background: #d1fae5; color: #065f46; border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 1rem; text-align: center; font-weight: 500;">You have been successfully logged out!</div>
         <?php endif; ?>
         <div class="form-group">
             <label class="form-label" for="er_number">ER Number</label>

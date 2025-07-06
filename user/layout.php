@@ -34,7 +34,7 @@ $user_email = isset($_SESSION['email']) ? $_SESSION['email'] : "admin@ICT.com";
             </a>
         </li>
         <li>
-            <a href="<?php echo $basePath; ?>../Admin/user_project_search.php">
+            <a href="<?php echo $basePath; ?>all_projects.php">
                 <i class="fas fa-project-diagram"></i>
                 <span>Projects</span>
             </a>

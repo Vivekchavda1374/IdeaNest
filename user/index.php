@@ -27,22 +27,26 @@ $bookMarkResult = $conn->query($bookMarkSql);
 $bookMarkRow = $bookMarkResult->fetch_assoc();
 $bookMarkCount = $bookMarkRow['bookmark_count'];
 
-$user_id = $_SESSION['user_id'];
+$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "User";
 $user_initial = !empty($user_name) ? substr($user_name, 0, 1) : "U";
-$emailSql = "SELECT email FROM register WHERE id = ?";
-$stmt = $conn->prepare($emailSql);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$emailResult = $stmt->get_result();
-if ($emailResult->num_rows > 0) {
-    $emailRow = $emailResult->fetch_assoc();
-    $user_email = $emailRow['email'];
-    $_SESSION['email'] = $user_email;
+if ($user_id) {
+    $emailSql = "SELECT email FROM register WHERE id = ?";
+    $stmt = $conn->prepare($emailSql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $emailResult = $stmt->get_result();
+    if ($emailResult->num_rows > 0) {
+        $emailRow = $emailResult->fetch_assoc();
+        $user_email = $emailRow['email'];
+        $_SESSION['email'] = $user_email;
+    } else {
+        $user_email = "admin@ICT.com";
+    }
+    $stmt->close();
 } else {
     $user_email = "admin@ICT.com";
 }
-$stmt->close();
 $conn->close();
 ?>
 

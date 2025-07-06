@@ -1,61 +1,14 @@
 <?php
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 include "../Login/Login/db.php";
 
-// Try multiple paths to find the vendor autoloader
-$possible_paths = [
-    require_once 'D:/study/study/sem6/HCD/Student Project/IdeaNest/vendor/phpmailer/phpmailer/src/Exception.php',
-    require_once 'D:/study/study/sem6/HCD/Student Project/IdeaNest/vendor/phpmailer/phpmailer/src/PHPMailer.php',
-    require_once 'D:/study/study/sem6/HCD/Student Project/IdeaNest/vendor/phpmailer/phpmailer/src/SMTP.php',
-
-    $_SERVER['DOCUMENT_ROOT'] . '/project/IdeaNest/vendor/autoload.php',
-    'vendor/autoload.php',
-    dirname(__FILE__) . '/../vendor/autoload.php',
-    dirname(__FILE__) . '/../../vendor/autoload.php',
-    dirname(dirname(__FILE__)) . '/vendor/autoload.php',
-    $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php'
-];
-
-$autoloader_found = false;
-foreach ($possible_paths as $path) {
-    if (file_exists($path)) {
-        require $path;
-        $autoloader_found = true;
-        break;
-    }
-}
-
-// If autoloader not found, try direct inclusion of PHPMailer files
-if (!$autoloader_found || !class_exists('PHPMailer\PHPMailer\PHPMailer')) {
-    $phpmailer_paths = [
-        '../vendor/phpmailer/phpmailer/src/',
-        '../../vendor/phpmailer/phpmailer/src/',
-        $_SERVER['DOCUMENT_ROOT'] . '/project/IdeaNest/vendor/phpmailer/phpmailer/src/',
-        dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/',
-        dirname(__FILE__) . '/../../vendor/phpmailer/phpmailer/src/',
-        $_SERVER['DOCUMENT_ROOT'] . '/vendor/phpmailer/phpmailer/src/'
-    ];
-
-    $phpmailer_found = false;
-    foreach ($phpmailer_paths as $path) {
-        if (file_exists($path . 'PHPMailer.php')) {
-            require_once $path . 'Exception.php';
-            require_once $path . 'PHPMailer.php';
-            require_once $path . 'SMTP.php';
-            $phpmailer_found = true;
-            break;
-        }
-    }
-
-    if (!$phpmailer_found) {
-        // Make sure these directories exist and create them if needed
-        $custom_path = dirname(__FILE__) . '/../lib/PHPMailer/src/';
-        if (!file_exists($custom_path)) {
-            mkdir($custom_path, 0777, true);
-        }
-
-        die("PHPMailer not found. Please run 'composer require phpmailer/phpmailer' in your project root or manually install PHPMailer.");
-    }
-}
+// Direct inclusion of PHPMailer files
+require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/Exception.php';
+require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/PHPMailer.php';
+require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/SMTP.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -94,17 +47,17 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $e
         'logo_url' => 'logo-no-background.png',
         'support_email' => 'ideanest.ict@gmail.com',
         'company_address' => 'Marwadi University',
-        'website_url' => 'http://localhost/project/IdeaNest/user/index.php',
-        'dashboard_url' => 'http://localhost/project/IdeaNest/user/index.php',
-        'submission_url' => 'http://localhost/project/IdeaNest/user/forms/new_project_add.php',
+        'website_url' => 'http://localhost/IdeaNest/user/index.php',
+        'dashboard_url' => 'http://localhost/IdeaNest/user/index.php',
+        'submission_url' => 'http://localhost/IdeaNest/user/forms/new_project_add.php',
         'include_project_details' => true,
         'custom_text' => '',
 
         'smtp_host' => 'smtp.gmail.com',
         'smtp_port' => 587,
-        'smtp_username' => 'ideanest.ict@gmail.com', // Add your email
-        'smtp_password' => 'luou xlhs ojuw auvx', // Add your app password (not your regular password)
-        'smtp_secure' => 'tls' // Use 'ssl' for port 465
+        'smtp_username' => 'ideanest.ict@gmail.com',
+        'smtp_password' => 'luou xlhs ojuw auvx',
+        'smtp_secure' => 'tls'
     ];
 
     // Merge provided options with defaults
@@ -146,7 +99,7 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $e
         $mail = new PHPMailer(true);
 
         // Server settings
-        $mail->SMTPDebug = 0; // Set to 2 for debugging
+        $mail->SMTPDebug = 0; // Set to 0 for production, 2 for debugging
         $mail->isSMTP();
         $mail->Host = $options['smtp_host'];
         $mail->SMTPAuth = true;
@@ -154,6 +107,19 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $e
         $mail->Password = $options['smtp_password'];
         $mail->SMTPSecure = $options['smtp_secure'];
         $mail->Port = $options['smtp_port'];
+        
+        // Additional settings for better compatibility
+        $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            )
+        );
+        
+        // Set timeout values for XAMPP compatibility
+        $mail->Timeout = 30;
+        $mail->SMTPKeepAlive = true;
 
         // Recipients
         $mail->setFrom($options['support_email'], $options['company_name']);
@@ -379,4 +345,5 @@ function createRejectedEmailContent($user_name, $project, $rejection_reason, $op
 
     return $html;
 }
+
 ?>

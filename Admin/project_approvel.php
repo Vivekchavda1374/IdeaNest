@@ -16,6 +16,13 @@ if ($conn->connect_error) {
 // Start session if not already started
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
+
+// Check if admin is logged in
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    // Redirect to admin login page if not logged in
+    header("Location: ../Login/Login/login.php");
+    exit();
+}
 }
 
 // Handle bookmark toggle
