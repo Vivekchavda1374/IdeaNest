@@ -419,6 +419,7 @@ while ($row = $category_result->fetch_assoc()) {
 
 // Recent activities
 $recent_activities = [];
+$all_activities = [];
 
 // Get recent project submissions
 $recent_submissions_query = "SELECT id, project_name, user_id, submission_date FROM projects ORDER BY submission_date DESC LIMIT 3";
@@ -429,12 +430,15 @@ if (!$recent_submissions_result) {
 
 while ($row = $recent_submissions_result->fetch_assoc()) {
     $time_ago = time_elapsed_string($row['submission_date']);
-    $recent_activities[] = [
+    $activity = [
         'type' => 'primary',
         'title' => 'New Project Submitted',
         'description' => 'Project "' . $row['project_name'] . '" was submitted by User #' . $row['user_id'],
-        'time_ago' => $time_ago
+        'time_ago' => $time_ago,
+        'date' => $row['submission_date']
     ];
+    $recent_activities[] = $activity;
+    $all_activities[] = $activity;
 }
 
 // Get recent approvals
@@ -446,12 +450,15 @@ if (!$recent_approvals_result) {
 
 while ($row = $recent_approvals_result->fetch_assoc()) {
     $time_ago = time_elapsed_string($row['submission_date']);
-    $recent_activities[] = [
+    $activity = [
         'type' => 'success',
         'title' => 'Project Approved',
         'description' => 'Project "' . $row['project_name'] . '" was approved',
-        'time_ago' => $time_ago
+        'time_ago' => $time_ago,
+        'date' => $row['submission_date']
     ];
+    $recent_activities[] = $activity;
+    $all_activities[] = $activity;
 }
 
 // Get recent rejections
@@ -463,18 +470,75 @@ if (!$recent_rejections_result) {
 
 while ($row = $recent_rejections_result->fetch_assoc()) {
     $time_ago = time_elapsed_string($row['rejection_date']);
-    $recent_activities[] = [
+    $activity = [
         'type' => 'danger',
         'title' => 'Project Rejected',
         'description' => 'Project "' . $row['project_name'] . '" was rejected. Reason: ' . $row['rejection_reason'],
-        'time_ago' => $time_ago
+        'time_ago' => $time_ago,
+        'date' => $row['rejection_date']
     ];
+    $recent_activities[] = $activity;
+    $all_activities[] = $activity;
+}
+
+// Get all activities for "Show More" functionality
+$all_submissions_query = "SELECT id, project_name, user_id, submission_date FROM projects ORDER BY submission_date DESC";
+$all_submissions_result = $conn->query($all_submissions_query);
+if ($all_submissions_result) {
+    while ($row = $all_submissions_result->fetch_assoc()) {
+        $time_ago = time_elapsed_string($row['submission_date']);
+        $all_activities[] = [
+            'type' => 'primary',
+            'title' => 'New Project Submitted',
+            'description' => 'Project "' . $row['project_name'] . '" was submitted by User #' . $row['user_id'],
+            'time_ago' => $time_ago,
+            'date' => $row['submission_date']
+        ];
+    }
+}
+
+$all_approvals_query = "SELECT project_name, submission_date FROM `admin_approved_projects` ORDER BY submission_date DESC";
+$all_approvals_result = $conn->query($all_approvals_query);
+if ($all_approvals_result) {
+    while ($row = $all_approvals_result->fetch_assoc()) {
+        $time_ago = time_elapsed_string($row['submission_date']);
+        $all_activities[] = [
+            'type' => 'success',
+            'title' => 'Project Approved',
+            'description' => 'Project "' . $row['project_name'] . '" was approved',
+            'time_ago' => $time_ago,
+            'date' => $row['submission_date']
+        ];
+    }
+}
+
+$all_rejections_query = "SELECT project_name, rejection_date, rejection_reason FROM denial_projects ORDER BY rejection_date DESC";
+$all_rejections_result = $conn->query($all_rejections_query);
+if ($all_rejections_result) {
+    while ($row = $all_rejections_result->fetch_assoc()) {
+        $time_ago = time_elapsed_string($row['rejection_date']);
+        $all_activities[] = [
+            'type' => 'danger',
+            'title' => 'Project Rejected',
+            'description' => 'Project "' . $row['project_name'] . '" was rejected. Reason: ' . $row['rejection_reason'],
+            'time_ago' => $time_ago,
+            'date' => $row['rejection_date']
+        ];
+    }
 }
 
 // Sort activities by time
 usort($recent_activities, function($a, $b) {
-    return strtotime($b['time_ago']) - strtotime($a['time_ago']);
+    return strtotime($b['date']) - strtotime($a['date']);
 });
+
+usort($all_activities, function($a, $b) {
+    return strtotime($b['date']) - strtotime($a['date']);
+});
+
+// Check if show more is requested
+$show_all_activities = isset($_GET['show_all_activities']) && $_GET['show_all_activities'] == '1';
+$activities_to_show = $show_all_activities ? $all_activities : $recent_activities;
 
 // Pending projects list
 $pending_projects_list = [];
@@ -850,6 +914,28 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             .activity-timeline {
                 position: relative;
                 padding: 1rem;
+                max-height: 400px;
+                overflow-y: auto;
+                scrollbar-width: thin;
+                scrollbar-color: #c1c1c1 #f1f1f1;
+            }
+
+            .activity-timeline::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .activity-timeline::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 3px;
+            }
+
+            .activity-timeline::-webkit-scrollbar-thumb {
+                background: #c1c1c1;
+                border-radius: 3px;
+            }
+
+            .activity-timeline::-webkit-scrollbar-thumb:hover {
+                background: #a8a8a8;
             }
 
             .activity-item {
@@ -1330,12 +1416,17 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         <div class="row g-4">
             <div class="col-lg-4">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Recent Activity</h5>
+                        <?php if (!$show_all_activities): ?>
+                            <a href="?show_all_activities=1" class="btn btn-sm btn-outline-primary">Show More</a>
+                        <?php else: ?>
+                            <a href="admin.php" class="btn btn-sm btn-outline-secondary">Show Less</a>
+                        <?php endif; ?>
                     </div>
                     <div class="card-body p-0">
                         <div class="activity-timeline">
-                            <?php foreach ($recent_activities as $activity): ?>
+                            <?php foreach ($activities_to_show as $activity): ?>
                                 <div class="activity-item">
                                     <div class="activity-icon bg-<?php echo $activity['type']; ?>-light text-<?php echo $activity['type']; ?>">
                                         <i class="bi bi-<?php echo $activity['type'] == 'primary' ? 'plus-circle' : ($activity['type'] == 'success' ? 'check-circle' : 'x-circle'); ?>"></i>
@@ -1348,6 +1439,12 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                 </div>
                             <?php endforeach; ?>
                         </div>
+                        <?php if (empty($activities_to_show)): ?>
+                            <div class="text-center py-4">
+                                <i class="bi bi-activity" style="font-size: 2rem; color: #dee2e6;"></i>
+                                <p class="text-muted mt-2">No recent activity</p>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
