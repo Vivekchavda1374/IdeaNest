@@ -77,6 +77,9 @@ if (isset($_POST['toggle_bookmark'])) {
     }
 }
 
+// Include notification backend
+include "notification_backend.php";
+
 // Handle project approval
 if (isset($_POST['approve_project'])) {
     $project_id = $_POST['project_id'];
@@ -102,10 +105,27 @@ if (isset($_POST['approve_project'])) {
             // Delete from projects table
             $delete_sql = "DELETE FROM projects WHERE id = $project_id";
             if ($conn->query($delete_sql) === TRUE) {
+                // Send approval email notification
+                $email_result = sendProjectApprovalEmail($project_id, $conn);
+                
+                // Log the notification
+                $email_to = $project['email'] ?? '';
+                $email_subject = "Congratulations! Your Project \"{$project['project_name']}\" Has Been Approved";
+                $error_message = $email_result['success'] ? null : $email_result['message'];
+                logNotification('project_approval', $project['user_id'], $project_id, 
+                              $email_result['success'] ? 'sent' : 'failed', $email_to, $email_subject, $error_message, $conn);
+                
+                $email_message = '';
+                if ($email_result['success']) {
+                    $email_message = " Email notification sent to user.";
+                } else {
+                    $email_message = " Email notification failed: " . $email_result['message'];
+                }
+                
                 echo "<div class='alert alert-success shadow-sm'>
                         <div class='d-flex align-items-center'>
                             <i class='bi bi-check-circle-fill me-2'></i>
-                            <strong>Success!</strong> Project approved and moved to approved projects!
+                            <strong>Success!</strong> Project approved and moved to approved projects!" . $email_message . "
                         </div>
                       </div>";
             } else {
@@ -121,6 +141,55 @@ if (isset($_POST['approve_project'])) {
                     <div class='d-flex align-items-center'>
                         <i class='bi bi-exclamation-triangle-fill me-2'></i>
                         <strong>Error!</strong> Failed to approve project: " . $conn->error . "
+                    </div>
+                  </div>";
+        }
+    }
+}
+
+// Handle project rejection
+if (isset($_POST['reject_project'])) {
+    $project_id = $_POST['project_id'];
+    $rejection_reason = $_POST['rejection_reason'] ?? 'Project does not meet our criteria.';
+    
+    // Get the project data before deletion
+    $get_project_sql = "SELECT * FROM projects WHERE id = $project_id";
+    $project_result = $conn->query($get_project_sql);
+    
+    if ($project_result->num_rows > 0) {
+        $project = $project_result->fetch_assoc();
+        
+        // Delete from projects table
+        $delete_sql = "DELETE FROM projects WHERE id = $project_id";
+        if ($conn->query($delete_sql) === TRUE) {
+            // Send rejection email notification
+            $email_result = sendProjectRejectionEmail($project_id, $rejection_reason, $conn);
+            
+            // Log the notification
+            $email_to = $project['email'] ?? '';
+            $email_subject = "Important Update About Your Project \"{$project['project_name']}\"";
+            $error_message = $email_result['success'] ? null : $email_result['message'];
+            logNotification('project_rejection', $project['user_id'], $project_id, 
+                          $email_result['success'] ? 'sent' : 'failed', $email_to, $email_subject, $error_message, $conn);
+            
+            $email_message = '';
+            if ($email_result['success']) {
+                $email_message = " Email notification sent to user.";
+            } else {
+                $email_message = " Email notification failed: " . $email_result['message'];
+            }
+            
+            echo "<div class='alert alert-warning shadow-sm'>
+                    <div class='d-flex align-items-center'>
+                        <i class='bi bi-exclamation-triangle-fill me-2'></i>
+                        <strong>Project Rejected!</strong> Project removed from pending list." . $email_message . "
+                    </div>
+                  </div>";
+        } else {
+            echo "<div class='alert alert-danger shadow-sm'>
+                    <div class='d-flex align-items-center'>
+                        <i class='bi bi-exclamation-triangle-fill me-2'></i>
+                        <strong>Error!</strong> Failed to reject project: " . $conn->error . "
                     </div>
                   </div>";
         }
@@ -447,12 +516,18 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
                                     <p class="mt-2"><?php echo nl2br(htmlspecialchars($row["description"])); ?></p>
                                 </div>
                                 <div class="mt-4">
-                                    <form method="post">
-                                        <input type="hidden" name="project_id" value="<?php echo $row["id"]; ?>">
-                                        <button type="submit" name="approve_project" class="btn btn-approve">
-                                            <i class="bi bi-check-lg me-1"></i> Approve Project
+                                    <div class="action-buttons">
+                                        <form method="post" class="d-inline me-2">
+                                            <input type="hidden" name="project_id" value="<?php echo $row["id"]; ?>">
+                                            <button type="submit" name="approve_project" class="btn btn-approve">
+                                                <i class="bi bi-check-lg me-1"></i> Approve Project
+                                            </button>
+                                        </form>
+                                        <button type="button" class="btn btn-reject" 
+                                                onclick="openRejectModal(<?php echo $row["id"]; ?>, '<?php echo htmlspecialchars($row["project_name"]); ?>')">
+                                            <i class="bi bi-x-lg me-1"></i> Reject Project
                                         </button>
-                                    </form>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -623,7 +698,48 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
         </div>
     </div>
 
+    <!-- Rejection Modal -->
+    <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectModalLabel">
+                        <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+                        Reject Project
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post">
+                    <div class="modal-body">
+                        <input type="hidden" name="project_id" id="rejectProjectId">
+                        <p>Are you sure you want to reject <strong id="rejectProjectName"></strong>?</p>
+                        <div class="mb-3">
+                            <label for="rejection_reason" class="form-label">Rejection Reason (Optional):</label>
+                            <textarea class="form-control" id="rejection_reason" name="rejection_reason" rows="4" 
+                                      placeholder="Please provide a reason for rejection..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="reject_project" class="btn btn-danger">
+                            <i class="bi bi-x-lg me-1"></i> Reject Project
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function openRejectModal(projectId, projectName) {
+            document.getElementById('rejectProjectId').value = projectId;
+            document.getElementById('rejectProjectName').textContent = projectName;
+            var modal = new bootstrap.Modal(document.getElementById('rejectModal'));
+            modal.show();
+        }
+    </script>
 </body>
 
 </html>

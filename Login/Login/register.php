@@ -49,7 +49,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bind_param("ssssssssss", $name, $email, $enrollment_number, $gr_number, $hashed_password, $about, $phone_no, $department, $passout_year, $user_image);
 
             if ($stmt->execute()) {
-        $success = 'Registration successful! You can now <a href="login.php">login</a>.';
+                $user_id = $conn->insert_id;
+                
+                // Send new user notification to admin
+                include "../../Admin/notification_backend.php";
+                $notification_result = sendNewUserNotificationToAdmin($user_id, $conn);
+                
+                // Log the notification
+                $user_query = "SELECT * FROM register WHERE id = ?";
+                $user_stmt = $conn->prepare($user_query);
+                $user_stmt->bind_param("i", $user_id);
+                $user_stmt->execute();
+                $user_result = $user_stmt->get_result();
+                $user = $user_result->fetch_assoc();
+                
+                $admin_email = getSetting($conn, 'admin_email', 'ideanest.ict@gmail.com');
+                $email_subject = "New User Registration - " . getSetting($conn, 'site_name', 'IdeaNest');
+                $error_message = $notification_result['success'] ? null : $notification_result['message'];
+                logNotification('new_user_notification', $user_id, null, 
+                              $notification_result['success'] ? 'sent' : 'failed', $admin_email, $email_subject, $error_message, $conn);
+                
+                $success = 'Registration successful! You can now <a href="login.php">login</a>.';
             } else {
                 $error = 'Registration failed. Please try again.';
             }
