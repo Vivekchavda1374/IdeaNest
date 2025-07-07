@@ -43,47 +43,88 @@ $hardware_options = [
     'Renewable Energy Systems'
 ];
 
-// Handle update
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$request_stmt = $conn->prepare("SELECT id, status, requested_software_classification, requested_hardware_classification, admin_comment FROM subadmin_classification_requests WHERE subadmin_id = ? ORDER BY id DESC LIMIT 1");
+$request_stmt->bind_param("i", $subadmin_id);
+$request_stmt->execute();
+$request_stmt->bind_result($req_id, $req_status, $req_software, $req_hardware, $admin_comment);
+$has_request = $request_stmt->fetch();
+$request_stmt->close();
+
+// Check if there is a pending request
+$pending_stmt = $conn->prepare("SELECT COUNT(*) FROM subadmin_classification_requests WHERE subadmin_id = ? AND status = 'pending'");
+$pending_stmt->bind_param("i", $subadmin_id);
+$pending_stmt->execute();
+$pending_stmt->bind_result($pending_count);
+$pending_stmt->fetch();
+$pending_stmt->close();
+$can_request = ($pending_count == 0);
+
+// If the latest request is approved, update the displayed classification
+if ($has_request && $req_status === 'approved') {
+    $stmt = $conn->prepare("SELECT software_classification, hardware_classification FROM subadmins WHERE id = ?");
+    $stmt->bind_param("i", $subadmin_id);
+    $stmt->execute();
+    $stmt->bind_result($software_classification, $hardware_classification);
+    $stmt->fetch();
+    $stmt->close();
+}
+
+// Handle new classification change request
+if (isset($_POST['request_classification_change'])) {
+    $new_software = $_POST['requested_software_classification'] ?? '';
+    $new_hardware = $_POST['requested_hardware_classification'] ?? '';
+    if ($new_software === '' && $new_hardware === '') {
+        $error = "Please select at least one classification (software or hardware) for your request.";
+    } elseif (!$can_request) {
+        $error = "You already have a pending classification change request. Please wait for the admin to approve or reject it.";
+    } else {
+        $stmt = $conn->prepare("INSERT INTO subadmin_classification_requests (subadmin_id, requested_software_classification, requested_hardware_classification) VALUES (?, ?, ?)");
+        $stmt->bind_param("iss", $subadmin_id, $new_software, $new_hardware);
+        if ($stmt->execute()) {
+            $success = "Classification change request sent to admin.";
+        } else {
+            $error = "Failed to send request.";
+        }
+        $stmt->close();
+        // Refresh to show new request status
+        header("Location: profile.php");
+        exit();
+    }
+}
+
+// Handle update for name, domain, and password
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['request_classification_change'])) {
     $new_name = trim($_POST['name']);
     $new_domain = trim($_POST['domain']);
-    $new_software = $_POST['software_classification'] ?? '';
-    $new_hardware = $_POST['hardware_classification'] ?? '';
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
     if ($new_name === '' || $new_domain === '') {
         $error = "Name and domain are required.";
-    } else if ($new_software === '' && $new_hardware === '') {
-        $error = "Please select at least one classification (software or hardware).";
-    } else if ($new_password !== '' || $confirm_password !== '') {
+    } elseif ($new_password !== '' || $confirm_password !== '') {
         if ($new_password !== $confirm_password) {
             $error = "Passwords do not match.";
-        } else if (strlen($new_password) < 6) {
+        } elseif (strlen($new_password) < 6) {
             $error = "Password must be at least 6 characters.";
         } else {
             $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-            $stmt = $conn->prepare("UPDATE subadmins SET name=?, domain=?, software_classification=?, hardware_classification=?, password=?, profile_complete=1 WHERE id=?");
-            $stmt->bind_param("sssssi", $new_name, $new_domain, $new_software, $new_hardware, $hashed_password, $subadmin_id);
+            $stmt = $conn->prepare("UPDATE subadmins SET name=?, domain=?, password=? WHERE id=?");
+            $stmt->bind_param("sssi", $new_name, $new_domain, $hashed_password, $subadmin_id);
             if ($stmt->execute()) {
                 $success = "Profile and password updated successfully.";
                 $name = $new_name;
                 $domain = $new_domain;
-                $software_classification = $new_software;
-                $hardware_classification = $new_hardware;
             } else {
                 $error = "Failed to update profile/password.";
             }
             $stmt->close();
         }
     } else {
-        $stmt = $conn->prepare("UPDATE subadmins SET name=?, domain=?, software_classification=?, hardware_classification=?, profile_complete=1 WHERE id=?");
-        $stmt->bind_param("ssssi", $new_name, $new_domain, $new_software, $new_hardware, $subadmin_id);
+        $stmt = $conn->prepare("UPDATE subadmins SET name=?, domain=? WHERE id=?");
+        $stmt->bind_param("ssi", $new_name, $new_domain, $subadmin_id);
         if ($stmt->execute()) {
             $success = "Profile updated successfully.";
             $name = $new_name;
             $domain = $new_domain;
-            $software_classification = $new_software;
-            $hardware_classification = $new_hardware;
         } else {
             $error = "Failed to update profile.";
         }
@@ -153,7 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="#projects" class="sidebar-link">
+                <a href="assigned_projects.php" class="sidebar-link">
                     <i class="bi bi-kanban"></i>
                     <span>Assigned Projects</span>
                 </a>
@@ -224,7 +265,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Software Classification</label>
-                        <select class="form-select" name="software_classification">
+                        <select class="form-select" name="software_classification" disabled>
                             <option value="">Select Software Classification</option>
                             <?php foreach($software_options as $opt): ?>
                                 <option value="<?php echo htmlspecialchars($opt); ?>" <?php if($software_classification == $opt) echo 'selected'; ?>><?php echo $opt; ?></option>
@@ -233,7 +274,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Hardware Classification</label>
-                        <select class="form-select" name="hardware_classification">
+                        <select class="form-select" name="hardware_classification" disabled>
                             <option value="">Select Hardware Classification</option>
                             <?php foreach($hardware_options as $opt): ?>
                                 <option value="<?php echo htmlspecialchars($opt); ?>" <?php if($hardware_classification == $opt) echo 'selected'; ?>><?php echo $opt; ?></option>
@@ -251,7 +292,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Update Profile</button>
                 </form>
-                
+                <!-- Classification Change Request Status -->
+                <?php if($has_request && $req_status=='pending'): ?>
+                    <div class="alert alert-warning mt-3">
+                        <b>Classification Change Request:</b> Pending
+                        <br>Software: <?php echo htmlspecialchars($req_software); ?>
+                        <br>Hardware: <?php echo htmlspecialchars($req_hardware); ?>
+                    </div>
+                <?php elseif($has_request && $req_status=='rejected'): ?>
+                    <div class="alert alert-danger mt-3">
+                        <b>Classification Change Request:</b> Rejected<br>
+                        <b>Reason:</b> <?php echo htmlspecialchars($admin_comment); ?><br>
+                        <b>Requested Software:</b> <?php echo htmlspecialchars($req_software); ?><br>
+                        <b>Requested Hardware:</b> <?php echo htmlspecialchars($req_hardware); ?>
+                    </div>
+                <?php endif; ?>
+                <button class="btn btn-outline-primary mt-3 w-100" data-bs-toggle="modal" data-bs-target="#classificationRequestModal" <?php if(!$can_request) echo 'disabled'; ?>>Request Classification Change</button>
+                <!-- Modal -->
+                <div class="modal fade" id="classificationRequestModal" tabindex="-1" aria-labelledby="classificationRequestModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <form method="post">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="classificationRequestModalLabel">Request Classification Change</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="mb-3">
+                            <label class="form-label">Software Classification</label>
+                            <select class="form-select" name="requested_software_classification">
+                              <option value="">Select Software Classification</option>
+                              <?php foreach($software_options as $opt): ?>
+                                <option value="<?php echo htmlspecialchars($opt); ?>"><?php echo $opt; ?></option>
+                              <?php endforeach; ?>
+                            </select>
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label">Hardware Classification</label>
+                            <select class="form-select" name="requested_hardware_classification">
+                              <option value="">Select Hardware Classification</option>
+                              <?php foreach($hardware_options as $opt): ?>
+                                <option value="<?php echo htmlspecialchars($opt); ?>"><?php echo $opt; ?></option>
+                              <?php endforeach; ?>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" name="request_classification_change" class="btn btn-primary">Send Request</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
             </div>
         </div>
     </div>
