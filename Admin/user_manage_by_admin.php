@@ -8,7 +8,7 @@ $servername = "localhost";
 $username = "root";
 $password = ""; // Empty password as per your request
 $dbname = "ideanest";
-$site_name = "IdeaNest"; // Added site name variable
+$site_name = "IdeaNest Admin"; // Added site name variable
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);

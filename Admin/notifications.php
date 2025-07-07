@@ -191,32 +191,25 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <style>
-        body {
-            background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
-            min-height: 100vh;
-        }
-        /* Custom Sidebar Styles */
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
             bottom: 0;
             width: 250px;
-            background: #fff;
+            background-color: #fff;
             box-shadow: 0 0 15px rgba(0,0,0,0.05);
             z-index: 1000;
             transition: all 0.3s;
             overflow-y: auto;
             padding: 1rem;
         }
-
         .sidebar-header {
             padding: 1rem 0;
             text-align: center;
             border-bottom: 1px solid #f1f1f1;
             margin-bottom: 1rem;
         }
-
         .sidebar-brand {
             font-size: 1.5rem;
             font-weight: 600;
@@ -227,21 +220,17 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             justify-content: center;
             margin-bottom: 1rem;
         }
-
         .sidebar-brand i {
             margin-right: 0.5rem;
         }
-
         .sidebar-menu {
             list-style: none;
             padding: 0;
             margin: 0;
         }
-
         .sidebar-item {
             margin-bottom: 0.5rem;
         }
-
         .sidebar-link {
             display: flex;
             align-items: center;
@@ -251,41 +240,32 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             border-radius: 0.25rem;
             transition: all 0.2s;
         }
-
         .sidebar-link i {
             margin-right: 0.75rem;
             font-size: 1.25rem;
         }
-
         .sidebar-link.active, .sidebar-link:focus {
             background-color: #4361ee;
             color: #fff;
         }
-
         .sidebar-link:hover:not(.active) {
             background-color: #f8f9fa;
             color: #4361ee;
         }
-
         .sidebar-divider {
             margin: 1rem 0;
             border-top: 1px solid #f1f1f1;
         }
-
         .sidebar-footer {
             padding: 1rem 0;
             border-top: 1px solid #f1f1f1;
             margin-top: 1rem;
         }
-
-        /* Main Content Styles */
         .main-content {
             margin-left: 250px;
-            padding: 2rem 1rem 1rem 1rem;
+            padding: 1rem;
             transition: all 0.3s;
         }
-
-        /* Topbar Styles */
         .topbar {
             display: flex;
             align-items: center;
@@ -293,18 +273,21 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             padding: 1rem 0;
             margin-bottom: 2rem;
         }
-
         .page-title {
             font-size: 1.5rem;
             font-weight: 600;
             margin: 0;
         }
-
         .topbar-actions {
             display: flex;
             align-items: center;
         }
-
+        .topbar-action {
+            font-size: 1.25rem;
+            color: #6c757d;
+            margin-left: 1rem;
+            position: relative;
+        }
         .user-avatar {
             width: 40px;
             height: 40px;
@@ -316,89 +299,265 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             color: #4361ee;
             margin-left: 1rem;
         }
-
-        /* Stats Cards */
-        .stats-row { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
         .stats-card {
-            flex: 1 1 200px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 15px;
+            background-color: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
             padding: 1.5rem;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
-            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
-
-        .stats-card.success {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        .stats-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
         }
-
-        .stats-card.warning {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        .stats-icon.primary { background-color: rgba(67, 97, 238, 0.1); color: #4361ee; }
+        .stats-icon.success { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .stats-icon.warning { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .stats-icon.danger { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .stats-info {
+            flex-grow: 1;
         }
-
-        .stats-card.danger {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        .stats-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
         }
-
-        .stats-card.info {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        .stats-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
         }
-
-        .stats-number {
-            font-size: 2.5rem;
+        .stats-progress {
+            margin-top: auto;
+        }
+        .stats-percentage {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+            text-align: right;
+        }
+        .timeline {
+            position: relative;
+        }
+        .timeline-item {
+            padding-left: 2rem;
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+        .timeline-icon {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .timeline-icon.primary { background-color: rgba(67, 97, 238, 0.1); border: 2px solid #4361ee; }
+        .timeline-icon.success { background-color: rgba(16, 185, 129, 0.1); border: 2px solid #10b981; }
+        .timeline-icon.danger { background-color: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; }
+        .timeline-content {
+            position: relative;
+        }
+        .timeline-title {
+            font-size: 0.9375rem;
+            margin-bottom: 0.25rem;
+        }
+        .timeline-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+        .timeline-time {
+            font-size: 0.75rem;
+            color: #adb5bd;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .alert-banner {
+            margin-bottom: 20px;
+        }
+        /* Project Details Styles */
+        .project-details {
+            margin-bottom: 20px;
+        }
+        .project-detail-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .project-detail-value {
+            margin-bottom: 15px;
+        }
+        /* Modal styles */
+        .modal-backdrop {
+            z-index: 1040;
+        }
+        .modal {
+            z-index: 1050;
+        }
+        /* Timeline Styles */
+        .activity-timeline {
+            position: relative;
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #c1c1c1 #f1f1f1;
+        }
+        .activity-timeline::-webkit-scrollbar {
+            width: 6px;
+        }
+        .activity-timeline::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        .activity-timeline::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        .activity-timeline::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        .activity-item {
+            display: flex;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .activity-item:last-child {
+            margin-bottom: 0;
+        }
+        .activity-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        .activity-content {
+            flex-grow: 1;
+        }
+        .activity-title {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .activity-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .activity-time {
+            font-size: 0.75rem;
+            color: #adb5bd;
+            display: block;
+        }
+        .activity-read-more {
+            text-align: center;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f1f1;
+            margin-top: 0.5rem;
+        }
+        .activity-read-more .btn {
+            font-size: 0.875rem;
+        }
+        .stat-card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.5rem;
+        }
+        .stat-number {
+            font-size: 2rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
         }
-
-        .stats-label {
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-
-        /* Filter/Search Bar */
-        .filter-bar {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(67, 97, 238, 0.07);
-            padding: 1rem 1.5rem;
-            margin-bottom: 2rem;
+        .stat-icon-container {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
             display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
             align-items: center;
+            justify-content: center;
         }
-
-        .filter-bar .form-select, .filter-bar .form-control {
-            min-width: 160px;
+        .stat-icon {
+            font-size: 1.5rem;
         }
-
-        /* Notification Table */
+        .bg-primary-light {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+        .bg-success-light {
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+        .bg-warning-light {
+            background-color: rgba(245, 158, 11, 0.1);
+        }
+        .bg-danger-light {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        .stat-progress-text {
+            font-size: 0.75rem;
+            color: #28a745;
+            margin-top: 0.25rem;
+        }
+        /* Media Query for Responsive Sidebar */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .main-content.pushed {
+                margin-left: 250px;
+            }
+        }
+        /* Notification-specific styles (keep these) */
         .notification-table {
             background: #fff;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             overflow-x: auto;
         }
-
         .notification-table th, .notification-table td {
             vertical-align: middle;
             padding: 0.75rem 1rem;
         }
-
         .notification-table th {
             background: #f8fafc;
             font-weight: 600;
         }
-
         .notification-table tr {
             transition: background 0.2s;
         }
-
         .notification-table tr:hover {
             background: #f1f5f9;
         }
-
         .status-badge {
             display: inline-block;
             padding: 0.35em 0.85em;
@@ -406,22 +565,32 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             font-size: 0.85em;
             font-weight: 600;
         }
-
         .status-sent { background: #d1fae5; color: #065f46; }
         .status-failed { background: #fee2e2; color: #991b1b; }
         .status-pending { background: #fef9c3; color: #92400e; }
-
         .table-responsive { border-radius: 12px; overflow: hidden; }
         .pagination { justify-content: flex-end; }
-
-        /* Media Query for Responsive Sidebar */
-        @media (max-width: 991.98px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.show { transform: translateX(0); }
-            .main-content { margin-left: 0; }
-            .main-content.pushed { margin-left: 250px; }
-            .stats-row { flex-direction: column; }
+        .glass-card {
+            background: rgba(255,255,255,0.7);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+            backdrop-filter: blur(6px);
+            border-radius: 1.25rem;
+            border: 1px solid rgba(255,255,255,0.18);
+            transition: transform 0.15s, box-shadow 0.15s;
         }
+        .glass-card:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 16px 32px 0 rgba(67, 97, 238, 0.12);
+            z-index: 2;
+        }
+        .accent-bar {
+            border-radius: 1.25rem 1.25rem 0 0;
+        }
+        .icon-bg {
+            box-shadow: 0 2px 8px 0 rgba(67, 97, 238, 0.07);
+        }
+        .stats-row { margin-left: 0; margin-right: 0; }
+        .stats-card { min-width: 0; }
     </style>
 </head>
 <body>
@@ -513,41 +682,61 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         <?php endif; ?>
 
         <!-- Statistics Row -->
-        <div class="stats-row">
-            <div class="stats-card success">
-                <div class="stats-number">
-                    <?php echo ($stats['project_approval']['sent'] ?? 0) + ($stats['project_rejection']['sent'] ?? 0) + ($stats['new_user_notification']['sent'] ?? 0); ?>
-                </div>
-                <div class="stats-label">
-                    <i class="bi bi-check-circle me-2"></i>
-                    Successful Notifications
-                </div>
-            </div>
-            <div class="stats-card danger">
-                <div class="stats-number">
-                    <?php echo ($stats['project_approval']['failed'] ?? 0) + ($stats['project_rejection']['failed'] ?? 0) + ($stats['new_user_notification']['failed'] ?? 0); ?>
-                </div>
-                <div class="stats-label">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    Failed Notifications
+        <div class="row stats-row mb-4 gx-4 gy-4">
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="stats-card success glass-card position-relative overflow-hidden h-100">
+                    <div class="accent-bar bg-success position-absolute top-0 start-0 w-100" style="height: 6px;"></div>
+                    <div class="icon-bg bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mb-3" style="width:56px;height:56px;">
+                        <i class="bi bi-check-circle text-success" style="font-size:2rem;"></i>
+                    </div>
+                    <div class="stats-number">
+                        <?php echo ($stats['project_approval']['sent'] ?? 0) + ($stats['project_rejection']['sent'] ?? 0) + ($stats['new_user_notification']['sent'] ?? 0); ?>
+                    </div>
+                    <div class="stats-label">
+                        Successful Notifications
+                    </div>
                 </div>
             </div>
-            <div class="stats-card info">
-                <div class="stats-number">
-                    <?php echo $stats['new_user_notification']['sent'] ?? 0; ?>
-                </div>
-                <div class="stats-label">
-                    <i class="bi bi-person-plus me-2"></i>
-                    New User Notifications
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="stats-card danger glass-card position-relative overflow-hidden h-100">
+                    <div class="accent-bar bg-danger position-absolute top-0 start-0 w-100" style="height: 6px;"></div>
+                    <div class="icon-bg bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mb-3" style="width:56px;height:56px;">
+                        <i class="bi bi-exclamation-triangle text-danger" style="font-size:2rem;"></i>
+                    </div>
+                    <div class="stats-number">
+                        <?php echo ($stats['project_approval']['failed'] ?? 0) + ($stats['project_rejection']['failed'] ?? 0) + ($stats['new_user_notification']['failed'] ?? 0); ?>
+                    </div>
+                    <div class="stats-label">
+                        Failed Notifications
+                    </div>
                 </div>
             </div>
-            <div class="stats-card warning">
-                <div class="stats-number">
-                    <?php echo ($stats['project_approval']['sent'] ?? 0) + ($stats['project_rejection']['sent'] ?? 0); ?>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="stats-card info glass-card position-relative overflow-hidden h-100">
+                    <div class="accent-bar bg-info position-absolute top-0 start-0 w-100" style="height: 6px;"></div>
+                    <div class="icon-bg bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mb-3" style="width:56px;height:56px;">
+                        <i class="bi bi-person-plus text-info" style="font-size:2rem;"></i>
+                    </div>
+                    <div class="stats-number">
+                        <?php echo $stats['new_user_notification']['sent'] ?? 0; ?>
+                    </div>
+                    <div class="stats-label">
+                        New User Notifications
+                    </div>
                 </div>
-                <div class="stats-label">
-                    <i class="bi bi-envelope me-2"></i>
-                    Project Notifications
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="stats-card warning glass-card position-relative overflow-hidden h-100">
+                    <div class="accent-bar bg-warning position-absolute top-0 start-0 w-100" style="height: 6px;"></div>
+                    <div class="icon-bg bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mb-3" style="width:56px;height:56px;">
+                        <i class="bi bi-envelope text-warning" style="font-size:2rem;"></i>
+                    </div>
+                    <div class="stats-number">
+                        <?php echo ($stats['project_approval']['sent'] ?? 0) + ($stats['project_rejection']['sent'] ?? 0); ?>
+                    </div>
+                    <div class="stats-label">
+                        Project Notifications
+                    </div>
                 </div>
             </div>
         </div>
