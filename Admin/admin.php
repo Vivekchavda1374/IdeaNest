@@ -1078,7 +1078,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             <li class="sidebar-item">
                 <a href="admin.php" class="sidebar-link active">
                     <i class="bi bi-grid-1x2"></i>
-                    <span>admin</span>
+                    <span>Dashboard</span>
                 </a>
             </li>
             <li class="sidebar-item">
