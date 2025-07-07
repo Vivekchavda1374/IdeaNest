@@ -518,11 +518,11 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
                                 <div class="mt-4">
                                     <div class="action-buttons">
                                         <form method="post" class="d-inline me-2">
-                                            <input type="hidden" name="project_id" value="<?php echo $row["id"]; ?>">
-                                            <button type="submit" name="approve_project" class="btn btn-approve">
-                                                <i class="bi bi-check-lg me-1"></i> Approve Project
-                                            </button>
-                                        </form>
+                                        <input type="hidden" name="project_id" value="<?php echo $row["id"]; ?>">
+                                        <button type="submit" name="approve_project" class="btn btn-approve">
+                                            <i class="bi bi-check-lg me-1"></i> Approve Project
+                                        </button>
+                                    </form>
                                         <button type="button" class="btn btn-reject" 
                                                 onclick="openRejectModal(<?php echo $row["id"]; ?>, '<?php echo htmlspecialchars($row["project_name"]); ?>')">
                                             <i class="bi bi-x-lg me-1"></i> Reject Project

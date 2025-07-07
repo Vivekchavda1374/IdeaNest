@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 logNotification('new_user_notification', $user_id, null, 
                               $notification_result['success'] ? 'sent' : 'failed', $admin_email, $email_subject, $error_message, $conn);
                 
-                $success = 'Registration successful! You can now <a href="login.php">login</a>.';
+        $success = 'Registration successful! You can now <a href="login.php">login</a>.';
             } else {
                 $error = 'Registration failed. Please try again.';
             }
