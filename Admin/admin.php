@@ -591,6 +591,8 @@ if (!$rejected_projects_result) {
 }
 $rejected_projects = $rejected_projects_result->fetch_assoc()['count'];
 
+
+
 // Initialize variables to prevent undefined variable errors
 $show_rejection_form = false;
 $reject_project_id = null;
@@ -1106,7 +1108,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                 </a>
             </li>
 
-            <hr class="sidebar-divider">
+           
             <li class="sidebar-item">
                 <a href="settings.php" class="sidebar-link">
                     <i class="bi bi-gear"></i>
@@ -1527,6 +1529,9 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                 </div>
             </div>
         </div>
+
+    <!-- After main dashboard cards -->
+    
     <?php endif; ?>
     </div> <!-- Close main-content -->
 

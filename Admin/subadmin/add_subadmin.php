@@ -58,6 +58,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'])) {
         }
     }
 }
+
+// Handle classification change request approval/rejection
+if (isset($_POST['request_action']) && isset($_POST['request_id'])) {
+    $request_id = intval($_POST['request_id']);
+    $action = $_POST['request_action'];
+    $admin_comment = isset($_POST['admin_comment']) ? trim($_POST['admin_comment']) : '';
+    // Fetch request details
+    $stmt = $conn->prepare("SELECT subadmin_id, requested_software_classification, requested_hardware_classification FROM subadmin_classification_requests WHERE id = ?");
+    $stmt->bind_param("i", $request_id);
+    $stmt->execute();
+    $stmt->bind_result($subadmin_id, $req_software, $req_hardware);
+    if ($stmt->fetch()) {
+        $stmt->close();
+        if ($action === 'approve') {
+            // Update subadmin classification
+            $stmt2 = $conn->prepare("UPDATE subadmins SET software_classification=?, hardware_classification=? WHERE id=?");
+            $stmt2->bind_param("ssi", $req_software, $req_hardware, $subadmin_id);
+            $stmt2->execute();
+            $stmt2->close();
+            // Mark request as approved
+            $stmt3 = $conn->prepare("UPDATE subadmin_classification_requests SET status='approved', decision_date=NOW(), admin_comment=? WHERE id=?");
+            $stmt3->bind_param("si", $admin_comment, $request_id);
+            $stmt3->execute();
+            $stmt3->close();
+        } elseif ($action === 'reject') {
+            // Mark request as rejected
+            $stmt3 = $conn->prepare("UPDATE subadmin_classification_requests SET status='rejected', decision_date=NOW(), admin_comment=? WHERE id=?");
+            $stmt3->bind_param("si", $admin_comment, $request_id);
+            $stmt3->execute();
+            $stmt3->close();
+        }
+    } else {
+        $stmt->close();
+    }
+    // Refresh to avoid resubmission
+    header("Location: add_subadmin.php");
+    exit();
+}
+// Fetch all pending classification change requests
+$pending_requests = [];
+$result = $conn->query("SELECT r.id, r.subadmin_id, r.requested_software_classification, r.requested_hardware_classification, s.email, s.software_classification AS current_software, s.hardware_classification AS current_hardware FROM subadmin_classification_requests r JOIN subadmins s ON r.subadmin_id = s.id WHERE r.status = 'pending' ORDER BY r.request_date ASC");
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $pending_requests[] = $row;
+    }
+}
+// Fetch subadmin count and details
+$subadmin_count = 0;
+$subadmin_list = [];
+$result = $conn->query("SELECT id, name, email, domain, software_classification, hardware_classification FROM subadmins ORDER BY id DESC");
+if ($result) {
+    $subadmin_count = $result->num_rows;
+    while ($row = $result->fetch_assoc()) {
+        $subadmin_list[] = $row;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -226,7 +282,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'])) {
                     <span>Notifications</span>
                 </a>
             </li>
-            <hr class="sidebar-divider">
+          
             <li class="sidebar-item">
                 <a href="../settings.php" class="sidebar-link">
                     <i class="bi bi-gear"></i>
@@ -289,6 +345,112 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'])) {
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100">Add & Send Credentials</button>
                             </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Classification Change Requests -->
+            <div class="row justify-content-center mt-5">
+                <div class="col-md-10">
+                    <div class="card shadow-lg">
+                        <div class="card-body">
+                            <h4 class="mb-4">Pending Classification Change Requests</h4>
+                            <?php if (count($pending_requests) > 0): ?>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Subadmin Email</th>
+                                                <th>Current Software</th>
+                                                <th>Current Hardware</th>
+                                                <th>Requested Software</th>
+                                                <th>Requested Hardware</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($pending_requests as $req): ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($req['email']); ?></td>
+                                                    <td><?php echo htmlspecialchars($req['current_software']); ?></td>
+                                                    <td><?php echo htmlspecialchars($req['current_hardware']); ?></td>
+                                                    <td><?php echo htmlspecialchars($req['requested_software_classification']); ?></td>
+                                                    <td><?php echo htmlspecialchars($req['requested_hardware_classification']); ?></td>
+                                                    <td>
+                                                        <form method="post" style="display:inline-block;">
+                                                            <input type="hidden" name="request_id" value="<?php echo $req['id']; ?>">
+                                                            <button type="submit" name="request_action" value="approve" class="btn btn-success btn-sm">Approve</button>
+                                                        </form>
+                                                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal<?php echo $req['id']; ?>">Reject</button>
+                                                        <!-- Reject Modal -->
+                                                        <div class="modal fade" id="rejectModal<?php echo $req['id']; ?>" tabindex="-1" aria-labelledby="rejectModalLabel<?php echo $req['id']; ?>" aria-hidden="true">
+                                                          <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                              <div class="modal-header">
+                                                                <h5 class="modal-title" id="rejectModalLabel<?php echo $req['id']; ?>">Reject Classification Change</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                              </div>
+                                                              <form method="post">
+                                                                <div class="modal-body">
+                                                                  <input type="hidden" name="request_id" value="<?php echo $req['id']; ?>">
+                                                                  <div class="mb-3">
+                                                                    <label for="admin_comment<?php echo $req['id']; ?>" class="form-label">Reason for rejection</label>
+                                                                    <textarea class="form-control" name="admin_comment" id="admin_comment<?php echo $req['id']; ?>" required></textarea>
+                                                                  </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                  <button type="submit" name="request_action" value="reject" class="btn btn-danger">Reject</button>
+                                                                </div>
+                                                              </form>
+                                                            </div>
+                                                          </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php else: ?>
+                                <div class="alert alert-info mb-0">No pending requests.</div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Subadmin Overview Section -->
+            <div class="row justify-content-center mt-5">
+                <div class="col-md-12">
+                    <div class="glass-card card p-4 w-100">
+                        <h4 class="mb-3"><i class="bi bi-people me-2"></i>Subadmin Overview</h4>
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="fs-5 fw-bold me-2">Total Subadmins:</span>
+                            <span class="badge bg-primary fs-6"> <?php echo $subadmin_count; ?> </span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Department</th>
+                                        <th>Software Classification</th>
+                                        <th>Hardware Classification</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($subadmin_list as $sub): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($sub['name'] ?? ''); ?></td>
+                                        <td><?php echo htmlspecialchars($sub['email'] ?? ''); ?></td>
+                                        <td><?php echo htmlspecialchars($sub['domain'] ?? ''); ?></td>
+                                        <td><?php echo htmlspecialchars($sub['software_classification'] ?? ''); ?></td>
+                                        <td><?php echo htmlspecialchars($sub['hardware_classification'] ?? ''); ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
