@@ -506,13 +506,13 @@ body {
                         <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <span class="project-type-badge">
-                                    <?php echo htmlspecialchars($row['project_type']); ?>
-                                </span>
-                                <small class="text-muted">
-                                    <i class="fas fa-calendar-alt me-1"></i>
-                                    <?php echo date('M d, Y', strtotime($row['bookmarked_at'])); ?>
-                                </small>
-                            </div>
+                                <?php echo htmlspecialchars($row['project_type']); ?>
+                            </span>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                <?php echo date('M d, Y', strtotime($row['bookmarked_at'])); ?>
+                            </small>
+                        </div>
                             
                             <h5 class="project-title">
                                 <?php echo htmlspecialchars($row['project_name']); ?>
@@ -546,13 +546,13 @@ body {
                                 <a href="project_details.php?id=<?php echo $row['id']; ?>" class="btn btn-modern btn-primary-modern flex-fill">
                                     <i class="fas fa-eye"></i>
                                     View Details
-                                </a>
+                            </a>
                                 <form method="post" style="display:inline; flex: 0 0 auto;">
-                                    <input type="hidden" name="project_id" value="<?php echo $row['id']; ?>">
+                                <input type="hidden" name="project_id" value="<?php echo $row['id']; ?>">
                                     <button type="submit" name="toggle_bookmark" class="btn btn-modern btn-danger-modern" title="Remove Bookmark">
                                         <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                                </button>
+                            </form>
                             </div>
                         </div>
                     </div>

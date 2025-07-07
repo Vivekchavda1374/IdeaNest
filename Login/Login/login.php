@@ -44,9 +44,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $error_message = "Incorrect Password!";
             }
         } else {
-            $error_message = "User not found! Please register.";
+            // If not found in register, check subadmins table using email
+            $stmt2 = $conn->prepare("SELECT id, password FROM subadmins WHERE email = ?");
+            $stmt2->bind_param("s", $er_number);
+            $stmt2->execute();
+            $stmt2->store_result();
+            if ($stmt2->num_rows > 0) {
+                $stmt2->bind_result($subadmin_id, $subadmin_hashed_password);
+                $stmt2->fetch();
+                if (password_verify($password, $subadmin_hashed_password)) {
+                    $_SESSION['subadmin_id'] = $subadmin_id;
+                    $_SESSION['subadmin_email'] = $er_number;
+                    $_SESSION['subadmin_logged_in'] = true;
+                    header("Location: ../../Admin/subadmin/dashboard.php");
+                    exit();
+                } else {
+                    $error_message = "Incorrect Password!";
+                }
+            } else {
+                $error_message = "User not found! Please register.";
+            }
+            $stmt2->close();
         }
-
         $stmt->close();
     }
 }

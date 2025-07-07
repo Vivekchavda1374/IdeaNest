@@ -486,6 +486,12 @@ if (!empty($search)) {
                 <span>Users Management</span>
             </a>
         </li>
+        <li class="sidebar-item">
+            <a href="subadmin/add_subadmin.php" class="sidebar-link">
+                <i class="bi bi-person-plus"></i>
+                <span>Add Subadmin</span>
+            </a>
+        </li>
         <hr class="sidebar-divider">
         <li class="sidebar-item">
             <a href="notifications.php" class="sidebar-link">

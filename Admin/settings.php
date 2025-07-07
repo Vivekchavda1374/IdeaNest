@@ -597,6 +597,12 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                 </a>
             </li>
             <li class="sidebar-item">
+                <a href="subadmin/add_subadmin.php" class="sidebar-link">
+                    <i class="bi bi-person-plus"></i>
+                    <span>Add Subadmin</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
                 <a href="notifications.php" class="sidebar-link">
                     <i class="bi bi-bell"></i>
                     <span>Notifications</span>
