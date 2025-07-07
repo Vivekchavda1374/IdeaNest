@@ -4,22 +4,64 @@ if (!isset($_SESSION['subadmin_logged_in']) || !$_SESSION['subadmin_logged_in'])
     header("Location: ../../Login/Login/login.php");
     exit();
 }
-// Only fetch subadmin name/email for greeting, not for profile editing
 include_once "../../Login/Login/db.php";
 $subadmin_id = $_SESSION['subadmin_id'];
-$stmt = $conn->prepare("SELECT email, name FROM subadmins WHERE id = ?");
+// Fetch subadmin's classification
+$stmt = $conn->prepare("SELECT software_classification, hardware_classification FROM subadmins WHERE id = ?");
 $stmt->bind_param("i", $subadmin_id);
 $stmt->execute();
-$stmt->bind_result($email, $name);
+$stmt->bind_result($software_classification, $hardware_classification);
 $stmt->fetch();
 $stmt->close();
+// Fetch projects matching either classification
+$stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE classification = ? OR classification = ?");
+$stmt->bind_param("ss", $software_classification, $hardware_classification);
+$stmt->execute();
+$result = $stmt->get_result();
+
+require_once dirname(__FILE__) . '/../../vendor/phpmailer/phpmailer/src/Exception.php';
+require_once dirname(__FILE__) . '/../../vendor/phpmailer/phpmailer/src/PHPMailer.php';
+require_once dirname(__FILE__) . '/../../vendor/phpmailer/phpmailer/src/SMTP.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require_once dirname(__FILE__) . '/../../Admin/project_notification.php';
+
+// Handle approve/reject actions
+$action_message = '';
+if (isset($_POST['action']) && isset($_POST['project_id'])) {
+    $project_id = intval($_POST['project_id']);
+    $status = $_POST['action'] === 'approve' ? 'approved' : 'rejected';
+    $rejection_reason = $_POST['action'] === 'reject' ? trim($_POST['rejection_reason'] ?? '') : '';
+    // Update project status
+    $stmt = $conn->prepare("UPDATE projects SET status=? WHERE id=?");
+    $stmt->bind_param("si", $status, $project_id);
+    if ($stmt->execute()) {
+        // Use the shared notification function for email
+        $result = sendProjectStatusEmail($project_id, $status, $rejection_reason);
+        if ($result['success']) {
+            $action_message = "Project status updated and email sent to user.";
+        } else {
+            $action_message = "Project status updated, but email could not be sent. " . $result['message'];
+        }
+    } else {
+        $action_message = "Failed to update project status.";
+    }
+    $stmt->close();
+    // Refresh project list after action
+    header("Location: assigned_projects.php?msg=" . urlencode($action_message));
+    exit();
+}
+if (isset($_GET['msg'])) {
+    $action_message = htmlspecialchars($_GET['msg']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subadmin Dashboard</title>
+    <title>Assigned Projects</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <style>
@@ -47,24 +89,9 @@ $stmt->close();
         .user-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%); display: flex; align-items: center; justify-content: center; color: #fff; margin-left: 1.2rem; font-size: 1.5rem; box-shadow: 0 2px 8px rgba(99,102,241,0.08); }
         .glass-card { background: rgba(255,255,255,0.85); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10); backdrop-filter: blur(8px); border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.18); transition: transform 0.15s, box-shadow 0.15s; }
         .glass-card:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 16px 32px 0 rgba(99,102,241,0.13); z-index: 2; }
-        .stats-row { gap: 2.5rem !important; }
-        .stats-row .glass-card { min-width: 0; }
-        .stats-row .fw-bold { color: #4f46e5; }
-        .announcement-card { background: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%); color: #fff; border-radius: 1.25rem; box-shadow: 0 10px 30px rgba(99,102,241,0.13); }
-        .timeline { border-left: 3px solid #a5b4fc; margin-left: 1rem; padding-left: 1.5rem; }
-        .timeline-item { position: relative; margin-bottom: 2rem; }
-        .timeline-dot { position: absolute; left: -1.7rem; top: 0; width: 1.2rem; height: 1.2rem; background: #6366f1; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 2px #a5b4fc; }
-        .btn-primary, .btn-outline-primary { border-radius: 0.75rem; font-weight: 600; font-size: 1.08rem; }
-        .btn-primary { background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%); border: none; }
-        .btn-primary:hover { background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%); }
-        .btn-outline-primary { color: #6366f1; border: 2px solid #6366f1; background: #fff; }
-        .btn-outline-primary:hover { background: #6366f1; color: #fff; }
-        .btn-outline-secondary { border-radius: 0.75rem; }
+        .alert { border-radius: 0.75rem; }
         .card { border: none; }
-        .modal-content { border-radius: 1.25rem; }
-        .modal-header { border-bottom: none; }
-        .modal-footer { border-top: none; }
-        @media (max-width: 991.98px) { .sidebar { transform: translateX(-100%); border-radius: 0 0 2rem 2rem; } .sidebar.show { transform: translateX(0); } .main-content { margin-left: 0; padding: 1rem; } .main-content.pushed { margin-left: 250px; } .stats-row { flex-direction: column !important; gap: 1.2rem !important; } }
+        @media (max-width: 991.98px) { .sidebar { transform: translateX(-100%); border-radius: 0 0 2rem 2rem; } .sidebar.show { transform: translateX(0); } .main-content { margin-left: 0; padding: 1rem; } .main-content.pushed { margin-left: 250px; } }
     </style>
 </head>
 <body>
@@ -78,7 +105,7 @@ $stmt->close();
         </div>
         <ul class="sidebar-menu">
             <li class="sidebar-item">
-                <a href="dashboard.php" class="sidebar-link active">
+                <a href="dashboard.php" class="sidebar-link">
                     <i class="bi bi-grid-1x2"></i>
                     <span>Dashboard</span>
                 </a>
@@ -90,7 +117,7 @@ $stmt->close();
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="assigned_projects.php" class="sidebar-link">
+                <a href="assigned_projects.php" class="sidebar-link active">
                     <i class="bi bi-kanban"></i>
                     <span>Assigned Projects</span>
                 </a>
@@ -122,7 +149,7 @@ $stmt->close();
             <button class="btn d-lg-none" id="sidebarToggle">
                 <i class="bi bi-list"></i>
             </button>
-            <h1 class="page-title">Subadmin Dashboard</h1>
+            <h1 class="page-title">Assigned Projects</h1>
             <div class="topbar-actions">
                 <div class="dropdown">
                     <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
@@ -136,81 +163,14 @@ $stmt->close();
                 </div>
             </div>
         </div>
-
-        <div class="row stats-row mb-4 d-flex flex-wrap w-100">
-            <?php
-            // Fetch subadmin's classification
-            $stmt = $conn->prepare("SELECT software_classification, hardware_classification FROM subadmins WHERE id = ?");
-            $stmt->bind_param("i", $subadmin_id);
-            $stmt->execute();
-            $stmt->bind_result($software_classification, $hardware_classification);
-            $stmt->fetch();
-            $stmt->close();
-            // Assigned Projects count
-            $stmt = $conn->prepare("SELECT COUNT(*) FROM projects WHERE classification = ? OR classification = ?");
-            $stmt->bind_param("ss", $software_classification, $hardware_classification);
-            $stmt->execute();
-            $stmt->bind_result($assigned_projects_count);
-            $stmt->fetch();
-            $stmt->close();
-            // Pending Tasks count (pending projects for this subadmin)
-            $stmt = $conn->prepare("SELECT COUNT(*) FROM projects WHERE (classification = ? OR classification = ?) AND status = 'pending'");
-            $stmt->bind_param("ss", $software_classification, $hardware_classification);
-            $stmt->execute();
-            $stmt->bind_result($pending_tasks_count);
-            $stmt->fetch();
-            $stmt->close();
-            // Notifications count (dummy, set to 0 or fetch from notifications table if available)
-            $notifications_count = 0;
-            // Messages count (dummy, set to 0 or fetch from messages table if available)
-            $messages_count = 0;
-            ?>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="glass-card card text-center p-4 mb-3">
-                    <div class="mb-2"><i class="bi bi-kanban" style="font-size:2rem;color:#667eea;"></i></div>
-                    <div class="fw-bold fs-3"><?php echo $assigned_projects_count; ?></div>
-                    <div class="text-muted">Assigned Projects</div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="glass-card card text-center p-4 mb-3">
-                    <div class="mb-2"><i class="bi bi-clock-history" style="font-size:2rem;color:#f59e0b;"></i></div>
-                    <div class="fw-bold fs-3"><?php echo $pending_tasks_count; ?></div>
-                    <div class="text-muted">Pending Tasks</div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="glass-card card text-center p-4 mb-3">
-                    <div class="mb-2"><i class="bi bi-bell" style="font-size:2rem;color:#10b981;"></i></div>
-                    <div class="fw-bold fs-3"><?php echo $notifications_count; ?></div>
-                    <div class="text-muted">Notifications</div>
-                </div>
-            </div>
-            
-        </div>
-        <!-- Announcements -->
+        <!-- Assigned Projects Table -->
         <div class="row mb-4">
-            <div class="col-12 col-lg-8">
-                <div class="announcement-card card p-4 mb-3 w-100">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-megaphone fs-3 me-2"></i>
-                        <h5 class="mb-0">Announcement</h5>
-                    </div>
-                    <div>Welcome to the new SubAdmin Dashboard! Stay tuned for updates and new features.</div>
-                </div>
-            </div>
-        </div>
-        <?php
-        // Fetch projects matching either classification
-        $stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE classification = ? OR classification = ?");
-        $stmt->bind_param("ss", $software_classification, $hardware_classification);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        ?>
-        <div class="row mb-4">
-            <div class="col-12 col-lg-10">
+            <div class="col-12 col-lg-11">
                 <div class="glass-card card p-4 w-100">
                     <h5 class="mb-3"><i class="bi bi-kanban me-2"></i>Assigned Projects (by Classification)</h5>
+                    <?php if ($action_message): ?>
+                        <div class="alert alert-info"> <?php echo $action_message; ?> </div>
+                    <?php endif; ?>
                     <?php if ($result->num_rows > 0): ?>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle">
@@ -221,6 +181,7 @@ $stmt->close();
                                         <th>Classification</th>
                                         <th>Description</th>
                                         <th>Status</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -231,6 +192,41 @@ $stmt->close();
                                             <td><?php echo htmlspecialchars($row['classification']); ?></td>
                                             <td><?php echo htmlspecialchars($row['description']); ?></td>
                                             <td><span class="badge bg-<?php echo $row['status']=='approved'?'success':($row['status']=='pending'?'warning text-dark':'danger'); ?>"><?php echo ucfirst($row['status']); ?></span></td>
+                                            <td>
+                                                <?php if ($row['status'] == 'pending'): ?>
+                                                    <form method="post" style="display:inline-block;">
+                                                        <input type="hidden" name="project_id" value="<?php echo $row['id']; ?>">
+                                                        <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
+                                                    </form>
+                                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal<?php echo $row['id']; ?>">Reject</button>
+                                                    <!-- Reject Modal -->
+                                                    <div class="modal fade" id="rejectModal<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="rejectModalLabel<?php echo $row['id']; ?>" aria-hidden="true">
+                                                      <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                          <div class="modal-header">
+                                                            <h5 class="modal-title" id="rejectModalLabel<?php echo $row['id']; ?>">Reject Project</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                          </div>
+                                                          <form method="post">
+                                                            <div class="modal-body">
+                                                              <input type="hidden" name="project_id" value="<?php echo $row['id']; ?>">
+                                                              <div class="mb-3">
+                                                                <label for="rejection_reason<?php echo $row['id']; ?>" class="form-label">Reason for rejection</label>
+                                                                <textarea class="form-control" name="rejection_reason" id="rejection_reason<?php echo $row['id']; ?>" required></textarea>
+                                                              </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                              <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+                                                            </div>
+                                                          </form>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <span class="text-muted">-</span>
+                                                <?php endif; ?>
+                                            </td>
                                         </tr>
                                     <?php endwhile; ?>
                                 </tbody>
@@ -240,15 +236,6 @@ $stmt->close();
                         <div class="alert alert-info mb-0">No projects found for your classification.</div>
                     <?php endif; ?>
                 </div>
-            </div>
-        </div>
-        <?php $stmt->close(); ?>
-        <!-- Quick Actions -->
-        <div class="row mb-4">
-            <div class="col-12 col-lg-8 text-center">
-                <a href="#" class="btn btn-primary me-2 mb-2"><i class="bi bi-kanban me-1"></i> View Projects</a>
-                <a href="#" class="btn btn-outline-secondary me-2 mb-2"><i class="bi bi-envelope me-1"></i> Contact Admin</a>
-                <a href="profile.php" class="btn btn-outline-primary mb-2"><i class="bi bi-key me-1"></i> Edit Profile</a>
             </div>
         </div>
     </div>

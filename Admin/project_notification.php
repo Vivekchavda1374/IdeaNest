@@ -3,7 +3,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-include "../Login/Login/db.php";
+include_once dirname(__DIR__) . "/Login/Login/db.php";
 
 // Direct inclusion of PHPMailer files
 require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/Exception.php';
