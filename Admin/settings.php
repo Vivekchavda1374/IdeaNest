@@ -608,7 +608,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                     <span>Notifications</span>
                 </a>
             </li>
-            <hr class="sidebar-divider">
+         
             <li class="sidebar-item">
                 <a href="settings.php" class="sidebar-link active">
                     <i class="bi bi-gear"></i>

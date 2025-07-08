@@ -634,7 +634,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                 </a>
             </li>
 
-            <hr class="sidebar-divider">
+            
             <li class="sidebar-item">
                 <a href="settings.php" class="sidebar-link">
                     <i class="bi bi-gear"></i>

@@ -57,12 +57,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['subadmin_email'] = $er_number;
                     $_SESSION['subadmin_logged_in'] = true;
                     header("Location: ../../Admin/subadmin/dashboard.php");
-                    exit();
-                } else {
-                    $error_message = "Incorrect Password!";
-                }
+                exit();
             } else {
-                $error_message = "User not found! Please register.";
+                $error_message = "Incorrect Password!";
+            }
+        } else {
+            $error_message = "User not found! Please register.";
             }
             $stmt2->close();
         }
