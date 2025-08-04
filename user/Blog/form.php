@@ -74,8 +74,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <style>
     :root {
-        --primary-color: #4361ee;
-        --secondary-color: #3f37c9;
+        --primary-color: #667eea;
+        --secondary-color: #764ba2;
         --success-color: #4cc9f0;
         --light-color: #f8f9fa;
         --dark-color: #212529;
@@ -142,7 +142,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     .form-control:focus,
     .form-select:focus {
-        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.25);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
         border-color: var(--primary-color);
     }
 
@@ -160,7 +160,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         background-color: var(--secondary-color);
         border-color: var(--secondary-color);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
 
     .btn-outline-secondary {
@@ -185,7 +185,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         background-color: rgba(108, 117, 125, 0.1);
         border-radius: 8px;
         margin-bottom: 20px;
-        border-left: 4px solid var(--accent-color);
+        border-left: 4px solid var(--primary-color);
     }
 
     .alert {
@@ -276,9 +276,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     .status-selector input[type="radio"]:checked+label.status-in-progress {
-        background-color: rgba(13, 110, 253, 0.2);
-        border-color: #0d6efd;
-        color: #0d6efd;
+        background-color: rgba(102, 126, 234, 0.2);
+        border-color: #667eea;
+        color: #667eea;
     }
 
     .status-selector input[type="radio"]:checked+label.status-completed {
@@ -366,10 +366,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     .form-select {
         background-position: right 15px center;
     }
+
+    /* Mobile Responsive Adjustments */
+    @media (max-width: 1024px) {
+        .form-container {
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .priority1-selector,
+        .status-selector {
+            flex-direction: column;
+        }
+
+        .priority1-selector label,
+        .status-selector label {
+            min-width: auto;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .form-container {
+            margin: 10px auto;
+        }
+
+        .card-header {
+            padding: 20px;
+        }
+
+        .card-header h3 {
+            font-size: 1.5rem;
+        }
+
+        .form-section-title {
+            font-size: 16px;
+        }
+
+        .icon-badge {
+            width: 28px;
+            height: 28px;
+            font-size: 0.9rem;
+        }
+    }
     </style>
 </head>
 
 <body>
+    <?php include '../layout.php'; ?>
     <div class="container form-container">
         <?php if (isset($error_message)): ?>
         <div class="alert alert-danger" role="alert">
@@ -756,6 +803,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 section.style.transform = 'translateY(0)';
             }, 300 + (index * 200));
         });
+
+
     });
     </script>
 </body>
