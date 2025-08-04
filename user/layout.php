@@ -5,6 +5,9 @@ if (!isset($basePath)) { $basePath = './'; }
 // Get user info from session
 $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "vivek";
 $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
+
+// Get current page to set active state
+$current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
 <style>
@@ -126,6 +129,16 @@ $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
     box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1));
 }
 
+.nav-item.active .nav-icon {
+    color: var(--white, #ffffff);
+    opacity: 1;
+}
+
+.nav-item.active .nav-text {
+    color: var(--white, #ffffff);
+    font-weight: 600;
+}
+
 .nav-icon {
     width: 20px;
     text-align: center;
@@ -196,19 +209,19 @@ $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
     <nav class="sidebar-nav">
         <div class="nav-section">
             <div class="nav-section-title">Main</div>
-            <a href="<?php echo $basePath; ?>index.php" class="nav-item active">
+            <a href="<?php echo $basePath; ?>index.php" class="nav-item <?php echo ($current_page == 'index.php') ? 'active' : ''; ?>">
                 <i class="fas fa-home nav-icon"></i>
                 <span class="nav-text">Dashboard</span>
             </a>
-            <a href="<?php echo $basePath; ?>all_projects.php" class="nav-item">
+            <a href="<?php echo $basePath; ?>all_projects.php" class="nav-item <?php echo ($current_page == 'all_projects.php') ? 'active' : ''; ?>">
                 <i class="fas fa-project-diagram nav-icon"></i>
                 <span class="nav-text">My Projects</span>
             </a>
-            <a href="<?php echo $basePath; ?>Blog/form.php" class="nav-item">
+            <a href="<?php echo $basePath; ?>Blog/form.php" class="nav-item <?php echo ($current_page == 'form.php') ? 'active' : ''; ?>">
                 <i class="fas fa-lightbulb nav-icon"></i>
                 <span class="nav-text">Ideas</span>
             </a>
-            <a href="<?php echo $basePath; ?>bookmark.php" class="nav-item">
+            <a href="<?php echo $basePath; ?>bookmark.php" class="nav-item <?php echo ($current_page == 'bookmark.php') ? 'active' : ''; ?>">
                 <i class="fas fa-bookmark nav-icon"></i>
                 <span class="nav-text">Bookmarks</span>
             </a>
@@ -216,15 +229,15 @@ $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
 
         <div class="nav-section">
             <div class="nav-section-title">Create</div>
-            <a href="<?php echo $basePath; ?>forms/new_project_add.php" class="nav-item">
+            <a href="<?php echo $basePath; ?>forms/new_project_add.php" class="nav-item <?php echo ($current_page == 'new_project_add.php') ? 'active' : ''; ?>">
                 <i class="fas fa-plus nav-icon"></i>
                 <span class="nav-text">New Project</span>
             </a>
-            <a href="<?php echo $basePath; ?>Blog/form.php" class="nav-item">
+            <a href="<?php echo $basePath; ?>Blog/form.php" class="nav-item <?php echo ($current_page == 'form.php') ? 'active' : ''; ?>">
                 <i class="fas fa-edit nav-icon"></i>
                 <span class="nav-text">New Idea</span>
             </a>
-            <a href="<?php echo $basePath; ?>search.php" class="nav-item">
+            <a href="<?php echo $basePath; ?>search.php" class="nav-item <?php echo ($current_page == 'search.php') ? 'active' : ''; ?>">
                 <i class="fas fa-search nav-icon"></i>
                 <span class="nav-text">Search</span>
             </a>
@@ -232,15 +245,15 @@ $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
 
         <div class="nav-section">
             <div class="nav-section-title">Community</div>
-            <a href="<?php echo $basePath; ?>all_projects.php" class="nav-item">
+            <a href="<?php echo $basePath; ?>all_projects.php" class="nav-item <?php echo ($current_page == 'all_projects.php') ? 'active' : ''; ?>">
                 <i class="fas fa-users nav-icon"></i>
                 <span class="nav-text">Explore Projects</span>
             </a>
-            <a href="<?php echo $basePath; ?>Blog/list-project.php" class="nav-item">
+            <a href="<?php echo $basePath; ?>Blog/list-project.php" class="nav-item <?php echo ($current_page == 'list-project.php') ? 'active' : ''; ?>">
                 <i class="fas fa-list nav-icon"></i>
                 <span class="nav-text">All Ideas</span>
             </a>
-            <a href="<?php echo $basePath; ?>search.php" class="nav-item">
+            <a href="<?php echo $basePath; ?>search.php" class="nav-item <?php echo ($current_page == 'search.php') ? 'active' : ''; ?>">
                 <i class="fas fa-search nav-icon"></i>
                 <span class="nav-text">Search</span>
             </a>
@@ -248,11 +261,11 @@ $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
 
         <div class="nav-section">
             <div class="nav-section-title">Account</div>
-            <a href="<?php echo $basePath; ?>user_profile_setting.php" class="nav-item">
+            <a href="<?php echo $basePath; ?>user_profile_setting.php" class="nav-item <?php echo ($current_page == 'user_profile_setting.php') ? 'active' : ''; ?>">
                 <i class="fas fa-user nav-icon"></i>
                 <span class="nav-text">Profile</span>
             </a>
-            <a href="<?php echo $basePath; ?>user_profile_setting.php" class="nav-item">
+            <a href="<?php echo $basePath; ?>user_profile_setting.php" class="nav-item <?php echo ($current_page == 'user_profile_setting.php') ? 'active' : ''; ?>">
                 <i class="fas fa-cog nav-icon"></i>
                 <span class="nav-text">Settings</span>
             </a>
@@ -298,28 +311,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Navigation item click handlers
+    // Navigation item click handlers - only for mobile sidebar closing
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', function(e) {
-            // Don't prevent default for logout link
-            if (this.href && this.href.includes('logout.php')) {
-                return;
-            }
-
-            e.preventDefault();
-            
-            // Remove active class from all nav items
-            document.querySelectorAll('.nav-item').forEach(nav => {
-                nav.classList.remove('active');
-            });
-            
-            // Add active class to clicked item
-            this.classList.add('active');
-
-            // Close sidebar on mobile after clicking
+            // Close sidebar on mobile after clicking (but allow navigation to proceed)
             if (window.innerWidth <= 1024) {
-                sidebar.classList.remove('open');
-                overlay.classList.remove('active');
+                setTimeout(() => {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('active');
+                }, 100); // Small delay to allow navigation to start
             }
         });
     });
