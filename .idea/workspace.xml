@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully">
-      <change beforePath="$PROJECT_DIR$/Admin/admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/admin.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin/subadmin/profile.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/subadmin/profile.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/subadmins.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db/subadmins.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,12 +36,12 @@
     &quot;assignee&quot;: &quot;Vivekchavda1374&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Vivekchavda1374/IdeaNest.git",
-    "accountId": "e6c95b80-6b0a-4f54-b6ae-9bda7334d4d8"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Vivekchavda1374/IdeaNest.git&quot;,
+    &quot;accountId&quot;: &quot;e6c95b80-6b0a-4f54-b6ae-9bda7334d4d8&quot;
   }
-}]]></component>
+}</component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="/bin/php">
     <include_path>
       <path value="$PROJECT_DIR$" />
@@ -59,34 +58,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JavaScript Debug.project_notification.php.executor": "Run",
-    "JavaScript Debug.user_project_search.php.executor": "Coverage",
-    "PHP Script.progressbar.php.executor": "Run",
-    "PHP Script.user_project_search.php.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/opt/lampp/htdocs/IdeaNest",
-    "list.type.of.created.stylesheet": "CSS",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "reference.webide.settings.project.settings.php.composer",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JavaScript Debug.project_notification.php.executor&quot;: &quot;Run&quot;,
+    &quot;JavaScript Debug.user_project_search.php.executor&quot;: &quot;Coverage&quot;,
+    &quot;PHP Script.progressbar.php.executor&quot;: &quot;Run&quot;,
+    &quot;PHP Script.user_project_search.php.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/opt/lampp/htdocs/IdeaNest&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.webide.settings.project.settings.php.composer&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mysql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\xampp\htdocs\IdeaNest" />
@@ -105,8 +104,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-PS-251.26927.60" />
-        <option value="bundled-php-predefined-a98d8de5180a-e5747d4f5a45-com.jetbrains.php.sharedIndexes-PS-251.26927.60" />
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-PS-251.27812.24" />
+        <option value="bundled-php-predefined-a98d8de5180a-e5747d4f5a45-com.jetbrains.php.sharedIndexes-PS-251.27812.24" />
       </set>
     </attachedChunks>
   </component>
@@ -176,6 +175,9 @@
       <workItem from="1747886185470" duration="200000" />
       <workItem from="1747887078761" duration="1505000" />
       <workItem from="1751910038610" duration="184000" />
+      <workItem from="1753375924786" duration="11000" />
+      <workItem from="1753375942704" duration="226000" />
+      <workItem from="1753376377705" duration="757000" />
     </task>
     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
       <option name="closed" value="true" />

@@ -1,117 +1,337 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 if (!isset($basePath)) { $basePath = './'; }
+
 // Get user info from session
-$user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "User";
-$user_initial = !empty($user_name) ? substr($user_name, 0, 1) : "U";
-$user_email = isset($_SESSION['email']) ? $_SESSION['email'] : "admin@ICT.com";
+$user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "vivek";
+$user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IdeaNest - Innovation Platform</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="<?php echo $basePath; ?>style.css" rel="stylesheet">
-</head>
-<body>
+
+<style>
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width, 280px);
+    height: 100vh;
+    background: var(--white, #ffffff);
+    border-right: 1px solid var(--gray-200, #e2e8f0);
+    z-index: 1000;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    box-shadow: var(--shadow-lg, 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1));
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--gray-200, #e2e8f0);
+    background: linear-gradient(135deg, var(--primary-color, #6366f1), var(--secondary-color, #8b5cf6));
+    color: var(--white, #ffffff);
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.sidebar-logo-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--border-radius, 12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.sidebar-logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sidebar-user-avatar {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.sidebar-user-info h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.sidebar-user-info p {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin: 0;
+}
+
+.sidebar-nav {
+    padding: 1.5rem 0;
+}
+
+.nav-section {
+    margin-bottom: 2rem;
+    padding: 0 1.5rem;
+}
+
+.nav-section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gray-500, #64748b);
+    margin-bottom: 1rem;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius, 12px);
+    color: var(--gray-700, #334155);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    margin-bottom: 0.25rem;
+    position: relative;
+}
+
+.nav-item:hover {
+    background: var(--gray-100, #f1f5f9);
+    color: var(--primary-color, #6366f1);
+    transform: translateX(4px);
+}
+
+.nav-item.active {
+    background: linear-gradient(135deg, var(--primary-color, #6366f1), var(--secondary-color, #8b5cf6));
+    color: var(--white, #ffffff);
+    box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1));
+}
+
+.nav-icon {
+    width: 20px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.nav-text {
+    flex: 1;
+    font-weight: 500;
+}
+
+.nav-badge {
+    background: var(--danger-color, #ef4444);
+    color: var(--white, #ffffff);
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Mobile responsive */
+@media (max-width: 1024px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+.overlay.active {
+    display: block;
+}
+</style>
+
 <div class="overlay" id="overlay"></div>
 
 <!-- Sidebar -->
-<div class="sidebar" id="sidebar">
+<aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <i class="fas fa-lightbulb"></i>
-        <div class="logo">IdeaNest</div>
-    </div>
-    <ul class="sidebar-menu">
-        <li>
-            <a href="<?php echo $basePath; ?>index.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? 'active' : ''; ?>">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
-            </a>
-        </li>
-        <li>
-            <a href="<?php echo $basePath; ?>all_projects.php">
-                <i class="fas fa-project-diagram"></i>
-                <span>Projects</span>
-            </a>
-        </li>
-        <li>
-            <a href="<?php echo $basePath; ?>Blog/list-project.php">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">
                 <i class="fas fa-lightbulb"></i>
-                <span>Idea Posts</span>
-            </a>
-        </li>
-        <li>
-            <a href="#">
-                <i class="fas fa-user-graduate"></i>
-                <span>Mentorship</span>
-            </a>
-        </li>
-        <li>
-            <a href="<?php echo $basePath; ?>bookmark.php">
-                <i class="fas fa-bookmark"></i>
-                <span>Bookmarks</span>
-            </a>
-        </li>
-        <li>
-            <a href="<?php echo $basePath; ?>user_profile_setting.php">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
-            </a>
-        </li>
-    </ul>
-</div>
-
-<!-- Main Content Start -->
-<div class="main-content" id="mainContent">
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid">
-            <button id="sidebarToggle" class="btn btn-light d-lg-none me-3">
-                <i class="fas fa-bars"></i>
-            </button>
-            
-            <!-- Search Form -->
-            <div class="d-none d-md-block ms-lg-4 flex-grow-1 me-auto">
-                <div class="search-bar">
-                    <input type="text" id="search" class="form-control" placeholder="Search projects, ideas, mentors..." onkeyup="fetchResults()">
-                    <i class="fas fa-search"></i>
-                    <div id="searchResults" class="position-absolute start-0 bg-white shadow-lg rounded-3 mt-1 w-100 p-2 d-none" style="z-index: 1000; max-height: 300px; overflow-y: auto;"></div>
-                </div>
             </div>
-            
-            <!-- Right-side menu items -->
-            <ul class="navbar-nav ms-auto align-items-center">
-                <!-- User Profile Dropdown -->
-                <li class="nav-item dropdown ms-2">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="user-avatar rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
-                            <span class="text-white fw-medium"><?php echo htmlspecialchars($user_initial); ?></span>
-                        </div>
-                        <span class="d-none d-lg-inline fw-medium"><?php echo htmlspecialchars($user_name); ?></span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                        <li>
-                            <div class="dropdown-item text-center">
-                                <div class="user-avatar rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 60px; height: 60px;">
-                                    <span class="text-white fw-bold"><?php echo htmlspecialchars($user_initial); ?></span>
-                                </div>
-                                <h6 class="mb-0 fw-bold"><?php echo htmlspecialchars($user_name); ?></h6>
-                                <p class="text-muted small mb-0"><?php echo htmlspecialchars($user_email); ?></p>
-                            </div>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="<?php echo $basePath; ?>user_profile_setting.php"><i class="fas fa-user me-2"></i> My Profile</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="<?php echo $basePath; ?>../Login/Login/logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
-                    </ul>
-                </li>
-            </ul>
+            <div class="sidebar-logo-text">IdeaNest</div>
+        </div>
+        <div class="sidebar-user">
+            <div class="sidebar-user-avatar"><?php echo htmlspecialchars($user_initial); ?></div>
+            <div class="sidebar-user-info">
+                <h4><?php echo htmlspecialchars($user_name); ?></h4>
+                <p>Innovator</p>
+            </div>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section">
+            <div class="nav-section-title">Main</div>
+            <a href="<?php echo $basePath; ?>index.php" class="nav-item active">
+                <i class="fas fa-home nav-icon"></i>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="<?php echo $basePath; ?>all_projects.php" class="nav-item">
+                <i class="fas fa-project-diagram nav-icon"></i>
+                <span class="nav-text">My Projects</span>
+            </a>
+            <a href="<?php echo $basePath; ?>Blog/form.php" class="nav-item">
+                <i class="fas fa-lightbulb nav-icon"></i>
+                <span class="nav-text">Ideas</span>
+            </a>
+            <a href="<?php echo $basePath; ?>bookmark.php" class="nav-item">
+                <i class="fas fa-bookmark nav-icon"></i>
+                <span class="nav-text">Bookmarks</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Create</div>
+            <a href="<?php echo $basePath; ?>forms/new_project_add.php" class="nav-item">
+                <i class="fas fa-plus nav-icon"></i>
+                <span class="nav-text">New Project</span>
+            </a>
+            <a href="<?php echo $basePath; ?>Blog/form.php" class="nav-item">
+                <i class="fas fa-edit nav-icon"></i>
+                <span class="nav-text">New Idea</span>
+            </a>
+            <a href="<?php echo $basePath; ?>search.php" class="nav-item">
+                <i class="fas fa-search nav-icon"></i>
+                <span class="nav-text">Search</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Community</div>
+            <a href="<?php echo $basePath; ?>all_projects.php" class="nav-item">
+                <i class="fas fa-users nav-icon"></i>
+                <span class="nav-text">Explore Projects</span>
+            </a>
+            <a href="<?php echo $basePath; ?>Blog/list-project.php" class="nav-item">
+                <i class="fas fa-list nav-icon"></i>
+                <span class="nav-text">All Ideas</span>
+            </a>
+            <a href="<?php echo $basePath; ?>search.php" class="nav-item">
+                <i class="fas fa-search nav-icon"></i>
+                <span class="nav-text">Search</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Account</div>
+            <a href="<?php echo $basePath; ?>user_profile_setting.php" class="nav-item">
+                <i class="fas fa-user nav-icon"></i>
+                <span class="nav-text">Profile</span>
+            </a>
+            <a href="<?php echo $basePath; ?>user_profile_setting.php" class="nav-item">
+                <i class="fas fa-cog nav-icon"></i>
+                <span class="nav-text">Settings</span>
+            </a>
+            <a href="<?php echo $basePath; ?>../Login/Login/logout.php" class="nav-item">
+                <i class="fas fa-sign-out-alt nav-icon"></i>
+                <span class="nav-text">Logout</span>
+            </a>
         </div>
     </nav>
-    <!-- Page content should start after this include -->
-</body>
-</html> 
+</aside>
+
+<script>
+// Sidebar functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile menu toggle functionality
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        });
+    }
+
+    // Close sidebar when clicking overlay
+    if (overlay) {
+        overlay.addEventListener('click', function() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        });
+    }
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+        if (window.innerWidth <= 1024) {
+            if (sidebar && !sidebar.contains(event.target) && 
+                mobileMenuToggle && !mobileMenuToggle.contains(event.target)) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+        }
+    });
+
+    // Navigation item click handlers
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            // Don't prevent default for logout link
+            if (this.href && this.href.includes('logout.php')) {
+                return;
+            }
+
+            e.preventDefault();
+            
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            this.classList.add('active');
+
+            // Close sidebar on mobile after clicking
+            if (window.innerWidth <= 1024) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+            }
+        });
+    });
+
+    // Responsive sidebar handling
+    function handleResize() {
+        if (window.innerWidth > 1024) {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        }
+    }
+
+    window.addEventListener('resize', handleResize);
+});
+</script>
