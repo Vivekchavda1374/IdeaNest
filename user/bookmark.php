@@ -206,7 +206,7 @@ if (!$result) {
     }
 
     .bookmark-header {
-        background:rgb(249, 196, 255) ;
+        background:rgba(184, 145, 228, 0.25) ;
         backdrop-filter: blur(20px);
         border-radius: 24px;
         padding: 3rem 2rem;
