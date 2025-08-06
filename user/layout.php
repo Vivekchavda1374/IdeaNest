@@ -318,7 +318,7 @@ if ($is_in_subdirectory) {
                 <i class="fas fa-cog nav-icon"></i>
                 <span class="nav-text">Settings</span>
             </a>
-            <a href="<?php echo $basePath; ?>Login/Login/logout.php" class="nav-item">
+            <a href="../Login/Login/logout.php" class="nav-item">
                 <i class="fas fa-sign-out-alt nav-icon"></i>
                 <span class="nav-text">Logout</span>
             </a>

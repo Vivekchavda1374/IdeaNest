@@ -112,8 +112,8 @@ if (isset($_POST['approve_project'])) {
                 $email_to = $project['email'] ?? '';
                 $email_subject = "Congratulations! Your Project \"{$project['project_name']}\" Has Been Approved";
                 $error_message = $email_result['success'] ? null : $email_result['message'];
-                logNotification('project_approval', $project['user_id'], $project_id, 
-                              $email_result['success'] ? 'sent' : 'failed', $email_to, $email_subject, $error_message, $conn);
+                logNotification('project_approval', $project['user_id'], $conn, 
+                              $email_result['success'] ? 'sent' : 'failed', $project_id, $email_to, $email_subject, $error_message);
                 
                 $email_message = '';
                 if ($email_result['success']) {
@@ -169,8 +169,8 @@ if (isset($_POST['reject_project'])) {
             $email_to = $project['email'] ?? '';
             $email_subject = "Important Update About Your Project \"{$project['project_name']}\"";
             $error_message = $email_result['success'] ? null : $email_result['message'];
-            logNotification('project_rejection', $project['user_id'], $project_id, 
-                          $email_result['success'] ? 'sent' : 'failed', $email_to, $email_subject, $error_message, $conn);
+            logNotification('project_rejection', $project['user_id'], $conn, 
+                          $email_result['success'] ? 'sent' : 'failed', $project_id, $email_to, $email_subject, $error_message);
             
             $email_message = '';
             if ($email_result['success']) {
