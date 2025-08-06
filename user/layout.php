@@ -286,10 +286,6 @@ if ($is_in_subdirectory) {
                 <i class="fas fa-edit nav-icon"></i>
                 <span class="nav-text">New Idea</span>
             </a>
-            <a href="<?php echo $basePath; ?>search.php" class="nav-item <?php echo ($current_page == 'search.php') ? 'active' : ''; ?>">
-                <i class="fas fa-search nav-icon"></i>
-                <span class="nav-text">Search</span>
-            </a>
         </div>
 
         <div class="nav-section">
@@ -301,10 +297,6 @@ if ($is_in_subdirectory) {
             <a href="<?php echo $basePath; ?>Blog/list-project.php" class="nav-item <?php echo ($current_page == 'list-project.php' && $current_dir == 'Blog') ? 'active' : ''; ?>">
                 <i class="fas fa-list nav-icon"></i>
                 <span class="nav-text">All Ideas</span>
-            </a>
-            <a href="<?php echo $basePath; ?>search.php" class="nav-item <?php echo ($current_page == 'search.php') ? 'active' : ''; ?>">
-                <i class="fas fa-search nav-icon"></i>
-                <span class="nav-text">Search</span>
             </a>
         </div>
 
