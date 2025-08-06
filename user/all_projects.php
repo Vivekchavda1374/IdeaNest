@@ -44,12 +44,39 @@ if (isset($_POST['toggle_bookmark']) && isset($_POST['project_id'])) {
 
 // Fetch all approved projects with bookmark status
 $session_id = session_id();
+
+// Handle search and filters
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$filter_classification = isset($_GET['classification']) ? trim($_GET['classification']) : '';
+$filter_type = isset($_GET['type']) ? trim($_GET['type']) : '';
+
 $sql = "SELECT ap.*, CASE WHEN b.project_id IS NOT NULL THEN 1 ELSE 0 END AS is_bookmarked
         FROM admin_approved_projects ap
         LEFT JOIN bookmark b ON ap.id = b.project_id AND b.user_id = ?
-        ORDER BY ap.submission_date DESC";
+        WHERE 1=1";
+$params = [$session_id];
+$types = "s";
+
+if ($search !== '') {
+    $sql .= " AND (ap.project_name LIKE ? OR ap.description LIKE ? OR ap.classification LIKE ? OR ap.project_type LIKE ? OR ap.language LIKE ? )";
+    $search_param = "%$search%";
+    $params = array_merge($params, [$search_param, $search_param, $search_param, $search_param, $search_param]);
+    $types .= "sssss";
+}
+if ($filter_classification !== '') {
+    $sql .= " AND ap.classification = ?";
+    $params[] = $filter_classification;
+    $types .= "s";
+}
+if ($filter_type !== '') {
+    $sql .= " AND ap.project_type = ?";
+    $params[] = $filter_type;
+    $types .= "s";
+}
+$sql .= " ORDER BY ap.submission_date DESC";
+
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $session_id);
+$stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
 $projects = [];
@@ -660,7 +687,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <div class="projects-header">
             <h2><i class="fas fa-project-diagram me-3"></i>All Approved Projects</h2>
             <p class="text-muted mb-0">Discover innovative projects from our community of creators</p>
-            <div class="projects-stats">
+            <div class="projects-stats mb-3">
                 <div class="stat-item">
                     <div class="stat-icon">
                         <i class="fas fa-project-diagram"></i>
@@ -680,7 +707,40 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <span>Curated Content</span>
                 </div>
             </div>
+            <!-- Search and Filters -->
+            <form method="get" class="row g-2 align-items-end mb-4">
+                <div class="col-12 col-md-4">
+                    <label for="search" class="form-label mb-1">Search Projects</label>
+                    <input type="text" class="form-control" id="search" name="search" placeholder="Search by name, description, type..." value="<?php echo htmlspecialchars($search); ?>">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label for="classification" class="form-label mb-1">Classification</label>
+                    <select class="form-select" id="classification" name="classification">
+                        <option value="">All</option>
+                        <?php
+                        $classifications = array_unique(array_filter(array_map(function($p){ return $p['classification'] ?? ''; }, $projects)));
+                        foreach ($classifications as $c): ?>
+                            <option value="<?php echo htmlspecialchars($c); ?>" <?php if ($filter_classification === $c) echo 'selected'; ?>><?php echo htmlspecialchars($c); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label for="type" class="form-label mb-1">Type</label>
+                    <select class="form-select" id="type" name="type">
+                        <option value="">All</option>
+                        <?php
+                        $types_arr = array_unique(array_filter(array_map(function($p){ return $p['project_type'] ?? ''; }, $projects)));
+                        foreach ($types_arr as $t): ?>
+                            <option value="<?php echo htmlspecialchars($t); ?>" <?php if ($filter_type === $t) echo 'selected'; ?>><?php echo htmlspecialchars($t); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-search me-1"></i>Filter</button>
+                </div>
+            </form>
         </div>
+        <!-- End Projects Header -->
 
         <!-- Alert Messages -->
         <?php if (isset($bookmark_message)) echo $bookmark_message; ?>

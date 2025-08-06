@@ -25,7 +25,7 @@ $searchTerm = '%' . $conn->real_escape_string($searchTerm) . '%';
 $results = array();
 
 // Search in projects table
-$projectSql = "SELECT id, title, description FROM projects WHERE title LIKE ? OR description LIKE ? LIMIT 5";
+$projectSql = "SELECT id, project_name, description FROM projects WHERE project_name LIKE ? OR description LIKE ? LIMIT 5";
 $stmt = $conn->prepare($projectSql);
 $stmt->bind_param("ss", $searchTerm, $searchTerm);
 $stmt->execute();
@@ -36,14 +36,14 @@ if ($projectResult->num_rows > 0) {
         $results[] = array(
             'type' => 'project',
             'id' => $row['id'],
-            'title' => $row['title'],
+            'title' => $row['project_name'],
             'description' => substr($row['description'], 0, 100) . '...'
         );
     }
 }
 
 // Search in blog/ideas table
-$blogSql = "SELECT id, title, content FROM blog WHERE title LIKE ? OR content LIKE ? LIMIT 5";
+$blogSql = "SELECT id, project_name, description FROM blog WHERE project_name LIKE ? OR description LIKE ? LIMIT 5";
 $stmt = $conn->prepare($blogSql);
 $stmt->bind_param("ss", $searchTerm, $searchTerm);
 $stmt->execute();
@@ -54,8 +54,8 @@ if ($blogResult->num_rows > 0) {
         $results[] = array(
             'type' => 'idea',
             'id' => $row['id'],
-            'title' => $row['title'],
-            'description' => substr($row['content'], 0, 100) . '...'
+            'title' => $row['project_name'],
+            'description' => substr($row['description'], 0, 100) . '...'
         );
     }
 }
