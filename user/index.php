@@ -6,6 +6,19 @@ if (!isset($basePath)) { $basePath = './'; }
 $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "vivek";
 $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
 $user_email = isset($_SESSION['email']) ? $_SESSION['email'] : "viveksinhchavda@gmail.com";
+
+// DB connection for stats
+include_once dirname(__DIR__) . '/Login/Login/db.php';
+$user_id = session_id();
+$bookmark_count = 0;
+if (isset($conn)) {
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM bookmark WHERE user_id = ?");
+    $stmt->bind_param("s", $user_id);
+    $stmt->execute();
+    $stmt->bind_result($bookmark_count);
+    $stmt->fetch();
+    $stmt->close();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -163,6 +176,131 @@ $user_email = isset($_SESSION['email']) ? $_SESSION['email'] : "viveksinhchavda@
         .dropdown-icon {
             color: var(--gray-400);
             font-size: 0.8rem;
+            transition: transform 0.2s ease;
+        }
+
+        /* User Dropdown Menu */
+        .user-profile {
+            position: relative;
+        }
+
+        .user-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 280px;
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--gray-200);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            z-index: 1000;
+            margin-top: 0.5rem;
+        }
+
+        .user-dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .dropdown-user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .dropdown-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .dropdown-user-details {
+            flex: 1;
+        }
+
+        .dropdown-user-name {
+            font-weight: 600;
+            color: var(--gray-900);
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .dropdown-user-email {
+            color: var(--gray-500);
+            font-size: 0.85rem;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--gray-200);
+            margin: 0.5rem 0;
+        }
+
+        .dropdown-menu-items {
+            padding: 0.5rem;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--gray-700);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .dropdown-item:hover {
+            background: var(--gray-50);
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .dropdown-item i {
+            width: 16px;
+            text-align: center;
+            color: var(--gray-500);
+        }
+
+        .dropdown-item:hover i {
+            color: var(--primary-color);
+        }
+
+        .dropdown-item-danger {
+            color: var(--danger-color);
+        }
+
+        .dropdown-item-danger:hover {
+            background: var(--danger-color);
+            color: var(--white);
+        }
+
+        .dropdown-item-danger:hover i {
+            color: var(--white);
+        }
+
+        /* Rotate chevron when dropdown is open */
+        .user-profile.active .dropdown-icon {
+            transform: rotate(180deg);
         }
 
         /* Dashboard Content */
@@ -548,10 +686,43 @@ $user_email = isset($_SESSION['email']) ? $_SESSION['email'] : "viveksinhchavda@
                     <div id="searchResults" class="position-absolute start-0 bg-white shadow-lg rounded-3 mt-1 w-100 p-2 d-none" style="z-index: 1000; max-height: 300px; overflow-y: auto;"></div>
                 </div>
                 
-                <div class="user-profile">
+                <div class="user-profile" id="userProfileDropdown">
                     <div class="user-avatar"><?php echo htmlspecialchars($user_initial); ?></div>
                     <span class="user-name"><?php echo htmlspecialchars($user_name); ?></span>
                     <i class="fas fa-chevron-down dropdown-icon"></i>
+                    
+                    <!-- Dropdown Menu -->
+                    <div class="user-dropdown-menu" id="userDropdownMenu">
+                        <div class="dropdown-header">
+                            <div class="dropdown-user-info">
+                                <div class="dropdown-avatar"><?php echo htmlspecialchars($user_initial); ?></div>
+                                <div class="dropdown-user-details">
+                                    <div class="dropdown-user-name"><?php echo htmlspecialchars($user_name); ?></div>
+                                    <div class="dropdown-user-email"><?php echo htmlspecialchars($user_email); ?></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-menu-items">
+                            <a href="user_profile_setting.php" class="dropdown-item">
+                                <i class="fas fa-user"></i>
+                                <span>Profile Settings</span>
+                            </a>
+                            <a href="bookmark.php" class="dropdown-item">
+                                <i class="fas fa-bookmark"></i>
+                                <span>My Bookmarks</span>
+                            </a>
+                            <a href="all_projects.php" class="dropdown-item">
+                                <i class="fas fa-project-diagram"></i>
+                                <span>All Projects</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="../Login/Login/logout.php" class="dropdown-item dropdown-item-danger">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -608,7 +779,7 @@ $user_email = isset($_SESSION['email']) ? $_SESSION['email'] : "viveksinhchavda@
                         </div>
                         <div class="stat-title">Saved Items</div>
             </div>
-                    <div class="stat-value">5</div>
+                    <div class="stat-value"><?php echo $bookmark_count; ?></div>
         </div>
             </section>
 
@@ -792,6 +963,35 @@ $user_email = isset($_SESSION['email']) ? $_SESSION['email'] : "viveksinhchavda@
                 resultsDiv.classList.add('d-none');
             }
         });
+
+        // User Profile Dropdown Functionality
+        const userProfileDropdown = document.getElementById('userProfileDropdown');
+        const userDropdownMenu = document.getElementById('userDropdownMenu');
+        
+        if (userProfileDropdown && userDropdownMenu) {
+            // Toggle dropdown on click
+            userProfileDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdownMenu.classList.toggle('show');
+                userProfileDropdown.classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!userProfileDropdown.contains(event.target)) {
+                    userDropdownMenu.classList.remove('show');
+                    userProfileDropdown.classList.remove('active');
+                }
+            });
+            
+            // Close dropdown on escape key
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    userDropdownMenu.classList.remove('show');
+                    userProfileDropdown.classList.remove('active');
+                }
+            });
+        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {

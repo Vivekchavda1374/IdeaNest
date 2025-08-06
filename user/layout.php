@@ -8,6 +8,17 @@ $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
 
 // Get current page to set active state
 $current_page = basename($_SERVER['PHP_SELF']);
+
+// Check if we're in a subdirectory (like Blog)
+$current_dir = basename(dirname($_SERVER['PHP_SELF']));
+$is_in_subdirectory = ($current_dir !== 'user' && $current_dir !== 'IdeaNest');
+
+// Adjust base path for subdirectories
+if ($is_in_subdirectory) {
+    $basePath = '../';
+} else {
+    $basePath = './';
+}
 ?>
 
 <style>
@@ -159,10 +170,43 @@ $current_page = basename($_SERVER['PHP_SELF']);
     font-weight: 600;
 }
 
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1001;
+    background: linear-gradient(135deg, var(--primary-color, #6366f1), var(--secondary-color, #8b5cf6));
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    color: var(--white, #ffffff);
+    font-size: 1.2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.mobile-menu-toggle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.mobile-menu-toggle:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
 /* Mobile responsive */
 @media (max-width: 1024px) {
+    .mobile-menu-toggle {
+        display: block;
+    }
+    
     .sidebar {
         transform: translateX(-100%);
+        transition: transform 0.3s ease;
     }
 
     .sidebar.open {
@@ -185,6 +229,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
     display: block;
 }
 </style>
+
+<!-- Mobile Menu Toggle Button -->
+<button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu">
+    <i class="fas fa-bars"></i>
+</button>
 
 <div class="overlay" id="overlay"></div>
 
@@ -217,7 +266,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <i class="fas fa-project-diagram nav-icon"></i>
                 <span class="nav-text">My Projects</span>
             </a>
-            <a href="<?php echo $basePath; ?>Blog/form.php" class="nav-item <?php echo ($current_page == 'form.php') ? 'active' : ''; ?>">
+            <a href="<?php echo $basePath; ?>Blog/form.php" class="nav-item <?php echo ($current_page == 'form.php' && $current_dir == 'Blog') ? 'active' : ''; ?>">
                 <i class="fas fa-lightbulb nav-icon"></i>
                 <span class="nav-text">Ideas</span>
             </a>
@@ -233,7 +282,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <i class="fas fa-plus nav-icon"></i>
                 <span class="nav-text">New Project</span>
             </a>
-            <a href="<?php echo $basePath; ?>Blog/form.php" class="nav-item <?php echo ($current_page == 'form.php') ? 'active' : ''; ?>">
+            <a href="<?php echo $basePath; ?>Blog/form.php" class="nav-item <?php echo ($current_page == 'form.php' && $current_dir == 'Blog') ? 'active' : ''; ?>">
                 <i class="fas fa-edit nav-icon"></i>
                 <span class="nav-text">New Idea</span>
             </a>
@@ -249,7 +298,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <i class="fas fa-users nav-icon"></i>
                 <span class="nav-text">Explore Projects</span>
             </a>
-            <a href="<?php echo $basePath; ?>Blog/list-project.php" class="nav-item <?php echo ($current_page == 'list-project.php') ? 'active' : ''; ?>">
+            <a href="<?php echo $basePath; ?>Blog/list-project.php" class="nav-item <?php echo ($current_page == 'list-project.php' && $current_dir == 'Blog') ? 'active' : ''; ?>">
                 <i class="fas fa-list nav-icon"></i>
                 <span class="nav-text">All Ideas</span>
             </a>
@@ -269,7 +318,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <i class="fas fa-cog nav-icon"></i>
                 <span class="nav-text">Settings</span>
             </a>
-            <a href="<?php echo $basePath; ?>../Login/Login/logout.php" class="nav-item">
+            <a href="../Login/Login/logout.php" class="nav-item">
                 <i class="fas fa-sign-out-alt nav-icon"></i>
                 <span class="nav-text">Logout</span>
             </a>
@@ -286,9 +335,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const overlay = document.getElementById('overlay');
 
     if (mobileMenuToggle) {
-        mobileMenuToggle.addEventListener('click', function() {
+        mobileMenuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
             sidebar.classList.toggle('open');
             overlay.classList.toggle('active');
+            
+            // Change icon based on state
+            const icon = this.querySelector('i');
+            if (sidebar.classList.contains('open')) {
+                icon.className = 'fas fa-times';
+            } else {
+                icon.className = 'fas fa-bars';
+            }
         });
     }
 
@@ -297,6 +357,12 @@ document.addEventListener('DOMContentLoaded', function() {
         overlay.addEventListener('click', function() {
             sidebar.classList.remove('open');
             overlay.classList.remove('active');
+            
+            // Reset icon
+            if (mobileMenuToggle) {
+                const icon = mobileMenuToggle.querySelector('i');
+                icon.className = 'fas fa-bars';
+            }
         });
     }
 
@@ -319,6 +385,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => {
                     sidebar.classList.remove('open');
                     overlay.classList.remove('active');
+                    
+                    // Reset icon
+                    if (mobileMenuToggle) {
+                        const icon = mobileMenuToggle.querySelector('i');
+                        icon.className = 'fas fa-bars';
+                    }
                 }, 100); // Small delay to allow navigation to start
             }
         });
@@ -329,6 +401,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (window.innerWidth > 1024) {
             sidebar.classList.remove('open');
             overlay.classList.remove('active');
+            
+            // Reset icon
+            if (mobileMenuToggle) {
+                const icon = mobileMenuToggle.querySelector('i');
+                icon.className = 'fas fa-bars';
+            }
         }
     }
 
