@@ -65,7 +65,7 @@ function saveSetting($conn, $key, $value) {
 }
 
 // Function to log notification attempts with enhanced details
-function logNotification($type, $user_id, $project_id = null, $status, $conn, $email_to = null, $email_subject = null, $error_message = null) {
+function logNotification($type, $user_id, $conn, $status, $project_id = null, $email_to = null, $email_subject = null, $error_message = null) {
     $query = "INSERT INTO notification_logs (type, user_id, project_id, status, email_to, email_subject, error_message, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("siissss", $type, $user_id, $project_id, $status, $email_to, $email_subject, $error_message);

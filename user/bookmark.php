@@ -196,7 +196,7 @@ if (!$result) {
 
     /* Bookmark Page Specific Styles */
     body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg,rgb(255, 255, 255) 0%,rgb(255, 255, 255) 100%);
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
@@ -206,7 +206,7 @@ if (!$result) {
     }
 
     .bookmark-header {
-        background: rgba(255, 255, 255, 0.95);
+        background:rgba(184, 145, 228, 0.25) ;
         backdrop-filter: blur(20px);
         border-radius: 24px;
         padding: 3rem 2rem;
