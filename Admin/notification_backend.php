@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Database connection
-include "../Login/Login/db.php";
+include "../Login/db.php";
 
 // Include PHPMailer
 require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/Exception.php';
@@ -402,7 +402,7 @@ function sendNewUserNotificationToAdmin($user_id, $conn) {
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;"><strong>Phone:</strong></td>
-                            <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">' . ($user['phone'] ?: 'Not provided') . '</td>
+                            <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">' . (isset($user['phone']) && $user['phone'] ? $user['phone'] : 'Not provided') . '</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;"><strong>Registration Date:</strong></td>
@@ -430,7 +430,7 @@ function sendNewUserNotificationToAdmin($user_id, $conn) {
 }
 
 // Function to log notification attempts
-function logNotification($type, $user_id, $project_id = null, $status, $email_to = null, $email_subject = null, $error_message = null, $conn) {
+function logNotification($type, $user_id, $conn, $status, $project_id = null, $email_to = null, $email_subject = null, $error_message = null) {
     $query = "INSERT INTO notification_logs (type, user_id, project_id, status, email_to, email_subject, error_message, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("siissss", $type, $user_id, $project_id, $status, $email_to, $email_subject, $error_message);

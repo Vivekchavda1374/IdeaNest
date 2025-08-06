@@ -66,8 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $admin_email = getSetting($conn, 'admin_email', 'ideanest.ict@gmail.com');
                 $email_subject = "New User Registration - " . getSetting($conn, 'site_name', 'IdeaNest');
                 $error_message = $notification_result['success'] ? null : $notification_result['message'];
-                logNotification('new_user_notification', $user_id, null, 
-                              $notification_result['success'] ? 'sent' : 'failed', $admin_email, $email_subject, $error_message, $conn);
+                logNotification('new_user_notification', $user_id, $conn, 
+                              $notification_result['success'] ? 'sent' : 'failed', null, $admin_email, $email_subject, $error_message);
                 
         $success = 'Registration successful! You can now <a href="login.php">login</a>.';
             } else {
