@@ -6,6 +6,19 @@ if (!isset($basePath)) { $basePath = './'; }
 $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "vivek";
 $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
 $user_email = isset($_SESSION['email']) ? $_SESSION['email'] : "viveksinhchavda@gmail.com";
+
+// DB connection for stats
+include_once dirname(__DIR__) . '/Login/Login/db.php';
+$user_id = session_id();
+$bookmark_count = 0;
+if (isset($conn)) {
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM bookmark WHERE user_id = ?");
+    $stmt->bind_param("s", $user_id);
+    $stmt->execute();
+    $stmt->bind_result($bookmark_count);
+    $stmt->fetch();
+    $stmt->close();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -766,7 +779,7 @@ $user_email = isset($_SESSION['email']) ? $_SESSION['email'] : "viveksinhchavda@
                         </div>
                         <div class="stat-title">Saved Items</div>
             </div>
-                    <div class="stat-value">5</div>
+                    <div class="stat-value"><?php echo $bookmark_count; ?></div>
         </div>
             </section>
 
