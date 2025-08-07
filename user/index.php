@@ -19,6 +19,110 @@ if (isset($conn)) {
     $stmt->fetch();
     $stmt->close();
 }
+
+// Get real-time project statistics
+$total_projects = 0;
+$total_ideas = 0;
+$classification_stats = [];
+
+if (isset($conn)) {
+    // Get total approved projects
+    $total_projects_query = "SELECT COUNT(*) as total FROM admin_approved_projects";
+    $total_result = $conn->query($total_projects_query);
+    $total_projects = $total_result->fetch_assoc()['total'];
+    
+    // Get total ideas from blog table
+    $total_ideas_query = "SELECT COUNT(*) as total FROM blog";
+    $ideas_result = $conn->query($total_ideas_query);
+    $total_ideas = $ideas_result->fetch_assoc()['total'];
+    
+    // Get classification statistics
+    $classification_query = "SELECT classification, COUNT(*) as count 
+                           FROM admin_approved_projects 
+                           WHERE classification IS NOT NULL AND classification != '' 
+                           GROUP BY classification 
+                           ORDER BY count DESC";
+    $classification_result = $conn->query($classification_query);
+    
+    while ($row = $classification_result->fetch_assoc()) {
+        $classification_stats[] = $row;
+    }
+
+    // Get monthly submission trends (last 6 months)
+    $monthly_trends = [];
+    $monthly_query = "SELECT 
+                        DATE_FORMAT(submission_date, '%Y-%m') as month,
+                        COUNT(*) as count
+                      FROM admin_approved_projects 
+                      WHERE submission_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+                      GROUP BY DATE_FORMAT(submission_date, '%Y-%m')
+                      ORDER BY month DESC";
+    $monthly_result = $conn->query($monthly_query);
+    while ($row = $monthly_result->fetch_assoc()) {
+        $monthly_trends[] = $row;
+    }
+
+    // Get project status distribution
+    $status_distribution = [];
+    $status_query = "SELECT 
+                        CASE 
+                            WHEN status = 'approved' THEN 'Approved'
+                            WHEN status = 'pending' THEN 'Pending'
+                            WHEN status = 'rejected' THEN 'Rejected'
+                            ELSE 'Unknown'
+                        END as status_name,
+                        COUNT(*) as count
+                      FROM admin_approved_projects 
+                      GROUP BY status";
+    $status_result = $conn->query($status_query);
+    while ($row = $status_result->fetch_assoc()) {
+        $status_distribution[] = $row;
+    }
+
+    // Get technology/language analysis
+    $tech_analysis = [];
+    $tech_query = "SELECT 
+                        language,
+                        COUNT(*) as count
+                      FROM admin_approved_projects 
+                      WHERE language IS NOT NULL AND language != ''
+                      GROUP BY language 
+                      ORDER BY count DESC 
+                      LIMIT 8";
+    $tech_result = $conn->query($tech_query);
+    while ($row = $tech_result->fetch_assoc()) {
+        $tech_analysis[] = $row;
+    }
+
+    // Get recent activity (latest 5 projects)
+    $recent_activity = [];
+    $recent_query = "SELECT 
+                        project_name,
+                        classification,
+                        submission_date,
+                        status
+                      FROM admin_approved_projects 
+                      ORDER BY submission_date DESC 
+                      LIMIT 5";
+    $recent_result = $conn->query($recent_query);
+    while ($row = $recent_result->fetch_assoc()) {
+        $recent_activity[] = $row;
+    }
+
+    // Get project type distribution
+    $type_distribution = [];
+    $type_query = "SELECT 
+                        project_type,
+                        COUNT(*) as count
+                      FROM admin_approved_projects 
+                      WHERE project_type IS NOT NULL AND project_type != ''
+                      GROUP BY project_type 
+                      ORDER BY count DESC";
+    $type_result = $conn->query($type_query);
+    while ($row = $type_result->fetch_assoc()) {
+        $type_distribution[] = $row;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,6 +133,7 @@ if (isset($conn)) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -666,6 +771,517 @@ if (isset($conn)) {
         .stat-card:nth-child(1) { animation-delay: 0.1s; }
         .stat-card:nth-child(2) { animation-delay: 0.2s; }
         .stat-card:nth-child(3) { animation-delay: 0.3s; }
+
+        /* Load More Button Styles */
+        .btn-load-more {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-load-more:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: var(--white);
+        }
+
+        .btn-load-more.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn-load-more.loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Additional Details Section */
+        .additional-details-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .detail-card {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            height: 100%;
+        }
+
+        .detail-card h5 {
+            color: var(--gray-800);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .activity-list, .contributors-list {
+            margin-top: 1rem;
+        }
+
+        .activity-item, .contributor-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .activity-item:last-child, .contributor-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-item i {
+            font-size: 0.9rem;
+            width: 16px;
+        }
+
+        .contributor-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .contributor-info {
+            flex: 1;
+        }
+
+        .contributor-info strong {
+            display: block;
+            color: var(--gray-800);
+            font-size: 0.9rem;
+        }
+
+        .contributor-info small {
+            color: var(--gray-500);
+            font-size: 0.8rem;
+        }
+
+        /* Chart Container Styles */
+        .charts-section {
+            margin-top: 2rem;
+        }
+
+        .chart-container {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+
+        }
+
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--info-color));
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0;
+        }
+
+        .chart-subtitle {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            margin: 1rem 0;
+        }
+
+        .chart-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .chart-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--gray-50);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gray-200);
+        }
+
+        .chart-stat-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--white);
+        }
+
+        .chart-stat-value {
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .chart-stat-label {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        /* Mini Charts */
+        .mini-charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .mini-chart {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s ease;
+        }
+
+        .mini-chart:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .mini-chart-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .mini-chart-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.1rem;
+        }
+
+        .mini-chart-title {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin: 0;
+        }
+
+        .mini-chart-wrapper {
+            height: 150px;
+            position: relative;
+        }
+
+        /* Analytics Overview Cards */
+        .analytics-overview {
+            margin-bottom: 2rem;
+        }
+
+        .analytics-card {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .analytics-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .analytics-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.5rem;
+        }
+
+        .analytics-content h4 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0 0 0.25rem 0;
+        }
+
+        .analytics-content p {
+            color: var(--gray-600);
+            margin: 0 0 0.5rem 0;
+            font-weight: 500;
+        }
+
+        .analytics-content small {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Chart Actions */
+        .chart-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Status Legend */
+        .status-legend {
+            margin-top: 1rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-label {
+            flex: 1;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .status-count {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        /* Activity Feed */
+        .activity-feed {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .activity-category {
+            background: var(--primary-color);
+            color: var(--white);
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .activity-date {
+            color: var(--gray-500);
+            font-size: 0.8rem;
+        }
+
+        .activity-status {
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .status-approved {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        /* Technology List */
+        .tech-list {
+            margin-top: 1rem;
+        }
+
+        .tech-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .tech-item:last-child {
+            border-bottom: none;
+        }
+
+        .tech-name {
+            flex: 1;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .tech-bar {
+            flex: 2;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .tech-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .tech-count {
+            font-weight: 600;
+            color: var(--gray-800);
+            min-width: 30px;
+            text-align: right;
+        }
+
+        /* Project Type Stats */
+        .type-stats {
+            margin-top: 1rem;
+        }
+
+        .type-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .type-stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .type-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+        }
+
+        .type-info {
+            flex: 1;
+        }
+
+        .type-name {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 0.25rem;
+        }
+
+        .type-count {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        .type-percentage {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
 </style>
 </head>
 <body>
@@ -759,7 +1375,7 @@ if (isset($conn)) {
                         </div>
                         <div class="stat-title">Total Projects</div>
                     </div>
-                    <div class="stat-value">14</div>
+                    <div class="stat-value"><?php echo $total_projects; ?></div>
                 </div>
                 
                 <div class="stat-card ideas">
@@ -769,7 +1385,7 @@ if (isset($conn)) {
             </div>
                         <div class="stat-title">Creative Ideas</div>
         </div>
-                    <div class="stat-value">12</div>
+                    <div class="stat-value"><?php echo $total_ideas; ?></div>
                 </div>
                 
                 <div class="stat-card bookmarks">
@@ -786,84 +1402,194 @@ if (isset($conn)) {
             <!-- Dashboard Section -->
             <section class="dashboard-section">
                 <div class="dashboard-header">
-                    <h2 class="dashboard-title">Project Classification Dashboard</h2>
-                    <p class="dashboard-subtitle">Overview of your project categories and their distribution</p>
+                    <h2 class="dashboard-title">Project Dashboard</h2>
+                    <p class="dashboard-subtitle">Overview of your projects and their statistics</p>
                 </div>
 
-                <div class="classifications-section">
-                    <h3 class="section-title">
-                        <i class="fas fa-chart-pie"></i>
-                        Project Classifications
-                    </h3>
-                    
-                    <div class="classification-item">
-                        <div class="classification-info">
-                            <div class="classification-icon">
-                                <i class="fas fa-code"></i>
+                <!-- Charts Section -->
+                <div class="charts-section">
+                    <!-- Analytics Overview Cards -->
+                    <div class="analytics-overview mb-4">
+
+    </div>
+
+                    <!-- Main Charts Row -->
+                    <div class="row g-4 mb-4">
+                        <!-- Project Distribution Pie Chart -->
+                        <div class="col-lg-8">
+                            <div class="chart-container">
+                                <div class="chart-header">
+                                    <div>
+                                        <h3 class="chart-title">Project Distribution</h3>
+                                        <p class="chart-subtitle">Real-time breakdown of projects by classification</p>
+                                </div>
+                                    <div class="chart-actions">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="refreshChart('classificationsChart')">
+                                            <i class="fas fa-sync-alt"></i> Refresh
+                                        </button>
+                                </div>
                             </div>
-                            <div class="classification-details">
-                                <h4>IoT</h4>
-                                <p>Projects: 2</p>
+                                <div class="chart-wrapper">
+                                    <canvas id="classificationsChart"></canvas>
+                                </div>
+                                <div class="chart-stats">
+                                    <?php foreach ($classification_stats as $index => $classification): ?>
+                                        <div class="chart-stat-item">
+                                            <div class="chart-stat-icon" style="background: <?php
+                                                $colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#06b6d4'];
+                                                echo $colors[$index % count($colors)];
+                                            ?>;">
+                                                <i class="fas fa-circle"></i>
+                                            </div>
+                                            <div>
+                                                <div class="chart-stat-value"><?php echo $classification['count']; ?></div>
+                                                <div class="chart-stat-label"><?php echo htmlspecialchars($classification['classification']); ?></div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
                             </div>
                         </div>
-                        <div class="classification-stats">
-                            <div class="classification-percentage">14.3%</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 14.3%"></div>
+
+                        <!-- Status Distribution -->
+                        <div class="col-lg-4">
+                            <div class="chart-container">
+                                <div class="chart-header">
+                                    <div>
+                                        <h3 class="chart-title">Project Status</h3>
+                                        <p class="chart-subtitle">Current project approval status</p>
+                                    </div>
+                                </div>
+                                <div class="chart-wrapper">
+                                    <canvas id="statusChart"></canvas>
+                                </div>
+                                <div class="status-legend">
+                                    <?php foreach ($status_distribution as $status): ?>
+                                        <div class="status-item">
+                                            <span class="status-dot" style="background: <?php
+                                                echo $status['status_name'] === 'Approved' ? '#10b981' :
+                                                    ($status['status_name'] === 'Pending' ? '#f59e0b' : '#ef4444');
+                                            ?>;"></span>
+                                            <span class="status-label"><?php echo $status['status_name']; ?></span>
+                                            <span class="status-count"><?php echo $status['count']; ?></span>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="classification-item">
-                        <div class="classification-info">
-                            <div class="classification-icon">
-                                <i class="fas fa-mobile-alt"></i>
-                            </div>
-                            <div class="classification-details">
-                                <h4>Mobile Development</h4>
-                                <p>Projects: 4</p>
-                            </div>
-                        </div>
-                        <div class="classification-stats">
-                            <div class="classification-percentage">28.6%</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 28.6%"></div>
-            </div>
-        </div>
-    </div>
-
-                    <div class="classification-item">
-                        <div class="classification-info">
-                            <div class="classification-icon">
-                                <i class="fas fa-globe"></i>
-                            </div>
-                            <div class="classification-details">
-                                <h4>Web Development</h4>
-                                <p>Projects: 5</p>
-                            </div>
-        </div>
-                        <div class="classification-stats">
-                            <div class="classification-percentage">35.7%</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 35.7%"></div>
-        </div>
-    </div>
-</div>
-
-                    <div class="classification-item">
-                        <div class="classification-info">
-                            <div class="classification-icon">
-                                <i class="fas fa-robot"></i>
-                            </div>
-                            <div class="classification-details">
-                                <h4>AI/ML</h4>
-                                <p>Projects: 3</p>
+                    <!-- Monthly Trends and Recent Activity -->
+                    <div class="row g-4 mb-4">
+                        <!-- Monthly Submissions Bar Chart -->
+                        <div class="col-lg-8">
+                            <div class="chart-container">
+                                <div class="chart-header">
+                                    <div>
+                                        <h3 class="chart-title">Monthly Project Submissions</h3>
+                                        <p class="chart-subtitle">Submission trends over the last 6 months</p>
+                                    </div>
+                                </div>
+                                <div class="chart-wrapper">
+                                    <canvas id="monthlyChart"></canvas>
+                                </div>
                             </div>
                         </div>
-                        <div class="classification-stats">
-                            <div class="classification-percentage">21.4%</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 21.4%"></div>
+
+                        <!-- Recent Activity -->
+                        <div class="col-lg-4">
+                            <div class="chart-container">
+                                <div class="chart-header">
+                                    <div>
+                                        <h3 class="chart-title">Recent Activity</h3>
+                                        <p class="chart-subtitle">Latest project submissions</p>
+                                    </div>
+                                </div>
+                                <div class="activity-feed">
+                                    <?php if (!empty($recent_activity)): ?>
+                                        <?php foreach ($recent_activity as $activity): ?>
+                                            <div class="activity-item">
+                                                <div class="activity-icon">
+                                                    <i class="fas fa-plus-circle text-success"></i>
+                                                </div>
+                                                <div class="activity-content">
+                                                    <div class="activity-title"><?php echo htmlspecialchars($activity['project_name']); ?></div>
+                                                    <div class="activity-meta">
+                                                        <span class="activity-category"><?php echo htmlspecialchars($activity['classification']); ?></span>
+                                                        <span class="activity-date"><?php echo date('M d', strtotime($activity['submission_date'])); ?></span>
+                                                    </div>
+                                                    <div class="activity-status status-<?php echo $activity['status']; ?>">
+                                                        <?php echo ucfirst($activity['status']); ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                                            <p class="text-muted">No recent activity</p>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-row gap-4">
+                    <div class="row g-4">
+                        <div class="flex-grow-1">
+                        <div class="col-lg-6">
+                            <div class="chart-container">
+                                <div class="chart-header">
+                                    <div>
+                                        <h3 class="chart-title">Technology Stack</h3>
+                                        <p class="chart-subtitle">Most used programming languages and technologies</p>
+                                    </div>
+                                </div>
+                                <div class="chart-wrapper">
+                                    <canvas id="techChart"></canvas>
+                                </div>
+                                    <?php foreach (array_slice($tech_analysis, 0, 5) as $tech): ?>
+                                        <div class="tech-item">
+                                            <div class="tech-name"><?php echo htmlspecialchars($tech['language']); ?></div>
+                                            <div class="tech-bar">
+                                                <div class="tech-progress" style="width: <?php echo $total_projects > 0 ? ($tech['count'] / $total_projects) * 100 : 0; ?>%"></div>
+                                            </div>
+                                            <div class="tech-count"><?php echo $tech['count']; ?></div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                                <div class="col-lg-6">
+                                    <div class="chart-container">
+                                        <div class="chart-header">
+                                            <div>
+                                                <h3 class="chart-title">Project Types</h3>
+                                                <p class="chart-subtitle">Distribution of projects by type</p>
+                                            </div>
+                                        </div>
+                                        <div class="chart-wrapper">
+                                            <canvas id="typeChart"></canvas>
+                                        </div>
+                                        <div class="tech-list">
+                                            <?php foreach ($type_distribution as $type): ?>
+                                                <div class="type-stat-item">
+                                                    <div class="type-icon">
+                                                        <i class="fas fa-code"></i>
+                                                    </div>
+                                                    <div class="type-info">
+                                                        <div class="type-name"><?php echo htmlspecialchars($type['project_type']); ?></div>
+                                                        <div class="type-count"><?php echo $type['count']; ?></div>
+                                                    </div>
+                                                    <div class="type-percentage">
+                                                        <?php echo $total_projects > 0 ? round(($type['count'] / $total_projects) * 100, 1) : 0; ?>%
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -997,7 +1723,293 @@ if (isset($conn)) {
         document.addEventListener('DOMContentLoaded', function() {
             // Any initialization code can go here
             console.log('IdeaNest Dashboard Loaded');
+            
+            // Load More Button Functionality
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            const additionalDetails = document.getElementById('additionalDetails');
+            
+            if (loadMoreBtn && additionalDetails) {
+                loadMoreBtn.addEventListener('click', function() {
+                    const isExpanded = additionalDetails.style.display !== 'none';
+                    
+                    if (isExpanded) {
+                        // Collapse
+                        additionalDetails.style.display = 'none';
+                        loadMoreBtn.innerHTML = '<i class="fas fa-chevron-down me-2"></i><span>Load More Details</span>';
+                        loadMoreBtn.classList.remove('expanded');
+                    } else {
+                        // Expand
+                        loadMoreBtn.classList.add('loading');
+                        loadMoreBtn.innerHTML = '<i class="fas fa-spinner me-2"></i><span>Loading...</span>';
+                        
+                        // Simulate loading delay
+                        setTimeout(() => {
+                            additionalDetails.style.display = 'block';
+                            loadMoreBtn.classList.remove('loading');
+                            loadMoreBtn.classList.add('expanded');
+                            loadMoreBtn.innerHTML = '<i class="fas fa-chevron-up me-2"></i><span>Show Less</span>';
+                            
+                            // Smooth scroll to additional details
+                            additionalDetails.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'start' 
+                            });
+                        }, 800);
+                    }
+                });
+            }
+
+            // Initialize Charts
+            initializeCharts();
         });
+
+        // Chart Configuration and Initialization
+        function initializeCharts() {
+            // Chart.js global configuration
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.color = '#64748b';
+            Chart.defaults.plugins.legend.labels.usePointStyle = true;
+            Chart.defaults.plugins.legend.labels.padding = 20;
+
+            // Project Classifications Pie Chart
+            const classificationsCtx = document.getElementById('classificationsChart');
+            if (classificationsCtx) {
+                const classificationData = <?php echo json_encode($classification_stats); ?>;
+                const labels = classificationData.map(item => item.classification);
+                const data = classificationData.map(item => item.count);
+                const colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#06b6d4'];
+
+                new Chart(classificationsCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: colors.slice(0, labels.length),
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle'
+                                }
+                            }
+                        },
+                        animation: {
+                            animateRotate: true,
+                            animateScale: true
+                        }
+                    }
+                });
+            }
+
+            // Monthly Submissions Bar Chart with Real Data
+            const monthlyCtx = document.getElementById('monthlyChart');
+            if (monthlyCtx) {
+                const monthlyData = <?php echo json_encode($monthly_trends); ?>;
+                const months = monthlyData.map(item => {
+                    const date = new Date(item.month + '-01');
+                    return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+                }).reverse();
+                const submissions = monthlyData.map(item => item.count).reverse();
+
+                new Chart(monthlyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: months,
+                        datasets: [{
+                            label: 'Project Submissions',
+                            data: submissions,
+                            backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                            borderColor: 'rgba(99, 102, 241, 1)',
+                            borderWidth: 2,
+                            borderRadius: 8,
+                            borderSkipped: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        animation: {
+                            duration: 2000,
+                            easing: 'easeInOutQuart'
+                        }
+                    }
+                });
+            }
+
+            // Status Distribution Chart with Real Data
+            const statusCtx = document.getElementById('statusChart');
+            if (statusCtx) {
+                const statusData = <?php echo json_encode($status_distribution); ?>;
+                const statusLabels = statusData.map(item => item.status_name);
+                const statusCounts = statusData.map(item => item.count);
+                const statusColors = statusData.map(item => 
+                    item.status_name === 'Approved' ? '#10b981' : 
+                    (item.status_name === 'Pending' ? '#f59e0b' : '#ef4444')
+                );
+
+                new Chart(statusCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: statusLabels,
+                        datasets: [{
+                            data: statusCounts,
+                            backgroundColor: statusColors,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        cutout: '70%',
+                        animation: {
+                            animateRotate: true,
+                            animateScale: true
+                        }
+                    }
+                });
+            }
+
+            // Technology Stack Chart with Real Data
+            const techCtx = document.getElementById('techChart');
+            if (techCtx) {
+                const techData = <?php echo json_encode($tech_analysis); ?>;
+                const techLabels = techData.map(item => item.language);
+                const techCounts = techData.map(item => item.count);
+                const techColors = [
+                    'rgba(99, 102, 241, 0.8)',
+                    'rgba(139, 92, 246, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(236, 72, 153, 0.8)',
+                    'rgba(6, 182, 212, 0.8)'
+                ];
+
+                new Chart(techCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: techLabels,
+                        datasets: [{
+                            data: techCounts,
+                            backgroundColor: techColors.slice(0, techLabels.length),
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                display: false
+                            },
+                            x: {
+                                display: false
+                            }
+                        },
+                        animation: {
+                            duration: 1500,
+                            easing: 'easeInOutQuart'
+                        }
+                    }
+                });
+            }
+
+            // Project Types Chart with Real Data
+            const typeCtx = document.getElementById('typeChart');
+            if (typeCtx) {
+                const typeData = <?php echo json_encode($type_distribution); ?>;
+                const typeLabels = typeData.map(item => item.project_type);
+                const typeCounts = typeData.map(item => item.count);
+                const typeColors = [
+                    'rgba(99, 102, 241, 0.8)',
+                    'rgba(139, 92, 246, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(245, 158, 11, 0.8)'
+                ];
+
+                new Chart(typeCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: typeLabels,
+                        datasets: [{
+                            data: typeCounts,
+                            backgroundColor: typeColors.slice(0, typeLabels.length),
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        cutout: '60%',
+                        animation: {
+                            animateRotate: true,
+                            animateScale: true
+                        }
+                    }
+                });
+            }
+        }
+
+        // Refresh chart function
+        function refreshChart(chartId) {
+            // This would typically make an AJAX call to refresh data
+            // For now, we'll just show a loading state
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                // Here you would typically reload the chart with fresh data
+            }, 1000);
+        }
     </script>
 </body>
 </html>
+
