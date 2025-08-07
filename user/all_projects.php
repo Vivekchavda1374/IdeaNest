@@ -50,6 +50,44 @@ $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $filter_classification = isset($_GET['classification']) ? trim($_GET['classification']) : '';
 $filter_type = isset($_GET['type']) ? trim($_GET['type']) : '';
 
+// Pagination settings
+$projects_per_page = 9;
+$current_page_num = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($current_page_num - 1) * $projects_per_page;
+
+// First, get total count for pagination
+$count_sql = "SELECT COUNT(*) as total FROM admin_approved_projects ap WHERE 1=1";
+$count_params = [];
+$count_types = "";
+
+if ($search !== '') {
+    $count_sql .= " AND (ap.project_name LIKE ? OR ap.description LIKE ? OR ap.classification LIKE ? OR ap.project_type LIKE ? OR ap.language LIKE ? )";
+    $search_param = "%$search%";
+    $count_params = array_merge($count_params, [$search_param, $search_param, $search_param, $search_param, $search_param]);
+    $count_types .= "sssss";
+}
+if ($filter_classification !== '') {
+    $count_sql .= " AND ap.classification = ?";
+    $count_params[] = $filter_classification;
+    $count_types .= "s";
+}
+if ($filter_type !== '') {
+    $count_sql .= " AND ap.project_type = ?";
+    $count_params[] = $filter_type;
+    $count_types .= "s";
+}
+
+$count_stmt = $conn->prepare($count_sql);
+if (!empty($count_params)) {
+    $count_stmt->bind_param($count_types, ...$count_params);
+}
+$count_stmt->execute();
+$total_projects = $count_stmt->get_result()->fetch_assoc()['total'];
+$count_stmt->close();
+
+$total_pages = ceil($total_projects / $projects_per_page);
+
+// Main query with pagination
 $sql = "SELECT ap.*, CASE WHEN b.project_id IS NOT NULL THEN 1 ELSE 0 END AS is_bookmarked
         FROM admin_approved_projects ap
         LEFT JOIN bookmark b ON ap.id = b.project_id AND b.user_id = ?
@@ -73,7 +111,10 @@ if ($filter_type !== '') {
     $params[] = $filter_type;
     $types .= "s";
 }
-$sql .= " ORDER BY ap.submission_date DESC";
+$sql .= " ORDER BY ap.submission_date DESC LIMIT ? OFFSET ?";
+$params[] = $projects_per_page;
+$params[] = $offset;
+$types .= "ii";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param($types, ...$params);
@@ -378,11 +419,19 @@ $current_page = basename($_SERVER['PHP_SELF']);
             border: none;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .bookmark-float button:hover {
             transform: scale(1.1);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .bookmark-float button i {
+            font-size: 1.2rem;
+            display: block;
         }
 
         .project-card .card-body {
@@ -457,13 +506,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
         .bookmark-inline:hover {
             border-color: var(--primary-color);
             color: var(--primary-color);
-            transform: translateY(-2px);
         }
 
         .bookmark-inline.bookmarked {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-color: transparent;
+            background: var(--primary-color);
+            border-color: var(--primary-color);
             color: white;
+        }
+
+        .bookmark-inline i {
+            font-size: 1rem;
+            display: block;
         }
 
         /* Modal styles */
@@ -489,13 +542,81 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .project-modal-desc {
-            background: rgba(103, 102, 234, 0.05);
-            border-radius: 12px;
-            padding: 1.5rem;
-            font-size: 1.1rem;
-            line-height: 1.7;
-            color: #2d3748;
-            border: 1px solid rgba(103, 102, 234, 0.1);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Pagination Styles */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            backdrop-filter: blur(10px);
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .pagination .page-item .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gray-200);
+            background: var(--white);
+            color: var(--gray-700);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page-item .page-link:hover {
+            background: var(--primary-color);
+            color: var(--white);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-md);
+        }
+
+        .pagination .page-item.disabled .page-link {
+            background: var(--gray-100);
+            color: var(--gray-400);
+            border-color: var(--gray-200);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .pagination-info {
+            margin-left: 2rem;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .pagination-info strong {
+            color: var(--primary-color);
         }
 
         .alert {
@@ -712,7 +833,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <div class="col-12 col-md-4">
                     <label for="search" class="form-label mb-1">Search Projects</label>
                     <input type="text" class="form-control" id="search" name="search" placeholder="Search by name, description, type..." value="<?php echo htmlspecialchars($search); ?>">
-                </div>
+        </div>
                 <div class="col-6 col-md-3">
                     <label for="classification" class="form-label mb-1">Classification</label>
                     <select class="form-select" id="classification" name="classification">
@@ -754,7 +875,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                             <form method="post" class="bookmark-float">
                                 <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
                                 <button type="submit" name="toggle_bookmark" title="<?php echo $project['is_bookmarked'] ? 'Remove from bookmarks' : 'Add to bookmarks'; ?>">
-                                    <i class="fas fa-bookmark<?php echo $project['is_bookmarked'] ? '' : '-o'; ?>" style="color:<?php echo $project['is_bookmarked'] ? '#f72585' : '#aaa'; ?>;"></i>
+                                    <i class="fas <?php echo $project['is_bookmarked'] ? 'fa-bookmark' : 'fa-bookmark'; ?>" style="color:<?php echo $project['is_bookmarked'] ? '#f72585' : '#aaa'; ?>; <?php echo $project['is_bookmarked'] ? '' : 'opacity: 0.6;'; ?>"></i>
                                 </button>
                             </form>
                             
@@ -779,7 +900,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 <form method="post" style="display:inline;">
                                     <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
                                     <button type="submit" name="toggle_bookmark" class="bookmark-inline<?php echo $project['is_bookmarked'] ? ' bookmarked' : ''; ?>">
-                                        <i class="fas fa-bookmark<?php echo $project['is_bookmarked'] ? '' : '-o'; ?>"></i>
+                                        <i class="fas <?php echo $project['is_bookmarked'] ? 'fa-bookmark' : 'fa-bookmark'; ?>"></i>
                                         <span><?php echo $project['is_bookmarked'] ? 'Bookmarked' : 'Add Bookmark'; ?></span>
                                     </button>
                                 </form>
@@ -819,14 +940,22 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                     </div>
                                     <?php if (!empty($project['project_file_path'])): ?>
                                         <div class="mb-3">
-                                            <a href="<?php echo htmlspecialchars($project['project_file_path']); ?>" class="btn btn-outline-primary" target="_blank">
-                                                <i class="fas fa-download me-2"></i> Download Project File
+                                            <h6 class="fw-bold mb-2">Project Files</h6>
+                                            <a href="<?php echo htmlspecialchars($project['project_file_path']); ?>" class="btn btn-outline-primary btn-sm" target="_blank">
+                                                <i class="fas fa-download me-1"></i>Download Project Files
                                             </a>
                                         </div>
                                     <?php endif; ?>
                                 </div>
-                                <div class="modal-footer">
+                                <div class="modal-footer project-modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <form method="post" style="display:inline;">
+                                        <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
+                                        <button type="submit" name="toggle_bookmark" class="btn btn-primary">
+                                            <i class="fas <?php echo $project['is_bookmarked'] ? 'fa-bookmark' : 'fa-bookmark'; ?> me-1"></i>
+                                            <?php echo $project['is_bookmarked'] ? 'Remove Bookmark' : 'Add Bookmark'; ?>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -834,19 +963,73 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <?php endforeach; ?>
             <?php else: ?>
                 <div class="col-12">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">
-                            <i class="fas fa-project-diagram"></i>
-                        </div>
-                        <h4 class="mb-3">No Projects Found</h4>
-                        <p class="text-muted mb-4">There are currently no approved projects to display. Check back later for new submissions!</p>
-                        <a href="<?php echo $basePath; ?>forms/new_project_add.php" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Submit Your Project
-                        </a>
+                    <div class="text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No projects found</h4>
+                        <p class="text-muted">Try adjusting your search criteria or filters.</p>
                     </div>
                 </div>
             <?php endif; ?>
         </div>
+
+        <!-- Pagination -->
+        <?php if ($total_pages > 1): ?>
+            <div class="pagination-container">
+                <nav aria-label="Project pagination">
+                    <ul class="pagination">
+                        <!-- Previous Page -->
+                        <li class="page-item <?php echo ($current_page_num <= 1) ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $current_page_num - 1])); ?>" <?php echo ($current_page_num <= 1) ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        <!-- Page Numbers -->
+                        <?php
+                        $start_page = max(1, $current_page_num - 2);
+                        $end_page = min($total_pages, $current_page_num + 2);
+
+                        if ($start_page > 1): ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => 1])); ?>">1</a>
+                            </li>
+                            <?php if ($start_page > 2): ?>
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            <?php endif; ?>
+                        <?php endif; ?>
+
+                        <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                            <li class="page-item <?php echo ($i == $current_page_num) ? 'active' : ''; ?>">
+                                <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $i])); ?>"><?php echo $i; ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <?php if ($end_page < $total_pages): ?>
+                            <?php if ($end_page < $total_pages - 1): ?>
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            <?php endif; ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $total_pages])); ?>"><?php echo $total_pages; ?></a>
+                            </li>
+                        <?php endif; ?>
+
+                        <!-- Next Page -->
+                        <li class="page-item <?php echo ($current_page_num >= $total_pages) ? 'disabled' : ''; ?>">
+                            <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $current_page_num + 1])); ?>" <?php echo ($current_page_num >= $total_pages) ? 'tabindex="-1" aria-disabled="true"' : ''; ?>>
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="pagination-info">
+                    Showing <strong><?php echo (($current_page_num - 1) * $projects_per_page) + 1; ?></strong> to <strong><?php echo min($current_page_num * $projects_per_page, $total_projects); ?></strong> of <strong><?php echo $total_projects; ?></strong> projects
+                </div>
+            </div>
+        <?php endif; ?>
     </main>
 
     <!-- Bootstrap 5 JS Bundle -->
