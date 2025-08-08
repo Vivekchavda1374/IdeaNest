@@ -1285,318 +1285,288 @@ if (isset($conn)) {
 </style>
 </head>
 <body>
-    <?php include 'layout.php'; ?>
+<?php include 'layout.php'; ?>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <button class="mobile-menu-toggle" id="mobileMenuToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search projects, ideas, mentors..." id="search" onkeyup="fetchResults()">
+                <div id="searchResults" class="position-absolute start-0 bg-white shadow-lg rounded-3 mt-1 w-100 p-2 d-none" style="z-index: 1000; max-height: 300px; overflow-y: auto;"></div>
+            </div>
+            
+            <div class="user-profile" id="userProfileDropdown">
+                <div class="user-avatar"><?php echo htmlspecialchars($user_initial); ?></div>
+                <span class="user-name"><?php echo htmlspecialchars($user_name); ?></span>
+                <i class="fas fa-chevron-down dropdown-icon"></i>
                 
-                <div class="search-container">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="search-input" placeholder="Search projects, ideas, mentors..." id="search" onkeyup="fetchResults()">
-                    <div id="searchResults" class="position-absolute start-0 bg-white shadow-lg rounded-3 mt-1 w-100 p-2 d-none" style="z-index: 1000; max-height: 300px; overflow-y: auto;"></div>
-                </div>
-                
-                <div class="user-profile" id="userProfileDropdown">
-                    <div class="user-avatar"><?php echo htmlspecialchars($user_initial); ?></div>
-                    <span class="user-name"><?php echo htmlspecialchars($user_name); ?></span>
-                    <i class="fas fa-chevron-down dropdown-icon"></i>
-                    
-                    <!-- Dropdown Menu -->
-                    <div class="user-dropdown-menu" id="userDropdownMenu">
-                        <div class="dropdown-header">
-                            <div class="dropdown-user-info">
-                                <div class="dropdown-avatar"><?php echo htmlspecialchars($user_initial); ?></div>
-                                <div class="dropdown-user-details">
-                                    <div class="dropdown-user-name"><?php echo htmlspecialchars($user_name); ?></div>
-                                    <div class="dropdown-user-email"><?php echo htmlspecialchars($user_email); ?></div>
-                                </div>
+                <!-- Dropdown Menu -->
+                <div class="user-dropdown-menu" id="userDropdownMenu">
+                    <div class="dropdown-header">
+                        <div class="dropdown-user-info">
+                            <div class="dropdown-avatar"><?php echo htmlspecialchars($user_initial); ?></div>
+                            <div class="dropdown-user-details">
+                                <div class="dropdown-user-name"><?php echo htmlspecialchars($user_name); ?></div>
+                                <div class="dropdown-user-email"><?php echo htmlspecialchars($user_email); ?></div>
                             </div>
                         </div>
-                        <div class="dropdown-divider"></div>
-                        <div class="dropdown-menu-items">
-                            <a href="user_profile_setting.php" class="dropdown-item">
-                                <i class="fas fa-user"></i>
-                                <span>Profile Settings</span>
-                            </a>
-                            <a href="bookmark.php" class="dropdown-item">
-                                <i class="fas fa-bookmark"></i>
-                                <span>My Bookmarks</span>
-                            </a>
-                            <a href="all_projects.php" class="dropdown-item">
-                                <i class="fas fa-project-diagram"></i>
-                                <span>All Projects</span>
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a href="../Login/Login/logout.php" class="dropdown-item dropdown-item-danger">
-                                <i class="fas fa-sign-out-alt"></i>
-                                <span>Logout</span>
-                            </a>
-                        </div>
                     </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Dashboard Container -->
-        <main class="dashboard-container">
-            <!-- Welcome Section -->
-            <section class="welcome-section">
-                <div class="welcome-content">
-                    <div class="welcome-info">
-                        <div class="welcome-avatar"><?php echo htmlspecialchars($user_initial); ?></div>
-                        <div class="welcome-text">
-                            <h1>Welcome back, <?php echo htmlspecialchars($user_name); ?>!</h1>
-                            <p class="welcome-subtitle">Your innovation journey continues here</p>
-                            <div class="user-email">
-                                <i class="fas fa-envelope"></i>
-                                <span><?php echo htmlspecialchars($user_email); ?></span>
-                            </div>
-        </div>
-        </div>
-                    <a href="#" class="new-project-btn">
-                        <i class="fas fa-plus"></i>
-                        <span>New Project</span>
-        </a>
-    </div>
-            </section>
-
-            <!-- Stats Grid -->
-            <section class="stats-grid">
-                <div class="stat-card projects">
-                    <div class="stat-header">
-                        <div class="stat-icon">
-                            <i class="fas fa-project-diagram"></i>
-                        </div>
-                        <div class="stat-title">Total Projects</div>
-                    </div>
-                    <div class="stat-value"><?php echo $total_projects; ?></div>
-                </div>
-                
-                <div class="stat-card ideas">
-                    <div class="stat-header">
-                        <div class="stat-icon">
-                            <i class="fas fa-lightbulb"></i>
-            </div>
-                        <div class="stat-title">Creative Ideas</div>
-        </div>
-                    <div class="stat-value"><?php echo $total_ideas; ?></div>
-                </div>
-                
-                <div class="stat-card bookmarks">
-                    <div class="stat-header">
-                        <div class="stat-icon">
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-menu-items">
+                        <a href="user_profile_setting.php" class="dropdown-item">
+                            <i class="fas fa-user"></i>
+                            <span>Profile Settings</span>
+                        </a>
+                        <a href="bookmark.php" class="dropdown-item">
                             <i class="fas fa-bookmark"></i>
-                        </div>
-                        <div class="stat-title">Saved Items</div>
+                            <span>My Bookmarks</span>
+                        </a>
+                        <a href="all_projects.php" class="dropdown-item">
+                            <i class="fas fa-project-diagram"></i>
+                            <span>All Projects</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="../Login/Login/logout.php" class="dropdown-item dropdown-item-danger">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
             </div>
-                    <div class="stat-value"><?php echo $bookmark_count; ?></div>
         </div>
-            </section>
+    </header>
 
-            <!-- Dashboard Section -->
-            <section class="dashboard-section">
-                <div class="dashboard-header">
-                    <h2 class="dashboard-title">Project Dashboard</h2>
-                    <p class="dashboard-subtitle">Overview of your projects and their statistics</p>
+    <!-- Dashboard Container -->
+    <main class="dashboard-container">
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+            <div class="welcome-content">
+                <div class="welcome-info">
+                    <div class="welcome-avatar"><?php echo htmlspecialchars($user_initial); ?></div>
+                    <div class="welcome-text">
+                        <h1>Welcome back, <?php echo htmlspecialchars($user_name); ?>!</h1>
+                        <p class="welcome-subtitle">Your innovation journey continues here</p>
+                        <div class="user-email">
+                            <i class="fas fa-envelope"></i>
+                            <span><?php echo htmlspecialchars($user_email); ?></span>
+                        </div>
+                    </div>
+                </div>
+                <a href="#" class="new-project-btn">
+                    <i class="fas fa-plus"></i>
+                    <span>New Project</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Stats Grid -->
+        <section class="stats-grid">
+            <div class="stat-card projects">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div class="stat-title">Total Projects</div>
+                </div>
+                <div class="stat-value"><?php echo $total_projects; ?></div>
+            </div>
+            
+            <div class="stat-card ideas">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="stat-title">Creative Ideas</div>
+                </div>
+                <div class="stat-value"><?php echo $total_ideas; ?></div>
+            </div>
+            
+            <div class="stat-card bookmarks">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-bookmark"></i>
+                    </div>
+                    <div class="stat-title">Saved Items</div>
+                </div>
+                <div class="stat-value"><?php echo $bookmark_count; ?></div>
+            </div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section class="dashboard-section">
+            <div class="dashboard-header">
+                <h2 class="dashboard-title">Project Dashboard</h2>
+                <p class="dashboard-subtitle">Overview of your projects and their statistics</p>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <!-- Analytics Overview Cards -->
+                <div class="analytics-overview mb-4">
                 </div>
 
-                <!-- Charts Section -->
-                <div class="charts-section">
-                    <!-- Analytics Overview Cards -->
-                    <div class="analytics-overview mb-4">
-
-    </div>
-
-                    <!-- Main Charts Row -->
-                    <div class="row g-4 mb-4">
-                        <!-- Project Distribution Pie Chart -->
-                        <div class="col-lg-8">
-                            <div class="chart-container">
-                                <div class="chart-header">
-                                    <div>
-                                        <h3 class="chart-title">Project Distribution</h3>
-                                        <p class="chart-subtitle">Real-time breakdown of projects by classification</p>
+                <!-- Main Charts Row -->
+                <div class="row g-4 mb-4">
+                    <!-- Project Distribution Pie Chart -->
+                    <div class="col-lg-8">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div>
+                                    <h3 class="chart-title">Project Distribution</h3>
+                                    <p class="chart-subtitle">Real-time breakdown of projects by classification</p>
                                 </div>
-                                    <div class="chart-actions">
-                                        <button class="btn btn-sm btn-outline-primary" onclick="refreshChart('classificationsChart')">
-                                            <i class="fas fa-sync-alt"></i> Refresh
-                                        </button>
+                                <div class="chart-actions">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="refreshChart('classificationsChart')">
+                                        <i class="fas fa-sync-alt"></i> Refresh
+                                    </button>
                                 </div>
                             </div>
-                                <div class="chart-wrapper">
-                                    <canvas id="classificationsChart"></canvas>
-                                </div>
-                                <div class="chart-stats">
-                                    <?php foreach ($classification_stats as $index => $classification): ?>
-                                        <div class="chart-stat-item">
-                                            <div class="chart-stat-icon" style="background: <?php
-                                                $colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#06b6d4'];
-                                                echo $colors[$index % count($colors)];
-                                            ?>;">
-                                                <i class="fas fa-circle"></i>
-                                            </div>
-                                            <div>
-                                                <div class="chart-stat-value"><?php echo $classification['count']; ?></div>
-                                                <div class="chart-stat-label"><?php echo htmlspecialchars($classification['classification']); ?></div>
-                                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="classificationsChart"></canvas>
+                            </div>
+                            <div class="chart-stats">
+                                <?php foreach ($classification_stats as $index => $classification): ?>
+                                    <div class="chart-stat-item">
+                                        <div class="chart-stat-icon" style="background: <?php
+                                            $colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#06b6d4'];
+                                            echo $colors[$index % count($colors)];
+                                        ?>;">
+                                            <i class="fas fa-circle"></i>
                                         </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Status Distribution -->
-                        <div class="col-lg-4">
-                            <div class="chart-container">
-                                <div class="chart-header">
-                                    <div>
-                                        <h3 class="chart-title">Project Status</h3>
-                                        <p class="chart-subtitle">Current project approval status</p>
+                                        <div>
+                                            <div class="chart-stat-value"><?php echo $classification['count']; ?></div>
+                                            <div class="chart-stat-label"><?php echo htmlspecialchars($classification['classification']); ?></div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="chart-wrapper">
-                                    <canvas id="statusChart"></canvas>
-                                </div>
-                                <div class="status-legend">
-                                    <?php foreach ($status_distribution as $status): ?>
-                                        <div class="status-item">
-                                            <span class="status-dot" style="background: <?php
-                                                echo $status['status_name'] === 'Approved' ? '#10b981' :
-                                                    ($status['status_name'] === 'Pending' ? '#f59e0b' : '#ef4444');
-                                            ?>;"></span>
-                                            <span class="status-label"><?php echo $status['status_name']; ?></span>
-                                            <span class="status-count"><?php echo $status['count']; ?></span>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Monthly Trends and Recent Activity -->
-                    <div class="row g-4 mb-4">
-                        <!-- Monthly Submissions Bar Chart -->
-                        <div class="col-lg-8">
-                            <div class="chart-container">
-                                <div class="chart-header">
-                                    <div>
-                                        <h3 class="chart-title">Monthly Project Submissions</h3>
-                                        <p class="chart-subtitle">Submission trends over the last 6 months</p>
-                                    </div>
-                                </div>
-                                <div class="chart-wrapper">
-                                    <canvas id="monthlyChart"></canvas>
+                    <!-- Status Distribution -->
+                    <div class="col-lg-4">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div>
+                                    <h3 class="chart-title">Project Status</h3>
+                                    <p class="chart-subtitle">Current project approval status</p>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Recent Activity -->
-                        <div class="col-lg-4">
-                            <div class="chart-container">
-                                <div class="chart-header">
-                                    <div>
-                                        <h3 class="chart-title">Recent Activity</h3>
-                                        <p class="chart-subtitle">Latest project submissions</p>
-                                    </div>
-                                </div>
-                                <div class="activity-feed">
-                                    <?php if (!empty($recent_activity)): ?>
-                                        <?php foreach ($recent_activity as $activity): ?>
-                                            <div class="activity-item">
-                                                <div class="activity-icon">
-                                                    <i class="fas fa-plus-circle text-success"></i>
-                                                </div>
-                                                <div class="activity-content">
-                                                    <div class="activity-title"><?php echo htmlspecialchars($activity['project_name']); ?></div>
-                                                    <div class="activity-meta">
-                                                        <span class="activity-category"><?php echo htmlspecialchars($activity['classification']); ?></span>
-                                                        <span class="activity-date"><?php echo date('M d', strtotime($activity['submission_date'])); ?></span>
-                                                    </div>
-                                                    <div class="activity-status status-<?php echo $activity['status']; ?>">
-                                                        <?php echo ucfirst($activity['status']); ?>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <div class="text-center py-4">
-                                            <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
-                                            <p class="text-muted">No recent activity</p>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
+                            <div class="chart-wrapper">
+                                <canvas id="statusChart"></canvas>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex flex-row gap-4">
-                    <div class="row g-4">
-                        <div class="flex-grow-1">
-                        <div class="col-lg-6">
-                            <div class="chart-container">
-                                <div class="chart-header">
-                                    <div>
-                                        <h3 class="chart-title">Technology Stack</h3>
-                                        <p class="chart-subtitle">Most used programming languages and technologies</p>
+                            <div class="status-legend">
+                                <?php foreach ($status_distribution as $status): ?>
+                                    <div class="status-item">
+                                        <span class="status-dot" style="background: <?php
+                                            echo $status['status_name'] === 'Approved' ? '#10b981' :
+                                                ($status['status_name'] === 'Pending' ? '#f59e0b' : '#ef4444');
+                                        ?>;"></span>
+                                        <span class="status-label"><?php echo $status['status_name']; ?></span>
+                                        <span class="status-count"><?php echo $status['count']; ?></span>
                                     </div>
-                                </div>
-                                <div class="chart-wrapper">
-                                    <canvas id="techChart"></canvas>
-                                </div>
-                                    <?php foreach (array_slice($tech_analysis, 0, 5) as $tech): ?>
-                                        <div class="tech-item">
-                                            <div class="tech-name"><?php echo htmlspecialchars($tech['language']); ?></div>
-                                            <div class="tech-bar">
-                                                <div class="tech-progress" style="width: <?php echo $total_projects > 0 ? ($tech['count'] / $total_projects) * 100 : 0; ?>%"></div>
-                                            </div>
-                                            <div class="tech-count"><?php echo $tech['count']; ?></div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                        </div>
-                                <div class="col-lg-6">
-                                    <div class="chart-container">
-                                        <div class="chart-header">
-                                            <div>
-                                                <h3 class="chart-title">Project Types</h3>
-                                                <p class="chart-subtitle">Distribution of projects by type</p>
-                                            </div>
-                                        </div>
-                                        <div class="chart-wrapper">
-                                            <canvas id="typeChart"></canvas>
-                                        </div>
-                                        <div class="tech-list">
-                                            <?php foreach ($type_distribution as $type): ?>
-                                                <div class="type-stat-item">
-                                                    <div class="type-icon">
-                                                        <i class="fas fa-code"></i>
-                                                    </div>
-                                                    <div class="type-info">
-                                                        <div class="type-name"><?php echo htmlspecialchars($type['project_type']); ?></div>
-                                                        <div class="type-count"><?php echo $type['count']; ?></div>
-                                                    </div>
-                                                    <div class="type-percentage">
-                                                        <?php echo $total_projects > 0 ? round(($type['count'] / $total_projects) * 100, 1) : 0; ?>%
-                                                    </div>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    </div>
-                                </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
                 </div>
-            </section>
-        </main>
-    </div>
+
+                <!-- Monthly Trends and Recent Activity -->
+                <div class="row g-4 mb-4">
+                    <!-- Monthly Submissions Bar Chart -->
+                    <div class="col-lg-8">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div>
+                                    <h3 class="chart-title">Monthly Project Submissions</h3>
+                                    <p class="chart-subtitle">Submission trends over the last 6 months</p>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="monthlyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="col-lg-4">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div>
+                                    <h3 class="chart-title">Recent Activity</h3>
+                                    <p class="chart-subtitle">Latest project submissions</p>
+                                </div>
+                            </div>
+                            <div class="activity-feed">
+                                <?php if (!empty($recent_activity)): ?>
+                                    <?php foreach ($recent_activity as $activity): ?>
+                                        <div class="activity-item">
+                                            <div class="activity-icon">
+                                                <i class="fas fa-plus-circle text-success"></i>
+                                            </div>
+                                            <div class="activity-content">
+                                                <div class="activity-title"><?php echo htmlspecialchars($activity['project_name']); ?></div>
+                                                <div class="activity-meta">
+                                                    <span class="activity-category"><?php echo htmlspecialchars($activity['classification']); ?></span>
+                                                    <span class="activity-date"><?php echo date('M d', strtotime($activity['submission_date'])); ?></span>
+                                                </div>
+                                                <div class="activity-status status-<?php echo $activity['status']; ?>">
+                                                    <?php echo ucfirst($activity['status']); ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                                        <p class="text-muted">No recent activity</p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div>
+                                    <h3 class="chart-title">Technology Stack</h3>
+                                    <p class="chart-subtitle">Most used programming languages and technologies</p>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="techChart"></canvas>
+                            </div>
+                            <div class="tech-list">
+                                <?php foreach (array_slice($tech_analysis, 0, 5) as $tech): ?>
+                                    <div class="tech-item">
+                                        <div class="tech-name"><?php echo htmlspecialchars($tech['language']); ?></div>
+                                        <div class="tech-bar">
+                                            <div class="tech-progress" style="width: <?php echo $total_projects > 0 ? ($tech['count'] / $total_projects) * 100 : 0; ?>%"></div>
+                                        </div>
+                                        <div class="tech-count"><?php echo $tech['count']; ?></div>
+                                        <div class="type-percentage">
+                                            <?php echo $total_projects > 0 ? round(($tech['count'] / $total_projects) * 100, 1) : 0; ?>%
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
@@ -2012,4 +1982,3 @@ if (isset($conn)) {
     </script>
 </body>
 </html>
-
