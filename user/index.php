@@ -1918,36 +1918,9 @@ if (isset($conn)) {
                                 callbacks: {
                                     label: function(context) {
                                         const value = context.raw;
-                                        const total = techCounts.reduce((a, b) => a + b, 0);
+                                        const total = context.dataset.data.reduce((a, b) => parseInt(a) + parseInt(b), 0);
                                         const percentage = ((value / total) * 100).toFixed(1);
                                         return `${value} projects (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    display: false
-                                },
-                                ticks: {
-                                    font: {
-                                        family: "'Inter', sans-serif",
-                                        size: 12
-                                    }
-                                }
-                            },
-                            x: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
-                                },
-                                ticks: {
-                                    stepSize: 1,
-                                    font: {
-                                        family: "'Inter', sans-serif",
-                                        size: 12
                                     }
                                 }
                             }
@@ -1962,22 +1935,20 @@ if (isset($conn)) {
                                 const meta = chart.getDatasetMeta(0);
 
                                 ctx.save();
-                                ctx.fillStyle = '#64748b';
-                                ctx.font = '12px Inter';
+                                ctx.fillStyle = '#1f2937';
+                                ctx.font = '600 12px Inter';
                                 ctx.textAlign = 'left';
                                 ctx.textBaseline = 'middle';
 
+                                const total = dataset.data.reduce((a, b) => parseInt(a) + parseInt(b), 0);
+
                                 meta.data.forEach((bar, index) => {
-                                    const value = dataset.data[index];
-                                    const total = dataset.data.reduce((a, b) => a + b, 0);
+                                    const value = parseInt(dataset.data[index]);
                                     const percentage = ((value / total) * 100).toFixed(1);
                                     const position = bar.getCenterPoint();
-                                    const width = bar.width;
 
-                                    // Only show percentage if bar is wide enough
-                                    if (width > 50) {
-                                        ctx.fillText(`${percentage}%`, position.x + 10, position.y);
-                                    }
+                                    // Format text and ensure it's visible
+                                    ctx.fillText(`${value} (${percentage}%)`, position.x + 15, position.y);
                                 });
                                 ctx.restore();
                             }
