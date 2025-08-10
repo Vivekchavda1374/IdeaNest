@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully">
-      <change beforePath="$PROJECT_DIR$/.idea/copilotDiffState.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/copilotDiffState.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/user_profile_setting.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/user_profile_setting.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/Blog/list-project.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/Blog/list-project.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -188,7 +187,7 @@
       <workItem from="1753375942704" duration="226000" />
       <workItem from="1753376377705" duration="757000" />
       <workItem from="1754586533912" duration="2192000" />
-      <workItem from="1754821068980" duration="2466000" />
+      <workItem from="1754821068980" duration="4074000" />
     </task>
     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
       <option name="closed" value="true" />
