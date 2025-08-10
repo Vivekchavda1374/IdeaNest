@@ -1360,7 +1360,7 @@ if (isset($conn)) {
                         </div>
                     </div>
                 </div>
-                <a href="#" class="new-project-btn">
+                <a href="./forms/new_project_add.php" class="new-project-btn">
                     <i class="fas fa-plus"></i>
                     <span>New Project</span>
                 </a>
