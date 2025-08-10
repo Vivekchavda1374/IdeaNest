@@ -133,6 +133,7 @@ if (isset($conn)) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Add Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -1282,7 +1283,7 @@ if (isset($conn)) {
             color: var(--primary-color);
             font-size: 1.1rem;
         }
-</style>
+    </style>
 </head>
 <body>
 <?php include 'layout.php'; ?>
@@ -1894,30 +1895,72 @@ if (isset($conn)) {
                     data: {
                         labels: techLabels,
                         datasets: [{
+                            label: 'Number of Projects',
                             data: techCounts,
                             backgroundColor: techColors.slice(0, techLabels.length),
-                            borderRadius: 4
+                            borderRadius: 4,
+                            borderWidth: 1,
+                            borderColor: techColors.map(color => color.replace('0.8', '1')),
+                            hoverBackgroundColor: techColors.map(color => color.replace('0.8', '0.9')),
+                            barPercentage: 0.7,
+                            categoryPercentage: 0.8
                         }]
                     },
                     options: {
+                        indexAxis: 'y',
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
                                 display: false
-                            }
-                        },
-                        scales: {
-                            y: {
-                                display: false
                             },
-                            x: {
-                                display: false
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.raw;
+                                        const total = context.dataset.data.reduce((a, b) => parseInt(a) + parseInt(b), 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${value} projects (${percentage}%)`;
+                                    }
+                                }
                             }
                         },
                         animation: {
-                            duration: 1500,
-                            easing: 'easeInOutQuart'
+                            duration: 2000,
+                            easing: 'easeInOutQuart',
+                            onProgress: function(animation) {
+                                const chart = animation.chart;
+                                const ctx = chart.ctx;
+                                const dataset = chart.data.datasets[0];
+                                const meta = chart.getDatasetMeta(0);
+
+                                ctx.save();
+                                ctx.fillStyle = '#1f2937';
+                                ctx.font = '600 12px Inter';
+                                ctx.textAlign = 'left';
+                                ctx.textBaseline = 'middle';
+
+                                const total = dataset.data.reduce((a, b) => parseInt(a) + parseInt(b), 0);
+
+                                meta.data.forEach((bar, index) => {
+                                    const value = parseInt(dataset.data[index]);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    const position = bar.getCenterPoint();
+
+                                    // Format text and ensure it's visible
+                                    ctx.fillText(`${value} (${percentage}%)`, position.x + 15, position.y);
+                                });
+                                ctx.restore();
+                            }
+                        },
+                        onClick: (event, elements) => {
+                            if (elements.length > 0) {
+                                const index = elements[0].index;
+                                const label = techLabels[index];
+                                const count = techCounts[index];
+                                // You can add click interaction here
+                                console.log(`Clicked on ${label}: ${count} projects`);
+                            }
                         }
                     }
                 });
@@ -1982,3 +2025,4 @@ if (isset($conn)) {
     </script>
 </body>
 </html>
+
