@@ -1,8 +1,5 @@
 <?php
-/**
- * Enhanced Subadmin Management Page
- * Handles subadmin creation, removal, and classification change requests
- */
+
 
 // Enable error reporting for debugging
 error_reporting(E_ALL);
@@ -83,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && !isset($_
                                 <li><b>Password:</b> $plain_password</li>
                             </ul>
                             <p>Please log in and change your password after first login.</p>
-                            <p><a href='http://yourwebsite.com/subadmin/login.php' style='background-color: #4361ee; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Login Now</a></p>
+                            <p><a href='../../Login/Login/login.php' style='background-color: #4361ee; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Login Now</a></p>
                         ";
 
                         $mail->AltBody = "
