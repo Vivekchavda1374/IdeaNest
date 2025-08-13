@@ -4,261 +4,460 @@ if (!isset($_SESSION['subadmin_logged_in']) || !$_SESSION['subadmin_logged_in'])
     header("Location: ../../Login/Login/login.php");
     exit();
 }
-// Only fetch subadmin name/email for greeting, not for profile editing
+
+// Include database connection and layout
 include_once "../../Login/Login/db.php";
+include_once "sidebar_subadmin.php"; // Include the layout file
+
 $subadmin_id = $_SESSION['subadmin_id'];
+
+// Fetch subadmin basic info
 $stmt = $conn->prepare("SELECT email, name FROM subadmins WHERE id = ?");
 $stmt->bind_param("i", $subadmin_id);
 $stmt->execute();
 $stmt->bind_result($email, $name);
 $stmt->fetch();
 $stmt->close();
+
+// Fetch subadmin's classification
+$stmt = $conn->prepare("SELECT software_classification, hardware_classification FROM subadmins WHERE id = ?");
+$stmt->bind_param("i", $subadmin_id);
+$stmt->execute();
+$stmt->bind_result($software_classification, $hardware_classification);
+$stmt->fetch();
+$stmt->close();
+
+// Assigned Projects count
+$stmt = $conn->prepare("SELECT COUNT(*) FROM projects WHERE classification = ? OR classification = ?");
+$stmt->bind_param("ss", $software_classification, $hardware_classification);
+$stmt->execute();
+$stmt->bind_result($assigned_projects_count);
+$stmt->fetch();
+$stmt->close();
+
+// Pending Tasks count
+$stmt = $conn->prepare("SELECT COUNT(*) FROM projects WHERE (classification = ? OR classification = ?) AND status = 'pending'");
+$stmt->bind_param("ss", $software_classification, $hardware_classification);
+$stmt->execute();
+$stmt->bind_result($pending_tasks_count);
+$stmt->fetch();
+$stmt->close();
+
+// Approved Projects count
+$stmt = $conn->prepare("SELECT COUNT(*) FROM projects WHERE (classification = ? OR classification = ?) AND status = 'approved'");
+$stmt->bind_param("ss", $software_classification, $hardware_classification);
+$stmt->execute();
+$stmt->bind_result($approved_projects_count);
+$stmt->fetch();
+$stmt->close();
+
+// Fetch recent projects
+$stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE classification = ? OR classification = ? ORDER BY id DESC LIMIT 5");
+$stmt->bind_param("ss", $software_classification, $hardware_classification);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Notifications and messages count (dummy data)
+$notifications_count = 3;
+$messages_count = 2;
+
+// Build the dashboard content
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subadmin Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
     <style>
-        body {
-            background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
-            min-height: 100vh;
-            font-family: 'Inter', sans-serif;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
-        .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 250px; background: rgba(255,255,255,0.95); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08); border-radius: 0 2rem 2rem 0; z-index: 1000; transition: all 0.3s; overflow-y: auto; padding: 1.5rem 1rem 1rem 1.5rem; }
-        .sidebar-header { padding: 1rem 0; text-align: center; border-bottom: 1px solid #f1f1f1; margin-bottom: 1.5rem; }
-        .sidebar-brand { font-size: 1.7rem; font-weight: 700; color: #4f46e5; text-decoration: none; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; letter-spacing: 1px; }
-        .sidebar-brand i { margin-right: 0.6rem; }
-        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
-        .sidebar-item { margin-bottom: 0.7rem; }
-        .sidebar-link { display: flex; align-items: center; padding: 0.85rem 1.1rem; color: #6366f1; text-decoration: none; border-radius: 0.5rem; font-weight: 500; font-size: 1.08rem; transition: all 0.2s; background: transparent; }
-        .sidebar-link i { margin-right: 0.85rem; font-size: 1.3rem; }
-        .sidebar-link.active, .sidebar-link:focus { background: linear-gradient(90deg, #6366f1 0%, #a5b4fc 100%); color: #fff; box-shadow: 0 2px 8px rgba(99,102,241,0.08); }
-        .sidebar-link:hover:not(.active) { background: #f1f5f9; color: #4f46e5; }
-        .sidebar-divider { margin: 1.2rem 0; border-top: 1.5px solid #e5e7eb; }
-        .sidebar-footer { padding: 1.2rem 0 0.5rem 0; border-top: 1px solid #f1f1f1; margin-top: 1.5rem; }
-        .main-content { margin-left: 250px; padding: 2.5rem 2rem 2rem 2rem; transition: all 0.3s; max-width: 100vw; width: 100%; }
-        .topbar { display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 0 1.5rem 0; margin-bottom: 2.5rem; }
-        .page-title { font-size: 2rem; font-weight: 700; margin: 0; color: #4f46e5; letter-spacing: 1px; }
-        .topbar-actions { display: flex; align-items: center; }
-        .user-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%); display: flex; align-items: center; justify-content: center; color: #fff; margin-left: 1.2rem; font-size: 1.5rem; box-shadow: 0 2px 8px rgba(99,102,241,0.08); }
-        .glass-card { background: rgba(255,255,255,0.85); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10); backdrop-filter: blur(8px); border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.18); transition: transform 0.15s, box-shadow 0.15s; }
-        .glass-card:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 16px 32px 0 rgba(99,102,241,0.13); z-index: 2; }
-        .stats-row { gap: 2.5rem !important; }
-        .stats-row .glass-card { min-width: 0; }
-        .stats-row .fw-bold { color: #4f46e5; }
-        .announcement-card { background: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%); color: #fff; border-radius: 1.25rem; box-shadow: 0 10px 30px rgba(99,102,241,0.13); }
-        .timeline { border-left: 3px solid #a5b4fc; margin-left: 1rem; padding-left: 1.5rem; }
-        .timeline-item { position: relative; margin-bottom: 2rem; }
-        .timeline-dot { position: absolute; left: -1.7rem; top: 0; width: 1.2rem; height: 1.2rem; background: #6366f1; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 2px #a5b4fc; }
-        .btn-primary, .btn-outline-primary { border-radius: 0.75rem; font-weight: 600; font-size: 1.08rem; }
-        .btn-primary { background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%); border: none; }
-        .btn-primary:hover { background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%); }
-        .btn-outline-primary { color: #6366f1; border: 2px solid #6366f1; background: #fff; }
-        .btn-outline-primary:hover { background: #6366f1; color: #fff; }
-        .btn-outline-secondary { border-radius: 0.75rem; }
-        .card { border: none; }
-        .modal-content { border-radius: 1.25rem; }
-        .modal-header { border-bottom: none; }
-        .modal-footer { border-top: none; }
-        @media (max-width: 991.98px) { .sidebar { transform: translateX(-100%); border-radius: 0 0 2rem 2rem; } .sidebar.show { transform: translateX(0); } .main-content { margin-left: 0; padding: 1rem; } .main-content.pushed { margin-left: 250px; } .stats-row { flex-direction: column !important; gap: 1.2rem !important; } }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-icon.projects { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-icon.pending { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .stat-icon.approved { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .stat-icon.notifications { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .welcome-card {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: white;
+            border-radius: 1.25rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-subtitle {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .projects-table-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: var(--light-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title i {
+            margin-right: 0.75rem;
+            color: var(--primary-color);
+        }
+
+        .table {
+            margin: 0;
+        }
+
+        .table th {
+            background: var(--light-bg);
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            padding: 1rem;
+        }
+
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .badge {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .badge.bg-success {
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%) !important;
+        }
+
+        .badge.bg-warning {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%) !important;
+            color: white !important;
+        }
+
+        .badge.bg-danger {
+            background: linear-gradient(135deg, var(--danger-color) 0%, #dc2626 100%) !important;
+        }
+
+        .quick-actions {
+            margin-top: 2rem;
+        }
+
+        .action-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.875rem 1.5rem;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+
+        .action-button i {
+            margin-right: 0.5rem;
+        }
+
+        .action-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .action-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            color: white;
+        }
+
+        .action-outline {
+            border: 2px solid var(--border-color);
+            color: var(--text-secondary);
+            background: white;
+        }
+
+        .action-outline:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: var(--light-bg);
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h5 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .welcome-card {
+                padding: 1.5rem;
+            }
+
+            .welcome-title {
+                font-size: 1.5rem;
+            }
+
+            .table-responsive {
+                font-size: 0.875rem;
+            }
+        }
     </style>
-</head>
-<body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <a href="#" class="sidebar-brand">
-                <i class="bi bi-lightbulb"></i>
-                <span>IdeaNest Subadmin</span>
-            </a>
-        </div>
-        <ul class="sidebar-menu">
-            <li class="sidebar-item">
-                <a href="dashboard.php" class="sidebar-link active">
-                    <i class="bi bi-grid-1x2"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="profile.php" class="sidebar-link">
-                    <i class="bi bi-person-circle"></i>
-                    <span>Profile</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="assigned_projects.php" class="sidebar-link">
-                    <i class="bi bi-kanban"></i>
-                    <span>Assigned Projects</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="#notifications" class="sidebar-link">
-                    <i class="bi bi-bell"></i>
-                    <span>Notifications</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="#support" class="sidebar-link">
-                    <i class="bi bi-envelope"></i>
-                    <span>Support</span>
-                </a>
-            </li>
-            <hr class="sidebar-divider">
-        </ul>
-        <div class="sidebar-footer">
-            <a href="../../Login/Login/logout.php" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
-                <i class="bi bi-box-arrow-right me-2"></i> Logout
-            </a>
-        </div>
-    </div>
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Topbar -->
-        <div class="topbar">
-            <button class="btn d-lg-none" id="sidebarToggle">
-                <i class="bi bi-list"></i>
-            </button>
-            <h1 class="page-title">Subadmin Dashboard</h1>
-            <div class="topbar-actions">
-                <div class="dropdown">
-                    <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow">
-                        <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person me-2"></i> Profile</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="../../Login/Login/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
-                    </ul>
+
+    <!-- Welcome Card -->
+    <div class="welcome-card">
+        <div class="welcome-content">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h2 class="welcome-title">Welcome back, <?php echo htmlspecialchars($name); ?>!</h2>
+                    <p class="welcome-subtitle mb-0">Here's what's happening with your projects today.</p>
+                </div>
+                <div class="d-none d-md-block">
+                    <i class="bi bi-lightbulb-fill" style="font-size: 3rem; opacity: 0.3;"></i>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon projects">
+                <i class="bi bi-kanban-fill"></i>
+            </div>
+            <div class="stat-number"><?php echo $assigned_projects_count; ?></div>
+            <div class="stat-label">Assigned Projects</div>
         </div>
 
-        <div class="row stats-row mb-4 d-flex flex-wrap w-100">
-            <?php
-            // Fetch subadmin's classification
-            $stmt = $conn->prepare("SELECT software_classification, hardware_classification FROM subadmins WHERE id = ?");
-            $stmt->bind_param("i", $subadmin_id);
-            $stmt->execute();
-            $stmt->bind_result($software_classification, $hardware_classification);
-            $stmt->fetch();
-            $stmt->close();
-            // Assigned Projects count
-            $stmt = $conn->prepare("SELECT COUNT(*) FROM projects WHERE classification = ? OR classification = ?");
-            $stmt->bind_param("ss", $software_classification, $hardware_classification);
-            $stmt->execute();
-            $stmt->bind_result($assigned_projects_count);
-            $stmt->fetch();
-            $stmt->close();
-            // Pending Tasks count (pending projects for this subadmin)
-            $stmt = $conn->prepare("SELECT COUNT(*) FROM projects WHERE (classification = ? OR classification = ?) AND status = 'pending'");
-            $stmt->bind_param("ss", $software_classification, $hardware_classification);
-            $stmt->execute();
-            $stmt->bind_result($pending_tasks_count);
-            $stmt->fetch();
-            $stmt->close();
-            // Notifications count (dummy, set to 0 or fetch from notifications table if available)
-            $notifications_count = 0;
-            // Messages count (dummy, set to 0 or fetch from messages table if available)
-            $messages_count = 0;
-            ?>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="glass-card card text-center p-4 mb-3">
-                    <div class="mb-2"><i class="bi bi-kanban" style="font-size:2rem;color:#667eea;"></i></div>
-                    <div class="fw-bold fs-3"><?php echo $assigned_projects_count; ?></div>
-                    <div class="text-muted">Assigned Projects</div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon pending">
+                <i class="bi bi-clock-history"></i>
             </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="glass-card card text-center p-4 mb-3">
-                    <div class="mb-2"><i class="bi bi-clock-history" style="font-size:2rem;color:#f59e0b;"></i></div>
-                    <div class="fw-bold fs-3"><?php echo $pending_tasks_count; ?></div>
-                    <div class="text-muted">Pending Tasks</div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="glass-card card text-center p-4 mb-3">
-                    <div class="mb-2"><i class="bi bi-bell" style="font-size:2rem;color:#10b981;"></i></div>
-                    <div class="fw-bold fs-3"><?php echo $notifications_count; ?></div>
-                    <div class="text-muted">Notifications</div>
-                </div>
-            </div>
-            
+            <div class="stat-number"><?php echo $pending_tasks_count; ?></div>
+            <div class="stat-label">Pending Tasks</div>
         </div>
-        <!-- Announcements -->
-        <div class="row mb-4">
-            <div class="col-12 col-lg-8">
-                <div class="announcement-card card p-4 mb-3 w-100">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-megaphone fs-3 me-2"></i>
-                        <h5 class="mb-0">Announcement</h5>
-                    </div>
-                    <div>Welcome to the new SubAdmin Dashboard! Stay tuned for updates and new features.</div>
-                </div>
+
+        <div class="stat-card">
+            <div class="stat-icon approved">
+                <i class="bi bi-check-circle-fill"></i>
             </div>
+            <div class="stat-number"><?php echo $approved_projects_count; ?></div>
+            <div class="stat-label">Approved Projects</div>
         </div>
-        <?php
-        // Fetch projects matching either classification
-        $stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE classification = ? OR classification = ?");
-        $stmt->bind_param("ss", $software_classification, $hardware_classification);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        ?>
-        <div class="row mb-4">
-            <div class="col-12 col-lg-10">
-                <div class="glass-card card p-4 w-100">
-                    <h5 class="mb-3"><i class="bi bi-kanban me-2"></i>Assigned Projects (by Classification)</h5>
-                    <?php if ($result->num_rows > 0): ?>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Project Name</th>
-                                        <th>Type</th>
-                                        <th>Classification</th>
-                                        <th>Description</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php while($row = $result->fetch_assoc()): ?>
-                                        <tr>
-                                            <td><?php echo htmlspecialchars($row['project_name']); ?></td>
-                                            <td><?php echo htmlspecialchars($row['project_type']); ?></td>
-                                            <td><?php echo htmlspecialchars($row['classification']); ?></td>
-                                            <td><?php echo htmlspecialchars($row['description']); ?></td>
-                                            <td><span class="badge bg-<?php echo $row['status']=='approved'?'success':($row['status']=='pending'?'warning text-dark':'danger'); ?>"><?php echo ucfirst($row['status']); ?></span></td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php else: ?>
-                        <div class="alert alert-info mb-0">No projects found for your classification.</div>
-                    <?php endif; ?>
-                </div>
+
+        <div class="stat-card">
+            <div class="stat-icon notifications">
+                <i class="bi bi-bell-fill"></i>
             </div>
-        </div>
-        <?php $stmt->close(); ?>
-        <!-- Quick Actions -->
-        <div class="row mb-4">
-            <div class="col-12 col-lg-8 text-center">
-                <a href="#" class="btn btn-primary me-2 mb-2"><i class="bi bi-kanban me-1"></i> View Projects</a>
-                <a href="#" class="btn btn-outline-secondary me-2 mb-2"><i class="bi bi-envelope me-1"></i> Contact Admin</a>
-                <a href="profile.php" class="btn btn-outline-primary mb-2"><i class="bi bi-key me-1"></i> Edit Profile</a>
-            </div>
+            <div class="stat-number"><?php echo $notifications_count; ?></div>
+            <div class="stat-label">Notifications</div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Sidebar toggle for mobile
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('show');
-            document.querySelector('.main-content').classList.toggle('pushed');
-        });
-    </script>
-</body>
-</html> 
+
+    <!-- Recent Projects -->
+    <div class="projects-table-card">
+        <div class="card-header">
+            <h5 class="card-title">
+                <i class="bi bi-kanban-fill"></i>
+                Recent Assigned Projects
+            </h5>
+        </div>
+
+        <?php if ($result->num_rows > 0): ?>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th>Project Name</th>
+                        <th>Type</th>
+                        <th>Classification</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php while($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-primary"><?php echo htmlspecialchars($row['project_name']); ?></div>
+                            </td>
+                            <td><?php echo htmlspecialchars($row['project_type']); ?></td>
+                            <td>
+                                <span class="badge bg-light text-dark"><?php echo htmlspecialchars($row['classification']); ?></span>
+                            </td>
+                            <td>
+                                <div style="max-width: 200px;" class="text-truncate">
+                                    <?php echo htmlspecialchars($row['description']); ?>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-<?php
+                                echo $row['status'] == 'approved' ? 'success' :
+                                        ($row['status'] == 'pending' ? 'warning' : 'danger');
+                                ?>">
+                                    <?php echo ucfirst($row['status']); ?>
+                                </span>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php else: ?>
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <h5>No Projects Found</h5>
+                <p class="mb-0">You don't have any projects assigned yet for your classification.</p>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <h5 class="mb-3" style="color: var(--text-primary); font-weight: 700;">Quick Actions</h5>
+        <div class="d-flex flex-wrap">
+            <a href="assigned_projects.php" class="action-button action-primary">
+                <i class="bi bi-kanban-fill"></i>
+                View All Projects
+            </a>
+            <a href="profile.php" class="action-button action-outline">
+                <i class="bi bi-person-circle"></i>
+                Edit Profile
+            </a>
+            <a href="notifications.php" class="action-button action-outline">
+                <i class="bi bi-bell-fill"></i>
+                View Notifications
+            </a>
+            <a href="support.php" class="action-button action-outline">
+                <i class="bi bi-envelope-fill"></i>
+                Contact Support
+            </a>
+        </div>
+    </div>
+
+<?php
+$stmt->close();
+$content = ob_get_clean();
+
+// Render the layout with the dashboard content
+renderLayout("Dashboard", $content, "dashboard");
+?>

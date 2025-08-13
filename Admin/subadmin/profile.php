@@ -4,7 +4,10 @@ if (!isset($_SESSION['subadmin_logged_in']) || !$_SESSION['subadmin_logged_in'])
     header("Location: ../../Login/Login/login.php");
     exit();
 }
+
 include_once "../../Login/Login/db.php";
+include_once "sidebar_subadmin.php"; // Include the layout file
+
 $subadmin_id = $_SESSION['subadmin_id'];
 
 // Fetch current profile
@@ -19,30 +22,32 @@ $success = $error = '';
 
 // Classification options
 $software_options = [
-    'Web',
-    'Mobile',
-    'Artificial Intelligence & Machine Learning',
-    'Desktop',
-    'System Software',
-    'Embedded/IoT Software',
-    'Cybersecurity',
-    'Game Development',
-    'Data Science & Analytics',
-    'Cloud-Based Applications'
-];
-$hardware_options = [
-    'Embedded Systems',
-    'Internet of Things (IoT)',
-    'Robotics',
-    'Automation',
-    'Sensor-Based Systems',
-    'Communication Systems',
-    'Power Electronics',
-    'Wearable Technology',
-    'Mechatronics',
-    'Renewable Energy Systems'
+        'Web',
+        'Mobile',
+        'Artificial Intelligence & Machine Learning',
+        'Desktop',
+        'System Software',
+        'Embedded/IoT Software',
+        'Cybersecurity',
+        'Game Development',
+        'Data Science & Analytics',
+        'Cloud-Based Applications'
 ];
 
+$hardware_options = [
+        'Embedded Systems',
+        'Internet of Things (IoT)',
+        'Robotics',
+        'Automation',
+        'Sensor-Based Systems',
+        'Communication Systems',
+        'Power Electronics',
+        'Wearable Technology',
+        'Mechatronics',
+        'Renewable Energy Systems'
+];
+
+// Fetch classification change request
 $request_stmt = $conn->prepare("SELECT id, status, requested_software_classification, requested_hardware_classification, admin_comment FROM subadmin_classification_requests WHERE subadmin_id = ? ORDER BY id DESC LIMIT 1");
 $request_stmt->bind_param("i", $subadmin_id);
 $request_stmt->execute();
@@ -73,6 +78,7 @@ if ($has_request && $req_status === 'approved') {
 if (isset($_POST['request_classification_change'])) {
     $new_software = $_POST['requested_software_classification'] ?? '';
     $new_hardware = $_POST['requested_hardware_classification'] ?? '';
+
     if ($new_software === '' && $new_hardware === '') {
         $error = "Please select at least one classification (software or hardware) for your request.";
     } elseif (!$can_request) {
@@ -81,9 +87,9 @@ if (isset($_POST['request_classification_change'])) {
         $stmt = $conn->prepare("INSERT INTO subadmin_classification_requests (subadmin_id, requested_software_classification, requested_hardware_classification) VALUES (?, ?, ?)");
         $stmt->bind_param("iss", $subadmin_id, $new_software, $new_hardware);
         if ($stmt->execute()) {
-            $success = "Classification change request sent to admin.";
+            $success = "Classification change request sent to admin successfully.";
         } else {
-            $error = "Failed to send request.";
+            $error = "Failed to send request. Please try again.";
         }
         $stmt->close();
         // Refresh to show new request status
@@ -98,13 +104,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['request_classificati
     $new_domain = trim($_POST['domain']);
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
+
     if ($new_name === '' || $new_domain === '') {
-        $error = "Name and domain are required.";
+        $error = "Name and department are required fields.";
     } elseif ($new_password !== '' || $confirm_password !== '') {
         if ($new_password !== $confirm_password) {
-            $error = "Passwords do not match.";
+            $error = "Passwords do not match. Please try again.";
         } elseif (strlen($new_password) < 6) {
-            $error = "Password must be at least 6 characters.";
+            $error = "Password must be at least 6 characters long.";
         } else {
             $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
             $stmt = $conn->prepare("UPDATE subadmins SET name=?, domain=?, password=? WHERE id=?");
@@ -114,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['request_classificati
                 $name = $new_name;
                 $domain = $new_domain;
             } else {
-                $error = "Failed to update profile/password.";
+                $error = "Failed to update profile and password. Please try again.";
             }
             $stmt->close();
         }
@@ -126,235 +133,290 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['request_classificati
             $name = $new_name;
             $domain = $new_domain;
         } else {
-            $error = "Failed to update profile.";
+            $error = "Failed to update profile. Please try again.";
         }
         $stmt->close();
     }
 }
+
+// Start output buffering to capture content
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subadmin Profile</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-    <style>
-        body {
-            background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
-            min-height: 100vh;
-            font-family: 'Inter', sans-serif;
-        }
-        .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 250px; background: rgba(255,255,255,0.95); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08); border-radius: 0 2rem 2rem 0; z-index: 1000; transition: all 0.3s; overflow-y: auto; padding: 1.5rem 1rem 1rem 1.5rem; }
-        .sidebar-header { padding: 1rem 0; text-align: center; border-bottom: 1px solid #f1f1f1; margin-bottom: 1.5rem; }
-        .sidebar-brand { font-size: 1.7rem; font-weight: 700; color: #4f46e5; text-decoration: none; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; letter-spacing: 1px; }
-        .sidebar-brand i { margin-right: 0.6rem; }
-        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
-        .sidebar-item { margin-bottom: 0.7rem; }
-        .sidebar-link { display: flex; align-items: center; padding: 0.85rem 1.1rem; color: #6366f1; text-decoration: none; border-radius: 0.5rem; font-weight: 500; font-size: 1.08rem; transition: all 0.2s; background: transparent; }
-        .sidebar-link i { margin-right: 0.85rem; font-size: 1.3rem; }
-        .sidebar-link.active, .sidebar-link:focus { background: linear-gradient(90deg, #6366f1 0%, #a5b4fc 100%); color: #fff; box-shadow: 0 2px 8px rgba(99,102,241,0.08); }
-        .sidebar-link:hover:not(.active) { background: #f1f5f9; color: #4f46e5; }
-        .sidebar-divider { margin: 1.2rem 0; border-top: 1.5px solid #e5e7eb; }
-        .sidebar-footer { padding: 1.2rem 0 0.5rem 0; border-top: 1px solid #f1f1f1; margin-top: 1.5rem; }
-        .main-content { margin-left: 250px; padding: 2.5rem 2rem 2rem 2rem; transition: all 0.3s; max-width: 100vw; width: 100%; }
-        .topbar { display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 0 1.5rem 0; margin-bottom: 2.5rem; }
-        .page-title { font-size: 2rem; font-weight: 700; margin: 0; color: #4f46e5; letter-spacing: 1px; }
-        .topbar-actions { display: flex; align-items: center; }
-        .user-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%); display: flex; align-items: center; justify-content: center; color: #fff; margin-left: 1.2rem; font-size: 1.5rem; box-shadow: 0 2px 8px rgba(99,102,241,0.08); }
-        .glass-card { background: rgba(255,255,255,0.85); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10); backdrop-filter: blur(8px); border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.18); transition: transform 0.15s, box-shadow 0.15s; }
-        .glass-card:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 16px 32px 0 rgba(99,102,241,0.13); z-index: 2; }
-        .alert { border-radius: 0.75rem; }
-        .card { border: none; }
-        @media (max-width: 991.98px) { .sidebar { transform: translateX(-100%); border-radius: 0 0 2rem 2rem; } .sidebar.show { transform: translateX(0); } .main-content { margin-left: 0; padding: 1rem; } .main-content.pushed { margin-left: 250px; } }
-        @media (max-width: 600px) { .profile-card { padding: 1.2rem 0.5rem; } }
-    </style>
-</head>
-<body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <a href="#" class="sidebar-brand">
-                <i class="bi bi-lightbulb"></i>
-                <span>IdeaNest Subadmin</span>
-            </a>
-        </div>
-        <ul class="sidebar-menu">
-            <li class="sidebar-item">
-                <a href="dashboard.php" class="sidebar-link">
-                    <i class="bi bi-grid-1x2"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="profile.php" class="sidebar-link active">
-                    <i class="bi bi-person-circle"></i>
-                    <span>Profile</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="assigned_projects.php" class="sidebar-link">
-                    <i class="bi bi-kanban"></i>
-                    <span>Assigned Projects</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="#notifications" class="sidebar-link">
-                    <i class="bi bi-bell"></i>
-                    <span>Notifications</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="#support" class="sidebar-link">
-                    <i class="bi bi-envelope"></i>
-                    <span>Support</span>
-                </a>
-            </li>
-            <hr class="sidebar-divider">
-        </ul>
-        <div class="sidebar-footer">
-            <a href="../../Login/Login/logout.php" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
-                <i class="bi bi-box-arrow-right me-2"></i> Logout
-            </a>
-        </div>
-    </div>
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Topbar -->
-        <div class="topbar">
-            <button class="btn d-lg-none" id="sidebarToggle">
-                <i class="bi bi-list"></i>
-            </button>
-            <h1 class="page-title">Subadmin Profile</h1>
-            <div class="topbar-actions">
-                <div class="dropdown">
-                    <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow">
-                        <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person me-2"></i> Profile</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="../../Login/Login/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
-                    </ul>
+
+    <div class="row g-4">
+        <!-- Profile Information Card -->
+        <div class="col-lg-8">
+            <div class="glass-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="me-3">
+                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
+                                 style="width: 60px; height: 60px;">
+                                <i class="bi bi-person-fill text-white" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="mb-1 fw-bold">Profile Information</h4>
+                            <p class="text-muted mb-0">Update your personal details and account settings</p>
+                        </div>
+                    </div>
+
+                    <?php if($success): ?>
+                        <div class="alert alert-success d-flex align-items-center mb-4">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <?php echo htmlspecialchars($success); ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if($error): ?>
+                        <div class="alert alert-danger d-flex align-items-center mb-4">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <?php echo htmlspecialchars($error); ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <form method="post" autocomplete="off" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-envelope me-2"></i>Email Address
+                            </label>
+                            <input type="email" class="form-control" value="<?php echo htmlspecialchars($email); ?>" disabled>
+                            <div class="form-text">Email address cannot be changed</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-person me-2"></i>Full Name
+                            </label>
+                            <input type="text" class="form-control" name="name" value="<?php echo htmlspecialchars($name); ?>" required>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">
+                                <i class="bi bi-building me-2"></i>Department
+                            </label>
+                            <input type="text" class="form-control" name="domain" value="<?php echo htmlspecialchars($domain); ?>" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-code-square me-2"></i>Software Classification
+                            </label>
+                            <select class="form-select" disabled>
+                                <option value="">Select Software Classification</option>
+                                <?php foreach($software_options as $opt): ?>
+                                    <option value="<?php echo htmlspecialchars($opt); ?>" <?php if($software_classification == $opt) echo 'selected'; ?>>
+                                        <?php echo htmlspecialchars($opt); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <div class="form-text">Classification can only be changed through admin approval</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-cpu me-2"></i>Hardware Classification
+                            </label>
+                            <select class="form-select" disabled>
+                                <option value="">Select Hardware Classification</option>
+                                <?php foreach($hardware_options as $opt): ?>
+                                    <option value="<?php echo htmlspecialchars($opt); ?>" <?php if($hardware_classification == $opt) echo 'selected'; ?>>
+                                        <?php echo htmlspecialchars($opt); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <div class="form-text">Classification can only be changed through admin approval</div>
+                        </div>
+
+                        <div class="col-12">
+                            <hr class="my-4">
+                            <h6 class="fw-bold mb-3">
+                                <i class="bi bi-shield-lock me-2"></i>Change Password
+                            </h6>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" name="new_password" minlength="6" autocomplete="new-password">
+                            <div class="form-text">Leave blank to keep current password</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" name="confirm_password" minlength="6" autocomplete="new-password">
+                        </div>
+
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-check-lg me-2"></i>Update Profile
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-        <!-- Profile Card/Form -->
-        <div class="profile-card card shadow-lg mx-auto">
-            <div class="card-body">
-                <h3 class="mb-4 text-center"><i class="bi bi-person-circle me-2"></i>Subadmin Profile</h3>
-                <?php if($success): ?>
-                    <div class="alert alert-success"> <?php echo $success; ?> </div>
-                <?php endif; ?>
-                <?php if($error): ?>
-                    <div class="alert alert-danger"> <?php echo $error; ?> </div>
-                <?php endif; ?>
-                <form method="post" autocomplete="off">
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" value="<?php echo htmlspecialchars($email); ?>" disabled>
+
+        <!-- Classification Request Card -->
+        <div class="col-lg-4">
+            <div class="glass-card">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">
+                        <i class="bi bi-gear-fill me-2"></i>Classification Management
+                    </h5>
+
+                    <!-- Current Request Status -->
+                    <?php if($has_request): ?>
+                        <div class="mb-4">
+                            <h6 class="fw-semibold mb-3">Current Request Status</h6>
+
+                            <?php if($req_status === 'pending'): ?>
+                                <div class="alert alert-warning">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-clock-fill me-2"></i>
+                                        <strong>Status: Pending</strong>
+                                    </div>
+                                    <div class="small">
+                                        <div><strong>Software:</strong> <?php echo htmlspecialchars($req_software ?: 'No change'); ?></div>
+                                        <div><strong>Hardware:</strong> <?php echo htmlspecialchars($req_hardware ?: 'No change'); ?></div>
+                                    </div>
+                                </div>
+                            <?php elseif($req_status === 'approved'): ?>
+                                <div class="alert alert-success">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-check-circle-fill me-2"></i>
+                                        <strong>Status: Approved</strong>
+                                    </div>
+                                    <div class="small">Your classification has been updated successfully.</div>
+                                </div>
+                            <?php elseif($req_status === 'rejected'): ?>
+                                <div class="alert alert-danger">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="bi bi-x-circle-fill me-2"></i>
+                                        <strong>Status: Rejected</strong>
+                                    </div>
+                                    <div class="small mb-2">
+                                        <div><strong>Software:</strong> <?php echo htmlspecialchars($req_software ?: 'No change'); ?></div>
+                                        <div><strong>Hardware:</strong> <?php echo htmlspecialchars($req_hardware ?: 'No change'); ?></div>
+                                    </div>
+                                    <?php if($admin_comment): ?>
+                                        <div class="small">
+                                            <strong>Admin Comment:</strong><br>
+                                            <?php echo htmlspecialchars($admin_comment); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Request Button -->
+                    <button class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center"
+                            data-bs-toggle="modal"
+                            data-bs-target="#classificationRequestModal"
+                            <?php if(!$can_request) echo 'disabled'; ?>>
+                        <i class="bi bi-send-fill me-2"></i>
+                        Request Classification Change
+                    </button>
+
+                    <?php if(!$can_request): ?>
+                        <div class="small text-muted text-center mt-2">
+                            You have a pending request. Please wait for admin response.
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Quick Info -->
+                    <div class="mt-4 pt-3 border-top">
+                        <h6 class="fw-semibold mb-3">Quick Information</h6>
+                        <div class="small text-muted">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Account Status:</span>
+                                <span class="badge bg-success">Active</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Last Login:</span>
+                                <span><?php echo date('M d, Y'); ?></span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Member Since:</span>
+                                <span>2024</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Name</label>
-                        <input type="text" class="form-control" name="name" value="<?php echo htmlspecialchars($name); ?>" required>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Classification Request Modal -->
+    <div class="modal fade" id="classificationRequestModal" tabindex="-1" aria-labelledby="classificationRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" id="classificationRequestModalLabel">
+                            <i class="bi bi-gear-fill me-2"></i>Request Classification Change
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Department</label>
-                        <input type="text" class="form-control" name="domain" value="<?php echo htmlspecialchars($domain); ?>" required>
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            <strong>Note:</strong> Your request will be reviewed by an administrator. You can select one or both classifications below.
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-code-square me-2"></i>Software Classification
+                                </label>
+                                <select class="form-select" name="requested_software_classification">
+                                    <option value="">No change requested</option>
+                                    <?php foreach($software_options as $opt): ?>
+                                        <option value="<?php echo htmlspecialchars($opt); ?>"><?php echo htmlspecialchars($opt); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    <i class="bi bi-cpu me-2"></i>Hardware Classification
+                                </label>
+                                <select class="form-select" name="requested_hardware_classification">
+                                    <option value="">No change requested</option>
+                                    <?php foreach($hardware_options as $opt): ?>
+                                        <option value="<?php echo htmlspecialchars($opt); ?>"><?php echo htmlspecialchars($opt); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h6 class="fw-semibold mb-2">Current Classifications:</h6>
+                            <div class="bg-light p-3 rounded">
+                                <div class="small">
+                                    <div><strong>Software:</strong> <?php echo htmlspecialchars($software_classification ?: 'Not assigned'); ?></div>
+                                    <div><strong>Hardware:</strong> <?php echo htmlspecialchars($hardware_classification ?: 'Not assigned'); ?></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Software Classification</label>
-                        <select class="form-select" name="software_classification" disabled>
-                            <option value="">Select Software Classification</option>
-                            <?php foreach($software_options as $opt): ?>
-                                <option value="<?php echo htmlspecialchars($opt); ?>" <?php if($software_classification == $opt) echo 'selected'; ?>><?php echo $opt; ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-lg me-2"></i>Cancel
+                        </button>
+                        <button type="submit" name="request_classification_change" class="btn btn-primary">
+                            <i class="bi bi-send-fill me-2"></i>Send Request
+                        </button>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Hardware Classification</label>
-                        <select class="form-select" name="hardware_classification" disabled>
-                            <option value="">Select Hardware Classification</option>
-                            <?php foreach($hardware_options as $opt): ?>
-                                <option value="<?php echo htmlspecialchars($opt); ?>" <?php if($hardware_classification == $opt) echo 'selected'; ?>><?php echo $opt; ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <hr>
-                    <div class="mb-3">
-                        <label class="form-label">New Password <span class="text-muted small">(leave blank to keep current)</span></label>
-                        <input type="password" class="form-control" name="new_password" minlength="6" autocomplete="new-password">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Confirm New Password</label>
-                        <input type="password" class="form-control" name="confirm_password" minlength="6" autocomplete="new-password">
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Update Profile</button>
                 </form>
-                <!-- Classification Change Request Status -->
-                <?php if($has_request && $req_status=='pending'): ?>
-                    <div class="alert alert-warning mt-3">
-                        <b>Classification Change Request:</b> Pending
-                        <br>Software: <?php echo htmlspecialchars($req_software); ?>
-                        <br>Hardware: <?php echo htmlspecialchars($req_hardware); ?>
-                    </div>
-                <?php elseif($has_request && $req_status=='rejected'): ?>
-                    <div class="alert alert-danger mt-3">
-                        <b>Classification Change Request:</b> Rejected<br>
-                        <b>Reason:</b> <?php echo htmlspecialchars($admin_comment); ?><br>
-                        <b>Requested Software:</b> <?php echo htmlspecialchars($req_software); ?><br>
-                        <b>Requested Hardware:</b> <?php echo htmlspecialchars($req_hardware); ?>
-                    </div>
-                <?php endif; ?>
-                <button class="btn btn-outline-primary mt-3 w-100" data-bs-toggle="modal" data-bs-target="#classificationRequestModal" <?php if(!$can_request) echo 'disabled'; ?>>Request Classification Change</button>
-                <!-- Modal -->
-                <div class="modal fade" id="classificationRequestModal" tabindex="-1" aria-labelledby="classificationRequestModalLabel" aria-hidden="true">
-                  <div class="modal-dialog">
-                    <div class="modal-content">
-                      <form method="post">
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="classificationRequestModalLabel">Request Classification Change</h5>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                          <div class="mb-3">
-                            <label class="form-label">Software Classification</label>
-                            <select class="form-select" name="requested_software_classification">
-                              <option value="">Select Software Classification</option>
-                              <?php foreach($software_options as $opt): ?>
-                                <option value="<?php echo htmlspecialchars($opt); ?>"><?php echo $opt; ?></option>
-                              <?php endforeach; ?>
-                            </select>
-                          </div>
-                          <div class="mb-3">
-                            <label class="form-label">Hardware Classification</label>
-                            <select class="form-select" name="requested_hardware_classification">
-                              <option value="">Select Hardware Classification</option>
-                              <?php foreach($hardware_options as $opt): ?>
-                                <option value="<?php echo htmlspecialchars($opt); ?>"><?php echo $opt; ?></option>
-                              <?php endforeach; ?>
-                            </select>
-                          </div>
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                          <button type="submit" name="request_classification_change" class="btn btn-primary">Send Request</button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Sidebar toggle for mobile
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('show');
-            document.querySelector('.main-content').classList.toggle('pushed');
-        });
-    </script>
-</body>
-</html> 
+
+<?php
+// Get the content
+$content = ob_get_clean();
+
+// Render the layout with content
+renderLayout('Profile', $content, 'profile');
+?>
