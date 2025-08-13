@@ -4,8 +4,12 @@ if (!isset($_SESSION['subadmin_logged_in']) || !$_SESSION['subadmin_logged_in'])
     header("Location: ../../Login/Login/login.php");
     exit();
 }
+
 include_once "../../Login/Login/db.php";
+require_once "sidebar_subadmin.php"; // Include the layout file
+
 $subadmin_id = $_SESSION['subadmin_id'];
+
 // Fetch subadmin's classification
 $stmt = $conn->prepare("SELECT software_classification, hardware_classification FROM subadmins WHERE id = ?");
 $stmt->bind_param("i", $subadmin_id);
@@ -13,6 +17,7 @@ $stmt->execute();
 $stmt->bind_result($software_classification, $hardware_classification);
 $stmt->fetch();
 $stmt->close();
+
 // Fetch projects matching either classification
 $stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE classification = ? OR classification = ?");
 $stmt->bind_param("ss", $software_classification, $hardware_classification);
@@ -33,219 +38,417 @@ if (isset($_POST['action']) && isset($_POST['project_id'])) {
     $project_id = intval($_POST['project_id']);
     $status = $_POST['action'] === 'approve' ? 'approved' : 'rejected';
     $rejection_reason = $_POST['action'] === 'reject' ? trim($_POST['rejection_reason'] ?? '') : '';
+
     // Update project status
     $stmt = $conn->prepare("UPDATE projects SET status=? WHERE id=?");
     $stmt->bind_param("si", $status, $project_id);
     if ($stmt->execute()) {
         // Use the shared notification function for email
-        $result = sendProjectStatusEmail($project_id, $status, $rejection_reason);
-        if ($result['success']) {
+        $result_email = sendProjectStatusEmail($project_id, $status, $rejection_reason);
+        if ($result_email['success']) {
             $action_message = "Project status updated and email sent to user.";
         } else {
-            $action_message = "Project status updated, but email could not be sent. " . $result['message'];
+            $action_message = "Project status updated, but email could not be sent. " . $result_email['message'];
         }
     } else {
         $action_message = "Failed to update project status.";
     }
     $stmt->close();
+
     // Refresh project list after action
     header("Location: assigned_projects.php?msg=" . urlencode($action_message));
     exit();
 }
+
 if (isset($_GET['msg'])) {
     $action_message = htmlspecialchars($_GET['msg']);
 }
+
+// Re-fetch projects after potential updates
+$stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE classification = ? OR classification = ?");
+$stmt->bind_param("ss", $software_classification, $hardware_classification);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Start output buffering to capture the content
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assigned Projects</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+    <!-- Page specific styles -->
     <style>
-        body {
-            background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
-            min-height: 100vh;
-            font-family: 'Inter', sans-serif;
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
         }
-        .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 250px; background: rgba(255,255,255,0.95); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08); border-radius: 0 2rem 2rem 0; z-index: 1000; transition: all 0.3s; overflow-y: auto; padding: 1.5rem 1rem 1rem 1.5rem; }
-        .sidebar-header { padding: 1rem 0; text-align: center; border-bottom: 1px solid #f1f1f1; margin-bottom: 1.5rem; }
-        .sidebar-brand { font-size: 1.7rem; font-weight: 700; color: #4f46e5; text-decoration: none; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; letter-spacing: 1px; }
-        .sidebar-brand i { margin-right: 0.6rem; }
-        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
-        .sidebar-item { margin-bottom: 0.7rem; }
-        .sidebar-link { display: flex; align-items: center; padding: 0.85rem 1.1rem; color: #6366f1; text-decoration: none; border-radius: 0.5rem; font-weight: 500; font-size: 1.08rem; transition: all 0.2s; background: transparent; }
-        .sidebar-link i { margin-right: 0.85rem; font-size: 1.3rem; }
-        .sidebar-link.active, .sidebar-link:focus { background: linear-gradient(90deg, #6366f1 0%, #a5b4fc 100%); color: #fff; box-shadow: 0 2px 8px rgba(99,102,241,0.08); }
-        .sidebar-link:hover:not(.active) { background: #f1f5f9; color: #4f46e5; }
-        .sidebar-divider { margin: 1.2rem 0; border-top: 1.5px solid #e5e7eb; }
-        .sidebar-footer { padding: 1.2rem 0 0.5rem 0; border-top: 1px solid #f1f1f1; margin-top: 1.5rem; }
-        .main-content { margin-left: 250px; padding: 2.5rem 2rem 2rem 2rem; transition: all 0.3s; max-width: 100vw; width: 100%; }
-        .topbar { display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 0 1.5rem 0; margin-bottom: 2.5rem; }
-        .page-title { font-size: 2rem; font-weight: 700; margin: 0; color: #4f46e5; letter-spacing: 1px; }
-        .topbar-actions { display: flex; align-items: center; }
-        .user-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%); display: flex; align-items: center; justify-content: center; color: #fff; margin-left: 1.2rem; font-size: 1.5rem; box-shadow: 0 2px 8px rgba(99,102,241,0.08); }
-        .glass-card { background: rgba(255,255,255,0.85); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10); backdrop-filter: blur(8px); border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.18); transition: transform 0.15s, box-shadow 0.15s; }
-        .glass-card:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 16px 32px 0 rgba(99,102,241,0.13); z-index: 2; }
-        .alert { border-radius: 0.75rem; }
-        .card { border: none; }
-        @media (max-width: 991.98px) { .sidebar { transform: translateX(-100%); border-radius: 0 0 2rem 2rem; } .sidebar.show { transform: translateX(0); } .main-content { margin-left: 0; padding: 1rem; } .main-content.pushed { margin-left: 250px; } }
+
+        .status-approved {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border: 1px solid #34d399;
+        }
+
+        .status-pending {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+
+        .status-rejected {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .project-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-color);
+        }
+
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .table-modern {
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .table-modern thead th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            font-size: 0.875rem;
+            padding: 1.25rem 1rem;
+            border: none;
+        }
+
+        .table-modern tbody td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .table-modern tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-modern tbody tr:hover {
+            background: var(--light-bg);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .btn-action {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+
+        .btn-approve {
+            background: linear-gradient(135deg, var(--success-color) 0%, #10b981 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
+        }
+
+        .btn-approve:hover {
+            background: linear-gradient(135deg, #047857 0%, var(--success-color) 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(5, 150, 105, 0.3);
+            color: white;
+        }
+
+        .btn-reject {
+            background: linear-gradient(135deg, var(--danger-color) 0%, #ef4444 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
+        }
+
+        .btn-reject:hover {
+            background: linear-gradient(135deg, #b91c1c 0%, var(--danger-color) 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+            color: white;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stats-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .stats-label {
+            font-size: 1.125rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .empty-state-desc {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 400px;
+            margin: 0 auto;
+        }
     </style>
-</head>
-<body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <a href="#" class="sidebar-brand">
-                <i class="bi bi-lightbulb"></i>
-                <span>IdeaNest Subadmin</span>
-            </a>
+
+    <!-- Action Message Alert -->
+<?php if ($action_message): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        <?php echo $action_message; ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
+
+    <!-- Projects Statistics -->
+<?php
+$total_projects = $result->num_rows;
+$approved_count = 0;
+$pending_count = 0;
+$rejected_count = 0;
+
+// Count projects by status
+$projects_data = [];
+while($row = $result->fetch_assoc()) {
+    $projects_data[] = $row;
+    switch($row['status']) {
+        case 'approved': $approved_count++; break;
+        case 'pending': $pending_count++; break;
+        case 'rejected': $rejected_count++; break;
+    }
+}
+?>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="glass-card stats-card text-center">
+                <span class="stats-number"><?php echo $total_projects; ?></span>
+                <span class="stats-label">Total Projects</span>
+            </div>
         </div>
-        <ul class="sidebar-menu">
-            <li class="sidebar-item">
-                <a href="dashboard.php" class="sidebar-link">
-                    <i class="bi bi-grid-1x2"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="profile.php" class="sidebar-link">
-                    <i class="bi bi-person-circle"></i>
-                    <span>Profile</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="assigned_projects.php" class="sidebar-link active">
-                    <i class="bi bi-kanban"></i>
-                    <span>Assigned Projects</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="#notifications" class="sidebar-link">
-                    <i class="bi bi-bell"></i>
-                    <span>Notifications</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="#support" class="sidebar-link">
-                    <i class="bi bi-envelope"></i>
-                    <span>Support</span>
-                </a>
-            </li>
-            <hr class="sidebar-divider">
-        </ul>
-        <div class="sidebar-footer">
-            <a href="../../Login/Login/logout.php" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
-                <i class="bi bi-box-arrow-right me-2"></i> Logout
-            </a>
+        <div class="col-md-3">
+            <div class="glass-card p-3 text-center" style="background: linear-gradient(135deg, var(--success-color) 0%, #10b981 100%); color: white;">
+                <span class="stats-number"><?php echo $approved_count; ?></span>
+                <span class="stats-label">Approved</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card p-3 text-center" style="background: linear-gradient(135deg, var(--warning-color) 0%, #f59e0b 100%); color: white;">
+                <span class="stats-number"><?php echo $pending_count; ?></span>
+                <span class="stats-label">Pending</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card p-3 text-center" style="background: linear-gradient(135deg, var(--danger-color) 0%, #ef4444 100%); color: white;">
+                <span class="stats-number"><?php echo $rejected_count; ?></span>
+                <span class="stats-label">Rejected</span>
+            </div>
         </div>
     </div>
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Topbar -->
-        <div class="topbar">
-            <button class="btn d-lg-none" id="sidebarToggle">
-                <i class="bi bi-list"></i>
-            </button>
-            <h1 class="page-title">Assigned Projects</h1>
-            <div class="topbar-actions">
-                <div class="dropdown">
-                    <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow">
-                        <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person me-2"></i> Profile</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="../../Login/Login/logout.php"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
-                    </ul>
+
+    <!-- Projects Table -->
+    <div class="glass-card">
+        <div class="p-4 border-bottom">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="mb-1 fw-bold">
+                        <i class="bi bi-kanban-fill me-2 text-primary"></i>
+                        Assigned Projects
+                    </h5>
+                    <p class="text-muted mb-0">Projects assigned based on your classification</p>
+                </div>
+                <div class="d-flex align-items-center gap-2 text-muted">
+                    <small>
+                        <i class="bi bi-tags-fill me-1"></i>
+                        Classifications: <?php echo htmlspecialchars($software_classification . ', ' . $hardware_classification); ?>
+                    </small>
                 </div>
             </div>
         </div>
-        <!-- Assigned Projects Table -->
-        <div class="row mb-4">
-            <div class="col-12 col-lg-11">
-                <div class="glass-card card p-4 w-100">
-                    <h5 class="mb-3"><i class="bi bi-kanban me-2"></i>Assigned Projects (by Classification)</h5>
-                    <?php if ($action_message): ?>
-                        <div class="alert alert-info"> <?php echo $action_message; ?> </div>
-                    <?php endif; ?>
-                    <?php if ($result->num_rows > 0): ?>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Project Name</th>
-                                        <th>Type</th>
-                                        <th>Classification</th>
-                                        <th>Description</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php while($row = $result->fetch_assoc()): ?>
-                                        <tr>
-                                            <td><?php echo htmlspecialchars($row['project_name']); ?></td>
-                                            <td><?php echo htmlspecialchars($row['project_type']); ?></td>
-                                            <td><?php echo htmlspecialchars($row['classification']); ?></td>
-                                            <td><?php echo htmlspecialchars($row['description']); ?></td>
-                                            <td><span class="badge bg-<?php echo $row['status']=='approved'?'success':($row['status']=='pending'?'warning text-dark':'danger'); ?>"><?php echo ucfirst($row['status']); ?></span></td>
-                                            <td>
-                                                <?php if ($row['status'] == 'pending'): ?>
-                                                    <form method="post" style="display:inline-block;">
-                                                        <input type="hidden" name="project_id" value="<?php echo $row['id']; ?>">
-                                                        <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
-                                                    </form>
-                                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal<?php echo $row['id']; ?>">Reject</button>
-                                                    <!-- Reject Modal -->
-                                                    <div class="modal fade" id="rejectModal<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="rejectModalLabel<?php echo $row['id']; ?>" aria-hidden="true">
-                                                      <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                          <div class="modal-header">
-                                                            <h5 class="modal-title" id="rejectModalLabel<?php echo $row['id']; ?>">Reject Project</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                          </div>
-                                                          <form method="post">
-                                                            <div class="modal-body">
-                                                              <input type="hidden" name="project_id" value="<?php echo $row['id']; ?>">
-                                                              <div class="mb-3">
-                                                                <label for="rejection_reason<?php echo $row['id']; ?>" class="form-label">Reason for rejection</label>
-                                                                <textarea class="form-control" name="rejection_reason" id="rejection_reason<?php echo $row['id']; ?>" required></textarea>
-                                                              </div>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                              <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
-                                                            </div>
-                                                          </form>
+
+        <?php if (count($projects_data) > 0): ?>
+            <div class="table-responsive">
+                <table class="table table-modern mb-0">
+                    <thead>
+                    <tr>
+                        <th><i class="bi bi-folder me-1"></i>Project Name</th>
+                        <th><i class="bi bi-tag me-1"></i>Type</th>
+                        <th><i class="bi bi-bookmark me-1"></i>Classification</th>
+                        <th><i class="bi bi-file-text me-1"></i>Description</th>
+                        <th><i class="bi bi-flag me-1"></i>Status</th>
+                        <th><i class="bi bi-gear me-1"></i>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach($projects_data as $row): ?>
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-primary">
+                                    <?php echo htmlspecialchars($row['project_name']); ?>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    <?php echo htmlspecialchars($row['project_type']); ?>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">
+                                    <?php echo htmlspecialchars($row['classification']); ?>
+                                </span>
+                            </td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 200px;" title="<?php echo htmlspecialchars($row['description']); ?>">
+                                    <?php echo htmlspecialchars($row['description']); ?>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="status-badge status-<?php echo $row['status']; ?>">
+                                    <?php echo ucfirst($row['status']); ?>
+                                </span>
+                            </td>
+                            <td>
+                                <?php if ($row['status'] == 'pending'): ?>
+                                    <div class="action-buttons">
+                                        <form method="post" style="display: inline-block;">
+                                            <input type="hidden" name="project_id" value="<?php echo $row['id']; ?>">
+                                            <button type="submit" name="action" value="approve" class="btn btn-action btn-approve" onclick="return confirm('Are you sure you want to approve this project?')">
+                                                <i class="bi bi-check-lg"></i>
+                                                Approve
+                                            </button>
+                                        </form>
+
+                                        <button class="btn btn-action btn-reject" data-bs-toggle="modal" data-bs-target="#rejectModal<?php echo $row['id']; ?>">
+                                            <i class="bi bi-x-lg"></i>
+                                            Reject
+                                        </button>
+                                    </div>
+
+                                    <!-- Reject Modal -->
+                                    <div class="modal fade" id="rejectModal<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="rejectModalLabel<?php echo $row['id']; ?>" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="rejectModalLabel<?php echo $row['id']; ?>">
+                                                        <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                                                        Reject Project
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <form method="post">
+                                                    <div class="modal-body">
+                                                        <div class="alert alert-warning">
+                                                            <i class="bi bi-info-circle me-2"></i>
+                                                            You are about to reject the project "<strong><?php echo htmlspecialchars($row['project_name']); ?></strong>". Please provide a reason for rejection.
                                                         </div>
-                                                      </div>
+                                                        <input type="hidden" name="project_id" value="<?php echo $row['id']; ?>">
+                                                        <div class="mb-3">
+                                                            <label for="rejection_reason<?php echo $row['id']; ?>" class="form-label">
+                                                                <i class="bi bi-chat-square-text me-1"></i>
+                                                                Reason for Rejection <span class="text-danger">*</span>
+                                                            </label>
+                                                            <textarea class="form-control" name="rejection_reason" id="rejection_reason<?php echo $row['id']; ?>" rows="4" placeholder="Please provide a detailed reason for rejecting this project..." required></textarea>
+                                                            <div class="form-text">This reason will be sent to the project submitter via email.</div>
+                                                        </div>
                                                     </div>
-                                                <?php else: ?>
-                                                    <span class="text-muted">-</span>
-                                                <?php endif; ?>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php else: ?>
-                        <div class="alert alert-info mb-0">No projects found for your classification.</div>
-                    <?php endif; ?>
-                </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                                            <i class="bi bi-x-circle me-1"></i>
+                                                            Cancel
+                                                        </button>
+                                                        <button type="submit" name="action" value="reject" class="btn btn-danger">
+                                                            <i class="bi bi-exclamation-triangle me-1"></i>
+                                                            Reject Project
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="text-muted fst-italic">
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        No actions available
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
-        </div>
+        <?php else: ?>
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="bi bi-inbox"></i>
+                </div>
+                <h3 class="empty-state-title">No Projects Found</h3>
+                <p class="empty-state-desc">
+                    There are currently no projects assigned to your classification (<?php echo htmlspecialchars($software_classification . ', ' . $hardware_classification); ?>).
+                    New projects will appear here when they are submitted.
+                </p>
+            </div>
+        <?php endif; ?>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Sidebar toggle for mobile
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('show');
-            document.querySelector('.main-content').classList.toggle('pushed');
-        });
-    </script>
-</body>
-</html> 
+
+<?php
+// Capture the content
+$content = ob_get_clean();
+
+// Render the page using the layout
+renderLayout('Assigned Projects', $content, 'projects');
+?>
