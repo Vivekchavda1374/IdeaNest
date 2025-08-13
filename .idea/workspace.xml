@@ -5,9 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin/subadmin/dashboard.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/subadmin/dashboard.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin/subadmin/profile.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/subadmin/profile.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Admin/subadmin/assigned_projects.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/subadmin/assigned_projects.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -194,7 +192,7 @@
       <workItem from="1754888393026" duration="1047000" />
       <workItem from="1754893819854" duration="611000" />
       <workItem from="1755062451868" duration="1247000" />
-      <workItem from="1755103548237" duration="2350000" />
+      <workItem from="1755103548237" duration="2703000" />
     </task>
     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
       <option name="closed" value="true" />
