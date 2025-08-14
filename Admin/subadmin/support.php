@@ -62,6 +62,18 @@ ob_start();
 
     <!-- Page specific styles -->
     <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-light: #6366f1;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
         .support-hero {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
             color: white;
@@ -189,7 +201,7 @@ ob_start();
 
         .ticket-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 1rem;
         }
@@ -237,6 +249,7 @@ ob_start();
             text-decoration: none;
             color: var(--text-primary);
             transition: all 0.3s;
+            display: block;
         }
 
         .quick-action:hover {
@@ -276,6 +289,32 @@ ob_start();
             padding: 1rem 0.75rem 0.25rem;
             color: var(--text-secondary);
             font-weight: 600;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .support-hero h2 {
+                font-size: 2rem;
+            }
+
+            .priority-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .category-card {
+                padding: 1.5rem;
+            }
         }
     </style>
 
@@ -323,7 +362,7 @@ ob_start();
             <p class="text-muted mb-0">Find quick answers</p>
         </a>
 
-        <a href="mailto:admin@ideanest.com" class="quick-action">
+        <a href="mailto:ideanest.ict@gmail.com" class="quick-action">
             <div class="quick-action-icon">
                 <i class="bi bi-envelope-fill"></i>
             </div>
@@ -374,6 +413,7 @@ ob_start();
                         </div>
                     </div>
                     <input type="hidden" name="category" id="selectedCategory" required>
+                    <div id="categoryError" class="text-danger small" style="display: none;">Please select a category</div>
                 </div>
 
                 <!-- Priority Selection -->
@@ -400,6 +440,7 @@ ob_start();
                         </div>
                     </div>
                     <input type="hidden" name="priority" id="selectedPriority" required>
+                    <div id="priorityError" class="text-danger small" style="display: none;">Please select a priority level</div>
                 </div>
 
                 <!-- Subject -->
@@ -424,9 +465,9 @@ ob_start();
                 <div class="alert alert-info">
                     <i class="bi bi-info-circle me-2"></i>
                     <strong>Your Information:</strong><br>
-                    Name: <?php echo htmlspecialchars($subadmin_name); ?><br>
-                    Email: <?php echo htmlspecialchars($subadmin_email); ?><br>
-                    Classifications: <?php echo htmlspecialchars($software_classification . ', ' . $hardware_classification); ?>
+                    Name: <?php echo htmlspecialchars($subadmin_name ?? 'N/A'); ?><br>
+                    Email: <?php echo htmlspecialchars($subadmin_email ?? 'N/A'); ?><br>
+                    Classifications: <?php echo htmlspecialchars(($software_classification ?? 'N/A') . ', ' . ($hardware_classification ?? 'N/A')); ?>
                 </div>
 
                 <div class="d-flex gap-3">
@@ -454,7 +495,7 @@ ob_start();
         </div>
 
         <div class="p-4">
-            <?php if ($tickets_result->num_rows > 0): ?>
+            <?php if ($tickets_result && $tickets_result->num_rows > 0): ?>
                 <?php while($ticket = $tickets_result->fetch_assoc()): ?>
                     <div class="ticket-card">
                         <div class="ticket-header">
@@ -494,79 +535,61 @@ ob_start();
     </div>
 
     <!-- FAQ Section -->
-    <div id="faq" class="glass-card">
-        <div class="p-4 border-bottom">
-            <h5 class="mb-1 fw-bold">
-                <i class="bi bi-question-circle-fill me-2 text-primary"></i>
-                Frequently Asked Questions
-            </h5>
-            <p class="text-muted mb-0">Quick answers to common questions</p>
-        </div>
+    <div id="faq" class="glass-card mt-4 p-4">
+        <h3 class="mb-4">
+            <i class="bi bi-question-circle-fill me-2 text-primary"></i>
+            Frequently Asked Questions
+        </h3>
 
-        <div class="p-4">
-            <div class="accordion" id="faqAccordion">
-                <div class="accordion-item border-0 mb-3 rounded">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                            How do I approve or reject projects?
-                        </button>
-                    </h2>
-                    <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            Go to the "Assigned Projects" section where you'll see all projects matching your classification. For pending projects, you can click the "Approve" button to approve or "Reject" button to reject with a reason.
-                        </div>
+        <div class="accordion" id="faqAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" aria-expanded="true" aria-controls="faq1">
+                        How do I update my profile information?
+                    </button>
+                </h2>
+                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        You can update your profile information by going to the Profile section in your dashboard. Click on the edit button to make changes to your information.
                     </div>
                 </div>
+            </div>
 
-                <div class="accordion-item border-0 mb-3 rounded">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                            What projects are assigned to me?
-                        </button>
-                    </h2>
-                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            Projects are automatically assigned based on your software and hardware classifications. You'll only see projects that match your expertise areas.
-                        </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
+                        How can I review assigned projects?
+                    </button>
+                </h2>
+                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Navigate to the "Assigned Projects" section in your dashboard. Here you can view all projects assigned to you and take necessary actions.
                     </div>
                 </div>
+            </div>
 
-                <div class="accordion-item border-0 mb-3 rounded">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                            How long do I have to review projects?
-                        </button>
-                    </h2>
-                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            There's no strict deadline, but we recommend reviewing projects within 2-3 business days to ensure timely feedback to project submitters.
-                        </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">
+                        What should I do if I can't access certain features?
+                    </button>
+                </h2>
+                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        If you're having trouble accessing certain features, first ensure you have the proper permissions. If the issue persists, submit a support ticket and we'll help you resolve it.
                     </div>
                 </div>
+            </div>
 
-                <div class="accordion-item border-0 mb-3 rounded">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
-                            Can I change my classification?
-                        </button>
-                    </h2>
-                    <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            Classification changes need to be requested through your admin. Please submit a support ticket with your requested changes and reasoning.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion-item border-0 mb-3 rounded">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
-                            How do I reset my password?
-                        </button>
-                    </h2>
-                    <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                        <div class="accordion-body">
-                            Contact your administrator or submit a support ticket for password reset assistance. For security reasons, password resets must be handled by the admin team.
-                        </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">
+                        How long does it take to get a response to my support ticket?
+                    </button>
+                </h2>
+                <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        We aim to respond to all support tickets within 24-48 hours. High priority tickets are typically addressed faster, often within a few hours during business hours.
                     </div>
                 </div>
             </div>
@@ -574,66 +597,136 @@ ob_start();
     </div>
 
     <script>
-        // Category selection functionality
+        // Category and priority selection functionality
         document.addEventListener('DOMContentLoaded', function() {
             const categoryCards = document.querySelectorAll('.category-card');
             const priorityOptions = document.querySelectorAll('.priority-option');
+            const supportForm = document.getElementById('supportForm');
 
             // Category selection
             categoryCards.forEach(card => {
                 card.addEventListener('click', function() {
+                    // Remove selected class from all cards
                     categoryCards.forEach(c => c.classList.remove('selected'));
+                    // Add selected class to clicked card
                     this.classList.add('selected');
+                    // Set hidden input value
                     document.getElementById('selectedCategory').value = this.dataset.category;
+                    // Hide error message
+                    document.getElementById('categoryError').style.display = 'none';
                 });
             });
 
             // Priority selection
             priorityOptions.forEach(option => {
                 option.addEventListener('click', function() {
+                    // Remove selected class from all options
                     priorityOptions.forEach(o => o.classList.remove('selected'));
+                    // Add selected class to clicked option
                     this.classList.add('selected');
+                    // Set hidden input value
                     document.getElementById('selectedPriority').value = this.dataset.priority;
+                    // Hide error message
+                    document.getElementById('priorityError').style.display = 'none';
                 });
+            });
+
+            // Form validation
+            supportForm.addEventListener('submit', function(e) {
+                let isValid = true;
+                const category = document.getElementById('selectedCategory').value;
+                const priority = document.getElementById('selectedPriority').value;
+                const subject = document.getElementById('subject').value.trim();
+                const message = document.getElementById('message').value.trim();
+
+                // Reset error messages
+                document.getElementById('categoryError').style.display = 'none';
+                document.getElementById('priorityError').style.display = 'none';
+
+                // Validate category
+                if (!category) {
+                    document.getElementById('categoryError').style.display = 'block';
+                    isValid = false;
+                }
+
+                // Validate priority
+                if (!priority) {
+                    document.getElementById('priorityError').style.display = 'block';
+                    isValid = false;
+                }
+
+                // Validate subject
+                if (!subject) {
+                    document.getElementById('subject').classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    document.getElementById('subject').classList.remove('is-invalid');
+                }
+
+                // Validate message
+                if (!message) {
+                    document.getElementById('message').classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    document.getElementById('message').classList.remove('is-invalid');
+                }
+
+                // Prevent form submission if validation fails
+                if (!isValid) {
+                    e.preventDefault();
+                    // Scroll to first error
+                    if (!category) {
+                        scrollToElement('new-ticket');
+                    }
+                    return false;
+                }
             });
         });
 
+        // Smooth scroll function
         function scrollToElement(elementId) {
-            document.getElementById(elementId).scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
         }
 
+        // Reset form function
         function resetForm() {
+            // Remove selected classes
             document.querySelectorAll('.category-card.selected').forEach(card => {
                 card.classList.remove('selected');
             });
             document.querySelectorAll('.priority-option.selected').forEach(option => {
                 option.classList.remove('selected');
             });
+
+            // Clear hidden inputs
             document.getElementById('selectedCategory').value = '';
             document.getElementById('selectedPriority').value = '';
+
+            // Hide error messages
+            document.getElementById('categoryError').style.display = 'none';
+            document.getElementById('priorityError').style.display = 'none';
+
+            // Remove validation classes
+            document.getElementById('subject').classList.remove('is-invalid');
+            document.getElementById('message').classList.remove('is-invalid');
         }
 
-        // Form validation
-        document.getElementById('supportForm').addEventListener('submit', function(e) {
-            const category = document.getElementById('selectedCategory').value;
-            const priority = document.getElementById('selectedPriority').value;
-
-            if (!category) {
-                e.preventDefault();
-                alert('Please select a support category.');
-                scrollToElement('new-ticket');
-                return;
-            }
-
-            if (!priority) {
-                e.preventDefault();
-                alert('Please select a priority level.');
-                scrollToElement('new-ticket');
-                return;
-            }
+        // Auto-hide alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    if (alert.querySelector('.btn-close')) {
+                        alert.querySelector('.btn-close').click();
+                    }
+                }, 5000);
+            });
         });
     </script>
 
