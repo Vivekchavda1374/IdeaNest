@@ -94,6 +94,34 @@ INSERT INTO `blog` (`id`, `er_number`, `project_name`, `project_type`, `classifi
 
 -- --------------------------------------------------------
 
+-- Add this table to your existing database
+
+CREATE TABLE `support_tickets` (
+                                   `id` int(11) NOT NULL AUTO_INCREMENT,
+                                   `subadmin_id` int(11) NOT NULL,
+                                   `subadmin_name` varchar(100) NOT NULL,
+                                   `subadmin_email` varchar(255) NOT NULL,
+                                   `subject` varchar(255) NOT NULL,
+                                   `category` enum('technical','account','project') NOT NULL,
+                                   `priority` enum('low','medium','high') NOT NULL,
+                                   `message` text NOT NULL,
+                                   `status` enum('open','in_progress','resolved','closed') NOT NULL DEFAULT 'open',
+                                   `admin_response` text DEFAULT NULL,
+                                   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+                                   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+                                   `resolved_at` timestamp NULL DEFAULT NULL,
+                                   PRIMARY KEY (`id`),
+                                   KEY `idx_subadmin_id` (`subadmin_id`),
+                                   KEY `idx_status` (`status`),
+                                   KEY `idx_priority` (`priority`),
+                                   KEY `idx_category` (`category`),
+                                   CONSTRAINT `fk_support_tickets_subadmin` FOREIGN KEY (`subadmin_id`) REFERENCES `subadmins` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Insert some sample data (optional)
+INSERT INTO `support_tickets` (`subadmin_id`, `subadmin_name`, `subadmin_email`, `subject`, `category`, `priority`, `message`, `status`) VALUES
+                                                                                                                                             (4, 'vivek', 'viveksinhchavda@gmail.com', 'Login Issue', 'technical', 'medium', 'I am unable to login to my account. Please help.', 'open'),
+                                                                                                                                             (4, 'vivek', 'viveksinhchavda@gmail.com', 'Project Approval Question', 'project', 'low', 'How long does it take to approve a project?', 'resolved');
 --
 -- Table structure for table `bookmark`
 --
