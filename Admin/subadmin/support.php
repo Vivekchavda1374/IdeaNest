@@ -6,61 +6,124 @@ if (!isset($_SESSION['subadmin_logged_in']) || !$_SESSION['subadmin_logged_in'])
 }
 
 include_once "../../Login/Login/db.php";
-require_once "sidebar_subadmin.php"; // Include the layout file
 
 $subadmin_id = $_SESSION['subadmin_id'];
 $action_message = '';
 $message_type = '';
 
-// Fetch subadmin details
-$stmt = $conn->prepare("SELECT name, email, software_classification, hardware_classification FROM subadmins WHERE id = ?");
-$stmt->bind_param("i", $subadmin_id);
-$stmt->execute();
-$stmt->bind_result($subadmin_name, $subadmin_email, $software_classification, $hardware_classification);
-$stmt->fetch();
-$stmt->close();
+// Initialize variables to prevent undefined variable errors
+$subadmin_name = '';
+$subadmin_email = '';
+$software_classification = '';
+$hardware_classification = '';
+
+// Fetch subadmin details with error handling
+try {
+    $stmt = $conn->prepare("SELECT name, email, software_classification, hardware_classification FROM subadmins WHERE id = ?");
+    if (!$stmt) {
+        throw new Exception("Prepare failed: " . $conn->error);
+    }
+
+    $stmt->bind_param("i", $subadmin_id);
+    if (!$stmt->execute()) {
+        throw new Exception("Execute failed: " . $stmt->error);
+    }
+
+    $stmt->bind_result($subadmin_name, $subadmin_email, $software_classification, $hardware_classification);
+    $stmt->fetch();
+    $stmt->close();
+} catch (Exception $e) {
+    error_log("Error fetching subadmin details: " . $e->getMessage());
+    $action_message = "Error loading user data. Please refresh the page.";
+    $message_type = 'danger';
+}
 
 // Handle support ticket submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_ticket'])) {
-    $subject = trim($_POST['subject']);
-    $category = trim($_POST['category']);
-    $priority = trim($_POST['priority']);
-    $message = trim($_POST['message']);
+    $subject = trim($_POST['subject'] ?? '');
+    $category = trim($_POST['category'] ?? '');
+    $priority = trim($_POST['priority'] ?? '');
+    $message = trim($_POST['message'] ?? '');
 
-    if (!empty($subject) && !empty($category) && !empty($priority) && !empty($message)) {
-        // Insert support ticket into database
-        $stmt = $conn->prepare("INSERT INTO support_tickets (subadmin_id, subadmin_name, subadmin_email, subject, category, priority, message, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'open', NOW())");
-        $stmt->bind_param("issssss", $subadmin_id, $subadmin_name, $subadmin_email, $subject, $category, $priority, $message);
-
-        if ($stmt->execute()) {
-            $ticket_id = $conn->insert_id;
-            $action_message = "Support ticket #$ticket_id has been submitted successfully. We'll get back to you within 24-48 hours.";
-            $message_type = 'success';
-
-            // Optional: Send email notification to admin
-            // You can implement email notification here
-        } else {
-            $action_message = "Failed to submit support ticket. Please try again.";
-            $message_type = 'danger';
-        }
-        $stmt->close();
-    } else {
+    // Validate input
+    if (empty($subject) || empty($category) || empty($priority) || empty($message)) {
         $action_message = "Please fill in all required fields.";
         $message_type = 'warning';
+    } else {
+        try {
+            // Generate unique ticket number
+            $ticket_number = 'TK-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT) . '-' . date('Y');
+
+            // Check if ticket number already exists and regenerate if needed
+            $check_stmt = $conn->prepare("SELECT id FROM support_tickets WHERE ticket_number = ?");
+            $check_stmt->bind_param("s", $ticket_number);
+            $check_stmt->execute();
+            $result = $check_stmt->get_result();
+
+            // If ticket number exists, generate a new one with timestamp
+            if ($result->num_rows > 0) {
+                $ticket_number = 'TK-' . time() . '-' . date('Y');
+            }
+            $check_stmt->close();
+
+            // Insert support ticket into database
+            $stmt = $conn->prepare("INSERT INTO support_tickets (ticket_number, subadmin_id, subadmin_name, subadmin_email, subject, category, priority, message, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open', NOW())");
+
+            if (!$stmt) {
+                throw new Exception("Prepare failed: " . $conn->error);
+            }
+
+            $stmt->bind_param("sissssss", $ticket_number, $subadmin_id, $subadmin_name, $subadmin_email, $subject, $category, $priority, $message);
+
+            if ($stmt->execute()) {
+                $ticket_id = $conn->insert_id;
+                $action_message = "Support ticket $ticket_number has been submitted successfully. We'll get back to you within 24-48 hours.";
+                $message_type = 'success';
+
+                // Insert initial reply record
+                $reply_stmt = $conn->prepare("INSERT INTO support_ticket_replies (ticket_id, sender_type, sender_name, sender_email, message) VALUES (?, 'subadmin', ?, ?, ?)");
+                if ($reply_stmt) {
+                    $reply_stmt->bind_param("isss", $ticket_id, $subadmin_name, $subadmin_email, $message);
+                    $reply_stmt->execute();
+                    $reply_stmt->close();
+                }
+
+                // Optional: Send email notification to admin
+                // You can implement email notification here
+            } else {
+                throw new Exception("Execute failed: " . $stmt->error);
+            }
+            $stmt->close();
+        } catch (Exception $e) {
+            error_log("Error submitting support ticket: " . $e->getMessage());
+            $action_message = "Failed to submit support ticket. Please try again. Error: " . $e->getMessage();
+            $message_type = 'danger';
+        }
     }
 }
 
-// Fetch user's support tickets
-$stmt = $conn->prepare("SELECT id, subject, category, priority, status, created_at FROM support_tickets WHERE subadmin_id = ? ORDER BY created_at DESC LIMIT 10");
-$stmt->bind_param("i", $subadmin_id);
-$stmt->execute();
-$tickets_result = $stmt->get_result();
+// Fetch user's support tickets with error handling
+$tickets_result = null;
+try {
+    $stmt = $conn->prepare("SELECT id, ticket_number, subject, category, priority, status, created_at FROM support_tickets WHERE subadmin_id = ? ORDER BY created_at DESC LIMIT 10");
+    if ($stmt) {
+        $stmt->bind_param("i", $subadmin_id);
+        if ($stmt->execute()) {
+            $tickets_result = $stmt->get_result();
+        }
+        $stmt->close();
+    }
+} catch (Exception $e) {
+    error_log("Error fetching support tickets: " . $e->getMessage());
+}
+
+// Include the sidebar after processing
+require_once "sidebar_subadmin.php"; // Include the layout file
 
 // Start output buffering to capture the content
 ob_start();
 ?>
 
-    <!-- Page specific styles -->
     <style>
         :root {
             --primary-color: #4f46e5;
@@ -329,9 +392,9 @@ ob_start();
 
     <!-- Action Message Alert -->
 <?php if ($action_message): ?>
-    <div class="alert alert-<?php echo $message_type; ?> alert-dismissible fade show" role="alert">
+    <div class="alert alert-<?php echo htmlspecialchars($message_type); ?> alert-dismissible fade show" role="alert">
         <i class="bi bi-<?php echo $message_type === 'success' ? 'check-circle' : ($message_type === 'danger' ? 'exclamation-triangle' : 'info-circle'); ?> me-2"></i>
-        <?php echo $action_message; ?>
+        <?php echo htmlspecialchars($action_message); ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 <?php endif; ?>
@@ -465,9 +528,9 @@ ob_start();
                 <div class="alert alert-info">
                     <i class="bi bi-info-circle me-2"></i>
                     <strong>Your Information:</strong><br>
-                    Name: <?php echo htmlspecialchars($subadmin_name ?? 'N/A'); ?><br>
-                    Email: <?php echo htmlspecialchars($subadmin_email ?? 'N/A'); ?><br>
-                    Classifications: <?php echo htmlspecialchars(($software_classification ?? 'N/A') . ', ' . ($hardware_classification ?? 'N/A')); ?>
+                    Name: <?php echo htmlspecialchars($subadmin_name ?: 'N/A'); ?><br>
+                    Email: <?php echo htmlspecialchars($subadmin_email ?: 'N/A'); ?><br>
+                    Classifications: <?php echo htmlspecialchars(($software_classification ?: 'N/A') . ', ' . ($hardware_classification ?: 'N/A')); ?>
                 </div>
 
                 <div class="d-flex gap-3">
@@ -500,17 +563,17 @@ ob_start();
                     <div class="ticket-card">
                         <div class="ticket-header">
                             <div class="flex-grow-1">
-                                <div class="ticket-id">Ticket #<?php echo $ticket['id']; ?></div>
+                                <div class="ticket-id">Ticket #<?php echo htmlspecialchars($ticket['id']); ?></div>
                                 <div class="ticket-subject"><?php echo htmlspecialchars($ticket['subject']); ?></div>
                                 <div class="ticket-meta">
-                                    <span class="badge bg-info"><?php echo ucfirst($ticket['category']); ?></span>
-                                    <span class="badge bg-warning"><?php echo ucfirst($ticket['priority']); ?></span>
+                                    <span class="badge bg-info"><?php echo htmlspecialchars(ucfirst($ticket['category'])); ?></span>
+                                    <span class="badge bg-warning"><?php echo htmlspecialchars(ucfirst($ticket['priority'])); ?></span>
                                     <span class="badge status-<?php echo str_replace(' ', '-', $ticket['status']); ?>">
-                                    <?php echo ucfirst(str_replace('_', ' ', $ticket['status'])); ?>
-                                </span>
+                                <?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $ticket['status']))); ?>
+                            </span>
                                     <small class="text-muted">
                                         <i class="bi bi-calendar me-1"></i>
-                                        <?php echo date('M j, Y g:i A', strtotime($ticket['created_at'])); ?>
+                                        <?php echo htmlspecialchars(date('M j, Y g:i A', strtotime($ticket['created_at']))); ?>
                                     </small>
                                 </div>
                             </div>
@@ -734,6 +797,11 @@ ob_start();
 // Capture the content
 $content = ob_get_clean();
 
-// Render the page using the layout
-renderLayout('Support & Help', $content, 'support');
+if (function_exists('renderLayout')) {
+    // Render the page using the layout
+    renderLayout('Support & Help', $content, 'support');
+} else {
+    // Fallback: just echo the content if renderLayout doesn't exist
+    echo $content;
+}
 ?>
