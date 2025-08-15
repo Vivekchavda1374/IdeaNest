@@ -308,111 +308,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-        <style>
-
-
-            /* Filter Bar Styles */
-            .filter-bar {
-                background-color: #fff;
-                border-radius: 0.5rem;
-                box-shadow: 0 0 15px rgba(0,0,0,0.05);
-                padding: 1rem;
-                margin-bottom: 1.5rem;
-            }
-
-            /* Project Details Styles */
-            .project-details {
-                margin-bottom: 20px;
-            }
-
-            .project-detail-label {
-                font-weight: 600;
-                margin-bottom: 5px;
-            }
-
-            .project-detail-value {
-                margin-bottom: 15px;
-            }
-
-            /* Table Styles */
-            .project-table th {
-                font-weight: 600;
-                color: #495057;
-            }
-
-            .project-table .project-title {
-                font-weight: 500;
-                color: #212529;
-            }
-
-            .project-badge {
-                font-weight: 500;
-                padding: 0.35rem 0.65rem;
-            }
-
-            .avatar-sm {
-                width: 32px;
-                height: 32px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 0.25rem;
-            }
-
-            /* Status Badges */
-            .badge-pending {
-                background-color: rgba(245, 158, 11, 0.1);
-                color: #f59e0b;
-            }
-
-            .badge-approved {
-                background-color: rgba(16, 185, 129, 0.1);
-                color: #10b981;
-            }
-
-            .badge-rejected {
-                background-color: rgba(239, 68, 68, 0.1);
-                color: #ef4444;
-            }
-
-            /* Project Type Colors */
-            .project-type-web { color: #3b82f6; }
-            .project-type-mobile { color: #8b5cf6; }
-            .project-type-desktop { color: #10b981; }
-            .project-type-game { color: #f59e0b; }
-            .project-type-ai { color: #ef4444; }
-            .project-type-other { color: #6b7280; }
-
-            /* Pagination */
-            .pagination {
-                margin-bottom: 0;
-            }
-
-            /* Modal styles */
-            .modal-backdrop {
-                z-index: 1040;
-            }
-
-            .modal {
-                z-index: 1050;
-            }
-
-            /* Media Query for Responsive Sidebar */
-            @media (max-width: 991.98px) {
-                .sidebar {
-                    transform: translateX(-100%);
-                }
-                .sidebar.show {
-                    transform: translateX(0);
-                }
-                .main-content {
-                    margin-left: 0;
-                }
-                .main-content.pushed {
-                    margin-left: 250px;
-                }
-            }
-        </style>
+        <link rel="stylesheet" href="../assets/css/admin_view_project.css">
     </head>
 <body>
     <!-- Sidebar -->
@@ -789,22 +685,6 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
 </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Toggle sidebar on mobile
-        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('show');
-        });
-
-        // Auto dismiss alerts after 5 seconds
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                const alerts = document.querySelectorAll('.alert');
-                alerts.forEach(function(alert) {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
-            }, 5000);
-        });
-    </script>
+    <script src="../assets/js/admin_view_project.js"></script>
 </body>
 </html>
