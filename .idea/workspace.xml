@@ -4,7 +4,37 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully" />
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully">
+      <change afterPath="$PROJECT_DIR$/assets/css/all_project.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/css/bookmark.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/css/edit_idea.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/css/form_idea.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/css/index.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/css/layout_user.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/css/list_project.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/css/new_project_add.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/css/project_details.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/css/user_profile.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/js/all_projects.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/js/edit_idea.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/js/layout_user.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/js/list_project.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/js/new_project_add.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/js/user_profile.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/Blog/edit.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/Blog/edit.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/Blog/form.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/Blog/form.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/Blog/list-project.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/Blog/list-project.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/all_projects.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/all_projects.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/bookmark.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/bookmark.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/new_project_add.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/new_project_add.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/layout.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/layout.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/layout_footer.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/layout_footer.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/project_details.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/project_details.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/user_profile_setting.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/user_profile_setting.php" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,8 +50,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="PHP File" />
-        <option value="JavaScript File" />
         <option value="CSS File" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
@@ -99,11 +129,11 @@
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\user\forms" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/assets/css" />
       <recent name="$PROJECT_DIR$/Login/Login" />
       <recent name="$PROJECT_DIR$/db" />
       <recent name="C:\xampp\htdocs\project\IdeaNest\Login\Login" />
       <recent name="C:\xampp\htdocs\project\IdeaNest\user" />
-      <recent name="C:\xampp\htdocs\project\IdeaNest\Admin" />
     </key>
   </component>
   <component name="SeleniumInternalSettingsState">
@@ -193,7 +223,8 @@
       <workItem from="1755062451868" duration="1247000" />
       <workItem from="1755103548237" duration="3176000" />
       <workItem from="1755139476087" duration="5437000" />
-      <workItem from="1755237134989" duration="5993000" />
+      <workItem from="1755237134989" duration="6428000" />
+      <workItem from="1755263066560" duration="2605000" />
     </task>
     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
       <option name="closed" value="true" />
