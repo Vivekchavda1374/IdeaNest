@@ -160,12 +160,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <!-- Main Content -->
 <main class="main-content">
     <!-- Mobile Header -->
-    <div class="mobile-header">
-        <button class="mobile-menu-toggle" id="mobileMenuToggle">
-            <i class="fas fa-bars"></i>
-        </button>
-        <h5 class="mb-0 fw-bold">All Projects</h5>
-    </div>
+
 
     <!-- Projects Header -->
     <div class="projects-header fade-in-up">
