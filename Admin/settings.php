@@ -364,90 +364,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-    <style>
-        /* Custom Sidebar Styles */
-
-
-        /* Settings Card Styles */
-        .settings-card {
-            background-color: #fff;
-            border-radius: 0.5rem;
-            box-shadow: 0 0 15px rgba(0,0,0,0.05);
-            margin-bottom: 1.5rem;
-        }
-
-        .settings-card-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #f1f1f1;
-            background-color: #f8f9fa;
-            border-radius: 0.5rem 0.5rem 0 0;
-        }
-
-        .settings-card-body {
-            padding: 1.5rem;
-        }
-
-        .settings-section {
-            margin-bottom: 2rem;
-        }
-
-        .settings-section:last-child {
-            margin-bottom: 0;
-        }
-
-        .settings-section-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: #2d3748;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: #4a5568;
-        }
-
-        .form-control:focus {
-            border-color: #4361ee;
-            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
-        }
-
-        .btn-primary {
-            background-color: #4361ee;
-            border-color: #4361ee;
-        }
-
-        .btn-primary:hover {
-            background-color: #3651d4;
-            border-color: #3651d4;
-        }
-
-        /* Alert banner */
-        .alert-banner {
-            margin-bottom: 20px;
-        }
-
-        /* Media Query for Responsive Sidebar */
-        @media (max-width: 991.98px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            .main-content {
-                margin-left: 0;
-            }
-            .main-content.pushed {
-                margin-left: 250px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="../assets/css/setting.css">
 </head>
 <body>
 <!-- Sidebar -->
@@ -810,39 +727,6 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
 
 <!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    // Sidebar toggle for mobile
-    document.getElementById('sidebarToggle').addEventListener('click', function() {
-        document.querySelector('.sidebar').classList.toggle('show');
-        document.querySelector('.main-content').classList.toggle('pushed');
-    });
-
-    // Auto-save form data to localStorage
-    document.querySelectorAll('input, select, textarea').forEach(function(element) {
-        element.addEventListener('change', function() {
-            const formData = new FormData(document.querySelector('form'));
-            const data = {};
-            for (let [key, value] of formData.entries()) {
-                data[key] = value;
-            }
-            localStorage.setItem('settingsFormData', JSON.stringify(data));
-        });
-    });
-
-    // Load saved form data on page load
-    window.addEventListener('load', function() {
-        const savedData = localStorage.getItem('settingsFormData');
-        if (savedData) {
-            const data = JSON.parse(savedData);
-            for (let key in data) {
-                const element = document.querySelector(`[name="${key}"]`);
-                if (element) {
-                    element.value = data[key];
-                }
-            }
-        }
-    });
-</script>
+<script src="../assets/js/setting.js"></script>
 </body>
 </html>
