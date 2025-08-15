@@ -6,11 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin/admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/admin.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin/admin_view_project.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/admin_view_project.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin/notifications.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/notifications.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin/sidebar_admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/sidebar_admin.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/css/sidebar_admin.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Admin/project_approvel.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/project_approvel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Admin/settings.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/settings.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Admin/user_manage_by_admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/user_manage_by_admin.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -200,7 +198,7 @@
       <workItem from="1755062451868" duration="1247000" />
       <workItem from="1755103548237" duration="3176000" />
       <workItem from="1755139476087" duration="5437000" />
-      <workItem from="1755237134989" duration="4156000" />
+      <workItem from="1755237134989" duration="4837000" />
     </task>
     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
       <option name="closed" value="true" />
