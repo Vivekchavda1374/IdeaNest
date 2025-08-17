@@ -526,5 +526,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../assets/js/all_projects.js"></script>
+<script src = "../assets/js/layout_user.js"></script>
 </body
 </html>

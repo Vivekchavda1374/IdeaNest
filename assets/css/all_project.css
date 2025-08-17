@@ -640,97 +640,644 @@ body {
     color: var(--gray-600);
     font-size: 1.125rem;
 }
+/* Enhanced Mobile Responsive Styles for All Projects */
 
-/* Mobile responsive */
+/* Large tablets and small laptops */
+@media (max-width: 1200px) {
+    .main-content {
+        padding: 1.5rem;
+    }
+
+    .projects-header h2 {
+        font-size: 2.5rem;
+    }
+
+    .projects-stats {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .project-card .card-body {
+        padding: 2rem 1.75rem;
+        padding-top: 3rem;
+    }
+}
+
+/* Tablets */
 @media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 0px; /* Hide sidebar on mobile */
+    }
+
     .main-content {
         margin-left: 0;
         padding: 1rem;
+        width: 100%;
     }
 
     .mobile-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+
+    .mobile-menu-toggle {
+        display: block;
+        position: relative;
+        top: auto;
+        left: auto;
+        margin: 0;
+        z-index: 1002;
     }
 
     .projects-header {
         padding: 2rem 1.5rem;
+        margin-bottom: 2rem;
     }
 
     .projects-header h2 {
         font-size: 2.25rem;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .projects-header p {
+        text-align: center;
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .projects-stats {
         grid-template-columns: 1fr;
         gap: 1rem;
+        margin-bottom: 2rem;
     }
 
+    .stat-item {
+        padding: 1.25rem;
+        justify-content: center;
+        text-align: center;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 1.5rem;
+    }
+
+    .filter-form {
+        padding: 1.5rem;
+        gap: 1rem;
+    }
+
+    .filter-form .col-12,
+    .filter-form .col-md-4,
+    .filter-form .col-md-3,
+    .filter-form .col-md-2,
+    .filter-form .col-6 {
+        margin-bottom: 1rem;
+    }
+
+    .filter-form .row {
+        margin: 0;
+    }
+
+    /* Project cards grid adjustment */
+    .row.g-4 {
+        --bs-gutter-x: 1rem;
+        --bs-gutter-y: 1rem;
+    }
+
+    .col-xl-4 {
+        flex: 0 0 auto;
+        width: 50%;
+    }
+
+    .project-card {
+        margin-bottom: 1rem;
+    }
+
+    .project-card .card-body {
+        padding: 1.75rem 1.5rem;
+        padding-top: 2.75rem;
+    }
+
+    .bookmark-float {
+        top: 1rem;
+        right: 1rem;
+    }
+
+    .bookmark-float button {
+        width: 44px;
+        height: 44px;
+    }
+
+    /* Pagination adjustments */
     .pagination {
         gap: 0.25rem;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 
     .pagination .page-item .page-link {
-        min-width: 40px;
-        height: 40px;
-        font-size: 0.85rem;
+        min-width: 44px;
+        height: 44px;
+        font-size: 0.875rem;
+        padding: 0 0.5rem;
     }
 
     .pagination-container {
         padding: 2rem 1rem;
+        margin-top: 2rem;
     }
 
     .pagination-nav {
         flex-direction: column;
         gap: 0.75rem;
+        width: 100%;
+    }
+
+    .pagination-nav-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Modal adjustments */
+    .modal-lg {
+        max-width: 95%;
+        margin: 0.5rem auto;
+    }
+
+    .project-modal-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .project-modal-header .modal-title {
+        font-size: 1.5rem;
     }
 }
 
-@media (max-width: 640px) {
+/* Large phones and small tablets */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 0.75rem;
+    }
+
+    .projects-header {
+        padding: 1.5rem 1rem;
+        margin-bottom: 1.5rem;
+    }
+
     .projects-header h2 {
-        font-size: 1.875rem;
+        font-size: 2rem;
+    }
+
+    .projects-header p {
+        font-size: 0.95rem;
     }
 
     .filter-form {
-        padding: 1.5rem;
+        padding: 1.25rem;
+    }
+
+    .filter-form .form-control,
+    .filter-form .form-select {
+        padding: 0.75rem;
+        font-size: 0.95rem;
+    }
+
+    /* Single column layout for project cards */
+    .col-xl-4,
+    .col-md-6 {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+
+    .project-card .card-body {
+        padding: 1.5rem 1.25rem;
+        padding-top: 2.5rem;
+    }
+
+    .project-card .card-title {
+        font-size: 1.25rem;
+        line-height: 1.4;
+    }
+
+    .project-card .card-text {
+        font-size: 0.95rem;
+    }
+
+    .project-badges {
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .project-badge {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .bookmark-inline {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.9rem;
+    }
+
+    /* Pagination for mobile */
+    .pagination-info {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .pagination-stats,
+    .pagination-summary {
+        font-size: 0.875rem;
+    }
+
+    .pagination {
+        gap: 0.125rem;
+    }
+
+    .pagination .page-item .page-link {
+        min-width: 40px;
+        height: 40px;
+        font-size: 0.8rem;
+    }
+
+    /* Modal improvements */
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: none;
+        width: calc(100% - 1rem);
+    }
+
+    .modal-body {
+        padding: 1.5rem 1rem;
+    }
+
+    .modal-body .row.g-4 {
+        --bs-gutter-x: 0.5rem;
+        --bs-gutter-y: 1rem;
+    }
+
+    .modal-body .col-md-6 {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Standard phones */
+@media (max-width: 640px) {
+    .main-content {
+        padding: 0.5rem;
+    }
+
+    .projects-header {
+        padding: 1.25rem 0.75rem;
+    }
+
+    .projects-header h2 {
+        font-size: 1.75rem;
+        line-height: 1.2;
+    }
+
+    .projects-header p {
+        font-size: 0.9rem;
     }
 
     .stat-item {
+        padding: 1rem 0.75rem;
+        gap: 0.5rem;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.25rem;
+    }
+
+    .stat-text {
+        font-size: 0.9rem;
+    }
+
+    .filter-form {
+        padding: 1rem 0.75rem;
+    }
+
+    .filter-form .form-control,
+    .filter-form .form-select {
+        padding: 0.625rem 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .project-card {
+        border-radius: var(--border-radius);
+    }
+
+    .project-card .card-body {
+        padding: 1.25rem 1rem;
+        padding-top: 2.25rem;
+    }
+
+    .project-card .card-title {
+        font-size: 1.125rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .project-card .card-text {
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .bookmark-float {
+        top: 0.75rem;
+        right: 0.75rem;
+    }
+
+    .bookmark-float button {
+        width: 40px;
+        height: 40px;
+    }
+
+    .bookmark-float button i {
+        font-size: 1rem;
+    }
+
+    .bookmark-inline {
+        padding: 0.625rem 1rem;
+        font-size: 0.85rem;
+        gap: 0.5rem;
+    }
+
+    .project-date {
+        font-size: 0.8rem;
+        margin-bottom: 1.25rem;
+    }
+
+    /* Empty state adjustments */
+    .empty-state {
+        padding: 3rem 1rem;
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state h4 {
+        font-size: 1.25rem;
+    }
+
+    .empty-state p {
+        font-size: 1rem;
+    }
+
+    /* Alert adjustments */
+    .alert {
+        padding: 1rem;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+    .projects-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .filter-form .input-group .form-control {
+        font-size: 0.85rem;
+    }
+
+    .project-card .card-title {
+        font-size: 1rem;
+    }
+
+    .project-card .card-text {
+        font-size: 0.85rem;
+    }
+
+    .project-badge {
+        padding: 0.35rem 0.7rem;
+        font-size: 0.75rem;
+    }
+
+    .pagination .page-item .page-link {
+        min-width: 36px;
+        height: 36px;
+        font-size: 0.75rem;
+        padding: 0 0.25rem;
+    }
+
+    .pagination-stats {
+        font-size: 0.8rem;
+    }
+
+    .pagination-summary {
+        font-size: 0.75rem;
+    }
+
+    .modal-body {
+        padding: 1rem 0.75rem;
+    }
+
+    .project-modal-header {
+        padding: 1.5rem 1rem;
+    }
+
+    .project-modal-header .modal-title {
+        font-size: 1.25rem;
+    }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+    .projects-header {
+        padding: 1rem 0.5rem;
+    }
+
+    .projects-header h2 {
+        font-size: 1.375rem;
+    }
+
+    .filter-form {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .project-card .card-body {
+        padding: 1rem 0.75rem;
+        padding-top: 2rem;
+    }
+
+    .bookmark-float {
+        top: 0.5rem;
+        right: 0.5rem;
+    }
+
+    .bookmark-float button {
+        width: 36px;
+        height: 36px;
+    }
+
+    .bookmark-float button i {
+        font-size: 0.9rem;
+    }
+
+    .pagination-container {
+        padding: 1.5rem 0.5rem;
+    }
+
+    .pagination .page-item .page-link {
+        min-width: 32px;
+        height: 32px;
+        font-size: 0.7rem;
+    }
+
+    /* Hide some pagination elements on very small screens */
+    .pagination .page-item:not(.active):not(:first-child):not(:last-child):not(.disabled) {
+        display: none;
+    }
+
+    .pagination .page-item.active ~ .page-item:not(:last-child),
+    .pagination .page-item.active ~ .page-item:not(:last-child) ~ .page-item:not(:last-child) {
+        display: flex;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+    .projects-header {
+        padding: 1rem 1.5rem;
+    }
+
+    .projects-header h2 {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .projects-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-item {
+        padding: 0.75rem;
+        flex-direction: row;
+        gap: 0.75rem;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+
+    .filter-form {
         padding: 1rem;
     }
 
     .project-card .card-body {
-        padding: 2rem 1.5rem;
+        padding: 1rem;
+        padding-top: 1.75rem;
     }
 }
 
-/* Loading Animation */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
+/* Print styles */
+@media print {
+    .mobile-header,
+    .mobile-menu-toggle,
+    .sidebar,
+    .overlay,
+    .bookmark-float,
+    .bookmark-inline,
+    .pagination-container,
+    .btn {
+        display: none !important;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+
+    .main-content {
+        margin-left: 0;
+        padding: 0;
+    }
+
+    .project-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+
+    .projects-header {
+        break-after: avoid;
     }
 }
 
-.fade-in-up {
-    animation: fadeInUp 0.6s ease-out forwards;
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    .project-card,
+    .hover-lift,
+    .btn,
+    .page-link,
+    .bookmark-float button {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    .fade-in-up {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
 }
 
-/* Hover Effects */
-.hover-lift {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .project-card {
+        border: 2px solid var(--gray-800);
+    }
+
+    .btn-primary {
+        border: 2px solid var(--gray-800);
+    }
+
+    .project-badge {
+        border: 1px solid var(--gray-800);
+    }
 }
 
-.hover-lift:hover {
-    transform: translateY(-2px);
-}
+/* Dark mode support (if you want to add it) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --white: #1e293b;
+        --gray-50: #0f172a;
+        --gray-100: #1e293b;
+        --gray-800: #f1f5f9;
+        --gray-700: #e2e8f0;
+        --gray-600: #cbd5e1;
+    }
 
-/* Purple Glow Effect */
-.purple-glow {
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    body {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: var(--gray-100);
+    }
+
+    .project-card {
+        background: rgba(30, 41, 59, 0.95);
+        border-color: rgba(148, 163, 184, 0.2);
+    }
+
+    .projects-header {
+        background: rgba(30, 41, 59, 0.95);
+        border-color: rgba(148, 163, 184, 0.2);
+    }
 }
