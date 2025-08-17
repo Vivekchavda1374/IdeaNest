@@ -9,22 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $basePath = './';
-include $basePath . 'layout.php';
 include '../Login/Login/db.php';
-
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "ideanest";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
 $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : session_id();
 
@@ -112,21 +97,19 @@ if (!$result) {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Bookmarks - IdeaNest</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/bookmark.css">
-</head>
-<body>
-    <!-- Mobile Menu Toggle Button -->
-    <button class="mobile-menu-toggle" id="mobileMenuToggle">
-        <i class="fas fa-bars"></i>
-    </button>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>My Bookmarks - IdeaNest</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="../assets/css/bookmark.css">
+    </head>
+    <body>
+
+    <?php include 'layout.php'  ?>
 
     <!-- Main Content Area -->
     <div class="main-content">
@@ -135,7 +118,7 @@ if (!$result) {
             <div class="bookmark-header">
                 <h1><i class="fas fa-bookmark me-3"></i>My Bookmarks</h1>
                 <p>Your curated collection of favorite projects and ideas</p>
-                
+
                 <div class="bookmark-stats">
                     <div class="stat-item">
                         <span class="stat-number"><?php echo $result ? $result->num_rows : 0; ?></span>
@@ -168,7 +151,7 @@ if (!$result) {
                                 <div class="bookmark-icon">
                                     <i class="fas fa-bookmark"></i>
                                 </div>
-                                
+
                                 <div class="card-body p-4">
                                     <div class="d-flex justify-content-between align-items-start mb-3">
                                         <span class="project-type-badge">
@@ -179,15 +162,15 @@ if (!$result) {
                                             <?php echo date('M d, Y', strtotime($row['bookmarked_at'])); ?>
                                         </small>
                                     </div>
-                                    
+
                                     <h5 class="project-title">
                                         <?php echo htmlspecialchars($row['project_name']); ?>
                                     </h5>
-                                    
+
                                     <p class="project-description">
                                         <?php echo htmlspecialchars(mb_strimwidth($row['description'], 0, 120, '...')); ?>
                                     </p>
-                                    
+
                                     <div class="project-meta">
                                         <div class="meta-item">
                                             <i class="fas fa-tags meta-icon"></i>
@@ -206,7 +189,7 @@ if (!$result) {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="card-footer bg-transparent border-0 p-4 pt-0">
                                     <div class="card-actions">
                                         <a href="project_details.php?id=<?php echo $row['id']; ?>" class="btn btn-modern btn-primary-modern flex-fill">
@@ -240,9 +223,18 @@ if (!$result) {
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    </body>
+    </html>
 
-<?php include $basePath . 'layout_footer.php'; ?>
+<?php
+// Close the database statement and connection
+if (isset($stmt)) {
+    $stmt->close();
+}
+if (isset($conn)) {
+    $conn->close();
+}
+
+include $basePath . 'layout_footer.php';
+?>
