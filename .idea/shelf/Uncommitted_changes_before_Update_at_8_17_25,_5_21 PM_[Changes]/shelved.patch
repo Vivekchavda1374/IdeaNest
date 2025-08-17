@@ -1,0 +1,1167 @@
+Index: .output.txt
+===================================================================
+diff --git a/.output.txt b/.output.txt
+deleted file mode 100644
+--- a/.output.txt	(revision 9fe00aebb29d2eb34ebd47687d27c9fa953f57be)
++++ /dev/null	(revision 9fe00aebb29d2eb34ebd47687d27c9fa953f57be)
+@@ -1,1125 +0,0 @@
+-diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+-index 0b542d7..5f5d0ef 100644
+---- a/.idea/workspace.xml
+-+++ b/.idea/workspace.xml
+-@@ -7,9 +7,11 @@
+-     <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully">
+-       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-       <change beforePath="$PROJECT_DIR$/assets/css/all_project.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/all_project.css" afterDir="false" />
+--      <change beforePath="$PROJECT_DIR$/assets/css/edit_idea.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/edit_idea.css" afterDir="false" />
+--      <change beforePath="$PROJECT_DIR$/assets/css/form_idea.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/form_idea.css" afterDir="false" />
+-+      <change beforePath="$PROJECT_DIR$/assets/js/layout_user.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/layout_user.js" afterDir="false" />
+-+      <change beforePath="$PROJECT_DIR$/user/Blog/form.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/Blog/form.php" afterDir="false" />
+-+      <change beforePath="$PROJECT_DIR$/user/Blog/list-project.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/Blog/list-project.php" afterDir="false" />
+-       <change beforePath="$PROJECT_DIR$/user/all_projects.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/all_projects.php" afterDir="false" />
+-+      <change beforePath="$PROJECT_DIR$/user/bookmark.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/bookmark.php" afterDir="false" />
+-     </list>
+-     <option name="SHOW_DIALOG" value="false" />
+-     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+-@@ -200,7 +202,8 @@
+-       <workItem from="1755103548237" duration="3176000" />
+-       <workItem from="1755139476087" duration="5437000" />
+-       <workItem from="1755237134989" duration="6428000" />
+--      <workItem from="1755263066560" duration="5159000" />
+-+      <workItem from="1755263066560" duration="5869000" />
+-+      <workItem from="1755429012307" duration="1952000" />
+-     </task>
+-     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
+-       <option name="closed" value="true" />
+-diff --git a/assets/css/all_project.css b/assets/css/all_project.css
+-index 624b3f8..5b14478 100644
+---- a/assets/css/all_project.css
+-+++ b/assets/css/all_project.css
+-@@ -640,97 +640,644 @@ body {
+-     color: var(--gray-600);
+-     font-size: 1.125rem;
+- }
+-+/* Enhanced Mobile Responsive Styles for All Projects */
+-
+--/* Mobile responsive */
+-+/* Large tablets and small laptops */
+-+@media (max-width: 1200px) {
+-+    .main-content {
+-+        padding: 1.5rem;
+-+    }
+-+
+-+    .projects-header h2 {
+-+        font-size: 2.5rem;
+-+    }
+-+
+-+    .projects-stats {
+-+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+-+        gap: 1.25rem;
+-+    }
+-+
+-+    .project-card .card-body {
+-+        padding: 2rem 1.75rem;
+-+        padding-top: 3rem;
+-+    }
+-+}
+-+
+-+/* Tablets */
+- @media (max-width: 1024px) {
+-+    :root {
+-+        --sidebar-width: 0px; /* Hide sidebar on mobile */
+-+    }
+-+
+-     .main-content {
+-         margin-left: 0;
+-         padding: 1rem;
+-+        width: 100%;
+-     }
+-
+-     .mobile-header {
+-         display: flex;
+-         align-items: center;
+-         justify-content: space-between;
+-+        margin-bottom: 1.5rem;
+-+    }
+-+
+-+    .mobile-menu-toggle {
+-+        display: block;
+-+        position: relative;
+-+        top: auto;
+-+        left: auto;
+-+        margin: 0;
+-+        z-index: 1002;
+-     }
+-
+-     .projects-header {
+-         padding: 2rem 1.5rem;
+-+        margin-bottom: 2rem;
+-     }
+-
+-     .projects-header h2 {
+-         font-size: 2.25rem;
+-+        text-align: center;
+-+        margin-bottom: 1rem;
+-+    }
+-+
+-+    .projects-header p {
+-+        text-align: center;
+-+        font-size: 1rem;
+-+        margin-bottom: 1.5rem;
+-     }
+-
+-     .projects-stats {
+-         grid-template-columns: 1fr;
+-         gap: 1rem;
+-+        margin-bottom: 2rem;
+-+    }
+-+
+-+    .stat-item {
+-+        padding: 1.25rem;
+-+        justify-content: center;
+-+        text-align: center;
+-+        flex-direction: column;
+-+        gap: 0.75rem;
+-+    }
+-+
+-+    .stat-icon {
+-+        width: 56px;
+-+        height: 56px;
+-+        font-size: 1.5rem;
+-+    }
+-+
+-+    .filter-form {
+-+        padding: 1.5rem;
+-+        gap: 1rem;
+-+    }
+-+
+-+    .filter-form .col-12,
+-+    .filter-form .col-md-4,
+-+    .filter-form .col-md-3,
+-+    .filter-form .col-md-2,
+-+    .filter-form .col-6 {
+-+        margin-bottom: 1rem;
+-     }
+-
+-+    .filter-form .row {
+-+        margin: 0;
+-+    }
+-+
+-+    /* Project cards grid adjustment */
+-+    .row.g-4 {
+-+        --bs-gutter-x: 1rem;
+-+        --bs-gutter-y: 1rem;
+-+    }
+-+
+-+    .col-xl-4 {
+-+        flex: 0 0 auto;
+-+        width: 50%;
+-+    }
+-+
+-+    .project-card {
+-+        margin-bottom: 1rem;
+-+    }
+-+
+-+    .project-card .card-body {
+-+        padding: 1.75rem 1.5rem;
+-+        padding-top: 2.75rem;
+-+    }
+-+
+-+    .bookmark-float {
+-+        top: 1rem;
+-+        right: 1rem;
+-+    }
+-+
+-+    .bookmark-float button {
+-+        width: 44px;
+-+        height: 44px;
+-+    }
+-+
+-+    /* Pagination adjustments */
+-     .pagination {
+-         gap: 0.25rem;
+-+        flex-wrap: wrap;
+-+        justify-content: center;
+-     }
+-
+-     .pagination .page-item .page-link {
+--        min-width: 40px;
+--        height: 40px;
+--        font-size: 0.85rem;
+-+        min-width: 44px;
+-+        height: 44px;
+-+        font-size: 0.875rem;
+-+        padding: 0 0.5rem;
+-     }
+-
+-     .pagination-container {
+-         padding: 2rem 1rem;
+-+        margin-top: 2rem;
+-     }
+-
+-     .pagination-nav {
+-         flex-direction: column;
+-         gap: 0.75rem;
+-+        width: 100%;
+-+    }
+-+
+-+    .pagination-nav-btn {
+-+        width: 100%;
+-+        justify-content: center;
+-+    }
+-+
+-+    /* Modal adjustments */
+-+    .modal-lg {
+-+        max-width: 95%;
+-+        margin: 0.5rem auto;
+-+    }
+-+
+-+    .project-modal-header {
+-+        padding: 2rem 1.5rem;
+-+    }
+-+
+-+    .project-modal-header .modal-title {
+-+        font-size: 1.5rem;
+-     }
+- }
+-
+--@media (max-width: 640px) {
+-+/* Large phones and small tablets */
+-+@media (max-width: 768px) {
+-+    .main-content {
+-+        padding: 0.75rem;
+-+    }
+-+
+-+    .projects-header {
+-+        padding: 1.5rem 1rem;
+-+        margin-bottom: 1.5rem;
+-+    }
+-+
+-     .projects-header h2 {
+--        font-size: 1.875rem;
+-+        font-size: 2rem;
+-+    }
+-+
+-+    .projects-header p {
+-+        font-size: 0.95rem;
+-     }
+-
+-     .filter-form {
+--        padding: 1.5rem;
+-+        padding: 1.25rem;
+-+    }
+-+
+-+    .filter-form .form-control,
+-+    .filter-form .form-select {
+-+        padding: 0.75rem;
+-+        font-size: 0.95rem;
+-+    }
+-+
+-+    /* Single column layout for project cards */
+-+    .col-xl-4,
+-+    .col-md-6 {
+-+        flex: 0 0 auto;
+-+        width: 100%;
+-+    }
+-+
+-+    .project-card .card-body {
+-+        padding: 1.5rem 1.25rem;
+-+        padding-top: 2.5rem;
+-+    }
+-+
+-+    .project-card .card-title {
+-+        font-size: 1.25rem;
+-+        line-height: 1.4;
+-+    }
+-+
+-+    .project-card .card-text {
+-+        font-size: 0.95rem;
+-+    }
+-+
+-+    .project-badges {
+-+        gap: 0.5rem;
+-+        margin-bottom: 1.25rem;
+-+    }
+-+
+-+    .project-badge {
+-+        padding: 0.4rem 0.8rem;
+-+        font-size: 0.8rem;
+-+    }
+-+
+-+    .bookmark-inline {
+-+        padding: 0.75rem 1.25rem;
+-+        font-size: 0.9rem;
+-+    }
+-+
+-+    /* Pagination for mobile */
+-+    .pagination-info {
+-+        text-align: center;
+-+        margin-bottom: 1rem;
+-+    }
+-+
+-+    .pagination-stats,
+-+    .pagination-summary {
+-+        font-size: 0.875rem;
+-+    }
+-+
+-+    .pagination {
+-+        gap: 0.125rem;
+-+    }
+-+
+-+    .pagination .page-item .page-link {
+-+        min-width: 40px;
+-+        height: 40px;
+-+        font-size: 0.8rem;
+-+    }
+-+
+-+    /* Modal improvements */
+-+    .modal-dialog {
+-+        margin: 0.5rem;
+-+        max-width: none;
+-+        width: calc(100% - 1rem);
+-+    }
+-+
+-+    .modal-body {
+-+        padding: 1.5rem 1rem;
+-+    }
+-+
+-+    .modal-body .row.g-4 {
+-+        --bs-gutter-x: 0.5rem;
+-+        --bs-gutter-y: 1rem;
+-+    }
+-+
+-+    .modal-body .col-md-6 {
+-+        width: 100%;
+-+        margin-bottom: 1rem;
+-+    }
+-+}
+-+
+-+/* Standard phones */
+-+@media (max-width: 640px) {
+-+    .main-content {
+-+        padding: 0.5rem;
+-+    }
+-+
+-+    .projects-header {
+-+        padding: 1.25rem 0.75rem;
+-+    }
+-+
+-+    .projects-header h2 {
+-+        font-size: 1.75rem;
+-+        line-height: 1.2;
+-+    }
+-+
+-+    .projects-header p {
+-+        font-size: 0.9rem;
+-     }
+-
+-     .stat-item {
+-+        padding: 1rem 0.75rem;
+-+        gap: 0.5rem;
+-+    }
+-+
+-+    .stat-icon {
+-+        width: 48px;
+-+        height: 48px;
+-+        font-size: 1.25rem;
+-+    }
+-+
+-+    .stat-text {
+-+        font-size: 0.9rem;
+-+    }
+-+
+-+    .filter-form {
+-+        padding: 1rem 0.75rem;
+-+    }
+-+
+-+    .filter-form .form-control,
+-+    .filter-form .form-select {
+-+        padding: 0.625rem 0.75rem;
+-+        font-size: 0.9rem;
+-+    }
+-+
+-+    .btn-primary {
+-+        padding: 0.75rem 1.5rem;
+-+        font-size: 0.9rem;
+-+    }
+-+
+-+    .project-card {
+-+        border-radius: var(--border-radius);
+-+    }
+-+
+-+    .project-card .card-body {
+-+        padding: 1.25rem 1rem;
+-+        padding-top: 2.25rem;
+-+    }
+-+
+-+    .project-card .card-title {
+-+        font-size: 1.125rem;
+-+        margin-bottom: 0.75rem;
+-+    }
+-+
+-+    .project-card .card-text {
+-+        font-size: 0.9rem;
+-+        line-height: 1.5;
+-+    }
+-+
+-+    .bookmark-float {
+-+        top: 0.75rem;
+-+        right: 0.75rem;
+-+    }
+-+
+-+    .bookmark-float button {
+-+        width: 40px;
+-+        height: 40px;
+-+    }
+-+
+-+    .bookmark-float button i {
+-+        font-size: 1rem;
+-+    }
+-+
+-+    .bookmark-inline {
+-+        padding: 0.625rem 1rem;
+-+        font-size: 0.85rem;
+-+        gap: 0.5rem;
+-+    }
+-+
+-+    .project-date {
+-+        font-size: 0.8rem;
+-+        margin-bottom: 1.25rem;
+-+    }
+-+
+-+    /* Empty state adjustments */
+-+    .empty-state {
+-+        padding: 3rem 1rem;
+-+    }
+-+
+-+    .empty-state-icon {
+-+        width: 80px;
+-+        height: 80px;
+-+        font-size: 2rem;
+-+        margin-bottom: 1.5rem;
+-+    }
+-+
+-+    .empty-state h4 {
+-+        font-size: 1.25rem;
+-+    }
+-+
+-+    .empty-state p {
+-+        font-size: 1rem;
+-+    }
+-+
+-+    /* Alert adjustments */
+-+    .alert {
+-         padding: 1rem;
+-+        font-size: 0.9rem;
+-+        margin-bottom: 1rem;
+-+    }
+-+}
+-+
+-+/* Small phones */
+-+@media (max-width: 480px) {
+-+    .projects-header h2 {
+-+        font-size: 1.5rem;
+-+    }
+-+
+-+    .filter-form .input-group .form-control {
+-+        font-size: 0.85rem;
+-+    }
+-+
+-+    .project-card .card-title {
+-+        font-size: 1rem;
+-+    }
+-+
+-+    .project-card .card-text {
+-+        font-size: 0.85rem;
+-+    }
+-+
+-+    .project-badge {
+-+        padding: 0.35rem 0.7rem;
+-+        font-size: 0.75rem;
+-+    }
+-+
+-+    .pagination .page-item .page-link {
+-+        min-width: 36px;
+-+        height: 36px;
+-+        font-size: 0.75rem;
+-+        padding: 0 0.25rem;
+-+    }
+-+
+-+    .pagination-stats {
+-+        font-size: 0.8rem;
+-+    }
+-+
+-+    .pagination-summary {
+-+        font-size: 0.75rem;
+-+    }
+-+
+-+    .modal-body {
+-+        padding: 1rem 0.75rem;
+-+    }
+-+
+-+    .project-modal-header {
+-+        padding: 1.5rem 1rem;
+-+    }
+-+
+-+    .project-modal-header .modal-title {
+-+        font-size: 1.25rem;
+-+    }
+-+}
+-+
+-+/* Very small phones */
+-+@media (max-width: 360px) {
+-+    .projects-header {
+-+        padding: 1rem 0.5rem;
+-+    }
+-+
+-+    .projects-header h2 {
+-+        font-size: 1.375rem;
+-+    }
+-+
+-+    .filter-form {
+-+        padding: 0.75rem 0.5rem;
+-     }
+-
+-     .project-card .card-body {
+--        padding: 2rem 1.5rem;
+-+        padding: 1rem 0.75rem;
+-+        padding-top: 2rem;
+-+    }
+-+
+-+    .bookmark-float {
+-+        top: 0.5rem;
+-+        right: 0.5rem;
+-+    }
+-+
+-+    .bookmark-float button {
+-+        width: 36px;
+-+        height: 36px;
+-+    }
+-+
+-+    .bookmark-float button i {
+-+        font-size: 0.9rem;
+-+    }
+-+
+-+    .pagination-container {
+-+        padding: 1.5rem 0.5rem;
+-+    }
+-+
+-+    .pagination .page-item .page-link {
+-+        min-width: 32px;
+-+        height: 32px;
+-+        font-size: 0.7rem;
+-+    }
+-+
+-+    /* Hide some pagination elements on very small screens */
+-+    .pagination .page-item:not(.active):not(:first-child):not(:last-child):not(.disabled) {
+-+        display: none;
+-+    }
+-+
+-+    .pagination .page-item.active ~ .page-item:not(:last-child),
+-+    .pagination .page-item.active ~ .page-item:not(:last-child) ~ .page-item:not(:last-child) {
+-+        display: flex;
+-     }
+- }
+-
+--/* Loading Animation */
+--@keyframes fadeInUp {
+--    from {
+--        opacity: 0;
+--        transform: translateY(30px);
+-+/* Landscape orientation adjustments */
+-+@media (max-height: 500px) and (orientation: landscape) {
+-+    .projects-header {
+-+        padding: 1rem 1.5rem;
+-     }
+--    to {
+--        opacity: 1;
+--        transform: translateY(0);
+-+
+-+    .projects-header h2 {
+-+        font-size: 1.75rem;
+-+        margin-bottom: 0.5rem;
+-+    }
+-+
+-+    .projects-stats {
+-+        grid-template-columns: repeat(3, 1fr);
+-+        gap: 0.75rem;
+-+        margin-bottom: 1.5rem;
+-+    }
+-+
+-+    .stat-item {
+-+        padding: 0.75rem;
+-+        flex-direction: row;
+-+        gap: 0.75rem;
+-+    }
+-+
+-+    .stat-icon {
+-+        width: 40px;
+-+        height: 40px;
+-+        font-size: 1.1rem;
+-+    }
+-+
+-+    .filter-form {
+-+        padding: 1rem;
+-+    }
+-+
+-+    .project-card .card-body {
+-+        padding: 1rem;
+-+        padding-top: 1.75rem;
+-     }
+- }
+-
+--.fade-in-up {
+--    animation: fadeInUp 0.6s ease-out forwards;
+-+/* Print styles */
+-+@media print {
+-+    .mobile-header,
+-+    .mobile-menu-toggle,
+-+    .sidebar,
+-+    .overlay,
+-+    .bookmark-float,
+-+    .bookmark-inline,
+-+    .pagination-container,
+-+    .btn {
+-+        display: none !important;
+-+    }
+-+
+-+    .main-content {
+-+        margin-left: 0;
+-+        padding: 0;
+-+    }
+-+
+-+    .project-card {
+-+        break-inside: avoid;
+-+        box-shadow: none;
+-+        border: 1px solid #ddd;
+-+    }
+-+
+-+    .projects-header {
+-+        break-after: avoid;
+-+    }
+- }
+-
+--/* Hover Effects */
+--.hover-lift {
+--    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+-+/* Accessibility improvements */
+-+@media (prefers-reduced-motion: reduce) {
+-+    .project-card,
+-+    .hover-lift,
+-+    .btn,
+-+    .page-link,
+-+    .bookmark-float button {
+-+        transition: none !important;
+-+        animation: none !important;
+-+    }
+-+
+-+    .fade-in-up {
+-+        animation: none !important;
+-+        opacity: 1 !important;
+-+        transform: none !important;
+-+    }
+- }
+-
+--.hover-lift:hover {
+--    transform: translateY(-2px);
+-+/* High contrast mode */
+-+@media (prefers-contrast: high) {
+-+    .project-card {
+-+        border: 2px solid var(--gray-800);
+-+    }
+-+
+-+    .btn-primary {
+-+        border: 2px solid var(--gray-800);
+-+    }
+-+
+-+    .project-badge {
+-+        border: 1px solid var(--gray-800);
+-+    }
+- }
+-
+--/* Purple Glow Effect */
+--.purple-glow {
+--    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+-+/* Dark mode support (if you want to add it) */
+-+@media (prefers-color-scheme: dark) {
+-+    :root {
+-+        --white: #1e293b;
+-+        --gray-50: #0f172a;
+-+        --gray-100: #1e293b;
+-+        --gray-800: #f1f5f9;
+-+        --gray-700: #e2e8f0;
+-+        --gray-600: #cbd5e1;
+-+    }
+-+
+-+    body {
+-+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+-+        color: var(--gray-100);
+-+    }
+-+
+-+    .project-card {
+-+        background: rgba(30, 41, 59, 0.95);
+-+        border-color: rgba(148, 163, 184, 0.2);
+-+    }
+-+
+-+    .projects-header {
+-+        background: rgba(30, 41, 59, 0.95);
+-+        border-color: rgba(148, 163, 184, 0.2);
+-+    }
+- }
+-\ No newline at end of file
+-diff --git a/assets/js/layout_user.js b/assets/js/layout_user.js
+-index be58e07..85e50eb 100644
+---- a/assets/js/layout_user.js
+-+++ b/assets/js/layout_user.js
+-@@ -1,86 +1,162 @@
+-+// Fixed Sidebar JavaScript for All Projects
+-+document.addEventListener('DOMContentLoaded', function() {
+-+    console.log('Sidebar script loaded');
+-
+--    // Sidebar functionality
+--    document.addEventListener('DOMContentLoaded', function() {
+--    // Mobile menu toggle functionality
+-+    // Get elements
+-     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+-     const sidebar = document.getElementById('sidebar');
+-     const overlay = document.getElementById('overlay');
+-+    const body = document.body;
+-
+--    if (mobileMenuToggle) {
+--    mobileMenuToggle.addEventListener('click', function(e) {
+--    e.preventDefault();
+--    e.stopPropagation();
+--
+--    sidebar.classList.toggle('open');
+--    overlay.classList.toggle('active');
+--
+--    // Change icon based on state
+--    const icon = this.querySelector('i');
+--    if (sidebar.classList.contains('open')) {
+--    icon.className = 'fas fa-times';
+--} else {
+--    icon.className = 'fas fa-bars';
+--}
+--});
+--}
+--
+--    // Close sidebar when clicking overlay
+--    if (overlay) {
+--    overlay.addEventListener('click', function() {
+--    sidebar.classList.remove('open');
+--    overlay.classList.remove('active');
+-+    console.log('Elements found:', {
+-+        mobileMenuToggle: !!mobileMenuToggle,
+-+        sidebar: !!sidebar,
+-+        overlay: !!overlay
+-+    });
+-+
+-+    // Function to open sidebar
+-+    function openSidebar() {
+-+        if (sidebar) {
+-+            sidebar.classList.add('open');
+-+            console.log('Sidebar opened');
+-+        }
+-+        if (overlay) {
+-+            overlay.classList.add('active');
+-+        }
+-+        body.classList.add('sidebar-open');
+-+
+-+        // Change hamburger to X
+-+        if (mobileMenuToggle) {
+-+            const icon = mobileMenuToggle.querySelector('i');
+-+            if (icon) {
+-+                icon.className = 'fas fa-times';
+-+            }
+-+        }
+-+    }
+-+
+-+    // Function to close sidebar
+-+    function closeSidebar() {
+-+        if (sidebar) {
+-+            sidebar.classList.remove('open');
+-+            console.log('Sidebar closed');
+-+        }
+-+        if (overlay) {
+-+            overlay.classList.remove('active');
+-+        }
+-+        body.classList.remove('sidebar-open');
+-
+--    // Reset icon
+-+        // Change X back to hamburger
+-+        if (mobileMenuToggle) {
+-+            const icon = mobileMenuToggle.querySelector('i');
+-+            if (icon) {
+-+                icon.className = 'fas fa-bars';
+-+            }
+-+        }
+-+    }
+-+
+-+    // Function to toggle sidebar
+-+    function toggleSidebar() {
+-+        if (sidebar && sidebar.classList.contains('open')) {
+-+            closeSidebar();
+-+        } else {
+-+            openSidebar();
+-+        }
+-+    }
+-+
+-+    // Mobile menu toggle click event
+-     if (mobileMenuToggle) {
+--    const icon = mobileMenuToggle.querySelector('i');
+--    icon.className = 'fas fa-bars';
+--}
+--});
+--}
+-+        mobileMenuToggle.addEventListener('click', function(e) {
+-+            e.preventDefault();
+-+            e.stopPropagation();
+-+            console.log('Mobile menu toggle clicked');
+-+            toggleSidebar();
+-+        });
+-+    }
+-+
+-+    // Overlay click event to close sidebar
+-+    if (overlay) {
+-+        overlay.addEventListener('click', function() {
+-+            console.log('Overlay clicked');
+-+            closeSidebar();
+-+        });
+-+    }
+-
+--    // Close sidebar when clicking outside on mobile
+-+    // Close sidebar when clicking outside
+-     document.addEventListener('click', function(event) {
+--    if (window.innerWidth <= 1024) {
+--    if (sidebar && !sidebar.contains(event.target) &&
+--    mobileMenuToggle && !mobileMenuToggle.contains(event.target)) {
+--    sidebar.classList.remove('open');
+--    overlay.classList.remove('active');
+--}
+--}
+--});
+--
+--    // Navigation item click handlers - only for mobile sidebar closing
+--    document.querySelectorAll('.nav-item').forEach(item => {
+--    item.addEventListener('click', function(e) {
+--    // Close sidebar on mobile after clicking (but allow navigation to proceed)
+--    if (window.innerWidth <= 1024) {
+--    setTimeout(() => {
+--    sidebar.classList.remove('open');
+--    overlay.classList.remove('active');
+--
+--    // Reset icon
+--    if (mobileMenuToggle) {
+--    const icon = mobileMenuToggle.querySelector('i');
+--    icon.className = 'fas fa-bars';
+--}
+--}, 100); // Small delay to allow navigation to start
+--}
+--});
+--});
+--
+--    // Responsive sidebar handling
+-+        // Only apply on mobile/tablet
+-+        if (window.innerWidth <= 1024) {
+-+            if (sidebar && sidebar.classList.contains('open')) {
+-+                // Check if click is outside sidebar and toggle button
+-+                if (!sidebar.contains(event.target) &&
+-+                    !mobileMenuToggle.contains(event.target)) {
+-+                    console.log('Clicked outside sidebar');
+-+                    closeSidebar();
+-+                }
+-+            }
+-+        }
+-+    });
+-+
+-+    // Prevent sidebar content clicks from closing sidebar
+-+    if (sidebar) {
+-+        sidebar.addEventListener('click', function(e) {
+-+            e.stopPropagation();
+-+        });
+-+    }
+-+
+-+    // Close sidebar when clicking nav links on mobile
+-+    const navItems = document.querySelectorAll('.nav-item');
+-+    navItems.forEach(item => {
+-+        item.addEventListener('click', function(e) {
+-+            // Only close on mobile/tablet
+-+            if (window.innerWidth <= 1024) {
+-+                console.log('Nav item clicked on mobile');
+-+                // Small delay to allow navigation to start
+-+                setTimeout(() => {
+-+                    closeSidebar();
+-+                }, 150);
+-+            }
+-+        });
+-+    });
+-+
+-+    // Handle window resize
+-     function handleResize() {
+--    if (window.innerWidth > 1024) {
+--    sidebar.classList.remove('open');
+--    overlay.classList.remove('active');
+-+        if (window.innerWidth > 1024) {
+-+            // Desktop view - ensure sidebar is visible and overlay is hidden
+-+            if (sidebar) {
+-+                sidebar.classList.remove('open');
+-+            }
+-+            if (overlay) {
+-+                overlay.classList.remove('active');
+-+            }
+-+            body.classList.remove('sidebar-open');
+-
+--    // Reset icon
+--    if (mobileMenuToggle) {
+--    const icon = mobileMenuToggle.querySelector('i');
+--    icon.className = 'fas fa-bars';
+--}
+--}
+--}
+-+            // Reset toggle button icon
+-+            if (mobileMenuToggle) {
+-+                const icon = mobileMenuToggle.querySelector('i');
+-+                if (icon) {
+-+                    icon.className = 'fas fa-bars';
+-+                }
+-+            }
+-+        }
+-+    }
+-
+-     window.addEventListener('resize', handleResize);
+-+
+-+    // Handle escape key
+-+    document.addEventListener('keydown', function(e) {
+-+        if (e.key === 'Escape' && window.innerWidth <= 1024) {
+-+            closeSidebar();
+-+        }
+-+    });
+-+
+-+    // Ensure proper initial state
+-+    handleResize();
+-+
+-+    // Debug function to test sidebar
+-+    window.testSidebar = function() {
+-+        console.log('Testing sidebar...');
+-+        toggleSidebar();
+-+    };
+-+
+-+    console.log('Sidebar JavaScript initialized successfully');
+- });
+-\ No newline at end of file
+-diff --git a/user/Blog/form.php b/user/Blog/form.php
+-index eb83b28..54606f4 100644
+---- a/user/Blog/form.php
+-+++ b/user/Blog/form.php
+-@@ -282,7 +282,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
+-
+-     <!-- Bootstrap 5 JS Bundle with Popper -->
+-     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+--
+-+<script src="../../assets/js/layout_user.js"></script>
+-     <script>
+-     function updateClassifications() {
+-         const projectType = document.getElementById('projectType').value;
+-@@ -467,6 +467,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
+-
+-
+-     });
+-+
+-     </script>
+- </body>
+-
+-diff --git a/user/Blog/list-project.php b/user/Blog/list-project.php
+-index 16fc53f..9dbd7dc 100644
+---- a/user/Blog/list-project.php
+-+++ b/user/Blog/list-project.php
+-@@ -674,7 +674,8 @@ function truncateText($text, $length = 150) {
+-
+- <!-- Bootstrap 5 JS Bundle -->
+- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+--<script src="../../assets/js/list_project.js">
+-+<script src="../../assets/js/list_project.js"></script>
+-+<script src = "../../assets/js/layout_user.js"></script>
+-
+- <?php include $basePath . 'layout_footer.php'; ?>
+- </body>
+-diff --git a/user/all_projects.php b/user/all_projects.php
+-index eda38ec..0f8c964 100644
+---- a/user/all_projects.php
+-+++ b/user/all_projects.php
+-@@ -526,5 +526,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
+- <!-- Bootstrap 5 JS Bundle -->
+- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+- <script src="../assets/js/all_projects.js"></script>
+-+<script src = "../assets/js/layout_user.js"></script>
+- </body
+- </html>
+-\ No newline at end of file
+-diff --git a/user/bookmark.php b/user/bookmark.php
+-index 014eb59..3c78578 100644
+---- a/user/bookmark.php
+-+++ b/user/bookmark.php
+-@@ -9,23 +9,8 @@ if (session_status() === PHP_SESSION_NONE) {
+- }
+-
+- $basePath = './';
+--include $basePath . 'layout.php';
+- include '../Login/Login/db.php';
+-
+--// Database connection
+--$servername = "localhost";
+--$username = "root";
+--$password = "";
+--$dbname = "ideanest";
+--
+--// Create connection
+--$conn = new mysqli($servername, $username, $password, $dbname);
+--
+--// Check connection
+--if ($conn->connect_error) {
+--    die("Connection failed: " . $conn->connect_error);
+--}
+--
+- $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : session_id();
+-
+- // Handle bookmark toggle
+-@@ -112,21 +97,19 @@ if (!$result) {
+- }
+- ?>
+-
+--<!DOCTYPE html>
+--<html lang="en">
+--<head>
+--    <meta charset="UTF-8">
+--    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+--    <title>My Bookmarks - IdeaNest</title>
+--    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+--    <link rel="stylesheet" href="../assets/css/bookmark.css">
+--</head>
+--<body>
+--    <!-- Mobile Menu Toggle Button -->
+--    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+--        <i class="fas fa-bars"></i>
+--    </button>
+-+    <!DOCTYPE html>
+-+    <html lang="en">
+-+    <head>
+-+        <meta charset="UTF-8">
+-+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-+        <title>My Bookmarks - IdeaNest</title>
+-+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+-+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+-+        <link rel="stylesheet" href="../assets/css/bookmark.css">
+-+    </head>
+-+    <body>
+-+
+-+    <?php include 'layout.php'  ?>
+-
+-     <!-- Main Content Area -->
+-     <div class="main-content">
+-@@ -135,7 +118,7 @@ if (!$result) {
+-             <div class="bookmark-header">
+-                 <h1><i class="fas fa-bookmark me-3"></i>My Bookmarks</h1>
+-                 <p>Your curated collection of favorite projects and ideas</p>
+--
+-+
+-                 <div class="bookmark-stats">
+-                     <div class="stat-item">
+-                         <span class="stat-number"><?php echo $result ? $result->num_rows : 0; ?></span>
+-@@ -168,7 +151,7 @@ if (!$result) {
+-                                 <div class="bookmark-icon">
+-                                     <i class="fas fa-bookmark"></i>
+-                                 </div>
+--
+-+
+-                                 <div class="card-body p-4">
+-                                     <div class="d-flex justify-content-between align-items-start mb-3">
+-                                         <span class="project-type-badge">
+-@@ -179,15 +162,15 @@ if (!$result) {
+-                                             <?php echo date('M d, Y', strtotime($row['bookmarked_at'])); ?>
+-                                         </small>
+-                                     </div>
+--
+-+
+-                                     <h5 class="project-title">
+-                                         <?php echo htmlspecialchars($row['project_name']); ?>
+-                                     </h5>
+--
+-+
+-                                     <p class="project-description">
+-                                         <?php echo htmlspecialchars(mb_strimwidth($row['description'], 0, 120, '...')); ?>
+-                                     </p>
+--
+-+
+-                                     <div class="project-meta">
+-                                         <div class="meta-item">
+-                                             <i class="fas fa-tags meta-icon"></i>
+-@@ -206,7 +189,7 @@ if (!$result) {
+-                                         </div>
+-                                     </div>
+-                                 </div>
+--
+-+
+-                                 <div class="card-footer bg-transparent border-0 p-4 pt-0">
+-                                     <div class="card-actions">
+-                                         <a href="project_details.php?id=<?php echo $row['id']; ?>" class="btn btn-modern btn-primary-modern flex-fill">
+-@@ -240,9 +223,18 @@ if (!$result) {
+-             </div>
+-         </div>
+-     </div>
+--
+-     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+--</body>
+--</html>
+-+    </body>
+-+    </html>
+-+
+-+<?php
+-+// Close the database statement and connection
+-+if (isset($stmt)) {
+-+    $stmt->close();
+-+}
+-+if (isset($conn)) {
+-+    $conn->close();
+-+}
+-
+--<?php include $basePath . 'layout_footer.php'; ?>
+-\ No newline at end of file
+-+include $basePath . 'layout_footer.php';
+-+?>
+-\ No newline at end of file
+\ No newline at end of file
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"3032b921-7f46-489d-a152-2e01ffa7242f\" name=\"Changes\" comment=\"bookmark working successfully\">\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/assets/css/all_project.css\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/assets/css/all_project.css\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/assets/js/layout_user.js\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/assets/js/layout_user.js\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/user/Blog/form.php\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/user/Blog/form.php\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/user/Blog/list-project.php\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/user/Blog/list-project.php\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/user/all_projects.php\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/user/all_projects.php\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/user/bookmark.php\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/user/bookmark.php\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"ComposerSettings\" notifyAboutMissingVendor=\"false\" synchronizationState=\"SYNCHRONIZE\">\n    <pharConfigPath>$PROJECT_DIR$/</pharConfigPath>\n    <execution>\n      <phar pharPath=\"$PROJECT_DIR$/composer.phar\" />\n    </execution>\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"PHP File\" />\n        <option value=\"CSS File\" />\n        <option value=\"JavaScript File\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"PUSH_AUTO_UPDATE\" value=\"true\" />\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"GitHubPullRequestSearchHistory\">{\n  &quot;lastFilter&quot;: {\n    &quot;state&quot;: &quot;OPEN&quot;,\n    &quot;assignee&quot;: &quot;Vivekchavda1374&quot;\n  }\n}</component>\n  <component name=\"GithubPullRequestsUISettings\">{\n  &quot;selectedUrlAndAccountId&quot;: {\n    &quot;url&quot;: &quot;https://github.com/Vivekchavda1374/IdeaNest.git&quot;,\n    &quot;accountId&quot;: &quot;e6c95b80-6b0a-4f54-b6ae-9bda7334d4d8&quot;\n  }\n}</component>\n  <component name=\"PhpDebugGeneral\" listening_started=\"true\" />\n  <component name=\"PhpWorkspaceProjectConfiguration\" interpreter_name=\"/bin/php\">\n    <include_path>\n      <path value=\"$PROJECT_DIR$\" />\n    </include_path>\n  </component>\n  <component name=\"ProblemsViewState\">\n    <option name=\"selectedTabId\" value=\"AISelfReview\" />\n  </component>\n  <component name=\"ProjectColorInfo\">{\n  &quot;associatedIndex&quot;: 5\n}</component>\n  <component name=\"ProjectId\" id=\"2tZTldR0CdBALDEdlt6IoiBBukk\" />\n  <component name=\"ProjectLevelVcsManager\">\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\">{\n  &quot;keyToString&quot;: {\n    &quot;JavaScript Debug.project_notification.php.executor&quot;: &quot;Run&quot;,\n    &quot;JavaScript Debug.user_project_search.php.executor&quot;: &quot;Coverage&quot;,\n    &quot;PHP Script.progressbar.php.executor&quot;: &quot;Run&quot;,\n    &quot;PHP Script.user_project_search.php.executor&quot;: &quot;Run&quot;,\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\n    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,\n    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,\n    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,\n    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,\n    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,\n    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,\n    &quot;last_opened_file_path&quot;: &quot;/opt/lampp/htdocs/IdeaNest&quot;,\n    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,\n    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\n    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,\n    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,\n    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,\n    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;\n  },\n  &quot;keyToStringList&quot;: {\n    &quot;DatabaseDriversLRU&quot;: [\n      &quot;mysql&quot;\n    ]\n  }\n}</component>\n  <component name=\"RecentsManager\">\n    <key name=\"CopyFile.RECENT_KEYS\">\n      <recent name=\"C:\\xampp\\htdocs\\IdeaNest\" />\n      <recent name=\"C:\\xampp\\htdocs\\project\\IdeaNest\\Admin\" />\n      <recent name=\"D:\\study\\study\\sem6\\HCD\\Student Project\\IdeaNest\\Admin\" />\n      <recent name=\"D:\\study\\study\\sem6\\HCD\\Student Project\\IdeaNest\\user\\forms\" />\n    </key>\n    <key name=\"MoveFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$/assets/css\" />\n      <recent name=\"$PROJECT_DIR$/Login/Login\" />\n      <recent name=\"$PROJECT_DIR$/db\" />\n      <recent name=\"C:\\xampp\\htdocs\\project\\IdeaNest\\Login\\Login\" />\n      <recent name=\"C:\\xampp\\htdocs\\project\\IdeaNest\\user\" />\n    </key>\n  </component>\n  <component name=\"SeleniumInternalSettingsState\">\n    <option name=\"lastUrl\" value=\"http://localhost/IdeaNest/user/index.php\" />\n  </component>\n  <component name=\"SharedIndexes\">\n    <attachedChunks>\n      <set>\n        <option value=\"bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-PS-252.23892.419\" />\n        <option value=\"bundled-php-predefined-a98d8de5180a-c72577f2c82f-com.jetbrains.php.sharedIndexes-PS-252.23892.419\" />\n      </set>\n    </attachedChunks>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"StructureViewState\">\n    <option name=\"selectedTab\" value=\"PHP\" />\n  </component>\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"3032b921-7f46-489d-a152-2e01ffa7242f\" name=\"Changes\" comment=\"\" />\n      <created>1740558748949</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1740558748949</updated>\n      <workItem from=\"1740558749970\" duration=\"2219000\" />\n      <workItem from=\"1740622761253\" duration=\"32000\" />\n      <workItem from=\"1740801105757\" duration=\"975000\" />\n      <workItem from=\"1740804509462\" duration=\"6765000\" />\n      <workItem from=\"1740819532994\" duration=\"106000\" />\n      <workItem from=\"1740819658958\" duration=\"16681000\" />\n      <workItem from=\"1740890745962\" duration=\"2136000\" />\n      <workItem from=\"1740992025161\" duration=\"59000\" />\n      <workItem from=\"1741339686996\" duration=\"3000\" />\n      <workItem from=\"1741340179163\" duration=\"603000\" />\n      <workItem from=\"1741414508339\" duration=\"480000\" />\n      <workItem from=\"1741415134396\" duration=\"123000\" />\n      <workItem from=\"1742539025288\" duration=\"980000\" />\n      <workItem from=\"1742612797770\" duration=\"2133000\" />\n      <workItem from=\"1742638379584\" duration=\"9067000\" />\n      <workItem from=\"1742649386262\" duration=\"2986000\" />\n      <workItem from=\"1742661964714\" duration=\"168000\" />\n      <workItem from=\"1742662956751\" duration=\"16989000\" />\n      <workItem from=\"1742786343647\" duration=\"1091000\" />\n      <workItem from=\"1742787470652\" duration=\"31000\" />\n      <workItem from=\"1742873449585\" duration=\"615000\" />\n      <workItem from=\"1742962270708\" duration=\"3480000\" />\n      <workItem from=\"1742965905374\" duration=\"2669000\" />\n      <workItem from=\"1742971157783\" duration=\"3201000\" />\n      <workItem from=\"1743260470500\" duration=\"231000\" />\n      <workItem from=\"1743917262491\" duration=\"663000\" />\n      <workItem from=\"1743917951878\" duration=\"52000\" />\n      <workItem from=\"1743918018909\" duration=\"255000\" />\n      <workItem from=\"1743918390693\" duration=\"594000\" />\n      <workItem from=\"1743919765117\" duration=\"1548000\" />\n      <workItem from=\"1744527121744\" duration=\"936000\" />\n      <workItem from=\"1744595482687\" duration=\"2755000\" />\n      <workItem from=\"1744610028157\" duration=\"4033000\" />\n      <workItem from=\"1744615321635\" duration=\"758000\" />\n      <workItem from=\"1744691160475\" duration=\"9411000\" />\n      <workItem from=\"1744705353458\" duration=\"19000\" />\n      <workItem from=\"1744705388718\" duration=\"1145000\" />\n      <workItem from=\"1744707190012\" duration=\"1601000\" />\n      <workItem from=\"1744708817665\" duration=\"37000\" />\n      <workItem from=\"1744769958025\" duration=\"9375000\" />\n      <workItem from=\"1744781878702\" duration=\"13803000\" />\n      <workItem from=\"1744814549388\" duration=\"1078000\" />\n      <workItem from=\"1744817754563\" duration=\"5308000\" />\n      <workItem from=\"1744970206610\" duration=\"603000\" />\n      <workItem from=\"1745038613665\" duration=\"11499000\" />\n      <workItem from=\"1745052465895\" duration=\"12763000\" />\n      <workItem from=\"1745067031867\" duration=\"76000\" />\n      <workItem from=\"1745069708188\" duration=\"3452000\" />\n      <workItem from=\"1747798936104\" duration=\"2585000\" />\n      <workItem from=\"1747815690399\" duration=\"1214000\" />\n      <workItem from=\"1747884047523\" duration=\"1973000\" />\n      <workItem from=\"1747886052917\" duration=\"44000\" />\n      <workItem from=\"1747886185470\" duration=\"200000\" />\n      <workItem from=\"1747887078761\" duration=\"1505000\" />\n      <workItem from=\"1751910038610\" duration=\"184000\" />\n      <workItem from=\"1753375924786\" duration=\"11000\" />\n      <workItem from=\"1753375942704\" duration=\"226000\" />\n      <workItem from=\"1753376377705\" duration=\"757000\" />\n      <workItem from=\"1754586533912\" duration=\"2192000\" />\n      <workItem from=\"1754821068980\" duration=\"5478000\" />\n      <workItem from=\"1754888393026\" duration=\"1047000\" />\n      <workItem from=\"1754893819854\" duration=\"611000\" />\n      <workItem from=\"1755062451868\" duration=\"1247000\" />\n      <workItem from=\"1755103548237\" duration=\"3176000\" />\n      <workItem from=\"1755139476087\" duration=\"5437000\" />\n      <workItem from=\"1755237134989\" duration=\"6428000\" />\n      <workItem from=\"1755263066560\" duration=\"5869000\" />\n      <workItem from=\"1755429012307\" duration=\"1952000\" />\n    </task>\n    <task id=\"LOCAL-00021\" summary=\"data base fetch from data in dashboard and modified ui and solve bug issue\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1740837998706</created>\n      <option name=\"number\" value=\"00021\" />\n      <option name=\"presentableId\" value=\"LOCAL-00021\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1740837998706</updated>\n    </task>\n    <task id=\"LOCAL-00022\" summary=\"modified ui\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1740892883780</created>\n      <option name=\"number\" value=\"00022\" />\n      <option name=\"presentableId\" value=\"LOCAL-00022\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1740892883780</updated>\n    </task>\n    <task id=\"LOCAL-00023\" summary=\"remove error successfully\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1742638923301</created>\n      <option name=\"number\" value=\"00023\" />\n      <option name=\"presentableId\" value=\"LOCAL-00023\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1742638923301</updated>\n    </task>\n    <task id=\"LOCAL-00024\" summary=\"blog table added\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1742641491404</created>\n      <option name=\"number\" value=\"00024\" />\n      <option name=\"presentableId\" value=\"LOCAL-00024\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1742641491404</updated>\n    </task>\n    <task id=\"LOCAL-00025\" summary=\"serch file added\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1742671847738</created>\n      <option name=\"number\" value=\"00025\" />\n      <option name=\"presentableId\" value=\"LOCAL-00025\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1742671847738</updated>\n    </task>\n    <task id=\"LOCAL-00026\" summary=\"login admin done and\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1742710528376</created>\n      <option name=\"number\" value=\"00026\" />\n      <option name=\"presentableId\" value=\"LOCAL-00026\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1742710528376</updated>\n    </task>\n    <task id=\"LOCAL-00027\" summary=\"project page add with pending request\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1742710566821</created>\n      <option name=\"number\" value=\"00027\" />\n      <option name=\"presentableId\" value=\"LOCAL-00027\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1742710566821</updated>\n    </task>\n    <task id=\"LOCAL-00028\" summary=\"progressbar for idea page added\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1742787320571</created>\n      <option name=\"number\" value=\"00028\" />\n      <option name=\"presentableId\" value=\"LOCAL-00028\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1742787320571</updated>\n    </task>\n    <task id=\"LOCAL-00029\" summary=\"progressbar for idea page added &#10;index page modified\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1742787379240</created>\n      <option name=\"number\" value=\"00029\" />\n      <option name=\"presentableId\" value=\"LOCAL-00029\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1742787379240</updated>\n    </task>\n    <task id=\"LOCAL-00030\" summary=\"book mark project working well. error show because of id is not auto increment\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1742965778595</created>\n      <option name=\"number\" value=\"00030\" />\n      <option name=\"presentableId\" value=\"LOCAL-00030\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1742965778595</updated>\n    </task>\n    <task id=\"LOCAL-00031\" summary=\" project working well. error show because of id is not auto increment\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1742968572893</created>\n      <option name=\"number\" value=\"00031\" />\n      <option name=\"presentableId\" value=\"LOCAL-00031\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1742968572894</updated>\n    </task>\n    <task id=\"LOCAL-00032\" summary=\" project working well. error show because of id is not auto increment\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1743260571733</created>\n      <option name=\"number\" value=\"00032\" />\n      <option name=\"presentableId\" value=\"LOCAL-00032\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1743260571733</updated>\n    </task>\n    <task id=\"LOCAL-00033\" summary=\" project working well. error show because of id is not auto increment\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1743260653354</created>\n      <option name=\"number\" value=\"00033\" />\n      <option name=\"presentableId\" value=\"LOCAL-00033\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1743260653354</updated>\n    </task>\n    <task id=\"LOCAL-00034\" summary=\"Typo error removed\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744595592552</created>\n      <option name=\"number\" value=\"00034\" />\n      <option name=\"presentableId\" value=\"LOCAL-00034\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744595592552</updated>\n    </task>\n    <task id=\"LOCAL-00035\" summary=\"admin page code improved with php\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744598396418</created>\n      <option name=\"number\" value=\"00035\" />\n      <option name=\"presentableId\" value=\"LOCAL-00035\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744598396418</updated>\n    </task>\n    <task id=\"LOCAL-00036\" summary=\"admin page code improved with php\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744614082453</created>\n      <option name=\"number\" value=\"00036\" />\n      <option name=\"presentableId\" value=\"LOCAL-00036\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744614082453</updated>\n    </task>\n    <task id=\"LOCAL-00037\" summary=\"admin page error solved successfully 1. admin view reject and approved project error solve successfully\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744694497774</created>\n      <option name=\"number\" value=\"00037\" />\n      <option name=\"presentableId\" value=\"LOCAL-00037\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744694497774</updated>\n    </task>\n    <task id=\"LOCAL-00038\" summary=\"admin page error solved successfully 1. admin view reject and approved project error solve successfully 2. user management working and error removed in admin.php\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744694961722</created>\n      <option name=\"number\" value=\"00038\" />\n      <option name=\"presentableId\" value=\"LOCAL-00038\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744694961722</updated>\n    </task>\n    <task id=\"LOCAL-00039\" summary=\"new page added with admin view all projects\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744696724803</created>\n      <option name=\"number\" value=\"00039\" />\n      <option name=\"presentableId\" value=\"LOCAL-00039\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744696724803</updated>\n    </task>\n    <task id=\"LOCAL-00040\" summary=\"dymanic book mark card successfully changes and show real time data\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744697882029</created>\n      <option name=\"number\" value=\"00040\" />\n      <option name=\"presentableId\" value=\"LOCAL-00040\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744697882029</updated>\n    </task>\n    <task id=\"LOCAL-00041\" summary=\"progressbar data successfully change with admin approved project\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744697942317</created>\n      <option name=\"number\" value=\"00041\" />\n      <option name=\"presentableId\" value=\"LOCAL-00041\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744697942317</updated>\n    </task>\n    <task id=\"LOCAL-00042\" summary=\"user management site work well with same style and also changed in admin site\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744699621452</created>\n      <option name=\"number\" value=\"00042\" />\n      <option name=\"presentableId\" value=\"LOCAL-00042\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744699621452</updated>\n    </task>\n    <task id=\"LOCAL-00043\" summary=\"admin user management  page improved\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744700763188</created>\n      <option name=\"number\" value=\"00043\" />\n      <option name=\"presentableId\" value=\"LOCAL-00043\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744700763188</updated>\n    </task>\n    <task id=\"LOCAL-00044\" summary=\"admin and admin view page improved\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744706170740</created>\n      <option name=\"number\" value=\"00044\" />\n      <option name=\"presentableId\" value=\"LOCAL-00044\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744706170740</updated>\n    </task>\n    <task id=\"LOCAL-00045\" summary=\"user setting page improved\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744706531748</created>\n      <option name=\"number\" value=\"00045\" />\n      <option name=\"presentableId\" value=\"LOCAL-00045\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744706531748</updated>\n    </task>\n    <task id=\"LOCAL-00046\" summary=\"admin view page modified. page refresh error gone\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744708798094</created>\n      <option name=\"number\" value=\"00046\" />\n      <option name=\"presentableId\" value=\"LOCAL-00046\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744708798094</updated>\n    </task>\n    <task id=\"LOCAL-00047\" summary=\"admin view page modified. page refresh error gone\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744708839277</created>\n      <option name=\"number\" value=\"00047\" />\n      <option name=\"presentableId\" value=\"LOCAL-00047\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744708839278</updated>\n    </task>\n    <task id=\"LOCAL-00048\" summary=\"mail system successfully added\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744782983377</created>\n      <option name=\"number\" value=\"00048\" />\n      <option name=\"presentableId\" value=\"LOCAL-00048\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744782983377</updated>\n    </task>\n    <task id=\"LOCAL-00049\" summary=\"modified ui in recent activities\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744784956689</created>\n      <option name=\"number\" value=\"00049\" />\n      <option name=\"presentableId\" value=\"LOCAL-00049\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744784956689</updated>\n    </task>\n    <task id=\"LOCAL-00050\" summary=\"modified ui in recent activities\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744784974128</created>\n      <option name=\"number\" value=\"00050\" />\n      <option name=\"presentableId\" value=\"LOCAL-00050\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744784974130</updated>\n    </task>\n    <task id=\"LOCAL-00051\" summary=\"modified ui in recent activities\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744788331968</created>\n      <option name=\"number\" value=\"00051\" />\n      <option name=\"presentableId\" value=\"LOCAL-00051\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744788331968</updated>\n    </task>\n    <task id=\"LOCAL-00052\" summary=\"filter working done\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744790260407</created>\n      <option name=\"number\" value=\"00052\" />\n      <option name=\"presentableId\" value=\"LOCAL-00052\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744790260407</updated>\n    </task>\n    <task id=\"LOCAL-00053\" summary=\"ui modified in book mark page\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744794087437</created>\n      <option name=\"number\" value=\"00053\" />\n      <option name=\"presentableId\" value=\"LOCAL-00053\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744794087437</updated>\n    </task>\n    <task id=\"LOCAL-00054\" summary=\"user search page error solve and remove and restore working successfully\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744794143892</created>\n      <option name=\"number\" value=\"00054\" />\n      <option name=\"presentableId\" value=\"LOCAL-00054\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744794143893</updated>\n    </task>\n    <task id=\"LOCAL-00055\" summary=\"now admin can see rejected idea also in admin view page\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744797513011</created>\n      <option name=\"number\" value=\"00055\" />\n      <option name=\"presentableId\" value=\"LOCAL-00055\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744797513011</updated>\n    </task>\n    <task id=\"LOCAL-00056\" summary=\"logout page successfully worked in admin panel\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744797927532</created>\n      <option name=\"number\" value=\"00056\" />\n      <option name=\"presentableId\" value=\"LOCAL-00056\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744797927532</updated>\n    </task>\n    <task id=\"LOCAL-00057\" summary=\"error solved successfully\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744815628110</created>\n      <option name=\"number\" value=\"00057\" />\n      <option name=\"presentableId\" value=\"LOCAL-00057\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744815628110</updated>\n    </task>\n    <task id=\"LOCAL-00058\" summary=\"remove pages\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744822329465</created>\n      <option name=\"number\" value=\"00058\" />\n      <option name=\"presentableId\" value=\"LOCAL-00058\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744822329465</updated>\n    </task>\n    <task id=\"LOCAL-00059\" summary=\"user setting and user project page improved with ui\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744822358330</created>\n      <option name=\"number\" value=\"00059\" />\n      <option name=\"presentableId\" value=\"LOCAL-00059\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744822358330</updated>\n    </task>\n    <task id=\"LOCAL-00060\" summary=\"multiple page improved ui and changes in admin panel and approved project\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1744822400006</created>\n      <option name=\"number\" value=\"00060\" />\n      <option name=\"presentableId\" value=\"LOCAL-00060\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1744822400006</updated>\n    </task>\n    <task id=\"LOCAL-00061\" summary=\"admin session management done\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1745041381867</created>\n      <option name=\"number\" value=\"00061\" />\n      <option name=\"presentableId\" value=\"LOCAL-00061\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1745041381867</updated>\n    </task>\n    <task id=\"LOCAL-00062\" summary=\"all pages improved\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1745045506094</created>\n      <option name=\"number\" value=\"00062\" />\n      <option name=\"presentableId\" value=\"LOCAL-00062\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1745045506094</updated>\n    </task>\n    <task id=\"LOCAL-00063\" summary=\"user setting page new file added : my projects\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1745046233077</created>\n      <option name=\"number\" value=\"00063\" />\n      <option name=\"presentableId\" value=\"LOCAL-00063\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1745046233077</updated>\n    </task>\n    <task id=\"LOCAL-00064\" summary=\"login page improved\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1745050976983</created>\n      <option name=\"number\" value=\"00064\" />\n      <option name=\"presentableId\" value=\"LOCAL-00064\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1745050976983</updated>\n    </task>\n    <task id=\"LOCAL-00065\" summary=\"user setting page updated with edit and view button\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1745053844831</created>\n      <option name=\"number\" value=\"00065\" />\n      <option name=\"presentableId\" value=\"LOCAL-00065\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1745053844832</updated>\n    </task>\n    <task id=\"LOCAL-00066\" summary=\"user setting page updated with edit and view button\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1745054400005</created>\n      <option name=\"number\" value=\"00066\" />\n      <option name=\"presentableId\" value=\"LOCAL-00066\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1745054400005</updated>\n    </task>\n    <task id=\"LOCAL-00067\" summary=\"all file modified\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1745063473302</created>\n      <option name=\"number\" value=\"00067\" />\n      <option name=\"presentableId\" value=\"LOCAL-00067\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1745063473302</updated>\n    </task>\n    <task id=\"LOCAL-00068\" summary=\"bookmark working successfully\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1745065681176</created>\n      <option name=\"number\" value=\"00068\" />\n      <option name=\"presentableId\" value=\"LOCAL-00068\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1745065681176</updated>\n    </task>\n    <task id=\"LOCAL-00069\" summary=\"bookmark working successfully\">\n      <option name=\"closed\" value=\"true\" />\n      <created>1745067095309</created>\n      <option name=\"number\" value=\"00069\" />\n      <option name=\"presentableId\" value=\"LOCAL-00069\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1745067095311</updated>\n    </task>\n    <option name=\"localTasksCounter\" value=\"70\" />\n    <servers />\n  </component>\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State />\n          </value>\n        </entry>\n      </map>\n    </option>\n  </component>\n  <component name=\"VcsManagerConfiguration\">\n    <MESSAGE value=\"progressbar data successfully change with admin approved project\" />\n    <MESSAGE value=\"user management site work well with same style and also changed in admin site\" />\n    <MESSAGE value=\"admin user management  page improved\" />\n    <MESSAGE value=\"admin and admin view page improved\" />\n    <MESSAGE value=\"user setting page improved\" />\n    <MESSAGE value=\"admin view page modified. page refresh error gone\" />\n    <MESSAGE value=\"mail system successfully added\" />\n    <MESSAGE value=\"mail system successfully added update : modified ui in mail system\" />\n    <MESSAGE value=\"modified ui in recent activities\" />\n    <MESSAGE value=\"filter working done\" />\n    <MESSAGE value=\"ui modified in book mark page\" />\n    <MESSAGE value=\"user search page error solve and remove and restore working successfully\" />\n    <MESSAGE value=\"now admin can see rejected idea also in admin view page\" />\n    <MESSAGE value=\"logout page successfully worked in admin panel\" />\n    <MESSAGE value=\"error solved successfully\" />\n    <MESSAGE value=\"remove pages\" />\n    <MESSAGE value=\"user setting and user project page improved with ui\" />\n    <MESSAGE value=\"multiple page improved ui and changes in admin panel and approved project\" />\n    <MESSAGE value=\"admin session management done\" />\n    <MESSAGE value=\"all pages improved\" />\n    <MESSAGE value=\"user setting page new file added : my projects\" />\n    <MESSAGE value=\"login page improved\" />\n    <MESSAGE value=\"user setting page updated with edit and view button\" />\n    <MESSAGE value=\"all file modified\" />\n    <MESSAGE value=\"bookmark working successfully\" />\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"bookmark working successfully\" />\n  </component>\n  <component name=\"XDebuggerManager\">\n    <breakpoint-manager>\n      <breakpoints>\n        <line-breakpoint enabled=\"true\" type=\"php\">\n          <url>file://$PROJECT_DIR$/Admin/subadmin/support.php</url>\n          <line>35</line>\n          <option name=\"timeStamp\" value=\"1\" />\n        </line-breakpoint>\n      </breakpoints>\n    </breakpoint-manager>\n  </component>\n  <component name=\"XSLT-Support.FileAssociations.UIState\">\n    <expand />\n    <select />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 9fe00aebb29d2eb34ebd47687d27c9fa953f57be)
++++ b/.idea/workspace.xml	(date 1755431294451)
+@@ -5,13 +5,7 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully">
+-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/assets/css/all_project.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/all_project.css" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/assets/js/layout_user.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/layout_user.js" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/user/Blog/form.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/Blog/form.php" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/user/Blog/list-project.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/Blog/list-project.php" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/user/all_projects.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/all_projects.php" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/user/bookmark.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/bookmark.php" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.output.txt" beforeDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -203,7 +197,7 @@
+       <workItem from="1755139476087" duration="5437000" />
+       <workItem from="1755237134989" duration="6428000" />
+       <workItem from="1755263066560" duration="5869000" />
+-      <workItem from="1755429012307" duration="1952000" />
++      <workItem from="1755429012307" duration="2281000" />
+     </task>
+     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
+       <option name="closed" value="true" />

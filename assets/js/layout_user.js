@@ -1,86 +1,162 @@
+// Fixed Sidebar JavaScript for All Projects
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Sidebar script loaded');
 
-    // Sidebar functionality
-    document.addEventListener('DOMContentLoaded', function() {
-    // Mobile menu toggle functionality
+    // Get elements
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
+    const body = document.body;
 
+    console.log('Elements found:', {
+        mobileMenuToggle: !!mobileMenuToggle,
+        sidebar: !!sidebar,
+        overlay: !!overlay
+    });
+
+    // Function to open sidebar
+    function openSidebar() {
+        if (sidebar) {
+            sidebar.classList.add('open');
+            console.log('Sidebar opened');
+        }
+        if (overlay) {
+            overlay.classList.add('active');
+        }
+        body.classList.add('sidebar-open');
+
+        // Change hamburger to X
+        if (mobileMenuToggle) {
+            const icon = mobileMenuToggle.querySelector('i');
+            if (icon) {
+                icon.className = 'fas fa-times';
+            }
+        }
+    }
+
+    // Function to close sidebar
+    function closeSidebar() {
+        if (sidebar) {
+            sidebar.classList.remove('open');
+            console.log('Sidebar closed');
+        }
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
+        body.classList.remove('sidebar-open');
+
+        // Change X back to hamburger
+        if (mobileMenuToggle) {
+            const icon = mobileMenuToggle.querySelector('i');
+            if (icon) {
+                icon.className = 'fas fa-bars';
+            }
+        }
+    }
+
+    // Function to toggle sidebar
+    function toggleSidebar() {
+        if (sidebar && sidebar.classList.contains('open')) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    }
+
+    // Mobile menu toggle click event
     if (mobileMenuToggle) {
-    mobileMenuToggle.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
+        mobileMenuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Mobile menu toggle clicked');
+            toggleSidebar();
+        });
+    }
 
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('active');
-
-    // Change icon based on state
-    const icon = this.querySelector('i');
-    if (sidebar.classList.contains('open')) {
-    icon.className = 'fas fa-times';
-} else {
-    icon.className = 'fas fa-bars';
-}
-});
-}
-
-    // Close sidebar when clicking overlay
+    // Overlay click event to close sidebar
     if (overlay) {
-    overlay.addEventListener('click', function() {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('active');
+        overlay.addEventListener('click', function() {
+            console.log('Overlay clicked');
+            closeSidebar();
+        });
+    }
 
-    // Reset icon
-    if (mobileMenuToggle) {
-    const icon = mobileMenuToggle.querySelector('i');
-    icon.className = 'fas fa-bars';
-}
-});
-}
-
-    // Close sidebar when clicking outside on mobile
+    // Close sidebar when clicking outside
     document.addEventListener('click', function(event) {
-    if (window.innerWidth <= 1024) {
-    if (sidebar && !sidebar.contains(event.target) &&
-    mobileMenuToggle && !mobileMenuToggle.contains(event.target)) {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('active');
-}
-}
-});
+        // Only apply on mobile/tablet
+        if (window.innerWidth <= 1024) {
+            if (sidebar && sidebar.classList.contains('open')) {
+                // Check if click is outside sidebar and toggle button
+                if (!sidebar.contains(event.target) &&
+                    !mobileMenuToggle.contains(event.target)) {
+                    console.log('Clicked outside sidebar');
+                    closeSidebar();
+                }
+            }
+        }
+    });
 
-    // Navigation item click handlers - only for mobile sidebar closing
-    document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', function(e) {
-    // Close sidebar on mobile after clicking (but allow navigation to proceed)
-    if (window.innerWidth <= 1024) {
-    setTimeout(() => {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('active');
+    // Prevent sidebar content clicks from closing sidebar
+    if (sidebar) {
+        sidebar.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
 
-    // Reset icon
-    if (mobileMenuToggle) {
-    const icon = mobileMenuToggle.querySelector('i');
-    icon.className = 'fas fa-bars';
-}
-}, 100); // Small delay to allow navigation to start
-}
-});
-});
+    // Close sidebar when clicking nav links on mobile
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            // Only close on mobile/tablet
+            if (window.innerWidth <= 1024) {
+                console.log('Nav item clicked on mobile');
+                // Small delay to allow navigation to start
+                setTimeout(() => {
+                    closeSidebar();
+                }, 150);
+            }
+        });
+    });
 
-    // Responsive sidebar handling
+    // Handle window resize
     function handleResize() {
-    if (window.innerWidth > 1024) {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('active');
+        if (window.innerWidth > 1024) {
+            // Desktop view - ensure sidebar is visible and overlay is hidden
+            if (sidebar) {
+                sidebar.classList.remove('open');
+            }
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+            body.classList.remove('sidebar-open');
 
-    // Reset icon
-    if (mobileMenuToggle) {
-    const icon = mobileMenuToggle.querySelector('i');
-    icon.className = 'fas fa-bars';
-}
-}
-}
+            // Reset toggle button icon
+            if (mobileMenuToggle) {
+                const icon = mobileMenuToggle.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-bars';
+                }
+            }
+        }
+    }
 
     window.addEventListener('resize', handleResize);
+
+    // Handle escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && window.innerWidth <= 1024) {
+            closeSidebar();
+        }
+    });
+
+    // Ensure proper initial state
+    handleResize();
+
+    // Debug function to test sidebar
+    window.testSidebar = function() {
+        console.log('Testing sidebar...');
+        toggleSidebar();
+    };
+
+    console.log('Sidebar JavaScript initialized successfully');
 });
