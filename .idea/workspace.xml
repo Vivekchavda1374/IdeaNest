@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/css/all_project.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/all_project.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/js/layout_user.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/layout_user.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/Blog/form.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/Blog/form.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/Blog/list-project.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/Blog/list-project.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/all_projects.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/all_projects.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/bookmark.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/bookmark.php" afterDir="false" />
-    </list>
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -43,6 +35,31 @@
     &quot;assignee&quot;: &quot;Vivekchavda1374&quot;
   }
 }</component>
+  <component name="GitToolBoxStore">
+    <option name="recentBranches">
+      <RecentBranches>
+        <option name="branchesForRepo">
+          <list>
+            <RecentBranchesForRepo>
+              <option name="branches">
+                <list>
+                  <RecentBranch>
+                    <option name="branchName" value="dev" />
+                    <option name="lastUsedInstant" value="1755431551" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="main" />
+                    <option name="lastUsedInstant" value="1755431543" />
+                  </RecentBranch>
+                </list>
+              </option>
+              <option name="repositoryRootUrl" value="file://$PROJECT_DIR$" />
+            </RecentBranchesForRepo>
+          </list>
+        </option>
+      </RecentBranches>
+    </option>
+  </component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Vivekchavda1374/IdeaNest.git&quot;,
