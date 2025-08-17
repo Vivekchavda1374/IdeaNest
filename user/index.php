@@ -3,9 +3,9 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 if (!isset($basePath)) { $basePath = './'; }
 
 // Get user info from session
-$user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "vivek";
-$user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
-$user_email = isset($_SESSION['email']) ? $_SESSION['email'] : "viveksinhchavda@gmail.com";
+$user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "User";
+$user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "U";
+$user_email = isset($_SESSION['email']) ? $_SESSION['email'] : "user@example.com";
 
 // DB connection for stats
 include_once dirname(__DIR__) . '/Login/Login/db.php';
