@@ -20,7 +20,18 @@ if ($is_in_subdirectory) {
     $basePath = './';
 }
 ?>
-<link rel="stylesheet" href="../assets/css/layout_user.css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IdeaNest</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/layout_user.css">
+    <!-- JavaScript -->
+    <script src="<?php echo $basePath; ?>../assets/js/layout_user.js" defer></script>
+</head>
+<body>
 <!-- Mobile Menu Toggle Button -->
 <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu">
     <i class="fas fa-bars"></i>
@@ -108,4 +119,5 @@ if ($is_in_subdirectory) {
         </div>
     </nav>
 </aside>
-<script src="../assets/js/layout_user.js"> </script>
+</body>
+</html>
