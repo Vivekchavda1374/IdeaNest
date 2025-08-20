@@ -1,5 +1,15 @@
 <?php
+session_start(); // Start session for user authentication
+
 $basePath = '../';
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../auth/login.php');
+    exit;
+}
+
+$current_user_id = $_SESSION['user_id'];
 
 // Check if this is an AJAX request first
 if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
@@ -8,10 +18,65 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
     exit;
 }
 
+// Handle individual project details AJAX request
+if (isset($_GET['get_project']) && $_GET['get_project'] == '1') {
+    handleProjectDetailsRequest();
+    exit;
+}
+
 include $basePath . 'layout.php';
 
-// AJAX handler function
+// AJAX handler function for project details
+function handleProjectDetailsRequest() {
+    global $current_user_id;
+    header('Content-Type: application/json');
+
+    try {
+        $conn = createDBConnection();
+        if (!$conn) {
+            throw new Exception("Database connection failed");
+        }
+
+        $project_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+        if ($project_id <= 0) {
+            throw new Exception("Invalid project ID");
+        }
+
+        // Get project details
+        $sql = "SELECT * FROM blog WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $project_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $project = $result->fetch_assoc();
+        $stmt->close();
+        $conn->close();
+
+        if (!$project) {
+            throw new Exception("Project not found");
+        }
+
+        $response = [
+                'success' => true,
+                'project' => $project,
+                'canEdit' => ($project['user_id'] ?? 0) == $current_user_id // Check if user can edit
+        ];
+
+        echo json_encode($response);
+
+    } catch (Exception $e) {
+        $response = [
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+        ];
+        echo json_encode($response);
+    }
+}
+
+// AJAX handler function for lazy loading
 function handleAjaxRequest() {
+    global $current_user_id;
     header('Content-Type: application/json');
 
     try {
@@ -76,11 +141,13 @@ function handleAjaxRequest() {
         $count_stmt->close();
 
         // Get projects
-        $sql = "SELECT * FROM blog WHERE " . $where_clause . " ORDER BY 
+        $sql = "SELECT *, CASE WHEN user_id = ? THEN 1 ELSE 0 END as can_edit FROM blog WHERE " . $where_clause . " ORDER BY 
                 CASE priority1 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END,
                 submission_datetime DESC 
                 LIMIT ? OFFSET ?";
 
+        array_unshift($params, $current_user_id);
+        $types = "i" . $types;
         $params[] = $per_page;
         $params[] = $offset;
         $types .= "ii";
@@ -140,9 +207,11 @@ function handleAjaxRequest() {
                     <button class="btn btn-outline-purple btn-sm view-details-btn" data-project-id="<?php echo $project['id']; ?>">
                         <i class="fas fa-eye me-1"></i>View Details
                     </button>
-                    <a href="edit.php?id=<?php echo $project['id']; ?>" class="btn btn-outline-purple btn-sm">
-                        <i class="fas fa-edit me-1"></i>Edit
-                    </a>
+                    <?php if ($project['can_edit']): ?>
+                        <a href="edit.php?id=<?php echo $project['id']; ?>" class="btn btn-outline-purple btn-sm">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endforeach;
@@ -176,7 +245,7 @@ function handleAjaxRequest() {
     }
 }
 
-// Helper functions need to be defined before AJAX call
+// Helper functions
 function createDBConnection() {
     $servername = "localhost";
     $username = "root";
@@ -260,7 +329,7 @@ function truncateText($text, $length = 150) {
 
     // Lazy loading parameters
     $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-    $per_page = 6; // Reduced for better lazy loading experience
+    $per_page = 6;
     $offset = ($page - 1) * $per_page;
 
     try {
@@ -375,12 +444,14 @@ function truncateText($text, $length = 150) {
         $total_pages = ceil($total_projects / $per_page);
         $count_stmt->close();
 
-        // Get projects with pagination
-        $sql = "SELECT * FROM blog WHERE " . $where_clause . " ORDER BY 
+        // Get projects with pagination and user edit permission
+        $sql = "SELECT *, CASE WHEN user_id = ? THEN 1 ELSE 0 END as can_edit FROM blog WHERE " . $where_clause . " ORDER BY 
                 CASE priority1 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END,
                 submission_datetime DESC 
                 LIMIT ? OFFSET ?";
 
+        array_unshift($params, $current_user_id);
+        $types = "i" . $types;
         $params[] = $per_page;
         $params[] = $offset;
         $types .= "ii";
@@ -412,14 +483,6 @@ function truncateText($text, $length = 150) {
         </h1>
         <p class="page-subtitle">Discover and explore innovative ideas from our community</p>
     </div>
-
-    <?php if (isset($error_message)): ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <?php echo htmlspecialchars($error_message); ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    <?php endif; ?>
 
     <!-- Statistics Cards -->
     <div class="stats-container">
@@ -567,9 +630,11 @@ function truncateText($text, $length = 150) {
                             <button class="btn btn-outline-purple btn-sm view-details-btn" data-project-id="<?php echo $project['id']; ?>">
                                 <i class="fas fa-eye me-1"></i>View Details
                             </button>
-                            <a href="edit.php?id=<?php echo $project['id']; ?>" class="btn btn-outline-purple btn-sm">
-                                <i class="fas fa-edit me-1"></i>Edit
-                            </a>
+                            <?php if ($project['can_edit']): ?>
+                                <a href="edit.php?id=<?php echo $project['id']; ?>" class="btn btn-outline-purple btn-sm">
+                                    <i class="fas fa-edit me-1"></i>Edit
+                                </a>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -601,81 +666,36 @@ function truncateText($text, $length = 150) {
     </div>
 </div>
 
-<!-- Project Detail Modals -->
-<?php foreach ($projects as $project): ?>
-    <div class="modal fade" id="projectModal<?php echo $project['id']; ?>" tabindex="-1" aria-labelledby="projectModalLabel<?php echo $project['id']; ?>" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header" style="background: var(--purple-gradient); color: white;">
-                    <h5 class="modal-title" id="projectModalLabel<?php echo $project['id']; ?>">
-                        <i class="fas fa-project-diagram me-2"></i>
-                        <?php echo htmlspecialchars($project['project_name']); ?>
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <h6 class="text-purple fw-bold">Project Details</h6>
-                            <p><strong>ID:</strong> <?php echo htmlspecialchars($project['er_number']); ?></p>
-                            <p><strong>Type:</strong> <?php echo ucfirst($project['project_type']); ?></p>
-                            <p><strong>Classification:</strong> <?php echo ucfirst(str_replace('_', ' ', $project['classification'])); ?></p>
-                            <p><strong>Priority:</strong>
-                                <span class="badge <?php echo getPriorityClass($project['priority1']); ?>">
-                                    <?php echo ucfirst($project['priority1']); ?>
-                                </span>
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="text-purple fw-bold">Status & Dates</h6>
-                            <p><strong>Status:</strong>
-                                <span class="badge <?php echo getStatusClass($project['status']); ?>">
-                                    <?php echo ucfirst(str_replace('_', ' ', $project['status'])); ?>
-                                </span>
-                            </p>
-                            <p><strong>Submitted:</strong> <?php echo formatDate($project['submission_datetime']); ?></p>
-                            <p><strong>Assigned To:</strong>
-                                <?php echo htmlspecialchars(!empty($project['assigned_to']) ? $project['assigned_to'] : 'Not Assigned'); ?>
-                            </p>
-                            <p><strong>Completion Date:</strong>
-                                <?php echo formatDate($project['completion_date']); ?>
-                            </p>
-                        </div>
+<!-- Dynamic Project Detail Modal -->
+<div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="projectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: var(--purple-gradient); color: white;">
+                <h5 class="modal-title" id="projectModalLabel">
+                    <i class="fas fa-project-diagram me-2"></i>
+                    <span id="modalProjectTitle">Project Details</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-purple" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
-
-                    <div class="mb-4">
-                        <h6 class="text-purple fw-bold">Description</h6>
-                        <div class="p-3 rounded" style="background-color: var(--light-purple);">
-                            <p class="mb-0"><?php echo nl2br(htmlspecialchars($project['description'])); ?></p>
-                        </div>
-                    </div>
-
-                    <?php if ($project['status'] == 'in_progress'): ?>
-                        <div class="mb-4">
-                            <h6 class="text-purple fw-bold">Progress</h6>
-                            <div class="progress" style="height: 10px;">
-                                <div class="progress-bar" role="progressbar" style="width: 65%; background: var(--purple-gradient);"
-                                     aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <small class="text-muted">65% Complete</small>
-                        </div>
-                    <?php endif; ?>
+                    <div class="mt-2">Loading project details...</div>
                 </div>
-                <div class="modal-footer">
-                    <a href="edit.php?id=<?php echo $project['id']; ?>" class="btn btn-purple">
-                        <i class="fas fa-edit me-1"></i> Edit Project
-                    </a>
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
+            </div>
+            <div class="modal-footer" id="modalFooter">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
-<?php endforeach; ?>
+</div>
 
 <!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../../assets/js/list_project.js"></script>
-<script src = "../../assets/js/layout_user.js"></script>
+<script src="../../assets/js/layout_user.js"></script>
 
 <?php include $basePath . 'layout_footer.php'; ?>
 </body>
