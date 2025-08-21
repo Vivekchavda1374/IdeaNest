@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Validation
     if (!$name || !$email || !$enrollment_number || !$gr_number || !$password || !$confirm || !$passout_year) {
-        $error = 'All fields are required.';
+        $error = 'All required fields must be filled.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Invalid email address.';
     } elseif ($password !== $confirm) {
@@ -50,11 +50,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($stmt->execute()) {
                 $user_id = $conn->insert_id;
-                
+
                 // Send new user notification to admin
                 include "../../Admin/notification_backend.php";
                 $notification_result = sendNewUserNotificationToAdmin($user_id, $conn);
-                
+
                 // Log the notification
                 $user_query = "SELECT * FROM register WHERE id = ?";
                 $user_stmt = $conn->prepare($user_query);
@@ -62,14 +62,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user_stmt->execute();
                 $user_result = $user_stmt->get_result();
                 $user = $user_result->fetch_assoc();
-                
+
                 $admin_email = getSetting($conn, 'admin_email', 'ideanest.ict@gmail.com');
                 $email_subject = "New User Registration - " . getSetting($conn, 'site_name', 'IdeaNest');
                 $error_message = $notification_result['success'] ? null : $notification_result['message'];
-                logNotification('new_user_notification', $user_id, $conn, 
-                              $notification_result['success'] ? 'sent' : 'failed', null, $admin_email, $email_subject, $error_message);
-                
-        $success = 'Registration successful! You can now <a href="login.php">login</a>.';
+                logNotification('new_user_notification', $user_id, $conn,
+                        $notification_result['success'] ? 'sent' : 'failed', null, $admin_email, $email_subject, $error_message);
+
+                $success = 'Registration successful! You can now login.';
             } else {
                 $error = 'Registration failed. Please try again.';
             }
@@ -83,264 +83,119 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register | IdeaNest</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <title>Register | IdeaNest</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --accent: #ec4899;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-700: #374151;
-            --white: #fff;
-        }
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Inter', sans-serif;
-        }
-        .register-card {
-            position: relative;
-            z-index: 1;
-            margin: 2rem 0;
-            max-width: 600px;
-            width: 100%;
-            padding: 3.5rem 2.5rem 2.5rem 2.5rem;
-            background: var(--white);
-            border-radius: 1.5rem;
-            box-shadow: 0 12px 40px rgba(99,102,241,0.13), 0 2px 8px rgba(0,0,0,0.06);
-            animation: fadeInUp 0.7s;
-        }
-        .register-card .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-        }
-        .register-card h2 {
-            font-weight: 700;
-            color: var(--gray-700);
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-        .register-card p {
-            color: var(--gray-200);
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-        .form-label {
-            font-weight: 600;
-            color: var(--gray-700);
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        .form-control {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            border: 1.5px solid var(--gray-200);
-            background: var(--gray-50);
-            font-size: 1rem;
-            color: var(--gray-700);
-            transition: border-color 0.2s;
-        }
-        .form-control:focus {
-            border-color: var(--primary);
-            outline: none;
-            background: var(--white);
-        }
-        .btn-primary {
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 0.75rem;
-            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: var(--white);
-            font-weight: 700;
-            border: none;
-            font-size: 1.1rem;
-            box-shadow: 0 2px 8px rgba(99,102,241,0.08);
-            transition: background 0.2s, transform 0.2s;
-        }
-        .btn-primary:hover {
-            background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
-            transform: translateY(-2px) scale(1.01);
-        }
-        .error-message {
-            background: #fee2e2;
-            color: #b91c1c;
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            margin-bottom: 1rem;
-            text-align: center;
-            font-weight: 500;
-        }
-        .success-message {
-            background: #d1fae5;
-            color: #047857;
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            margin-bottom: 1rem;
-            text-align: center;
-            font-weight: 500;
-        }
-        .register-card .login-link {
-            display: block;
-            text-align: center;
-            margin-top: 1.5rem;
-            color: var(--primary);
-            font-weight: 500;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .register-card .login-link:hover {
-            color: var(--accent);
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(40px);}
-            to { opacity: 1; transform: translateY(0);}
-        }
-        @media (max-width: 500px) {
-            .register-card { padding: 1.5rem 0.5rem; }
-        }
-        .register-bg {
-            min-height: 100vh;
-            width: 100vw;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .register-bg::before {
-            content: "";
-            position: absolute;
-            top: -100px; left: -100px;
-            width: 400px; height: 400px;
-            background: radial-gradient(circle, #fff3 0%, transparent 70%);
-            z-index: 0;
-        }
-        .form-row {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        .form-row .form-group {
-            flex: 1 1 0;
-            margin-bottom: 0;
-        }
-        .floating {
-            position: relative;
-        }
-        .floating .form-control {
-            padding-top: 1.25rem;
-            padding-bottom: 0.5rem;
-        }
-        .floating .form-label {
-            position: absolute;
-            top: 0.9rem;
-            left: 1rem;
-            color: #888;
-            font-size: 1rem;
-            pointer-events: none;
-            transition: 0.2s;
-            background: transparent;
-        }
-        .floating .form-control:focus + .form-label,
-        .floating .form-control:not(:placeholder-shown):not([value=""]) + .form-label {
-            top: 0.2rem;
-            left: 0.9rem;
-            font-size: 0.85rem;
-            color: var(--primary);
-            background: var(--white);
-            padding: 0 0.25rem;
-        }
-        @media (max-width: 700px) {
-            .form-row { flex-direction: column; gap: 0; }
-        }
-    </style>
+  <link rel="stylesheet" href="../../assets/css/register.css">
+
 </head>
 <body>
-    <div class="register-bg">
-    <form class="register-card" method="post" autocomplete="off">
+<div class="register-container">
+    <div class="logo-section">
         <div class="logo">
             <i class="fas fa-lightbulb"></i>
         </div>
-        <h2>Create Account</h2>
-        <p>Sign up for your IdeaNest account</p>
-        <?php if ($error): ?>
-            <div class="error-message"><?php echo htmlspecialchars($error); ?></div>
-        <?php endif; ?>
-        <?php if ($success): ?>
-            <div class="success-message"><?php echo $success; ?></div>
-        <?php endif; ?>
-            <div class="form-row">
-                <div class="form-group floating">
-                    <input class="form-control" type="text" id="username" name="username" required autofocus placeholder=" ">
-                    <label class="form-label" for="username">Full Name</label>
+        <div class="welcome-text">
+            <h1>Create Account</h1>
+            <p>Join IdeaNest to share your innovations</p>
         </div>
-                <div class="form-group floating">
-                    <input class="form-control" type="email" id="email" name="email" required placeholder=" ">
-            <label class="form-label" for="email">Email</label>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group floating">
-                    <input class="form-control" type="text" id="enrollment_number" name="enrollment_number" required placeholder=" ">
-                    <label class="form-label" for="enrollment_number">Enrollment Number</label>
-                </div>
-                <div class="form-group floating">
-                    <input class="form-control" type="text" id="gr_number" name="gr_number" required placeholder=" ">
-                    <label class="form-label" for="gr_number">GR Number</label>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group floating">
-                    <input class="form-control" type="text" id="about" name="about" maxlength="500" placeholder=" ">
-                    <label class="form-label" for="about">About</label>
-                </div>
-                <div class="form-group floating">
-                    <input class="form-control" type="text" id="phone_no" name="phone_no" maxlength="20" placeholder=" ">
-                    <label class="form-label" for="phone_no">Phone Number</label>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group floating">
-                    <input class="form-control" type="text" id="department" name="department" maxlength="100" placeholder=" ">
-                    <label class="form-label" for="department">Department</label>
-                </div>
-                <div class="form-group floating">
-                    <input class="form-control" type="number" id="passout_year" name="passout_year" min="1900" max="2099" required placeholder=" ">
-                    <label class="form-label" for="passout_year">Passout Year</label>
-                </div>
-        </div>
-            <div class="form-row">
-                <div class="form-group floating">
-                    <input class="form-control" type="password" id="password" name="password" required placeholder=" ">
-            <label class="form-label" for="password">Password</label>
-        </div>
-                <div class="form-group floating">
-                    <input class="form-control" type="password" id="confirm" name="confirm" required placeholder=" ">
-            <label class="form-label" for="confirm">Confirm Password</label>
-                </div>
-        </div>
-        <button class="btn-primary" type="submit">
-            <i class="fas fa-user-plus me-2"></i> Register
-        </button>
-        <a class="login-link" href="login.php">Already have an account? Login</a>
-    </form>
     </div>
+
+    <form class="form-section" method="post" autocomplete="off">
+        <!-- Error/Success Messages -->
+        <?php if ($error): ?>
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span><?php echo htmlspecialchars($error); ?></span>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($success): ?>
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span><?php echo $success; ?></span>
+            </div>
+        <?php endif; ?>
+
+        <!-- Personal Information -->
+        <div class="form-row">
+            <div class="input-group">
+                <input type="text" id="username" name="username" placeholder="Enter your full name" required autofocus>
+                <i class="fas fa-user input-icon"></i>
+            </div>
+            <div class="input-group">
+                <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+                <i class="fas fa-envelope input-icon"></i>
+            </div>
+        </div>
+
+        <!-- Academic Information -->
+        <div class="form-row">
+            <div class="input-group">
+                <input type="text" id="enrollment_number" name="enrollment_number" placeholder="Enter enrollment number" required>
+                <i class="fas fa-id-card input-icon"></i>
+            </div>
+            <div class="input-group">
+                <input type="text" id="gr_number" name="gr_number" placeholder="Enter GR number" required>
+                <i class="fas fa-hashtag input-icon"></i>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="form-row">
+            <div class="input-group">
+                <input type="text" id="department" name="department" placeholder="Enter your department" maxlength="100">
+                <i class="fas fa-building input-icon"></i>
+            </div>
+            <div class="input-group">
+                <input type="number" id="passout_year" name="passout_year" placeholder="Enter passout year" min="1900" max="2099" required>
+                <i class="fas fa-calendar input-icon"></i>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="form-row">
+            <div class="input-group">
+                <input type="text" id="phone_no" name="phone_no" placeholder="Enter phone number" maxlength="20">
+                <i class="fas fa-phone input-icon"></i>
+            </div>
+            <div class="input-group">
+                <textarea id="about" name="about" placeholder="Tell us about yourself" maxlength="500"></textarea>
+                <i class="fas fa-info-circle input-icon"></i>
+            </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-row">
+            <div class="input-group">
+                <input type="password" id="password" name="password" placeholder="Create a password" required>
+                <i class="fas fa-lock input-icon"></i>
+            </div>
+            <div class="input-group">
+                <input type="password" id="confirm" name="confirm" placeholder="Confirm your password" required>
+                <i class="fas fa-lock input-icon"></i>
+            </div>
+        </div>
+
+        <button type="submit" class="register-btn">
+            <i class="fas fa-user-plus" style="margin-right: 8px;"></i>
+            Create Account
+        </button>
+    </form>
+
+    <div class="divider">
+        <span>Already have an account?</span>
+    </div>
+
+    <div class="login-link">
+        <p>Ready to sign in?
+            <a href="login.php">Login Here</a>
+        </p>
+    </div>
+</div>
+
+<script src="../../assets/js/register.js"></script>
+
 </body>
 </html>
