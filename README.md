@@ -180,3 +180,55 @@ We welcome contributions!
 - User authentication.
 - Admin features.
 
+---
+
+## 🛠 Installation & Setup
+
+### Prerequisites
+- PHP 8.2.4 or higher
+- MySQL 10.4.28 (MariaDB) or higher
+- Apache web server
+- Composer for PHP dependencies
+
+### Installation Steps
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/IdeaNest.git
+   ```
+
+2. Install dependencies:
+   ```bash
+   composer install
+   ```
+
+3. Set up the database:
+   - Create a new MySQL database named `ideanest`
+   - Import the SQL files from the `db` directory
+
+4. Configure upload permissions:
+   ```bash
+   # Set proper permissions for upload directories
+   sudo chmod -R 777 user/forms/uploads/
+   sudo chmod -R 777 user/forms/uploads/images/
+   sudo chmod -R 777 user/forms/uploads/videos/
+   sudo chmod -R 777 user/forms/uploads/code_files/
+   sudo chmod -R 777 user/forms/uploads/instructions/
+   ```
+
+5. Configure your environment:
+   - Update database credentials in `Login/Login/db.php`
+   - Update email settings in admin settings panel
+
+### Troubleshooting
+
+#### Upload Issues
+If you encounter "Directory not writable" errors:
+1. Verify upload directory permissions:
+   ```bash
+   ls -l user/forms/uploads/
+   ```
+2. Ensure directories have proper write permissions (777 for development)
+3. Check PHP upload settings in php.ini:
+   - upload_max_filesize
+   - post_max_size
+   - memory_limit
