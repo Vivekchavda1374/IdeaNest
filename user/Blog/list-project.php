@@ -8,9 +8,86 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
     exit;
 }
 
+// Check if this is an AJAX request for project details
+if (isset($_GET['get_project_details']) && $_GET['get_project_details'] == '1') {
+    handleProjectDetailsRequest();
+    exit;
+}
+
 include $basePath . 'layout.php';
 
-// AJAX handler function
+// AJAX handler function for project details
+function handleProjectDetailsRequest() {
+    header('Content-Type: application/json');
+
+    try {
+        $conn = createDBConnection();
+        if (!$conn) {
+            throw new Exception("Database connection failed");
+        }
+
+        $project_id = isset($_GET['project_id']) ? (int)$_GET['project_id'] : 0;
+
+        if ($project_id <= 0) {
+            throw new Exception("Invalid project ID");
+        }
+
+        // Get project with user info for edit permission check
+        $sql = "SELECT b.*, r.id as owner_id FROM blog b 
+                LEFT JOIN register r ON b.user_id = r.id 
+                WHERE b.id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $project_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows === 0) {
+            throw new Exception("Project not found");
+        }
+
+        $project = $result->fetch_assoc();
+        $stmt->close();
+        $conn->close();
+
+        // Check if current user can edit this project
+        session_start();
+        $current_user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+        $can_edit = ($current_user_id && $current_user_id == $project['user_id']);
+
+        // Format the response
+        $response = [
+                'success' => true,
+                'project' => [
+                        'id' => $project['id'],
+                        'project_name' => htmlspecialchars($project['project_name']),
+                        'er_number' => htmlspecialchars($project['er_number']),
+                        'project_type' => ucfirst($project['project_type']),
+                        'classification' => ucfirst(str_replace('_', ' ', $project['classification'])),
+                        'priority1' => ucfirst($project['priority1']),
+                        'status' => ucfirst(str_replace('_', ' ', $project['status'])),
+                        'description' => nl2br(htmlspecialchars($project['description'])),
+                        'submission_datetime' => formatDate($project['submission_datetime']),
+                        'assigned_to' => htmlspecialchars(!empty($project['assigned_to']) ? $project['assigned_to'] : 'Not Assigned'),
+                        'completion_date' => formatDate($project['completion_date']),
+                        'priority_class' => getPriorityClass($project['priority1']),
+                        'status_class' => getStatusClass($project['status']),
+                        'can_edit' => $can_edit,
+                        'user_id' => $project['user_id']
+                ]
+        ];
+
+        echo json_encode($response);
+
+    } catch (Exception $e) {
+        $response = [
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+        ];
+        echo json_encode($response);
+    }
+}
+
+// AJAX handler function - AUTHENTICATION REMOVED for loading
 function handleAjaxRequest() {
     header('Content-Type: application/json');
 
@@ -19,6 +96,10 @@ function handleAjaxRequest() {
         if (!$conn) {
             throw new Exception("Database connection failed");
         }
+
+        // Get current user for edit permissions
+        session_start();
+        $current_user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 
         // Get parameters
         $filter_type = isset($_GET['type']) ? $_GET['type'] : '';
@@ -29,8 +110,8 @@ function handleAjaxRequest() {
         $per_page = 6;
         $offset = ($page - 1) * $per_page;
 
-        // Build query
-        $where_conditions = ["1=1"];
+        // Build query - show ALL projects (no user filtering)
+        $where_conditions = ["1=1"]; // Always true condition
         $params = [];
         $types = "";
 
@@ -75,10 +156,12 @@ function handleAjaxRequest() {
         $total_pages = ceil($total_projects / $per_page);
         $count_stmt->close();
 
-        // Get projects
-        $sql = "SELECT * FROM blog WHERE " . $where_clause . " ORDER BY 
-                CASE priority1 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END,
-                submission_datetime DESC 
+        // Get projects with user info for edit permissions
+        $sql = "SELECT b.*, r.id as owner_id FROM blog b 
+                LEFT JOIN register r ON b.user_id = r.id 
+                WHERE " . $where_clause . " ORDER BY 
+                CASE b.priority1 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END,
+                b.submission_datetime DESC 
                 LIMIT ? OFFSET ?";
 
         $params[] = $per_page;
@@ -98,7 +181,9 @@ function handleAjaxRequest() {
 
         // Generate HTML
         ob_start();
-        foreach ($projects as $project): ?>
+        foreach ($projects as $project):
+            $can_edit = ($current_user_id && $current_user_id == $project['user_id']);
+            ?>
             <div class="project-card" data-aos="fade-up">
                 <div class="priority-badge <?php echo getPriorityClass($project['priority1']); ?>">
                     <?php echo ucfirst($project['priority1']); ?>
@@ -140,9 +225,15 @@ function handleAjaxRequest() {
                     <button class="btn btn-outline-purple btn-sm view-details-btn" data-project-id="<?php echo $project['id']; ?>">
                         <i class="fas fa-eye me-1"></i>View Details
                     </button>
-                    <a href="edit.php?id=<?php echo $project['id']; ?>" class="btn btn-outline-purple btn-sm">
-                        <i class="fas fa-edit me-1"></i>Edit
-                    </a>
+                    <?php if ($can_edit): ?>
+                        <a href="edit.php?id=<?php echo $project['id']; ?>" class="btn btn-outline-purple btn-sm">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </a>
+                    <?php else: ?>
+                        <button class="btn btn-outline-secondary btn-sm" disabled title="You can only edit your own projects">
+                            <i class="fas fa-lock me-1"></i>Edit
+                        </button>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endforeach;
@@ -250,6 +341,14 @@ function truncateText($text, $length = 150) {
 <body>
 <div class="main-content">
     <?php
+    // Start session to get user ID for edit permissions
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    // Get current user ID for edit permissions
+    $current_user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+
     // Initialize variables
     $projects = [];
     $error_message = null;
@@ -269,7 +368,7 @@ function truncateText($text, $length = 150) {
             throw new Exception("Database connection failed");
         }
 
-        // Get statistics
+        // Get statistics for ALL projects (no user filtering)
         $stats = [
                 'total' => 0,
                 'software' => 0,
@@ -329,31 +428,31 @@ function truncateText($text, $length = 150) {
             $stats['high_priority'] = $high_priority_result->fetch_assoc()['count'];
         }
 
-        // Build filtered query
-        $where_conditions = ["1=1"];
+        // Build filtered query - show ALL projects
+        $where_conditions = ["1=1"]; // Always true condition
         $params = [];
         $types = "";
 
         if (!empty($filter_type)) {
-            $where_conditions[] = "project_type = ?";
+            $where_conditions[] = "b.project_type = ?";
             $params[] = $filter_type;
             $types .= "s";
         }
 
         if (!empty($filter_status)) {
-            $where_conditions[] = "status = ?";
+            $where_conditions[] = "b.status = ?";
             $params[] = $filter_status;
             $types .= "s";
         }
 
         if (!empty($filter_priority)) {
-            $where_conditions[] = "priority1 = ?";
+            $where_conditions[] = "b.priority1 = ?";
             $params[] = $filter_priority;
             $types .= "s";
         }
 
         if (!empty($search_term)) {
-            $where_conditions[] = "(project_name LIKE ? OR description LIKE ? OR er_number LIKE ?)";
+            $where_conditions[] = "(b.project_name LIKE ? OR b.description LIKE ? OR b.er_number LIKE ?)";
             $search_pattern = "%{$search_term}%";
             $params[] = $search_pattern;
             $params[] = $search_pattern;
@@ -364,37 +463,41 @@ function truncateText($text, $length = 150) {
         $where_clause = implode(" AND ", $where_conditions);
 
         // Get total count for pagination
-        $count_sql = "SELECT COUNT(*) as total FROM blog WHERE " . $where_clause;
-        $count_stmt = $conn->prepare($count_sql);
+        $count_sql = "SELECT COUNT(*) as total FROM blog b WHERE " . $where_clause;
         if (!empty($params)) {
+            $count_stmt = $conn->prepare($count_sql);
             $count_stmt->bind_param($types, ...$params);
+            $count_stmt->execute();
+            $count_result = $count_stmt->get_result();
+            $total_projects = $count_result->fetch_assoc()['total'];
+            $count_stmt->close();
+        } else {
+            $count_result = $conn->query($count_sql);
+            $total_projects = $count_result->fetch_assoc()['total'];
         }
-        $count_stmt->execute();
-        $count_result = $count_stmt->get_result();
-        $total_projects = $count_result->fetch_assoc()['total'];
         $total_pages = ceil($total_projects / $per_page);
-        $count_stmt->close();
 
-        // Get projects with pagination
-        $sql = "SELECT * FROM blog WHERE " . $where_clause . " ORDER BY 
-                CASE priority1 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END,
-                submission_datetime DESC 
+        // Get projects with pagination and user info for edit permissions
+        $sql = "SELECT b.*, r.id as owner_id FROM blog b 
+                LEFT JOIN register r ON b.user_id = r.id 
+                WHERE " . $where_clause . " ORDER BY 
+                CASE b.priority1 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END,
+                b.submission_datetime DESC 
                 LIMIT ? OFFSET ?";
 
         $params[] = $per_page;
         $params[] = $offset;
         $types .= "ii";
 
-        $stmt = $conn->prepare($sql);
         if (!empty($params)) {
+            $stmt = $conn->prepare($sql);
             $stmt->bind_param($types, ...$params);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $projects = $result->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
         }
 
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $projects = $result->fetch_all(MYSQLI_ASSOC);
-
-        $stmt->close();
         $conn->close();
     } catch (Exception $e) {
         $error_message = "Error: " . $e->getMessage();
@@ -407,10 +510,10 @@ function truncateText($text, $length = 150) {
     <!-- Page Header -->
     <div class="page-header">
         <h1 class="page-title">
-            <i class="fas fa-project-diagram me-3"></i>
+            <i class="fas fa-list me-3"></i>
             All Projects
         </h1>
-        <p class="page-subtitle">Discover and explore innovative ideas from our community</p>
+        <p class="page-subtitle">Browse and explore all innovative ideas</p>
     </div>
 
     <?php if (isset($error_message)): ?>
@@ -518,14 +621,16 @@ function truncateText($text, $length = 150) {
                     <i class="fas fa-folder-open"></i>
                 </div>
                 <h3>No Projects Found</h3>
-                <p>Try adjusting your search criteria or explore all projects.</p>
-                <a href="?" class="btn btn-purple mt-3">
-                    <i class="fas fa-refresh me-2"></i>View All Projects
+                <p>No projects match your search criteria. Try adjusting your filters.</p>
+                <a href="add_project.php" class="btn btn-purple mt-3">
+                    <i class="fas fa-plus me-2"></i>Create New Project
                 </a>
             </div>
         <?php else: ?>
             <div class="projects-grid" id="projectsGrid">
-                <?php foreach ($projects as $project): ?>
+                <?php foreach ($projects as $project):
+                    $can_edit = ($current_user_id && $current_user_id == $project['user_id']);
+                    ?>
                     <div class="project-card" data-aos="fade-up">
                         <div class="priority-badge <?php echo getPriorityClass($project['priority1']); ?>">
                             <?php echo ucfirst($project['priority1']); ?>
@@ -567,9 +672,15 @@ function truncateText($text, $length = 150) {
                             <button class="btn btn-outline-purple btn-sm view-details-btn" data-project-id="<?php echo $project['id']; ?>">
                                 <i class="fas fa-eye me-1"></i>View Details
                             </button>
-                            <a href="edit.php?id=<?php echo $project['id']; ?>" class="btn btn-outline-purple btn-sm">
-                                <i class="fas fa-edit me-1"></i>Edit
-                            </a>
+                            <?php if ($can_edit): ?>
+                                <a href="edit.php?id=<?php echo $project['id']; ?>" class="btn btn-outline-purple btn-sm">
+                                    <i class="fas fa-edit me-1"></i>Edit
+                                </a>
+                            <?php else: ?>
+                                <button class="btn btn-outline-secondary btn-sm" disabled title="You can only edit your own projects">
+                                    <i class="fas fa-lock me-1"></i>Edit
+                                </button>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -599,84 +710,42 @@ function truncateText($text, $length = 150) {
             </div>
         <?php endif; ?>
     </div>
-</div>
 
-<!-- Project Detail Modals -->
-<?php foreach ($projects as $project): ?>
-    <div class="modal fade" id="projectModal<?php echo $project['id']; ?>" tabindex="-1" aria-labelledby="projectModalLabel<?php echo $project['id']; ?>" aria-hidden="true">
+    <!-- Project Detail Modal -->
+    <div class="modal fade" id="projectDetailModal" tabindex="-1" aria-labelledby="projectDetailModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header" style="background: var(--purple-gradient); color: white;">
-                    <h5 class="modal-title" id="projectModalLabel<?php echo $project['id']; ?>">
+                    <h5 class="modal-title" id="projectDetailModalLabel">
                         <i class="fas fa-project-diagram me-2"></i>
-                        <?php echo htmlspecialchars($project['project_name']); ?>
+                        <span id="modalProjectTitle">Project Details</span>
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <h6 class="text-purple fw-bold">Project Details</h6>
-                            <p><strong>ID:</strong> <?php echo htmlspecialchars($project['er_number']); ?></p>
-                            <p><strong>Type:</strong> <?php echo ucfirst($project['project_type']); ?></p>
-                            <p><strong>Classification:</strong> <?php echo ucfirst(str_replace('_', ' ', $project['classification'])); ?></p>
-                            <p><strong>Priority:</strong>
-                                <span class="badge <?php echo getPriorityClass($project['priority1']); ?>">
-                                    <?php echo ucfirst($project['priority1']); ?>
-                                </span>
-                            </p>
+                <div class="modal-body" id="projectModalContent">
+                    <div class="text-center p-4">
+                        <div class="spinner-border text-purple" role="status">
+                            <span class="visually-hidden">Loading...</span>
                         </div>
-                        <div class="col-md-6">
-                            <h6 class="text-purple fw-bold">Status & Dates</h6>
-                            <p><strong>Status:</strong>
-                                <span class="badge <?php echo getStatusClass($project['status']); ?>">
-                                    <?php echo ucfirst(str_replace('_', ' ', $project['status'])); ?>
-                                </span>
-                            </p>
-                            <p><strong>Submitted:</strong> <?php echo formatDate($project['submission_datetime']); ?></p>
-                            <p><strong>Assigned To:</strong>
-                                <?php echo htmlspecialchars(!empty($project['assigned_to']) ? $project['assigned_to'] : 'Not Assigned'); ?>
-                            </p>
-                            <p><strong>Completion Date:</strong>
-                                <?php echo formatDate($project['completion_date']); ?>
-                            </p>
-                        </div>
+                        <p class="mt-2">Loading project details...</p>
                     </div>
-
-                    <div class="mb-4">
-                        <h6 class="text-purple fw-bold">Description</h6>
-                        <div class="p-3 rounded" style="background-color: var(--light-purple);">
-                            <p class="mb-0"><?php echo nl2br(htmlspecialchars($project['description'])); ?></p>
-                        </div>
-                    </div>
-
-                    <?php if ($project['status'] == 'in_progress'): ?>
-                        <div class="mb-4">
-                            <h6 class="text-purple fw-bold">Progress</h6>
-                            <div class="progress" style="height: 10px;">
-                                <div class="progress-bar" role="progressbar" style="width: 65%; background: var(--purple-gradient);"
-                                     aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <small class="text-muted">65% Complete</small>
-                        </div>
-                    <?php endif; ?>
                 </div>
                 <div class="modal-footer">
-                    <a href="edit.php?id=<?php echo $project['id']; ?>" class="btn btn-purple">
+                    <button id="editProjectBtn" class="btn btn-purple" style="display: none;">
                         <i class="fas fa-edit me-1"></i> Edit Project
-                    </a>
+                    </button>
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
-<?php endforeach; ?>
 
-<!-- Bootstrap 5 JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="../../assets/js/list_project.js"></script>
-<script src = "../../assets/js/layout_user.js"></script>
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/list_project.js"></script>
+    <script src="../../assets/js/layout_user.js"></script>
 
-<?php include $basePath . 'layout_footer.php'; ?>
+    <?php include $basePath . 'layout_footer.php'; ?>
+</div>
 </body>
 </html>

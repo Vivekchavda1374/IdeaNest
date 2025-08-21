@@ -3,63 +3,77 @@
 session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Set the timezone for accurate datetime
-    date_default_timezone_set('Asia/Kolkata'); // Change to your timezone
+    // Set the timezone
+    date_default_timezone_set('Asia/Kolkata');
 
     // Collect form data
-    $erNumber = trim($_POST['erNumber']);
-    $projectName = trim($_POST['projectName']);
-    $projectType = $_POST['projectType'];
+    $erNumber       = trim($_POST['erNumber']);
+    $projectName    = trim($_POST['projectName']);
+    $projectType    = $_POST['projectType'];
     $classification = $_POST['classification'];
-    $description = trim($_POST['description']);
-    $priority1 = isset($_POST['priority1']) ? $_POST['priority1'] : 'medium';
-    $status = isset($_POST['status']) ? $_POST['status'] : 'pending';
-    $assignedTo = trim(isset($_POST['assignedTo']) ? $_POST['assignedTo'] : null);
+    $description    = trim($_POST['description']);
+    $priority1      = isset($_POST['priority1']) ? $_POST['priority1'] : 'medium';
+    $status         = isset($_POST['status']) ? $_POST['status'] : 'pending';
+    $assignedTo     = !empty($_POST['assignedTo']) ? trim($_POST['assignedTo']) : null;
     $completionDate = !empty($_POST['completionDate']) ? $_POST['completionDate'] : null;
 
-    // Get current date and time
+    // Get current datetime
     $submissionDateTime = date('Y-m-d H:i:s');
 
-    // Validate the data
-    if (empty($erNumber) || empty($projectName) || empty($projectType) ||
-        empty($classification) || empty($description)) {
+    // ✅ Get logged-in user_id from session (must be set during login)
+    if (!isset($_SESSION['user_id'])) {
+        $error_message = "Error: User not logged in.";
+    } elseif (empty($erNumber) || empty($projectName) || empty($projectType) ||
+            empty($classification) || empty($description)) {
         $error_message = "Error: All required fields must be filled";
     } else {
-        // Database connection parameters
+        // Database connection
         $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "ideanest";
+        $username   = "root";
+        $password   = "";
+        $dbname     = "ideanest";
 
-        // Create database connection
         $conn = new mysqli($servername, $username, $password, $dbname);
 
-        // Check connection
         if ($conn->connect_error) {
             $error_message = "Connection failed: " . $conn->connect_error;
         } else {
-            // Prepare and bind the SQL statement to prevent SQL injection
-            $stmt = $conn->prepare("INSERT INTO blog (er_number, project_name, project_type, classification, description, submission_datetime, priority1, status, assigned_to, completion_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssssssssss", $erNumber, $projectName, $projectType, $classification, $description, $submissionDateTime, $priority1, $status, $assignedTo, $completionDate);
+            // ✅ Insert with user_id (foreign key to register table)
+            $stmt = $conn->prepare("INSERT INTO blog 
+                (er_number, project_name, project_type, classification, description, submission_datetime, priority1, status, assigned_to, completion_date, user_id) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-            // Execute the statement
+            $stmt->bind_param("ssssssssssi",
+                    $erNumber,
+                    $projectName,
+                    $projectType,
+                    $classification,
+                    $description,
+                    $submissionDateTime,
+                    $priority1,
+                    $status,
+                    $assignedTo,
+                    $completionDate,
+                    $_SESSION['user_id']   // ✅ logged-in user
+            );
+
             if ($stmt->execute()) {
                 $success_message = "Project submitted successfully on " . $submissionDateTime;
                 $project_id = $conn->insert_id;
-                // Clear form data after successful submission
+
+                // Clear form values
                 $erNumber = $projectName = $projectType = $classification = $description = $assignedTo = $completionDate = "";
             } else {
                 $error_message = "Error: " . $stmt->error;
             }
 
-            // Close statement and connection
             $stmt->close();
             $conn->close();
-            
         }
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
