@@ -16,7 +16,7 @@ if (isset($_GET['get_project_details']) && $_GET['get_project_details'] == '1') 
 
 include $basePath . 'layout.php';
 
-// AJAX handler function for project details
+// AJAX handler function for project details - REMOVED ALERT
 function handleProjectDetailsRequest() {
     header('Content-Type: application/json');
 
@@ -54,7 +54,7 @@ function handleProjectDetailsRequest() {
         $current_user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
         $can_edit = ($current_user_id && $current_user_id == $project['user_id']);
 
-        // Format the response
+        // Format the response - NO ALERT, JUST RETURN DATA
         $response = [
                 'success' => true,
                 'project' => [
@@ -76,9 +76,13 @@ function handleProjectDetailsRequest() {
                 ]
         ];
 
+        // Return JSON response without any alerts
         echo json_encode($response);
 
     } catch (Exception $e) {
+        // Log the error instead of showing alert
+        error_log("Project details error: " . $e->getMessage());
+
         $response = [
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
