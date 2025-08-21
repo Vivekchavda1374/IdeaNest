@@ -117,27 +117,100 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $filename = $_FILES['user_image']['name'];
             $filetype = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
-            if (in_array($filetype, $allowed)) {
+            // Check file size (5MB max)
+            $max_size = 5 * 1024 * 1024;
+            if ($_FILES['user_image']['size'] > $max_size) {
+                $errors[] = "File size must be less than 5MB";
+            } elseif (in_array($filetype, $allowed)) {
                 $temp_name = $_FILES['user_image']['tmp_name'];
                 $new_filename = uniqid('profile_') . '.' . $filetype;
-                $upload_dir = 'forms/uploads/images/';
 
-                if (!is_dir($upload_dir)) {
-                    mkdir($upload_dir, 0777, true);
+                // Get current directory and try different paths
+                $current_dir = getcwd();
+                $document_root = $_SERVER['DOCUMENT_ROOT'] ?? '';
+                $script_dir = dirname(__FILE__);
+
+                $upload_dirs = [
+                        $current_dir . '/uploads/',
+                        $current_dir . '/images/',
+                        $current_dir . '/',
+                        $script_dir . '/uploads/',
+                        $script_dir . '/images/',
+                        $script_dir . '/',
+                        sys_get_temp_dir() . '/profile_uploads/',
+                        '/tmp/profile_uploads/',
+                        $document_root . '/uploads/',
+                        $document_root . '/images/',
+                        dirname($current_dir) . '/uploads/',
+                        dirname($current_dir) . '/images/'
+                ];
+
+                $upload_success = false;
+                $final_upload_path = '';
+
+                foreach ($upload_dirs as $upload_dir) {
+                    // Normalize path
+                    $upload_dir = rtrim($upload_dir, '/') . '/';
+
+                    // Skip if directory path is empty
+                    if (empty(trim($upload_dir, '/'))) continue;
+
+                    // Try to create directory
+                    if (!is_dir($upload_dir)) {
+                        @mkdir($upload_dir, 0755, true);
+                        @chmod($upload_dir, 0755);
+                    }
+
+                    // Check if we can write to this directory
+                    $test_file = $upload_dir . 'test_write_' . uniqid() . '.tmp';
+                    if (@file_put_contents($test_file, 'test') !== false) {
+                        @unlink($test_file); // Clean up test file
+
+                        $upload_path = $upload_dir . $new_filename;
+
+                        if (@move_uploaded_file($temp_name, $upload_path)) {
+                            @chmod($upload_path, 0644);
+
+                            // Store relative path for database
+                            $relative_path = str_replace($current_dir . '/', '', $upload_dir);
+                            $final_upload_path = $relative_path;
+
+                            // Delete old image if exists
+                            if (!empty($user['user_image'])) {
+                                $old_file_found = false;
+                                foreach ($upload_dirs as $old_dir) {
+                                    $old_dir = rtrim($old_dir, '/') . '/';
+                                    if (file_exists($old_dir . $user['user_image'])) {
+                                        @unlink($old_dir . $user['user_image']);
+                                        $old_file_found = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            $update_fields[] = "user_image = ?";
+                            $types .= "s";
+                            $params[] = $new_filename;
+                            $upload_success = true;
+                            break;
+                        }
+                    }
                 }
 
-                $upload_path = $upload_dir . $new_filename;
-
-                if (move_uploaded_file($temp_name, $upload_path)) {
-                    // Delete old image if exists
-                    if (!empty($user['user_image']) && file_exists($upload_dir . $user['user_image'])) {
-                        unlink($upload_dir . $user['user_image']);
+                if (!$upload_success) {
+                    // As a last resort, try to save as base64 in database
+                    $image_data = file_get_contents($temp_name);
+                    if ($image_data !== false) {
+                        $base64_image = 'data:image/' . $filetype . ';base64,' . base64_encode($image_data);
+                        $update_fields[] = "user_image = ?";
+                        $types .= "s";
+                        $params[] = $base64_image;
+                        $upload_success = true;
                     }
-                    $update_fields[] = "user_image = ?";
-                    $types .= "s";
-                    $params[] = $new_filename;
-                } else {
-                    $errors[] = "Failed to upload image";
+                }
+
+                if (!$upload_success) {
+                    $errors[] = "Upload failed. Please contact administrator.";
                 }
             } else {
                 $errors[] = "Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed";
@@ -151,22 +224,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $sql = "UPDATE register SET " . implode(", ", $update_fields) . " WHERE id = ?";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param($types, ...$params);
 
-            if ($stmt->execute()) {
-                $success = "Profile updated successfully";
+            if ($stmt->bind_param($types, ...$params)) {
+                if ($stmt->execute()) {
+                    $success = "Profile updated successfully";
 
-                // Refresh user data
-                $query = "SELECT * FROM register WHERE id = ?";
-                $stmt = $conn->prepare($query);
-                $stmt->bind_param("i", $user_id);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                $user = $result->fetch_assoc();
+                    // Refresh user data
+                    $query = "SELECT * FROM register WHERE id = ?";
+                    $stmt = $conn->prepare($query);
+                    $stmt->bind_param("i", $user_id);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $user = $result->fetch_assoc();
 
-                $_SESSION['user_name'] = $user['name'];
+                    $_SESSION['user_name'] = $user['name'];
+                } else {
+                    $errors[] = "Error updating profile";
+                }
             } else {
-                $errors[] = "Error updating profile";
+                $errors[] = "Error preparing statement";
             }
         }
     }
@@ -193,7 +269,7 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Settings - IdeaNest</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/user_profile.css">
+    <link rel="stylesheet" href="../assets/css/user_profile.css">
 </head>
 <body>
 <div class="main-content">
@@ -224,10 +300,44 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
         <div class="profile-section">
             <div class="profile-header">
                 <div class="profile-picture-wrapper">
-                    <img src="<?php echo !empty($user['user_image']) ? 'forms/uploads/images/' . htmlspecialchars($user['user_image']) : 'https://ui-avatars.com/api/?name=' . urlencode($user['name']) . '&background=6366f1&color=fff&size=240'; ?>"
-                         alt="Profile Picture"
-                         class="profile-picture"
-                         id="profilePreview">
+                    <?php
+                    $image_path = '';
+                    if (!empty($user['user_image']) && $user['user_image'] !== '') {
+                        // Check if it's base64 data
+                        if (strpos($user['user_image'], 'data:image/') === 0) {
+                            $image_path = $user['user_image'];
+                        } else {
+                            // Check multiple possible image locations
+                            $current_dir = getcwd();
+                            $script_dir = dirname(__FILE__);
+                            $possible_paths = [
+                                    $current_dir . '/uploads/' . htmlspecialchars($user['user_image']),
+                                    $current_dir . '/images/' . htmlspecialchars($user['user_image']),
+                                    $current_dir . '/' . htmlspecialchars($user['user_image']),
+                                    $script_dir . '/uploads/' . htmlspecialchars($user['user_image']),
+                                    $script_dir . '/images/' . htmlspecialchars($user['user_image']),
+                                    $script_dir . '/' . htmlspecialchars($user['user_image']),
+                                    'uploads/' . htmlspecialchars($user['user_image']),
+                                    'images/' . htmlspecialchars($user['user_image']),
+                                    htmlspecialchars($user['user_image'])
+                            ];
+
+                            foreach ($possible_paths as $path) {
+                                if (file_exists($path)) {
+                                    $image_path = $path;
+                                    break;
+                                }
+                            }
+
+                            if (empty($image_path)) {
+                                $image_path = 'https://ui-avatars.com/api/?name=' . urlencode($user['name']) . '&background=6366f1&color=fff&size=240';
+                            }
+                        }
+                    } else {
+                        $image_path = 'https://ui-avatars.com/api/?name=' . urlencode($user['name']) . '&background=6366f1&color=fff&size=240';
+                    }
+                    ?>
+                    <img src="<?php echo $image_path; ?>" alt="Profile Picture" class="profile-picture" id="profilePreview">
                 </div>
                 <div class="profile-info">
                     <h2><?php echo htmlspecialchars($user['name']); ?></h2>
@@ -288,8 +398,7 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
                         <label for="name" class="form-label">Full Name *</label>
                         <div class="input-group">
                             <i class="fas fa-user input-group-icon"></i>
-                            <input type="text" id="name" name="name" class="form-control"
-                                   value="<?php echo htmlspecialchars($user['name']); ?>" required>
+                            <input type="text" id="name" name="name" class="form-control" value="<?php echo htmlspecialchars($user['name']); ?>" required>
                         </div>
                     </div>
 
@@ -297,8 +406,7 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
                         <label for="email" class="form-label">Email Address *</label>
                         <div class="input-group">
                             <i class="fas fa-envelope input-group-icon"></i>
-                            <input type="email" id="email" name="email" class="form-control"
-                                   value="<?php echo htmlspecialchars($user['email']); ?>" required>
+                            <input type="email" id="email" name="email" class="form-control" value="<?php echo htmlspecialchars($user['email']); ?>" required>
                         </div>
                     </div>
 
@@ -306,9 +414,7 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
                         <label for="phone_no" class="form-label">Phone Number</label>
                         <div class="input-group">
                             <i class="fas fa-phone input-group-icon"></i>
-                            <input type="tel" id="phone_no" name="phone_no" class="form-control"
-                                   value="<?php echo htmlspecialchars($user['phone_no'] ?? ''); ?>"
-                                   placeholder="10-digit mobile number">
+                            <input type="tel" id="phone_no" name="phone_no" class="form-control" value="<?php echo htmlspecialchars($user['phone_no'] ?? ''); ?>" placeholder="10-digit mobile number">
                         </div>
                     </div>
 
@@ -347,13 +453,12 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
 
                     <div class="form-group full-width">
                         <label for="about" class="form-label">About Me</label>
-                        <textarea id="about" name="about" class="form-control" rows="4"
-                                  placeholder="Tell us about yourself, your interests, and goals..."><?php echo htmlspecialchars($user['about'] ?? ''); ?></textarea>
+                        <textarea id="about" name="about" class="form-control" rows="4" placeholder="Tell us about yourself, your interests, and goals..."><?php echo htmlspecialchars($user['about'] ?? ''); ?></textarea>
                     </div>
                 </div>
             </div>
 
-            <!-- Academic Information (Read Only) -->
+            <!-- Academic Information -->
             <div class="form-section">
                 <h3 class="section-title">
                     <i class="fas fa-id-card"></i>
@@ -364,8 +469,7 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
                         <label for="enrollment_number" class="form-label">Enrollment Number</label>
                         <div class="input-group">
                             <i class="fas fa-id-badge input-group-icon"></i>
-                            <input type="text" id="enrollment_number" class="form-control"
-                                   value="<?php echo htmlspecialchars($user['enrollment_number']); ?>" readonly>
+                            <input type="text" id="enrollment_number" class="form-control" value="<?php echo htmlspecialchars($user['enrollment_number']); ?>" readonly>
                         </div>
                     </div>
 
@@ -373,8 +477,7 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
                         <label for="gr_number" class="form-label">GR Number</label>
                         <div class="input-group">
                             <i class="fas fa-hashtag input-group-icon"></i>
-                            <input type="text" id="gr_number" class="form-control"
-                                   value="<?php echo htmlspecialchars($user['gr_number']); ?>" readonly>
+                            <input type="text" id="gr_number" class="form-control" value="<?php echo htmlspecialchars($user['gr_number']); ?>" readonly>
                         </div>
                     </div>
                 </div>
@@ -396,9 +499,6 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
                         <div class="input-group">
                             <i class="fas fa-key input-group-icon"></i>
                             <input type="password" id="current_password" name="current_password" class="form-control">
-                            <button type="button" class="toggle-password" data-target="current_password">
-                                <i class="fas fa-eye"></i>
-                            </button>
                         </div>
                     </div>
 
@@ -407,15 +507,6 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
                         <div class="input-group">
                             <i class="fas fa-lock input-group-icon"></i>
                             <input type="password" id="new_password" name="new_password" class="form-control">
-                            <button type="button" class="toggle-password" data-target="new_password">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                        <div class="password-strength" id="passwordStrength" style="display: none;">
-                            <div class="strength-bar">
-                                <div class="strength-fill" id="strengthFill"></div>
-                            </div>
-                            <span id="strengthText"></span>
                         </div>
                     </div>
 
@@ -424,9 +515,6 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
                         <div class="input-group">
                             <i class="fas fa-check-circle input-group-icon"></i>
                             <input type="password" id="confirm_password" name="confirm_password" class="form-control">
-                            <button type="button" class="toggle-password" data-target="confirm_password">
-                                <i class="fas fa-eye"></i>
-                            </button>
                         </div>
                     </div>
                 </div>

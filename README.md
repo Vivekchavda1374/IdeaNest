@@ -10,26 +10,137 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
 
 ## ✨ Key Features
 
-### Student Features
-- **Project Submission:** Submit projects with support for multiple file types (images, videos, code files, PDFs, ZIP).
-- **Project Browsing & Searching:** Browse and search for projects using keywords, categories, and filters.
-- **Personal Bookmarking:** Save favorite projects to a personal bookmarking system.
-- **User Profile Management:** Manage personal profile information.
-- **Submission Tracking:** Track the status of submitted projects.
-- **Blog/List View:** View projects in a blog-style or list format.
+### Student/User Features
+- **Project Management**
+  - Submit new projects with multiple file attachments
+  - Edit existing projects
+  - Track project status (pending/approved/rejected)
+  - View projects in list or blog format
+  - Filter projects by type (software/hardware)
+  - Advanced search functionality
+  
+- **File Management**
+  - Support for multiple file types:
+    - Images (jpg, jpeg, png, gif)
+    - Videos (mp4, avi, mov)
+    - Code files (zip, rar)
+    - Documentation (pdf)
+  - Organized file storage system
+  - Secure file upload handling
+
+- **Profile Management**
+  - Personal information updates
+  - Profile picture management
+  - Academic details management
+  - Password change functionality
+  - View submission history
+
+- **Project Discovery**
+  - Advanced search with multiple filters
+  - Project categorization (software/hardware)
+  - Project classification (web/mobile/IoT etc.)
+  - Bookmark favorite projects
+  - Sort projects by various criteria
 
 ### Admin Features
-- **Project Approval/Rejection:** Review and approve or reject submitted projects.
-- **User Management:** Manage user accounts and roles.
-- **Email Notifications:** Send email notifications using PHPMailer.
-- **System Settings:** Configure system-wide settings.
-- **Sub-Admin Management:** Manage sub-administrator accounts.
-- **Project Notifications:** Handle notifications related to project submissions and approvals.
+- **Project Management**
+  - Review submitted projects
+  - Approve/Reject projects with feedback
+  - Bulk project management
+  - View project statistics
+  - Monitor project submissions
+
+- **User Management**
+  - Manage student accounts
+  - View user activities
+  - Enable/disable user accounts
+  - Reset user passwords
+  - Export user data
+
+- **System Administration**
+  - Configure email settings (SMTP)
+  - Manage system notifications
+  - Monitor system logs
+  - Configure system parameters
+  - Backup management
+
+- **Sub-admin Management**
+  - Add/remove sub-administrators
+  - Assign domain specializations
+  - Monitor sub-admin activities
+  - Review classification requests
+  - Manage permissions
 
 ### Sub-Admin Features
-- **Specialized Project Review:** Review projects within specific domains.
-- **Profile Management:** Manage personal profile information.
-- **Project Assignment:** Handle assigned projects for review.
+- **Domain Management**
+  - Manage specific project domains
+  - Review domain-specific projects
+  - Provide specialized feedback
+  - Track domain statistics
+
+- **Project Review System**
+  - Review assigned projects
+  - Provide detailed feedback
+  - Track review history
+  - Manage project status
+  - Generate review reports
+
+- **Support System**
+  - Create support tickets
+  - Track ticket status
+  - Communicate with admin
+  - View resolution history
+
+- **Profile & Settings**
+  - Manage personal information
+  - Update specialization areas
+  - Configure notification preferences
+  - View activity history
+
+### Communication Features
+- **Notification System**
+  - Email notifications
+  - System notifications
+  - Project status updates
+  - Review notifications
+  - Custom notification templates
+
+- **Support System**
+  - Ticket creation
+  - Priority levels
+  - Status tracking
+  - Response management
+  - Resolution tracking
+
+### Security Features
+- **Authentication**
+  - Secure login system
+  - Role-based access control
+  - Session management
+  - Password encryption
+  - Failed login protection
+
+- **Data Protection**
+  - Input sanitization
+  - SQL injection prevention
+  - XSS protection
+  - CSRF protection
+  - Secure file handling
+
+### Technical Features
+- **Performance**
+  - Lazy loading implementation
+  - Optimized database queries
+  - Caching mechanisms
+  - Efficient file handling
+  - Response optimization
+
+- **Responsive Design**
+  - Mobile-friendly interface
+  - Adaptive layouts
+  - Touch-friendly controls
+  - Flexible grids
+  - Media optimization
 
 ---
 
