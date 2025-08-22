@@ -1,3 +1,75 @@
+<?php
+session_start();
+include 'db.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (!isset($_POST['er_number'], $_POST['password'])) {
+        $error_message = "Invalid form submission";
+    } else {
+        $er_number = $_POST['er_number'];
+        $password = $_POST['password'];
+
+        // Check for admin credentials first
+        if($er_number === "ideanest.ict@gmail.com" && $password === "ideanest133"){
+            // Set admin session variables
+            $_SESSION['user_id'] = 'admin';
+            $_SESSION['er_number'] = $er_number;
+            $_SESSION['user_name'] = 'Administrator';
+            $_SESSION['is_admin'] = true;
+            $_SESSION['admin_logged_in'] = true; // Add this line for admin session validation
+
+            header("Location: ../../Admin/admin.php");
+            exit(); // Stop execution after redirect
+        }
+
+        // If not admin, proceed with regular user login
+        $stmt = $conn->prepare("SELECT id, password, name FROM register WHERE enrollment_number = ? ");
+        $stmt->bind_param("s", $er_number);
+        $stmt->execute();
+        $stmt->store_result();
+
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result($user_id, $hashed_password, $user_name);
+            $stmt->fetch();
+
+            if (password_verify($password, $hashed_password)) {
+                $_SESSION['user_id'] = $user_id;
+                $_SESSION['er_number'] = $er_number;
+                $_SESSION['user_name'] = $user_name;
+                $_SESSION['is_admin'] = false;
+
+                header("Location: ../../user/index.php");
+                exit();
+            } else {
+                $error_message = "Incorrect Password!";
+            }
+        } else {
+            // If not found in register, check subadmins table using email
+            $stmt2 = $conn->prepare("SELECT id, password FROM subadmins WHERE email = ?");
+            $stmt2->bind_param("s", $er_number);
+            $stmt2->execute();
+            $stmt2->store_result();
+            if ($stmt2->num_rows > 0) {
+                $stmt2->bind_result($subadmin_id, $subadmin_hashed_password);
+                $stmt2->fetch();
+                if (password_verify($password, $subadmin_hashed_password)) {
+                    $_SESSION['subadmin_id'] = $subadmin_id;
+                    $_SESSION['subadmin_email'] = $er_number;
+                    $_SESSION['subadmin_logged_in'] = true;
+                    header("Location: ../../Admin/subadmin/dashboard.php");
+                    exit();
+                } else {
+                    $error_message = "Incorrect Password!";
+                }
+            } else {
+                $error_message = "User not found! Please register.";
+            }
+            $stmt2->close();
+        }
+        $stmt->close();
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
