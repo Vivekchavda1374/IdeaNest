@@ -15,18 +15,39 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
   - Submit new projects with multiple file attachments
   - Edit existing projects with real-time validation
   - Track project status (pending/approved/rejected)
-  - View projects in multi-column grid layout
+  - View projects in responsive grid layout (4 columns on desktop)
   - Enhanced filtering and sorting options
   - Advanced search functionality with instant results
   - Bookmark favorite projects for quick access
+  - Real-time like system with animations
+  - Interactive comment system with nested replies
   
 - **Project Display**
-  - Responsive multi-column grid layout
-  - Dynamic project cards with hover effects
-  - Quick view modal for project details
+  - Modern card-based layout with smooth transitions
+  - Responsive grid system:
+    - 4 cards per row on large screens
+    - 3 cards per row on medium screens
+    - 2 cards per row on tablets
+    - 1 card per row on mobile
+  - Dynamic project cards with:
+    - Hover effects and animations
+    - Like/bookmark functionality
+    - Quick view options
+    - Loading states
   - Project classification badges
   - Project ownership indicators
   - Progress tracking and status updates
+
+- **Interactive Features**
+  - Real-time like system with animations
+  - Comment system with:
+    - Nested replies
+    - Real-time updates
+    - Markdown support
+    - Emoji support
+  - Social sharing options
+  - Project bookmarking
+  - Quick actions menu
 
 - **File Management**
   - Support for multiple file types:
@@ -37,6 +58,7 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
   - Real-time upload progress
   - File type validation
   - Secure file storage
+  - Preview functionality
 
 - **User Interface**
   - Modern responsive design
@@ -45,6 +67,8 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
   - Dark/Light theme support
   - Mobile-friendly interface
   - Accessibility features
+  - Loading states and error handling
+  - Toast notifications
 
 ### Admin Features
 - **Project Review System**
@@ -52,12 +76,14 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
   - Batch project processing
   - Detailed project analytics
   - Comment and feedback system
+  - Activity monitoring
   
 - **User Management**
   - Comprehensive user control
   - Role-based access control
   - User activity monitoring
   - Profile management
+  - Bulk actions support
 
 ### Sub-Admin Features
 - **Project Assignment**
@@ -65,6 +91,7 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
   - Task tracking
   - Progress monitoring
   - Team collaboration tools
+  - Performance analytics
 
 ### Security Features
 - **Authentication & Authorization**
@@ -74,6 +101,8 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
   - Password encryption
   - XSS protection
   - CSRF protection
+  - Rate limiting
+  - Input validation
 
 ### Technical Features
 - **Performance**
@@ -82,12 +111,25 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
   - Lazy loading for images
   - Minified assets
   - Compressed resources
+  - AJAX-based interactions
+  - Debounced search
+  - Throttled API calls
 
 - **Responsive Design**
   - Mobile-first approach
   - Cross-browser compatibility
   - Flexible grid system
   - Adaptive layouts
+  - Touch-friendly interfaces
+  - Progressive enhancement
+
+### Error Handling
+- Graceful error recovery
+- User-friendly error messages
+- Offline support
+- Auto-retry mechanisms
+- Form validation
+- Data persistence
 
 ---
 
@@ -100,78 +142,80 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
 - Composer for dependency management
 
 ### Installation
+
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/IdeaNest.git
-   ```
+```bash
+git clone https://github.com/yourusername/IdeaNest.git
+```
 
 2. Install dependencies:
-   ```bash
-   composer install
-   ```
+```bash
+composer install
+```
 
-3. Configure database:
-   - Import SQL files from `/db` directory
-   - Update database credentials in `/Login/Login/db.php`
+3. Set up database:
+- Create a new MySQL database
+- Import the SQL files from the `db` folder
+- Configure database connection in `Login/Login/db.php`
 
-4. Configure email settings:
-   - Update SMTP credentials in configuration
-   - Test email functionality
+4. Configure web server:
+- Point your web server to the project directory
+- Ensure proper permissions for uploads folders
 
-5. Set up file permissions:
-   ```bash
-   chmod 755 -R user/forms/uploads/
-   ```
-
-### Configuration
-1. Database Setup:
-   - Create required databases
-   - Import schema from `/db/ideanest.sql`
-   - Configure connection settings
-
-2. Environment Setup:
-   - Configure Apache virtual host
-   - Set up SSL certificate (recommended)
-   - Configure file upload limits
+5. Start using the application:
+- Navigate to the project URL
+- Register a new account or log in
+- Start exploring features
 
 ---
 
-## 📖 Documentation
+## 🛠 Development
 
-### User Guide
-- Project submission guidelines
-- File upload specifications
-- Search and filter usage
-- Bookmark management
-- Profile customization
+### Building Assets
+```bash
+# Install dependencies
+npm install
 
-### Admin Guide
-- Project approval workflow
-- User management procedures
-- System configuration
-- Reporting features
+# Build assets
+npm run build
+```
 
-### Developer Guide
-- Code structure
-- API documentation
-- Database schema
-- Security implementations
+### Running Tests
+```bash
+# Run PHPUnit tests
+./vendor/bin/phpunit
+
+# Run JavaScript tests
+npm test
+```
+
+### Coding Standards
+- Follow PSR-12 coding standard
+- Use ESLint for JavaScript
+- Run code quality checks:
+```bash
+composer check-style
+composer fix-style
+```
 
 ---
 
-## 🔒 Security
-
-See [SECURITY.md](SECURITY.md) for security policy and reporting vulnerabilities.
-
----
-
-## 🤝 Contributing
+## 📝 Contributing
 
 1. Fork the repository
-2. Create feature branch
-3. Commit changes
-4. Push to branch
-5. Open pull request
+2. Create your feature branch:
+```bash
+git checkout -b feature/AmazingFeature
+```
+3. Commit your changes:
+```bash
+git commit -m 'Add some AmazingFeature'
+```
+4. Push to the branch:
+```bash
+git push origin feature/AmazingFeature
+```
+5. Open a Pull Request
 
 ---
 
@@ -181,30 +225,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 👥 Team
+## 🙏 Acknowledgments
 
-- Project Lead: [Name]
-- Frontend Developer: [Name]
-- Backend Developer: [Name]
-- Database Administrator: [Name]
-- UI/UX Designer: [Name]
-
----
-
-## 🔄 Updates & Changelog
-
-### Latest Updates (August 2025)
-- Implemented multi-column grid layout for projects
-- Enhanced bookmark functionality
-- Added real-time project updates
-- Improved mobile responsiveness
-- Enhanced search capabilities
-- Added project filtering options
-- Improved user interface animations
-- Enhanced security features
+- PHP community
+- Bootstrap team
+- Font Awesome
+- All contributors
 
 ---
 
 ## 📞 Support
 
-For support, please contact [ideanest.ict@gmail.com](mailto:ideanest.ict@gmail.com)
+For support, email support@ideanest.com or join our Discord channel.
