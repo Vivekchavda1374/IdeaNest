@@ -7,16 +7,12 @@
     <title>IdeaNest - Academic Project Management Platform</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Previous CSS code remains the same */
-
-        /* Add these new styles to fix the testimonials */
         .testimonial-card.animate {
             opacity: 1;
             transform: translateY(0);
             transition: all 0.6s ease;
         }
 
-        /* Ensure the cards are initially hidden for animation */
         .testimonial-card {
             opacity: 0;
             transform: translateY(30px);
@@ -38,12 +34,9 @@
     </style>
 </head>
 <body>
-<!-- Your HTML content remains the same -->
 
 <script>
-    // Previous JavaScript code remains the same
 
-    // Update the Intersection Observer to add the 'animate' class
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
