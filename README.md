@@ -207,4 +207,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, please contact [support@ideanest.com](mailto:support@ideanest.com)
+For support, please contact [ideanest.ict@gmail.com](mailto:ideanest.ict@gmail.com)
