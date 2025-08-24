@@ -2,14 +2,30 @@
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 if (!isset($basePath)) { $basePath = './'; }
 
-// Get user info from session
-$user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "User";
-$user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "U";
-$user_email = isset($_SESSION['email']) ? $_SESSION['email'] : "user@example.com";
+
 
 // DB connection for stats
 include_once dirname(__DIR__) . '/Login/Login/db.php';
 $user_id = session_id();
+// Get user info from session and database
+$user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "User";
+$user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "U";
+
+$user_email = "user@example.com";
+
+if (isset($conn)) {
+    $email_found = false;
+    if (!$email_found && isset($_SESSION['user_name'])) {
+        $stmt = $conn->prepare("SELECT email FROM register WHERE name = ?");
+        $stmt->bind_param("s", $_SESSION['user_name']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $user_email = $row['email'];
+        }
+        $stmt->close();
+    }
+}
 $bookmark_count = 0;
 if (isset($conn)) {
     $stmt = $conn->prepare("SELECT COUNT(*) FROM bookmark WHERE user_id = ?");
