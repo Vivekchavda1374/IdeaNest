@@ -4,7 +4,29 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully" />
+    <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully">
+      <change afterPath="$PROJECT_DIR$/user/download.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_17_25,_5_21 PM_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_8_17_25__5_21PM__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/all_project.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/all_projects.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/all_projects.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/uploads/code_files/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/uploads/code_files/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/uploads/code_files/AWT_MU_2425-master (1).zip" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/uploads/code_files/AWT_MU_2425-master (1).zip" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/uploads/images/50.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/uploads/images/50.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/uploads/images/CP CLUB.png" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/uploads/images/CP CLUB.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/uploads/images/IdeaNest_Deployment_Diagram (1).png" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/uploads/images/IdeaNest_Deployment_Diagram (1).png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/uploads/images/Screenshot 2025-03-01 125741.png" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/uploads/images/Screenshot 2025-03-01 125741.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/uploads/images/WhatsApp Image 2025-03-01 at 13.13.29_3991b76d.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/uploads/images/WhatsApp Image 2025-03-01 at 13.13.29_3991b76d.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/uploads/images/image_1.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/uploads/images/image_1.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/uploads/images/myqr.png" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/uploads/images/myqr.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/uploads/images/unnamed.png" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/uploads/images/unnamed.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/uploads/instructions/11.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/uploads/instructions/11.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/uploads/instructions/OT (1).pdf" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/uploads/instructions/OT (1).pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/uploads/instructions/Using_Artificial_Intelligence_in_Source_Code_Summa.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/uploads/instructions/Using_Artificial_Intelligence_in_Source_Code_Summa.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/uploads/videos/2024-04-13 13-46-30.mp4" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/uploads/videos/2024-04-13 13-46-30.mp4" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/uploads/videos/2278095-hd_1920_1080_30fps.mp4" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/uploads/videos/2278095-hd_1920_1080_30fps.mp4" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -68,9 +90,8 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/assets/css/all_project.css" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/assets/css/index.css" root0="SKIP_INSPECTION" />
-    <setting file="file://$PROJECT_DIR$/assets/css/style.css" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/user/forms/uploads/.htaccess" root0="SKIP_INSPECTION" />
   </component>
   <component name="PhpDebugGeneral" listening_started="true" />
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="/bin/php">
@@ -233,7 +254,10 @@
       <workItem from="1755700668819" duration="6511000" />
       <workItem from="1755749883369" duration="12608000" />
       <workItem from="1755786391513" duration="777000" />
-      <workItem from="1755838235110" duration="4606000" />
+      <workItem from="1755838235110" duration="5007000" />
+      <workItem from="1755846069411" duration="5989000" />
+      <workItem from="1756008022325" duration="11386000" />
+      <workItem from="1756039239829" duration="5134000" />
     </task>
     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
       <option name="closed" value="true" />

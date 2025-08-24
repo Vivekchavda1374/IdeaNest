@@ -1,0 +1,12 @@
+<FilesMatch "\.(pdf|zip|rar|7z|doc|docx|ppt|pptx|jpg|jpeg|png|gif|mp4|avi|mov)$">
+    Require all granted
+    Header set Cache-Control "public, max-age=3600"
+</FilesMatch>
+
+# Set proper MIME types
+AddType application/pdf .pdf
+AddType application/zip .zip
+AddType application/x-rar-compressed .rar
+
+Options -Indexes
+
