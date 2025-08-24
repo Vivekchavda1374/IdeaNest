@@ -25,7 +25,7 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
 - **Project Display**
   - Modern card-based layout with smooth transitions
   - Responsive grid system:
-    - 4 cards per row on large screens
+    - 4-5 cards per row on large screens
     - 3 cards per row on medium screens
     - 2 cards per row on tablets
     - 1 card per row on mobile
@@ -46,7 +46,7 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
     - Markdown support
     - Emoji support
   - Social sharing options
-  - Project bookmarking
+  - Enhanced bookmarking system with categories
   - Quick actions menu
 
 - **File Management**
@@ -61,7 +61,7 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
   - Preview functionality
 
 - **User Interface**
-  - Modern responsive design
+  - Modern responsive design with glassmorphism effects
   - Intuitive navigation
   - Smooth animations and transitions
   - Dark/Light theme support
