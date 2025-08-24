@@ -6,22 +6,37 @@
 
 IdeaNest is a web-based platform designed to facilitate the management, sharing, and review of academic projects. It provides a comprehensive suite of features for students, sub-admins, and administrators, streamlining the project lifecycle from submission to approval.
 
----
+## ✨ Latest Updates
 
-## ✨ Key Features
+### Enhanced User Interactions (August 2025)
+- Real-time like and bookmark functionality with AJAX
+- Instant visual feedback for user actions
+- Improved error handling and user notifications
+- Smooth animations for interaction states
+- Toast notifications for action confirmations
 
-### Student/User Features
-- **Project Management**
-  - Submit new projects with multiple file attachments
-  - Edit existing projects with real-time validation
-  - Track project status (pending/approved/rejected)
-  - View projects in responsive grid layout (4 columns on desktop)
-  - Enhanced filtering and sorting options
-  - Advanced search functionality with instant results
-  - Bookmark favorite projects for quick access
-  - Real-time like system with animations
-  - Interactive comment system with nested replies
-  
+## 🚀 Features
+
+### Project Management
+- Submit new projects with multiple file attachments
+- Edit existing projects with real-time validation
+- Track project status (pending/approved/rejected)
+- View projects in responsive grid layout (4-5 columns on desktop)
+
+### Interactive Features
+- Real-time AJAX-based like system
+  - Instant like count updates
+  - Animated button states
+  - Error handling with toast notifications
+- Enhanced bookmark system
+  - Real-time state updates
+  - Visual feedback animations
+  - Category-based organization
+- Dynamic comment system
+  - Nested replies
+  - Like functionality
+  - Real-time updates
+
 - **Project Display**
   - Modern card-based layout with smooth transitions
   - Responsive grid system:
@@ -37,17 +52,6 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
   - Project classification badges
   - Project ownership indicators
   - Progress tracking and status updates
-
-- **Interactive Features**
-  - Real-time like system with animations
-  - Comment system with:
-    - Nested replies
-    - Real-time updates
-    - Markdown support
-    - Emoji support
-  - Social sharing options
-  - Enhanced bookmarking system with categories
-  - Quick actions menu
 
 - **File Management**
   - Support for multiple file types:
@@ -236,4 +240,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email support@ideanest.com or join our Discord channel.
+For support, email ideanest.ict@gmail.com or join our Discord channel.
