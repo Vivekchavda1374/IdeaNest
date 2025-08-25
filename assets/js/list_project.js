@@ -284,6 +284,112 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    // Load More Button Functionality
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const projectsGrid = document.getElementById('projectsGrid');
+
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function() {
+            const currentPage = parseInt(this.getAttribute('data-page'));
+
+            // Show loading state
+            loadMoreBtn.style.display = 'none';
+            loadingSpinner.style.display = 'flex';
+
+            // Get current filter parameters from the URL or form
+            const urlParams = new URLSearchParams(window.location.search);
+            const filterParams = new URLSearchParams();
+
+            // Add existing filters
+            if (urlParams.get('type')) filterParams.set('type', urlParams.get('type'));
+            if (urlParams.get('status')) filterParams.set('status', urlParams.get('status'));
+            if (urlParams.get('priority')) filterParams.set('priority', urlParams.get('priority'));
+            if (urlParams.get('search')) filterParams.set('search', urlParams.get('search'));
+
+            // Add pagination and AJAX parameters
+            filterParams.set('ajax', '1');
+            filterParams.set('page', currentPage);
+
+            // Make AJAX request
+            fetch(window.location.pathname + '?' + filterParams.toString())
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.html) {
+                        // Append new projects to the grid
+                        projectsGrid.insertAdjacentHTML('beforeend', data.html);
+
+                        // Setup view details buttons for new projects
+                        setupViewDetailsButtons();
+
+                        // Update pagination info if available
+                        const paginationInfo = document.querySelector('.pagination-info');
+                        if (paginationInfo && data.paginationInfo) {
+                            paginationInfo.textContent = data.paginationInfo;
+                        }
+
+                        // Update load more button
+                        if (data.hasMore) {
+                            loadMoreBtn.setAttribute('data-page', data.nextPage);
+                            loadMoreBtn.style.display = 'block';
+                        } else {
+                            // No more projects to load
+                            loadMoreBtn.style.display = 'none';
+
+                            // Show "all loaded" message
+                            const allLoadedMsg = document.createElement('div');
+                            allLoadedMsg.className = 'text-center mt-3 text-muted';
+                            allLoadedMsg.innerHTML = '<small><i class="fas fa-check-circle me-1"></i>All projects loaded</small>';
+                            loadingSpinner.parentNode.insertBefore(allLoadedMsg, loadingSpinner);
+                        }
+                    } else {
+                        // Handle error
+                        console.error('Error loading more projects:', data.message);
+                        showErrorMessage('Failed to load more projects. Please try again.');
+                        loadMoreBtn.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Network error:', error);
+                    showErrorMessage('Network error. Please check your connection and try again.');
+                    loadMoreBtn.style.display = 'block';
+                })
+                .finally(() => {
+                    // Hide loading spinner
+                    loadingSpinner.style.display = 'none';
+                });
+        });
+    }
+
+    // Helper function to show error messages
+    function showErrorMessage(message) {
+        // Remove existing error messages
+        const existingErrors = document.querySelectorAll('.load-more-error');
+        existingErrors.forEach(error => error.remove());
+
+        // Create and show new error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-warning alert-dismissible fade show load-more-error mt-3';
+        errorDiv.innerHTML = `
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        if (loadMoreBtn) {
+            loadMoreBtn.parentNode.insertBefore(errorDiv, loadMoreBtn);
+        } else {
+            projectsGrid.parentNode.appendChild(errorDiv);
+        }
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.remove();
+            }
+        }, 5000);
+    }
+
     // Helper functions
     function getProgressInfo(status) {
         const progressMap = {
