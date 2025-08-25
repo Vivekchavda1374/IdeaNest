@@ -409,9 +409,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             <i class="bi bi-list"></i>
         </button>
         <h1 class="page-title">Projects Management</h1>
-        <div class="topbar-actions">
 
-        </div>
     </div>
 
     <!-- Alert Messages -->
@@ -438,7 +436,207 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                     <i class="bi bi-arrow-left me-1"></i> Back to Projects
                 </a>
             </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="project-details">
+                            <div class="project-detail-label">Project Name:</div>
+                            <div class="project-detail-value"><?php echo htmlspecialchars($project['project_name']); ?></div>
 
+                            <div class="project-detail-label">Project Type:</div>
+                            <div class="project-detail-value"><?php echo htmlspecialchars($project['project_type']); ?></div>
+
+                            <div class="project-detail-label">Classification:</div>
+                            <div class="project-detail-value"><?php echo htmlspecialchars($project['classification'] ?? 'N/A'); ?></div>
+
+                            <div class="project-detail-label">Project Category:</div>
+                            <div class="project-detail-value"><?php echo htmlspecialchars($project['project_category'] ?? 'N/A'); ?></div>
+
+                            <div class="project-detail-label">Difficulty Level:</div>
+                            <div class="project-detail-value">
+                                <?php if($project['difficulty_level']): ?>
+                                    <span class="badge bg-info"><?php echo ucfirst($project['difficulty_level']); ?></span>
+                                <?php else: ?>
+                                    N/A
+                                <?php endif; ?>
+                            </div>
+
+                            <div class="project-detail-label">Development Time:</div>
+                            <div class="project-detail-value"><?php echo htmlspecialchars($project['development_time'] ?? 'N/A'); ?></div>
+
+                            <div class="project-detail-label">Team Size:</div>
+                            <div class="project-detail-value"><?php echo htmlspecialchars($project['team_size'] ?? 'N/A'); ?></div>
+
+                            <div class="project-detail-label">Language:</div>
+                            <div class="project-detail-value"><?php echo htmlspecialchars($project['language']); ?></div>
+
+                            <div class="project-detail-label">Submitted By:</div>
+                            <div class="project-detail-value">User #<?php echo htmlspecialchars($project['user_id']); ?></div>
+
+                            <div class="project-detail-label">Submission Date:</div>
+                            <div class="project-detail-value"><?php echo date('F j, Y, g:i a', strtotime($project['submission_date'])); ?></div>
+
+                            <div class="project-detail-label">Status:</div>
+                            <div class="project-detail-value">
+                            <span class="badge bg-<?php echo $project['status'] == 'pending' ? 'warning' : ($project['status'] == 'approved' ? 'success' : 'danger'); ?>">
+                                <?php echo ucfirst($project['status']); ?>
+                            </span>
+                            </div>
+
+                            <?php if($project['project_license']): ?>
+                                <div class="project-detail-label">License:</div>
+                                <div class="project-detail-value"><?php echo htmlspecialchars($project['project_license']); ?></div>
+                            <?php endif; ?>
+
+                            <?php if($project['contact_email']): ?>
+                                <div class="project-detail-label">Contact Email:</div>
+                                <div class="project-detail-value">
+                                    <a href="mailto:<?php echo htmlspecialchars($project['contact_email']); ?>">
+                                        <?php echo htmlspecialchars($project['contact_email']); ?>
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="project-detail-label">Description:</div>
+                        <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['description'])); ?></div>
+
+                        <?php if($project['target_audience']): ?>
+                            <div class="project-detail-label">Target Audience:</div>
+                            <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['target_audience'])); ?></div>
+                        <?php endif; ?>
+
+                        <?php if($project['project_goals']): ?>
+                            <div class="project-detail-label">Project Goals:</div>
+                            <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['project_goals'])); ?></div>
+                        <?php endif; ?>
+
+                        <?php if($project['challenges_faced']): ?>
+                            <div class="project-detail-label">Challenges Faced:</div>
+                            <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['challenges_faced'])); ?></div>
+                        <?php endif; ?>
+
+                        <?php if($project['future_enhancements']): ?>
+                            <div class="project-detail-label">Future Enhancements:</div>
+                            <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['future_enhancements'])); ?></div>
+                        <?php endif; ?>
+
+                        <?php if($project['keywords']): ?>
+                            <div class="project-detail-label">Keywords:</div>
+                            <div class="project-detail-value">
+                                <?php
+                                $keywords = explode(',', $project['keywords']);
+                                foreach($keywords as $keyword):
+                                    ?>
+                                    <span class="badge bg-light text-dark me-1"><?php echo trim(htmlspecialchars($keyword)); ?></span>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if($project['github_repo']): ?>
+                            <div class="project-detail-label">GitHub Repository:</div>
+                            <div class="project-detail-value mb-3">
+                                <a href="<?php echo htmlspecialchars($project['github_repo']); ?>" class="btn btn-sm btn-outline-dark" target="_blank">
+                                    <i class="bi bi-github me-1"></i> View Repository
+                                </a>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if($project['live_demo_url']): ?>
+                            <div class="project-detail-label">Live Demo:</div>
+                            <div class="project-detail-value mb-3">
+                                <a href="<?php echo htmlspecialchars($project['live_demo_url']); ?>" class="btn btn-sm btn-outline-success" target="_blank">
+                                    <i class="bi bi-globe me-1"></i> View Live Demo
+                                </a>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if($project['social_links']): ?>
+                            <div class="project-detail-label">Social Links:</div>
+                            <div class="project-detail-value mb-3">
+                                <?php
+                                $social_links = json_decode($project['social_links'], true);
+                                if($social_links && is_array($social_links)):
+                                    foreach($social_links as $platform => $url):
+                                        ?>
+                                        <a href="<?php echo htmlspecialchars($url); ?>" class="btn btn-sm btn-outline-info me-1" target="_blank">
+                                            <i class="bi bi-<?php echo strtolower($platform); ?> me-1"></i> <?php echo ucfirst($platform); ?>
+                                        </a>
+                                    <?php
+                                    endforeach;
+                                else:
+                                    echo nl2br(htmlspecialchars($project['social_links']));
+                                endif;
+                                ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if(!empty($project['image_path'])): ?>
+                            <div class="project-detail-label">Project Image:</div>
+                            <div class="project-detail-value">
+                                <img src="<?php echo htmlspecialchars($project['image_path']); ?>" alt="Project Image" class="img-fluid mb-3" style="max-height: 200px;">
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if(!empty($project['video_path'])): ?>
+                            <div class="project-detail-label">Project Video:</div>
+                            <div class="project-detail-value mb-3">
+                                <a href="<?php echo htmlspecialchars($project['video_path']); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="bi bi-play-circle me-1"></i> View Video
+                                </a>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if(!empty($project['code_file_path'])): ?>
+                            <div class="project-detail-label">Code Files:</div>
+                            <div class="project-detail-value mb-3">
+                                <a href="<?php echo htmlspecialchars($project['code_file_path']); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="bi bi-code-slash me-1"></i> Download Code
+                                </a>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if(!empty($project['instruction_file_path'])): ?>
+                            <div class="project-detail-label">Instructions:</div>
+                            <div class="project-detail-value mb-3">
+                                <a href="<?php echo htmlspecialchars($project['instruction_file_path']); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="bi bi-file-text me-1"></i> View Instructions
+                                </a>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if(!empty($project['presentation_file_path'])): ?>
+                            <div class="project-detail-label">Presentation:</div>
+                            <div class="project-detail-value mb-3">
+                                <a href="<?php echo htmlspecialchars($project['presentation_file_path']); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="bi bi-file-slides me-1"></i> View Presentation
+                                </a>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if(!empty($project['additional_files_path'])): ?>
+                            <div class="project-detail-label">Additional Files:</div>
+                            <div class="project-detail-value mb-3">
+                                <a href="<?php echo htmlspecialchars($project['additional_files_path']); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="bi bi-file-earmark me-1"></i> Download Files
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <?php if($project['status'] == 'pending'): ?>
+                    <div class="d-flex justify-content-center mt-4">
+                        <a href="admin_view_project.php?action=approve&id=<?php echo $project['id']; ?>" class="btn btn-success me-2" onclick="return confirm('Are you sure you want to approve this project?')">
+                            <i class="bi bi-check-circle me-1"></i> Approve Project
+                        </a>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectProjectModal">
+                            <i class="bi bi-x-circle me-1"></i> Reject Project
+                        </button>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
 
         <!-- Reject Project Modal -->
@@ -466,7 +664,6 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             </div>
         </div>
     <?php else: ?>
-
 
         <!-- View Switcher Tabs -->
         <ul class="nav nav-tabs mb-4">
