@@ -27,10 +27,10 @@ if(isset($_GET['action']) && isset($_GET['id'])) {
     $project_id = $_GET['id'];
     $action = $_GET['action'];
 
-    // View project
+    // View project - Updated to include all columns
     if($action == 'view') {
-        // Get project details
-        $query = "SELECT * FROM admin_approved_projects WHERE id = ?";
+        // Get project details with all columns
+        $query = "SELECT * FROM projects WHERE id = ?";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("i", $project_id);
         $stmt->execute();
@@ -58,9 +58,9 @@ if(isset($_POST['reject_submit'])) {
     rejectProject($project_id, $rejection_reason, $conn);
 }
 
-// Function to approve a project
+// Enhanced function to approve a project with all columns
 function approveProject($project_id, $conn) {
-    // Get project details
+    // Get project details with all columns
     $query = "SELECT * FROM projects WHERE id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $project_id);
@@ -70,26 +70,46 @@ function approveProject($project_id, $conn) {
     if($result->num_rows > 0) {
         $project = $result->fetch_assoc();
 
-        // Insert into approved projects table
+        // Insert into approved projects table with all columns
         $approve_query = "INSERT INTO admin_approved_projects (
-            project_name, project_type, classification, description, 
-            language, image_path, video_path, code_file_path, 
-            instruction_file_path, submission_date, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')";
+            user_id, project_name, project_type, classification, project_category,
+            difficulty_level, development_time, team_size, target_audience, project_goals,
+            challenges_faced, future_enhancements, github_repo, live_demo_url, project_license,
+            keywords, contact_email, social_links, description, language, 
+            image_path, video_path, code_file_path, instruction_file_path,
+            presentation_file_path, additional_files_path, submission_date, status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')";
 
         $approve_stmt = $conn->prepare($approve_query);
         $approve_stmt->bind_param(
-            "ssssssssss",
-            $project['project_name'],
-            $project['project_type'],
-            $project['classification'],
-            $project['description'],
-            $project['language'],
-            $project['image_path'],
-            $project['video_path'],
-            $project['code_file_path'],
-            $project['instruction_file_path'],
-            $project['submission_date']
+                "ssssssssssssssssssssssssss",
+                $project['user_id'],
+                $project['project_name'],
+                $project['project_type'],
+                $project['classification'],
+                $project['project_category'],
+                $project['difficulty_level'],
+                $project['development_time'],
+                $project['team_size'],
+                $project['target_audience'],
+                $project['project_goals'],
+                $project['challenges_faced'],
+                $project['future_enhancements'],
+                $project['github_repo'],
+                $project['live_demo_url'],
+                $project['project_license'],
+                $project['keywords'],
+                $project['contact_email'],
+                $project['social_links'],
+                $project['description'],
+                $project['language'],
+                $project['image_path'],
+                $project['video_path'],
+                $project['code_file_path'],
+                $project['instruction_file_path'],
+                $project['presentation_file_path'],
+                $project['additional_files_path'],
+                $project['submission_date']
         );
 
         $approve_stmt->execute();
@@ -102,9 +122,9 @@ function approveProject($project_id, $conn) {
 
         // Send email notification
         $email_options = [
-            'subject' => 'Congratulations! Your Project "' . $project['project_name'] . '" Has Been Approved',
-            'custom_text' => 'As an approved project creator, you now have access to our developer resources and community forums where you can showcase your work and get feedback from fellow creators.',
-            'include_project_details' => true
+                'subject' => 'Congratulations! Your Project "' . $project['project_name'] . '" Has Been Approved',
+                'custom_text' => 'As an approved project creator, you now have access to our developer resources and community forums where you can showcase your work and get feedback from fellow creators.',
+                'include_project_details' => true
         ];
 
         sendProjectStatusEmail($project_id, 'approved', '', $email_options);
@@ -118,9 +138,9 @@ function approveProject($project_id, $conn) {
     }
 }
 
-// Function to reject a project
+// Enhanced function to reject a project with all columns
 function rejectProject($project_id, $rejection_reason, $conn) {
-    // Get project details
+    // Get project details with all columns
     $query = "SELECT * FROM projects WHERE id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $project_id);
@@ -130,28 +150,48 @@ function rejectProject($project_id, $rejection_reason, $conn) {
     if($result->num_rows > 0) {
         $project = $result->fetch_assoc();
 
-        // Insert into rejection table
+        // Insert into rejection table with all columns
         $reject_query = "INSERT INTO denial_projects (
-            user_id, project_name, project_type, classification, description,
-            language, image_path, video_path, code_file_path,
-            instruction_file_path, submission_date, status, rejection_date, rejection_reason
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'rejected', NOW(), ?)";
+            user_id, project_name, project_type, classification, project_category,
+            difficulty_level, development_time, team_size, target_audience, project_goals,
+            challenges_faced, future_enhancements, github_repo, live_demo_url, project_license,
+            keywords, contact_email, social_links, description, language,
+            image_path, video_path, code_file_path, instruction_file_path,
+            presentation_file_path, additional_files_path, submission_date, 
+            status, rejection_date, rejection_reason
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'rejected', NOW(), ?)";
 
         $reject_stmt = $conn->prepare($reject_query);
         $reject_stmt->bind_param(
-            "isssssssssss",
-            $project['user_id'],
-            $project['project_name'],
-            $project['project_type'],
-            $project['classification'],
-            $project['description'],
-            $project['language'],
-            $project['image_path'],
-            $project['video_path'],
-            $project['code_file_path'],
-            $project['instruction_file_path'],
-            $project['submission_date'],
-            $rejection_reason
+                "ssssssssssssssssssssssssss",
+                $project['user_id'],
+                $project['project_name'],
+                $project['project_type'],
+                $project['classification'],
+                $project['project_category'],
+                $project['difficulty_level'],
+                $project['development_time'],
+                $project['team_size'],
+                $project['target_audience'],
+                $project['project_goals'],
+                $project['challenges_faced'],
+                $project['future_enhancements'],
+                $project['github_repo'],
+                $project['live_demo_url'],
+                $project['project_license'],
+                $project['keywords'],
+                $project['contact_email'],
+                $project['social_links'],
+                $project['description'],
+                $project['language'],
+                $project['image_path'],
+                $project['video_path'],
+                $project['code_file_path'],
+                $project['instruction_file_path'],
+                $project['presentation_file_path'],
+                $project['additional_files_path'],
+                $project['submission_date'],
+                $rejection_reason
         );
 
         $reject_stmt->execute();
@@ -164,9 +204,9 @@ function rejectProject($project_id, $rejection_reason, $conn) {
 
         // Send email notification
         $email_options = [
-            'subject' => 'Important Update About Your Project "' . $project['project_name'] . '"',
-            'custom_text' => 'Our team is always available to help you improve your project. Feel free to reach out if you need guidance on addressing the issues mentioned.',
-            'include_project_details' => true
+                'subject' => 'Important Update About Your Project "' . $project['project_name'] . '"',
+                'custom_text' => 'Our team is always available to help you improve your project. Feel free to reach out if you need guidance on addressing the issues mentioned.',
+                'include_project_details' => true
         ];
 
         sendProjectStatusEmail($project_id, 'rejected', $rejection_reason, $email_options);
@@ -394,7 +434,7 @@ if ($selected_time_range == "Last 7 Days") {
     }
 }
 
-// Category data with filter
+// Enhanced category data with multiple grouping options
 $category_query = "SELECT classification, COUNT(*) as count FROM admin_approved_projects" . $category_where_clause . " GROUP BY classification";
 $category_result = $conn->query($category_query);
 if (!$category_result) {
@@ -403,7 +443,7 @@ if (!$category_result) {
 
 $category_labels = [];
 $category_data = [];
-$category_colors = ['#4361ee', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#8b5cf6'];
+$category_colors = ['#4361ee', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#8b5cf6', '#06b6d4', '#84cc16'];
 
 $color_index = 0;
 while ($row = $category_result->fetch_assoc()) {
@@ -417,12 +457,22 @@ while ($row = $category_result->fetch_assoc()) {
     }
 }
 
+// Enhanced difficulty level statistics
+$difficulty_query = "SELECT difficulty_level, COUNT(*) as count FROM projects WHERE difficulty_level IS NOT NULL GROUP BY difficulty_level";
+$difficulty_result = $conn->query($difficulty_query);
+$difficulty_stats = [];
+if ($difficulty_result) {
+    while ($row = $difficulty_result->fetch_assoc()) {
+        $difficulty_stats[$row['difficulty_level']] = $row['count'];
+    }
+}
+
 // Recent activities
 $recent_activities = [];
 $all_activities = [];
 
-// Get recent project submissions
-$recent_submissions_query = "SELECT id, project_name, user_id, submission_date FROM projects ORDER BY submission_date DESC LIMIT 3";
+// Get recent project submissions with enhanced details
+$recent_submissions_query = "SELECT id, project_name, user_id, submission_date, difficulty_level, project_category FROM projects ORDER BY submission_date DESC LIMIT 3";
 $recent_submissions_result = $conn->query($recent_submissions_query);
 if (!$recent_submissions_result) {
     die("Error in recent submissions query: " . $conn->error);
@@ -430,19 +480,21 @@ if (!$recent_submissions_result) {
 
 while ($row = $recent_submissions_result->fetch_assoc()) {
     $time_ago = time_elapsed_string($row['submission_date']);
+    $difficulty = $row['difficulty_level'] ? ' (' . ucfirst($row['difficulty_level']) . ')' : '';
+    $category = $row['project_category'] ? ' - ' . $row['project_category'] : '';
     $activity = [
-        'type' => 'primary',
-        'title' => 'New Project Submitted',
-        'description' => 'Project "' . $row['project_name'] . '" was submitted by User #' . $row['user_id'],
-        'time_ago' => $time_ago,
-        'date' => $row['submission_date']
+            'type' => 'primary',
+            'title' => 'New Project Submitted',
+            'description' => 'Project "' . $row['project_name'] . '"' . $difficulty . $category . ' was submitted by User #' . $row['user_id'],
+            'time_ago' => $time_ago,
+            'date' => $row['submission_date']
     ];
     $recent_activities[] = $activity;
     $all_activities[] = $activity;
 }
 
-// Get recent approvals
-$recent_approvals_query = "SELECT project_name, submission_date FROM `admin_approved_projects` ORDER BY submission_date DESC LIMIT 2";
+// Get recent approvals with enhanced details
+$recent_approvals_query = "SELECT project_name, submission_date, difficulty_level, project_category FROM admin_approved_projects ORDER BY submission_date DESC LIMIT 2";
 $recent_approvals_result = $conn->query($recent_approvals_query);
 if (!$recent_approvals_result) {
     die("Error in recent approvals query: " . $conn->error);
@@ -450,12 +502,14 @@ if (!$recent_approvals_result) {
 
 while ($row = $recent_approvals_result->fetch_assoc()) {
     $time_ago = time_elapsed_string($row['submission_date']);
+    $difficulty = $row['difficulty_level'] ? ' (' . ucfirst($row['difficulty_level']) . ')' : '';
+    $category = $row['project_category'] ? ' - ' . $row['project_category'] : '';
     $activity = [
-        'type' => 'success',
-        'title' => 'Project Approved',
-        'description' => 'Project "' . $row['project_name'] . '" was approved',
-        'time_ago' => $time_ago,
-        'date' => $row['submission_date']
+            'type' => 'success',
+            'title' => 'Project Approved',
+            'description' => 'Project "' . $row['project_name'] . '"' . $difficulty . $category . ' was approved',
+            'time_ago' => $time_ago,
+            'date' => $row['submission_date']
     ];
     $recent_activities[] = $activity;
     $all_activities[] = $activity;
@@ -471,43 +525,47 @@ if (!$recent_rejections_result) {
 while ($row = $recent_rejections_result->fetch_assoc()) {
     $time_ago = time_elapsed_string($row['rejection_date']);
     $activity = [
-        'type' => 'danger',
-        'title' => 'Project Rejected',
-        'description' => 'Project "' . $row['project_name'] . '" was rejected. Reason: ' . $row['rejection_reason'],
-        'time_ago' => $time_ago,
-        'date' => $row['rejection_date']
+            'type' => 'danger',
+            'title' => 'Project Rejected',
+            'description' => 'Project "' . $row['project_name'] . '" was rejected. Reason: ' . $row['rejection_reason'],
+            'time_ago' => $time_ago,
+            'date' => $row['rejection_date']
     ];
     $recent_activities[] = $activity;
     $all_activities[] = $activity;
 }
 
-// Get all activities for "Show More" functionality
-$all_submissions_query = "SELECT id, project_name, user_id, submission_date FROM projects ORDER BY submission_date DESC";
+// Get all activities for "Show More" functionality (enhanced)
+$all_submissions_query = "SELECT id, project_name, user_id, submission_date, difficulty_level, project_category FROM projects ORDER BY submission_date DESC";
 $all_submissions_result = $conn->query($all_submissions_query);
 if ($all_submissions_result) {
     while ($row = $all_submissions_result->fetch_assoc()) {
         $time_ago = time_elapsed_string($row['submission_date']);
+        $difficulty = $row['difficulty_level'] ? ' (' . ucfirst($row['difficulty_level']) . ')' : '';
+        $category = $row['project_category'] ? ' - ' . $row['project_category'] : '';
         $all_activities[] = [
-            'type' => 'primary',
-            'title' => 'New Project Submitted',
-            'description' => 'Project "' . $row['project_name'] . '" was submitted by User #' . $row['user_id'],
-            'time_ago' => $time_ago,
-            'date' => $row['submission_date']
+                'type' => 'primary',
+                'title' => 'New Project Submitted',
+                'description' => 'Project "' . $row['project_name'] . '"' . $difficulty . $category . ' was submitted by User #' . $row['user_id'],
+                'time_ago' => $time_ago,
+                'date' => $row['submission_date']
         ];
     }
 }
 
-$all_approvals_query = "SELECT project_name, submission_date FROM `admin_approved_projects` ORDER BY submission_date DESC";
+$all_approvals_query = "SELECT project_name, submission_date, difficulty_level, project_category FROM admin_approved_projects ORDER BY submission_date DESC";
 $all_approvals_result = $conn->query($all_approvals_query);
 if ($all_approvals_result) {
     while ($row = $all_approvals_result->fetch_assoc()) {
         $time_ago = time_elapsed_string($row['submission_date']);
+        $difficulty = $row['difficulty_level'] ? ' (' . ucfirst($row['difficulty_level']) . ')' : '';
+        $category = $row['project_category'] ? ' - ' . $row['project_category'] : '';
         $all_activities[] = [
-            'type' => 'success',
-            'title' => 'Project Approved',
-            'description' => 'Project "' . $row['project_name'] . '" was approved',
-            'time_ago' => $time_ago,
-            'date' => $row['submission_date']
+                'type' => 'success',
+                'title' => 'Project Approved',
+                'description' => 'Project "' . $row['project_name'] . '"' . $difficulty . $category . ' was approved',
+                'time_ago' => $time_ago,
+                'date' => $row['submission_date']
         ];
     }
 }
@@ -518,11 +576,11 @@ if ($all_rejections_result) {
     while ($row = $all_rejections_result->fetch_assoc()) {
         $time_ago = time_elapsed_string($row['rejection_date']);
         $all_activities[] = [
-            'type' => 'danger',
-            'title' => 'Project Rejected',
-            'description' => 'Project "' . $row['project_name'] . '" was rejected. Reason: ' . $row['rejection_reason'],
-            'time_ago' => $time_ago,
-            'date' => $row['rejection_date']
+                'type' => 'danger',
+                'title' => 'Project Rejected',
+                'description' => 'Project "' . $row['project_name'] . '" was rejected. Reason: ' . $row['rejection_reason'],
+                'time_ago' => $time_ago,
+                'date' => $row['rejection_date']
         ];
     }
 }
@@ -540,9 +598,10 @@ usort($all_activities, function($a, $b) {
 $show_all_activities = isset($_GET['show_all_activities']) && $_GET['show_all_activities'] == '1';
 $activities_to_show = $show_all_activities ? $all_activities : $recent_activities;
 
-// Pending projects list
+// Enhanced pending projects list with more details
 $pending_projects_list = [];
-$pending_projects_query = "SELECT p.id, p.project_name, p.project_type, p.classification, p.user_id, p.status 
+$pending_projects_query = "SELECT p.id, p.project_name, p.project_type, p.classification, p.user_id, p.status, 
+                          p.difficulty_level, p.project_category, p.development_time, p.team_size
                           FROM projects p 
                           WHERE p.status = 'pending' 
                           ORDER BY p.submission_date DESC 
@@ -574,16 +633,21 @@ while ($row = $pending_projects_result->fetch_assoc()) {
     }
 
     $pending_projects_list[] = [
-        'id' => $row['id'],
-        'name' => $row['project_name'],
-        'type' => $row['project_type'],
-        'technologies' => $row['classification'],
-        'submitted_by' => 'User #' . $row['user_id'],
-        'status' => 'Pending Review',
-        'status_class' => 'warning',
-        'icon' => $icon
+            'id' => $row['id'],
+            'name' => $row['project_name'],
+            'type' => $row['project_type'],
+            'technologies' => $row['classification'],
+            'submitted_by' => 'User #' . $row['user_id'],
+            'status' => 'Pending Review',
+            'status_class' => 'warning',
+            'icon' => $icon,
+            'difficulty' => $row['difficulty_level'],
+            'category' => $row['project_category'],
+            'dev_time' => $row['development_time'],
+            'team_size' => $row['team_size']
     ];
 }
+
 $rejected_projects_query = "SELECT COUNT(*) as count FROM denial_projects";
 $rejected_projects_result = $conn->query($rejected_projects_query);
 if (!$rejected_projects_result) {
@@ -591,11 +655,10 @@ if (!$rejected_projects_result) {
 }
 $rejected_projects = $rejected_projects_result->fetch_assoc()['count'];
 
-
-
 // Initialize variables to prevent undefined variable errors
 $show_rejection_form = false;
 $reject_project_id = null;
+
 // Helper function to convert MySQL datetime to "time ago" format
 function time_elapsed_string($datetime, $full = false) {
     $now = new DateTime;
@@ -606,13 +669,13 @@ function time_elapsed_string($datetime, $full = false) {
     $diff->d -= $weeks * 7;
 
     $string = array(
-        'y' => 'year',
-        'm' => 'month',
-        'w' => 'week',
-        'd' => 'day',
-        'h' => 'hour',
-        'i' => 'minute',
-        's' => 'second',
+            'y' => 'year',
+            'm' => 'month',
+            'w' => 'week',
+            'd' => 'day',
+            'h' => 'hour',
+            'i' => 'minute',
+            's' => 'second',
     );
 
     $result = [];
@@ -633,323 +696,423 @@ $message = isset($_GET['message']) ? $_GET['message'] : '';
 $error = isset($_GET['error']) ? $_GET['error'] : '';
 ?>
 
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>IdeaNest Admin - admin</title>
-        <!-- Bootstrap 5 CSS -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-        <!-- Bootstrap Icons -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-        <style>
-            /* Stats Card Styles */
-            .stats-card {
-                background-color: #fff;
-                border-radius: 0.5rem;
-                box-shadow: 0 0 15px rgba(0,0,0,0.05);
-                padding: 1.5rem;
-                display: flex;
-                flex-direction: column;
-                height: 100%;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IdeaNest Admin - Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        /* Enhanced Stats Card Styles */
+        .stats-card {
+            background-color: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 25px rgba(0,0,0,0.1);
+        }
+
+        .stats-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stats-icon.primary { background-color: rgba(67, 97, 238, 0.1); color: #4361ee; }
+        .stats-icon.success { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .stats-icon.warning { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .stats-icon.danger { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+        .stats-info {
+            flex-grow: 1;
+        }
+
+        .stats-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .stats-progress {
+            margin-top: auto;
+        }
+
+        .stats-percentage {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+            text-align: right;
+        }
+
+        /* Enhanced Timeline Styles */
+        .timeline {
+            position: relative;
+        }
+
+        .timeline-item {
+            padding-left: 2rem;
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timeline-icon.primary { background-color: rgba(67, 97, 238, 0.1); border: 2px solid #4361ee; }
+        .timeline-icon.success { background-color: rgba(16, 185, 129, 0.1); border: 2px solid #10b981; }
+        .timeline-icon.danger { background-color: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; }
+
+        .timeline-content {
+            position: relative;
+        }
+
+        .timeline-title {
+            font-size: 0.9375rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .timeline-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+        }
+
+        .timeline-time {
+            font-size: 0.75rem;
+            color: #adb5bd;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Alert banner */
+        .alert-banner {
+            margin-bottom: 20px;
+        }
+
+        /* Enhanced Project Details Styles */
+        .project-details {
+            margin-bottom: 20px;
+        }
+
+        .project-detail-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #495057;
+        }
+
+        .project-detail-value {
+            margin-bottom: 15px;
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #4361ee;
+        }
+
+        .project-files {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .file-link {
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .file-link:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Enhanced Difficulty Badge Styles */
+        .difficulty-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .difficulty-beginner { background-color: #d1f2eb; color: #0e6655; }
+        .difficulty-intermediate { background-color: #fef3cd; color: #856404; }
+        .difficulty-advanced { background-color: #f8d7da; color: #721c24; }
+        .difficulty-expert { background-color: #d1ecf1; color: #0c5460; }
+
+        /* Modal styles */
+        .modal-backdrop {
+            z-index: 1040;
+        }
+
+        .modal {
+            z-index: 1050;
+        }
+
+        /* Enhanced Timeline Styles */
+        .activity-timeline {
+            position: relative;
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #c1c1c1 #f1f1f1;
+        }
+
+        .activity-timeline::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .activity-timeline::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .activity-timeline::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .activity-timeline::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        .activity-item {
+            display: flex;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .activity-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .activity-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex-grow: 1;
+        }
+
+        .activity-title {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: #adb5bd;
+            display: block;
+        }
+
+        /* Read More Button */
+        .activity-read-more {
+            text-align: center;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f1f1;
+            margin-top: 0.5rem;
+        }
+
+        .activity-read-more .btn {
+            font-size: 0.875rem;
+        }
+
+        /* Additional required styles */
+        .stat-card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.5rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-icon-container {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+        }
+
+        .bg-primary-light {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        .bg-success-light {
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+
+        .bg-warning-light {
+            background-color: rgba(245, 158, 11, 0.1);
+        }
+
+        .bg-danger-light {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        .stat-progress-text {
+            font-size: 0.75rem;
+            color: #28a745;
+            margin-top: 0.25rem;
+        }
+
+        /* Enhanced Project Card Styles */
+        .project-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid #e3e6f0;
+        }
+
+        .project-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 25px rgba(0,0,0,0.1);
+        }
+
+        .project-meta {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .project-tag {
+            background-color: #f8f9fa;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: #495057;
+        }
+
+        /* Enhanced Table Styles */
+        .enhanced-table {
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .enhanced-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            border: none;
+            padding: 12px 15px;
+        }
+
+        .enhanced-table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-top: 1px solid #f1f1f1;
+        }
+
+        .enhanced-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Media Query for Responsive Sidebar */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
             }
-
-            .stats-icon {
-                width: 48px;
-                height: 48px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.5rem;
-                margin-bottom: 1rem;
+            .sidebar.show {
+                transform: translateX(0);
             }
-
-            .stats-icon.primary { background-color: rgba(67, 97, 238, 0.1); color: #4361ee; }
-            .stats-icon.success { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
-            .stats-icon.warning { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-            .stats-icon.danger { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
-
-            .stats-info {
-                flex-grow: 1;
+            .main-content {
+                margin-left: 0;
             }
-
-            .stats-label {
-                font-size: 0.875rem;
-                color: #6c757d;
-                margin-bottom: 0.5rem;
+            .main-content.pushed {
+                margin-left: 250px;
             }
-
-            .stats-value {
-                font-size: 1.5rem;
-                font-weight: 700;
-                margin-bottom: 1rem;
-            }
-
-            .stats-progress {
-                margin-top: auto;
-            }
-
-            .stats-percentage {
-                font-size: 0.75rem;
-                color: #6c757d;
-                margin-top: 0.5rem;
-                text-align: right;
-            }
-
-            /* Timeline Styles */
-            .timeline {
-                position: relative;
-            }
-
-            .timeline-item {
-                padding-left: 2rem;
-                position: relative;
-                padding-bottom: 1.5rem;
-            }
-
-            .timeline-item:last-child {
-                padding-bottom: 0;
-            }
-
-            .timeline-icon {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 24px;
-                height: 24px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .timeline-icon.primary { background-color: rgba(67, 97, 238, 0.1); border: 2px solid #4361ee; }
-            .timeline-icon.success { background-color: rgba(16, 185, 129, 0.1); border: 2px solid #10b981; }
-            .timeline-icon.danger { background-color: rgba(239, 68, 68, 0.1); border: 2px solid #ef4444; }
-
-            .timeline-content {
-                position: relative;
-            }
-
-            .timeline-title {
-                font-size: 0.9375rem;
-                margin-bottom: 0.25rem;
-            }
-
-            .timeline-text {
-                font-size: 0.875rem;
-                color: #6c757d;
-                margin-bottom: 0.25rem;
-            }
-
-            .timeline-time {
-                font-size: 0.75rem;
-                color: #adb5bd;
-            }
-
-            /* Chart Container */
-            .chart-container {
-                position: relative;
-                height: 300px;
-            }
-
-            /* Alert banner */
-            .alert-banner {
-                margin-bottom: 20px;
-            }
-
-            /* Project Details Styles */
-            .project-details {
-                margin-bottom: 20px;
-            }
-
-            .project-detail-label {
-                font-weight: 600;
-                margin-bottom: 5px;
-            }
-
-            .project-detail-value {
-                margin-bottom: 15px;
-            }
-
-            /* Modal styles */
-            .modal-backdrop {
-                z-index: 1040;
-            }
-
-            .modal {
-                z-index: 1050;
-            }
-
-            /* Timeline Styles */
-            .activity-timeline {
-                position: relative;
-                padding: 1rem;
-                max-height: 400px;
-                overflow-y: auto;
-                scrollbar-width: thin;
-                scrollbar-color: #c1c1c1 #f1f1f1;
-            }
-
-            .activity-timeline::-webkit-scrollbar {
-                width: 6px;
-            }
-
-            .activity-timeline::-webkit-scrollbar-track {
-                background: #f1f1f1;
-                border-radius: 3px;
-            }
-
-            .activity-timeline::-webkit-scrollbar-thumb {
-                background: #c1c1c1;
-                border-radius: 3px;
-            }
-
-            .activity-timeline::-webkit-scrollbar-thumb:hover {
-                background: #a8a8a8;
-            }
-
-            .activity-item {
-                display: flex;
-                margin-bottom: 1.5rem;
-                position: relative;
-            }
-
-            .activity-item:last-child {
-                margin-bottom: 0;
-            }
-
-            .activity-icon {
-                width: 36px;
-                height: 36px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1rem;
-                margin-right: 1rem;
-                flex-shrink: 0;
-            }
-
-            .activity-content {
-                flex-grow: 1;
-            }
-
-            .activity-title {
-                font-size: 0.9375rem;
-                font-weight: 600;
-                margin-bottom: 0.25rem;
-            }
-
-            .activity-text {
-                font-size: 0.875rem;
-                color: #6c757d;
-                margin-bottom: 0.25rem;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-            }
-
-            .activity-time {
-                font-size: 0.75rem;
-                color: #adb5bd;
-                display: block;
-            }
-
-            /* Read More Button */
-            .activity-read-more {
-                text-align: center;
-                padding-top: 1rem;
-                border-top: 1px solid #f1f1f1;
-                margin-top: 0.5rem;
-            }
-
-            .activity-read-more .btn {
-                font-size: 0.875rem;
-            }
-
-            /* Additional required styles */
-            .stat-card {
-                border: none;
-                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-                border-radius: 0.5rem;
-            }
-
-            .stat-number {
-                font-size: 2rem;
-                font-weight: 700;
-                margin-bottom: 0.5rem;
-            }
-
-            .stat-icon-container {
-                width: 3rem;
-                height: 3rem;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .stat-icon {
-                font-size: 1.5rem;
-            }
-
-            .bg-primary-light {
-                background-color: rgba(67, 97, 238, 0.1);
-            }
-
-            .bg-success-light {
-                background-color: rgba(16, 185, 129, 0.1);
-            }
-
-            .bg-warning-light {
-                background-color: rgba(245, 158, 11, 0.1);
-            }
-
-            .bg-danger-light {
-                background-color: rgba(239, 68, 68, 0.1);
-            }
-
-            .stat-progress-text {
-                font-size: 0.75rem;
-                color: #28a745;
-                margin-top: 0.25rem;
-            }
-
-            /* Media Query for Responsive Sidebar */
-            @media (max-width: 991.98px) {
-                .sidebar {
-                    transform: translateX(-100%);
-                }
-                .sidebar.show {
-                    transform: translateX(0);
-                }
-                .main-content {
-                    margin-left: 0;
-                }
-                .main-content.pushed {
-                    margin-left: 250px;
-                }
-            }
-        </style>
-
-    </head>
+        }
+    </style>
+</head>
 <body>
-    <!-- Sidebar -->
-    <?php include 'sidebar_admin.php'; ?>
+<!-- Sidebar -->
+<?php include 'sidebar_admin.php'; ?>
 
 <div class="main-content">
-
     <!-- Topbar -->
     <div class="topbar">
         <button class="btn d-lg-none" id="sidebarToggle">
             <i class="bi bi-list"></i>
         </button>
-        <h1 class="page-title">admin</h1>
+        <h1 class="page-title">Enhanced Dashboard</h1>
         <div class="topbar-actions">
             <div class="dropdown">
                 <a href="#" class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false">
@@ -966,343 +1129,491 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
     </div>
 
     <!-- Alert Messages -->
-<?php if($message): ?>
-    <div class="alert alert-success alert-banner alert-dismissible fade show" role="alert">
-        <?php echo $message; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-<?php endif; ?>
-
-<?php if($error): ?>
-    <div class="alert alert-danger alert-banner alert-dismissible fade show" role="alert">
-        <?php echo $error; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-<?php endif; ?>
-
-<?php if(isset($action) && $action == 'view' && isset($project)): ?>
-    <!-- Project View Section -->
-    <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Project Details: <?php echo $project['project_name']; ?></h5>
-            <a href="admin.php" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i> Back to admin
-            </a>
+    <?php if($message): ?>
+        <div class="alert alert-success alert-banner alert-dismissible fade show" role="alert">
+            <?php echo htmlspecialchars($message); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="project-details">
+    <?php endif; ?>
+
+    <?php if($error): ?>
+        <div class="alert alert-danger alert-banner alert-dismissible fade show" role="alert">
+            <?php echo htmlspecialchars($error); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
+    <?php if(isset($action) && $action == 'view' && isset($project)): ?>
+        <!-- Enhanced Project View Section -->
+        <div class="card mb-4 project-card">
+            <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-eye me-2"></i>Project Details: <?php echo htmlspecialchars($project['project_name']); ?>
+                </h5>
+                <a href="admin.php" class="btn btn-light btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Basic Information -->
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3"><i class="bi bi-info-circle me-2"></i>Basic Information</h6>
+
                         <div class="project-detail-label">Project Name:</div>
-                        <div class="project-detail-value"><?php echo $project['project_name']; ?></div>
+                        <div class="project-detail-value"><?php echo htmlspecialchars($project['project_name']); ?></div>
 
                         <div class="project-detail-label">Project Type:</div>
-                        <div class="project-detail-value"><?php echo $project['project_type']; ?></div>
+                        <div class="project-detail-value">
+                            <span class="badge bg-primary"><?php echo htmlspecialchars($project['project_type']); ?></span>
+                        </div>
 
                         <div class="project-detail-label">Classification:</div>
-                        <div class="project-detail-value"><?php echo $project['classification']; ?></div>
+                        <div class="project-detail-value"><?php echo htmlspecialchars($project['classification']); ?></div>
 
-                        <div class="project-detail-label">Language:</div>
-                        <div class="project-detail-value"><?php echo $project['language']; ?></div>
+                        <?php if(!empty($project['project_category'])): ?>
+                            <div class="project-detail-label">Project Category:</div>
+                            <div class="project-detail-value"><?php echo htmlspecialchars($project['project_category']); ?></div>
+                        <?php endif; ?>
+
+                        <?php if(!empty($project['difficulty_level'])): ?>
+                            <div class="project-detail-label">Difficulty Level:</div>
+                            <div class="project-detail-value">
+                                <span class="difficulty-badge difficulty-<?php echo htmlspecialchars($project['difficulty_level']); ?>">
+                                    <?php echo ucfirst(htmlspecialchars($project['difficulty_level'])); ?>
+                                </span>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="project-detail-label">Language/Technology:</div>
+                        <div class="project-detail-value"><?php echo htmlspecialchars($project['language']); ?></div>
+
+                        <?php if(!empty($project['development_time'])): ?>
+                            <div class="project-detail-label">Development Time:</div>
+                            <div class="project-detail-value"><?php echo htmlspecialchars($project['development_time']); ?></div>
+                        <?php endif; ?>
+
+                        <?php if(!empty($project['team_size'])): ?>
+                            <div class="project-detail-label">Team Size:</div>
+                            <div class="project-detail-value"><?php echo htmlspecialchars($project['team_size']); ?></div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Additional Details -->
+                    <div class="col-md-6">
+                        <h6 class="text-success mb-3"><i class="bi bi-person-circle me-2"></i>Submission Details</h6>
 
                         <div class="project-detail-label">Submitted By:</div>
-                        <div class="project-detail-value">User #<?php echo $project['user_id']; ?></div>
+                        <div class="project-detail-value">User #<?php echo htmlspecialchars($project['user_id']); ?></div>
 
                         <div class="project-detail-label">Submission Date:</div>
                         <div class="project-detail-value"><?php echo date('F j, Y, g:i a', strtotime($project['submission_date'])); ?></div>
 
                         <div class="project-detail-label">Status:</div>
                         <div class="project-detail-value">
-                            <span class="badge bg-<?php echo $project['status'] == 'pending' ? 'warning' : ($project['status'] == 'approved' ? 'success' : 'danger'); ?>">
-                                <?php echo ucfirst($project['status']); ?>
-                            </span>
+                                <span class="badge bg-<?php echo $project['status'] == 'pending' ? 'warning' : ($project['status'] == 'approved' ? 'success' : 'danger'); ?>">
+                                    <?php echo ucfirst(htmlspecialchars($project['status'])); ?>
+                                </span>
                         </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="project-detail-label">Description:</div>
-                    <div class="project-detail-value"><?php echo $project['description']; ?></div>
 
-                    <?php if(!empty($project['image_path'])): ?>
-                        <div class="project-detail-label">Project Image:</div>
-                        <div class="project-detail-value">
-                            <img src="<?php echo $project['image_path']; ?>" alt="Project Image" class="img-fluid mb-3" style="max-height: 200px;">
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if(!empty($project['video_path'])): ?>
-                        <div class="project-detail-label">Project Video:</div>
-                        <div class="project-detail-value mb-3">
-                            <a href="<?php echo $project['video_path']; ?>" class="btn btn-sm btn-outline-primary" target="_blank">
-                                <i class="bi bi-play-circle me-1"></i> View Video
-                            </a>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if(!empty($project['code_file_path'])): ?>
-                        <div class="project-detail-label">Code Files:</div>
-                        <div class="project-detail-value mb-3">
-                            <a href="<?php echo $project['code_file_path']; ?>" class="btn btn-sm btn-outline-primary" target="_blank">
-                                <i class="bi bi-code-slash me-1"></i> Download Code
-                            </a>
-                        </div>
-                    <?php endif; ?>
-                    <?php if(!empty($project['instruction_file_path'])): ?>
-                        <div class="project-detail-label">Instructions:</div>
-                        <div class="project-detail-value mb-3">
-                            <a href="<?php echo $project['instruction_file_path']; ?>" class="btn btn-sm btn-outline-primary" target="_blank">
-                                <i class="bi bi-file-text me-1"></i> View Instructions
-                            </a>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <div class="d-flex justify-content-center mt-4">
-                <a href="admin.php?action=approve&id=<?php echo $project['id']; ?>" class="btn btn-success me-2" onclick="return confirm('Are you sure you want to approve this project?')">
-                    <i class="bi bi-check-circle me-1"></i> Approve Project
-                </a>
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectProjectModal">
-                    <i class="bi bi-x-circle me-1"></i> Reject Project
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Reject Project Modal -->
-    <div class="modal fade" id="rejectProjectModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Reject Project</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="admin.php" method="post">
-                    <div class="modal-body">
-                        <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
-                        <div class="mb-3">
-                            <label for="rejection_reason" class="form-label">Rejection Reason</label>
-                            <textarea class="form-control" name="rejection_reason" rows="3" required></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" name="reject_submit" class="btn btn-danger">Reject Project</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-<?php else: ?>
-    <!-- admin Content -->
-    <div class="admin-content">
-    <!-- Statistics Cards -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-6 col-xl-3">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div>
-                            <h5 class="card-title">Total Projects</h5>
-                            <h2 class="stat-number"><?php echo $total_projects; ?></h2>
-                            <div class="stat-progress">
-                                <div class="progress">
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo $total_projects_percentage; ?>%" aria-valuenow="<?php echo $total_projects_percentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <span class="stat-progress-text">
-                                        <i class="bi bi-arrow-up-right"></i> <?php echo $total_projects_growth; ?> from last period
-                                    </span>
+                        <?php if(!empty($project['contact_email'])): ?>
+                            <div class="project-detail-label">Contact Email:</div>
+                            <div class="project-detail-value">
+                                <a href="mailto:<?php echo htmlspecialchars($project['contact_email']); ?>" class="text-primary">
+                                    <?php echo htmlspecialchars($project['contact_email']); ?>
+                                </a>
                             </div>
-                        </div>
-                        <div class="stat-icon-container bg-primary-light">
-                            <i class="bi bi-folder stat-icon text-primary"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xl-3">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div>
-                            <h5 class="card-title">Approved Projects</h5>
-                            <h2 class="stat-number"><?php echo $approved_projects; ?></h2>
-                            <div class="stat-progress">
-                                <div class="progress">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $approved_projects_percentage; ?>%" aria-valuenow="<?php echo $approved_projects_percentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <span class="stat-progress-text">
-                                        <i class="bi bi-arrow-up-right"></i> <?php echo $approved_projects_growth; ?> from last period
-                                    </span>
-                            </div>
-                        </div>
-                        <div class="stat-icon-container bg-success-light">
-                            <i class="bi bi-check-circle stat-icon text-success"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xl-3">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div>
-                            <h5 class="card-title">Pending Projects</h5>
-                            <h2 class="stat-number"><?php echo $pending_projects; ?></h2>
-                            <div class="stat-progress">
-                                <div class="progress">
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: <?php echo $pending_projects_percentage; ?>%" aria-valuenow="<?php echo $pending_projects_percentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <span class="stat-progress-text">
-                                        <i class="bi bi-arrow-up-right"></i> <?php echo $pending_projects_growth; ?> from last period
-                                    </span>
-                            </div>
-                        </div>
-                        <div class="stat-icon-container bg-warning-light">
-                            <i class="bi bi-hourglass-split stat-icon text-warning"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xl-3">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <div class="d-flex align-items-start justify-content-between">
-                        <div>
-                            <h5 class="card-title">Rejected Projects</h5>
-                            <h2 class="stat-number"><?php echo $rejected_projects; ?></h2>
-                            <div class="stat-progress">
-                                <div class="progress">
-                                    <div class="progress-bar bg-danger" role="progressbar" style="width: <?php echo $rejected_projects_percentage; ?>%" aria-valuenow="<?php echo $rejected_projects_percentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <span class="stat-progress-text">
-                                        <i class="bi bi-arrow-up-right"></i> <?php echo $rejected_projects_growth; ?> from last period
-                                    </span>
-                            </div>
-                        </div>
-                        <div class="stat-icon-container bg-danger-light">
-                            <i class="bi bi-x-circle stat-icon text-danger"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Charts Row -->
-    <div class="row g-4 mb-4">
-        <!-- Project Activity Chart -->
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Project Activity</h5>
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <?php echo htmlspecialchars($selected_time_range); ?>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <?php foreach ($time_ranges as $range): ?>
-                                <li><a class="dropdown-item <?php echo $range == $selected_time_range ? 'active' : ''; ?>" href="?time_range=<?php echo urlencode($range); ?>"><?php echo htmlspecialchars($range); ?></a></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <canvas id="projectsChart" height="300"></canvas>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Project Categories Chart -->
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Project Categories</h5>
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <?php echo htmlspecialchars($selected_category_range); ?>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <?php foreach ($category_ranges as $range): ?>
-                                <li><a class="dropdown-item <?php echo $range == $selected_category_range ? 'active' : ''; ?>" href="?category_range=<?php echo urlencode($range); ?>"><?php echo htmlspecialchars($range); ?></a></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <canvas id="categoriesChart" height="300"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-        <!-- Recent Activity and Pending Projects Row -->
-        <div class="row g-4">
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Recent Activity</h5>
-                        <?php if (!$show_all_activities): ?>
-                            <a href="?show_all_activities=1" class="btn btn-sm btn-outline-primary">Show More</a>
-                        <?php else: ?>
-                            <a href="admin.php" class="btn btn-sm btn-outline-secondary">Show Less</a>
                         <?php endif; ?>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="activity-timeline">
-                            <?php foreach ($activities_to_show as $activity): ?>
-                                <div class="activity-item">
-                                    <div class="activity-icon bg-<?php echo $activity['type']; ?>-light text-<?php echo $activity['type']; ?>">
-                                        <i class="bi bi-<?php echo $activity['type'] == 'primary' ? 'plus-circle' : ($activity['type'] == 'success' ? 'check-circle' : 'x-circle'); ?>"></i>
-                                    </div>
-                                    <div class="activity-content">
-                                        <h6 class="activity-title"><?php echo htmlspecialchars($activity['title']); ?></h6>
-                                        <p class="activity-text"><?php echo htmlspecialchars($activity['description']); ?></p>
-                                        <span class="activity-time"><?php echo htmlspecialchars($activity['time_ago']); ?></span>
-                                    </div>
+
+                        <?php if(!empty($project['project_license'])): ?>
+                            <div class="project-detail-label">License:</div>
+                            <div class="project-detail-value"><?php echo htmlspecialchars($project['project_license']); ?></div>
+                        <?php endif; ?>
+
+                        <?php if(!empty($project['keywords'])): ?>
+                            <div class="project-detail-label">Keywords:</div>
+                            <div class="project-detail-value">
+                                <div class="project-tags">
+                                    <?php
+                                    $keywords = explode(',', $project['keywords']);
+                                    foreach($keywords as $keyword):
+                                        $keyword = trim($keyword);
+                                        if(!empty($keyword)):
+                                            ?>
+                                            <span class="project-tag"><?php echo htmlspecialchars($keyword); ?></span>
+                                        <?php endif; endforeach; ?>
                                 </div>
-                            <?php endforeach; ?>
-                        </div>
-                        <?php if (empty($activities_to_show)): ?>
-                            <div class="text-center py-4">
-                                <i class="bi bi-activity" style="font-size: 2rem; color: #dee2e6;"></i>
-                                <p class="text-muted mt-2">No recent activity</p>
                             </div>
                         <?php endif; ?>
                     </div>
                 </div>
+
+                <!-- Project Description and Goals -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h6 class="text-info mb-3"><i class="bi bi-card-text me-2"></i>Project Description & Goals</h6>
+
+                        <div class="project-detail-label">Description:</div>
+                        <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['description'])); ?></div>
+
+                        <?php if(!empty($project['target_audience'])): ?>
+                            <div class="project-detail-label">Target Audience:</div>
+                            <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['target_audience'])); ?></div>
+                        <?php endif; ?>
+
+                        <?php if(!empty($project['project_goals'])): ?>
+                            <div class="project-detail-label">Project Goals:</div>
+                            <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['project_goals'])); ?></div>
+                        <?php endif; ?>
+
+                        <?php if(!empty($project['challenges_faced'])): ?>
+                            <div class="project-detail-label">Challenges Faced:</div>
+                            <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['challenges_faced'])); ?></div>
+                        <?php endif; ?>
+
+                        <?php if(!empty($project['future_enhancements'])): ?>
+                            <div class="project-detail-label">Future Enhancements:</div>
+                            <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['future_enhancements'])); ?></div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Files and Links -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h6 class="text-warning mb-3"><i class="bi bi-folder me-2"></i>Files & Resources</h6>
+
+                        <?php if(!empty($project['image_path'])): ?>
+                            <div class="project-detail-label">Project Image:</div>
+                            <div class="project-detail-value">
+                                <img src="<?php echo htmlspecialchars($project['image_path']); ?>" alt="Project Image" class="img-fluid mb-3" style="max-height: 300px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="project-files">
+                            <?php if(!empty($project['video_path'])): ?>
+                                <a href="<?php echo htmlspecialchars($project['video_path']); ?>" class="file-link btn btn-outline-primary" target="_blank">
+                                    <i class="bi bi-play-circle"></i> View Video
+                                </a>
+                            <?php endif; ?>
+
+                            <?php if(!empty($project['code_file_path'])): ?>
+                                <a href="<?php echo htmlspecialchars($project['code_file_path']); ?>" class="file-link btn btn-outline-success" target="_blank">
+                                    <i class="bi bi-code-slash"></i> Download Code
+                                </a>
+                            <?php endif; ?>
+
+                            <?php if(!empty($project['instruction_file_path'])): ?>
+                                <a href="<?php echo htmlspecialchars($project['instruction_file_path']); ?>" class="file-link btn btn-outline-info" target="_blank">
+                                    <i class="bi bi-file-text"></i> View Instructions
+                                </a>
+                            <?php endif; ?>
+
+                            <?php if(!empty($project['presentation_file_path'])): ?>
+                                <a href="<?php echo htmlspecialchars($project['presentation_file_path']); ?>" class="file-link btn btn-outline-warning" target="_blank">
+                                    <i class="bi bi-file-earmark-slides"></i> View Presentation
+                                </a>
+                            <?php endif; ?>
+
+                            <?php if(!empty($project['additional_files_path'])): ?>
+                                <a href="<?php echo htmlspecialchars($project['additional_files_path']); ?>" class="file-link btn btn-outline-secondary" target="_blank">
+                                    <i class="bi bi-file-earmark-zip"></i> Additional Files
+                                </a>
+                            <?php endif; ?>
+
+                            <?php if(!empty($project['github_repo'])): ?>
+                                <a href="<?php echo htmlspecialchars($project['github_repo']); ?>" class="file-link btn btn-outline-dark" target="_blank">
+                                    <i class="bi bi-github"></i> GitHub Repository
+                                </a>
+                            <?php endif; ?>
+
+                            <?php if(!empty($project['live_demo_url'])): ?>
+                                <a href="<?php echo htmlspecialchars($project['live_demo_url']); ?>" class="file-link btn btn-outline-primary" target="_blank">
+                                    <i class="bi bi-globe"></i> Live Demo
+                                </a>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php if(!empty($project['social_links'])): ?>
+                            <div class="project-detail-label mt-3">Social Links:</div>
+                            <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['social_links'])); ?></div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center mt-5 gap-2">
+                    <a href="admin.php?action=approve&id=<?php echo $project['id']; ?>" class="btn btn-success btn-lg" onclick="return confirm('Are you sure you want to approve this project?')">
+                        <i class="bi bi-check-circle me-2"></i> Approve Project
+                    </a>
+                    <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#rejectProjectModal">
+                        <i class="bi bi-x-circle me-2"></i> Reject Project
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reject Project Modal -->
+        <div class="modal fade" id="rejectProjectModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reject Project</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="admin.php" method="post">
+                        <div class="modal-body">
+                            <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
+                            <div class="mb-3">
+                                <label for="rejection_reason" class="form-label">Rejection Reason</label>
+                                <textarea class="form-control" name="rejection_reason" rows="3" required placeholder="Please provide a detailed reason for rejection..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" name="reject_submit" class="btn btn-danger">Reject Project</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <?php else: ?>
+        <!-- Enhanced Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Enhanced Statistics Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6 col-xl-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Total Projects</h5>
+                                    <h2 class="stat-number"><?php echo $total_projects; ?></h2>
+                                    <div class="stat-progress">
+                                        <div class="progress">
+                                            <div class="progress-bar bg-primary" role="progressbar" style="width: <?php echo $total_projects_percentage; ?>%" aria-valuenow="<?php echo $total_projects_percentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="stat-progress-text">
+                                                <i class="bi bi-arrow-up-right"></i> <?php echo $total_projects_growth; ?> from last period
+                                            </span>
+                                    </div>
+                                </div>
+                                <div class="stat-icon-container bg-primary-light">
+                                    <i class="bi bi-folder stat-icon text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Approved Projects</h5>
+                                    <h2 class="stat-number"><?php echo $approved_projects; ?></h2>
+                                    <div class="stat-progress">
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $approved_projects_percentage; ?>%" aria-valuenow="<?php echo $approved_projects_percentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="stat-progress-text">
+                                                <i class="bi bi-arrow-up-right"></i> <?php echo $approved_projects_growth; ?> from last period
+                                            </span>
+                                    </div>
+                                </div>
+                                <div class="stat-icon-container bg-success-light">
+                                    <i class="bi bi-check-circle stat-icon text-success"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Pending Projects</h5>
+                                    <h2 class="stat-number"><?php echo $pending_projects; ?></h2>
+                                    <div class="stat-progress">
+                                        <div class="progress">
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: <?php echo $pending_projects_percentage; ?>%" aria-valuenow="<?php echo $pending_projects_percentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="stat-progress-text">
+                                                <i class="bi bi-arrow-up-right"></i> <?php echo $pending_projects_growth; ?> from last period
+                                            </span>
+                                    </div>
+                                </div>
+                                <div class="stat-icon-container bg-warning-light">
+                                    <i class="bi bi-hourglass-split stat-icon text-warning"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="card stat-card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start justify-content-between">
+                                <div>
+                                    <h5 class="card-title">Rejected Projects</h5>
+                                    <h2 class="stat-number"><?php echo $rejected_projects; ?></h2>
+                                    <div class="stat-progress">
+                                        <div class="progress">
+                                            <div class="progress-bar bg-danger" role="progressbar" style="width: <?php echo $rejected_projects_percentage; ?>%" aria-valuenow="<?php echo $rejected_projects_percentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <span class="stat-progress-text">
+                                                <i class="bi bi-arrow-up-right"></i> <?php echo $rejected_projects_growth; ?> from last period
+                                            </span>
+                                    </div>
+                                </div>
+                                <div class="stat-icon-container bg-danger-light">
+                                    <i class="bi bi-x-circle stat-icon text-danger"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Pending Projects List -->
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Pending Projects</h5>
-                        <a href="admin_view_project.php" class="btn btn-sm btn-outline-primary">View All</a>
-                    </div>
-                    <div class="card-body">
-                        <?php if (empty($pending_projects_list)): ?>
-                            <div class="text-center py-4">
-                                <i class="bi bi-inbox" style="font-size: 3rem; color: #dee2e6;"></i>
-                                <p class="text-muted mt-2">No pending projects at the moment</p>
+            <!-- Additional Statistics Row -->
+            <?php if (!empty($difficulty_stats)): ?>
+                <div class="row g-3 mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0"><i class="bi bi-bar-chart me-2"></i>Project Difficulty Distribution</h5>
                             </div>
-                        <?php else: ?>
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
+                            <div class="card-body">
+                                <div class="row">
+                                    <?php foreach ($difficulty_stats as $level => $count): ?>
+                                        <div class="col-md-3 col-sm-6 mb-3">
+                                            <div class="text-center">
+                                                <div class="difficulty-badge difficulty-<?php echo $level; ?> d-inline-block mb-2 px-3 py-2">
+                                                    <?php echo ucfirst($level); ?>
+                                                </div>
+                                                <div class="h4 mb-0"><?php echo $count; ?></div>
+                                                <small class="text-muted">projects</small>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <!-- Charts Row -->
+            <div class="row g-4 mb-4">
+                <!-- Project Activity Chart -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0"><i class="bi bi-graph-up me-2"></i>Project Activity</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <?php echo htmlspecialchars($selected_time_range); ?>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <?php foreach ($time_ranges as $range): ?>
+                                        <li><a class="dropdown-item <?php echo $range == $selected_time_range ? 'active' : ''; ?>" href="?time_range=<?php echo urlencode($range); ?>"><?php echo htmlspecialchars($range); ?></a></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="projectsChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Categories Chart -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0"><i class="bi bi-pie-chart me-2"></i>Project Categories</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <?php echo htmlspecialchars($selected_category_range); ?>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <?php foreach ($category_ranges as $range): ?>
+                                        <li><a class="dropdown-item <?php echo $range == $selected_category_range ? 'active' : ''; ?>" href="?category_range=<?php echo urlencode($range); ?>"><?php echo htmlspecialchars($range); ?></a></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="categoriesChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity and Pending Projects Row -->
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0"><i class="bi bi-activity me-2"></i>Recent Activity</h5>
+                            <?php if (!$show_all_activities): ?>
+                                <a href="?show_all_activities=1" class="btn btn-sm btn-outline-primary">Show More</a>
+                            <?php else: ?>
+                                <a href="admin.php" class="btn btn-sm btn-outline-secondary">Show Less</a>
+                            <?php endif; ?>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="activity-timeline">
+                                <?php foreach ($activities_to_show as $activity): ?>
+                                    <div class="activity-item">
+                                        <div class="activity-icon bg-<?php echo $activity['type']; ?>-light text-<?php echo $activity['type']; ?>">
+                                            <i class="bi bi-<?php echo $activity['type'] == 'primary' ? 'plus-circle' : ($activity['type'] == 'success' ? 'check-circle' : 'x-circle'); ?>"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <h6 class="activity-title"><?php echo htmlspecialchars($activity['title']); ?></h6>
+                                            <p class="activity-text"><?php echo htmlspecialchars($activity['description']); ?></p>
+                                            <span class="activity-time"><?php echo htmlspecialchars($activity['time_ago']); ?></span>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <?php if (empty($activities_to_show)): ?>
+                                <div class="text-center py-4">
+                                    <i class="bi bi-activity" style="font-size: 2rem; color: #dee2e6;"></i>
+                                    <p class="text-muted mt-2">No recent activity</p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Pending Projects List -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0"><i class="bi bi-clock me-2"></i>Pending Projects</h5>
+                            <a href="admin_view_project.php" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                        <div class="card-body">
+                            <?php if (empty($pending_projects_list)): ?>
+                                <div class="text-center py-4">
+                                    <i class="bi bi-inbox" style="font-size: 3rem; color: #dee2e6;"></i>
+                                    <p class="text-muted mt-2">No pending projects at the moment</p>
+                                </div>
+                            <?php else: ?>
+                                <div class="table-responsive">
+                                    <table class="table table-hover enhanced-table">
+                                        <thead>
                                         <tr>
                                             <th>Project</th>
                                             <th>Type</th>
-                                            <th>Technologies</th>
-                                            <th>Submitted By</th>
+                                            <th>Details</th>
+                                            <th>Difficulty</th>
                                             <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
-                                    </thead>
-                                    <tbody>
+                                        </thead>
+                                        <tbody>
                                         <?php foreach ($pending_projects_list as $project): ?>
                                             <tr>
                                                 <td>
@@ -1312,133 +1623,255 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                                         </div>
                                                         <div>
                                                             <h6 class="mb-0"><?php echo htmlspecialchars($project['name']); ?></h6>
+                                                            <small class="text-muted"><?php echo htmlspecialchars($project['submitted_by']); ?></small>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td><?php echo htmlspecialchars($project['type']); ?></td>
                                                 <td>
-                                                    <span class="badge bg-light text-dark"><?php echo htmlspecialchars($project['technologies']); ?></span>
+                                                    <span class="badge bg-light text-dark"><?php echo htmlspecialchars($project['type']); ?></span>
                                                 </td>
-                                                <td><?php echo htmlspecialchars($project['submitted_by']); ?></td>
                                                 <td>
-                                                    <span class="badge bg-<?php echo $project['status_class']; ?>">
-                                                        <?php echo htmlspecialchars($project['status']); ?>
-                                                    </span>
+                                                    <div class="project-meta">
+                                                        <?php if ($project['category']): ?>
+                                                            <div><strong>Category:</strong> <?php echo htmlspecialchars($project['category']); ?></div>
+                                                        <?php endif; ?>
+                                                        <?php if ($project['dev_time']): ?>
+                                                            <div><strong>Dev Time:</strong> <?php echo htmlspecialchars($project['dev_time']); ?></div>
+                                                        <?php endif; ?>
+                                                        <?php if ($project['team_size']): ?>
+                                                            <div><strong>Team:</strong> <?php echo htmlspecialchars($project['team_size']); ?></div>
+                                                        <?php endif; ?>
+                                                        <div><strong>Tech:</strong> <?php echo htmlspecialchars($project['technologies']); ?></div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <?php if ($project['difficulty']): ?>
+                                                        <span class="difficulty-badge difficulty-<?php echo $project['difficulty']; ?>">
+                                                                    <?php echo ucfirst($project['difficulty']); ?>
+                                                                </span>
+                                                    <?php else: ?>
+                                                        <span class="text-muted">N/A</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                            <span class="badge bg-<?php echo $project['status_class']; ?>">
+                                                                <?php echo htmlspecialchars($project['status']); ?>
+                                                            </span>
                                                 </td>
                                                 <td>
                                                     <div class="btn-group btn-group-sm" role="group">
-                                                        <a href="admin.php?action=view&id=<?php echo $project['id']; ?>" class="btn btn-outline-primary btn-sm">
-                                                            <i class="bi bi-eye"></i> View
+                                                        <a href="admin.php?action=view&id=<?php echo $project['id']; ?>" class="btn btn-outline-primary btn-sm" title="View Details">
+                                                            <i class="bi bi-eye"></i>
                                                         </a>
-                                                        <a href="admin.php?action=approve&id=<?php echo $project['id']; ?>" class="btn btn-outline-success btn-sm" onclick="return confirm('Are you sure you want to approve this project?')">
-                                                            <i class="bi bi-check"></i> Approve
+                                                        <a href="admin.php?action=approve&id=<?php echo $project['id']; ?>" class="btn btn-outline-success btn-sm" onclick="return confirm('Are you sure you want to approve this project?')" title="Approve">
+                                                            <i class="bi bi-check"></i>
                                                         </a>
-                                                        <a href="admin.php?action=reject&id=<?php echo $project['id']; ?>" class="btn btn-outline-danger btn-sm">
-                                                            <i class="bi bi-x"></i> Reject
+                                                        <a href="admin.php?action=reject&id=<?php echo $project['id']; ?>" class="btn btn-outline-danger btn-sm" title="Reject">
+                                                            <i class="bi bi-x"></i>
                                                         </a>
                                                     </div>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-    <!-- After main dashboard cards -->
-    
     <?php endif; ?>
-    </div> <!-- Close main-content -->
+</div> <!-- Close main-content -->
 
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <script>
-
-        // Project chart
-        var projectCtx = document.getElementById('projectsChart');
-        if (projectCtx) {
-            var projectsChart = new Chart(projectCtx, {
-                type: 'line',
-                data: {
-                    labels: <?php echo json_encode($project_chart_labels ?? []); ?>,
-                    datasets: [
-                        {
-                            label: 'Submitted',
-                            data: <?php echo json_encode($submitted_projects_data ?? []); ?>,
-                            borderColor: '#4361ee',
-                            backgroundColor: 'rgba(67, 97, 238, 0.1)',
-                            tension: 0.4,
-                            fill: true
-                        },
-                        {
-                            label: 'Approved',
-                            data: <?php echo json_encode($approved_projects_data ?? []); ?>,
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            tension: 0.4,
-                            fill: true
-                        },
-                        {
-                            label: 'Rejected',
-                            data: <?php echo json_encode($rejected_projects_data ?? []); ?>,
-                            borderColor: '#ef4444',
-                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                            tension: 0.4,
-                            fill: true
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
+<script>
+    // Enhanced Project chart
+    var projectCtx = document.getElementById('projectsChart');
+    if (projectCtx) {
+        var projectsChart = new Chart(projectCtx, {
+            type: 'line',
+            data: {
+                labels: <?php echo json_encode($project_chart_labels ?? []); ?>,
+                datasets: [
+                    {
+                        label: 'Submitted',
+                        data: <?php echo json_encode($submitted_projects_data ?? []); ?>,
+                        borderColor: '#4361ee',
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#4361ee',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    },
+                    {
+                        label: 'Approved',
+                        data: <?php echo json_encode($approved_projects_data ?? []); ?>,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    },
+                    {
+                        label: 'Rejected',
+                        data: <?php echo json_encode($rejected_projects_data ?? []); ?>,
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#ef4444',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
                         }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0
+                    tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#333',
+                        bodyColor: '#666',
+                        borderColor: '#ddd',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: true
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+    }
+
+    // Enhanced Categories chart
+    var categoryCtx = document.getElementById('categoriesChart');
+    if (categoryCtx) {
+        var categoriesChart = new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: <?php echo json_encode($category_labels ?? []); ?>,
+                datasets: [{
+                    data: <?php echo json_encode($category_data ?? []); ?>,
+                    backgroundColor: <?php echo json_encode(array_slice($category_colors, 0, count($category_labels ?? []))); ?>,
+                    borderWidth: 0,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#333',
+                        bodyColor: '#666',
+                        borderColor: '#ddd',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                var total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                var percentage = Math.round((context.parsed * 100) / total);
+                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
                             }
                         }
                     }
+                },
+                cutout: '60%',
+                animation: {
+                    animateRotate: true,
+                    animateScale: true
+                }
+            }
+        });
+    }
+
+    // Enhanced sidebar toggle functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+
+        if (sidebarToggle && sidebar) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+                if (mainContent) {
+                    mainContent.classList.toggle('pushed');
                 }
             });
         }
 
-        // Categories chart
-        var categoryCtx = document.getElementById('categoriesChart');
-        if (categoryCtx) {
-            var categoriesChart = new Chart(categoryCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: <?php echo json_encode($category_labels ?? []); ?>,
-                    datasets: [{
-                        data: <?php echo json_encode($category_data ?? []); ?>,
-                        backgroundColor: <?php echo json_encode($category_colors ?? []); ?>,
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            if (window.innerWidth <= 991.98) {
+                if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+                    sidebar.classList.remove('show');
+                    if (mainContent) {
+                        mainContent.classList.remove('pushed');
                     }
                 }
-            });
-        }
-    </script>
+            }
+        });
+
+        // Auto-hide alerts after 5 seconds
+        const alerts = document.querySelectorAll('.alert-banner');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 5000);
+        });
+    });
+</script>
 </body>
 </html>
