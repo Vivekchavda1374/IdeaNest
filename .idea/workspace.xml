@@ -6,10 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/css/new_project_add.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/new_project_add.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/js/list_project.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/list_project.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/Blog/list-project.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/Blog/list-project.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/forms/new_project_add.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/new_project_add.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -243,7 +239,7 @@
       <workItem from="1756008022325" duration="11386000" />
       <workItem from="1756039239829" duration="5726000" />
       <workItem from="1756095115585" duration="3629000" />
-      <workItem from="1756098755179" duration="3164000" />
+      <workItem from="1756098755179" duration="3863000" />
     </task>
     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
       <option name="closed" value="true" />
