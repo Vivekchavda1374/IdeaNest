@@ -1,6 +1,11 @@
 <?php
 // Start session at the beginning of the script
 session_start();
+
+// Enable error reporting for debugging (remove in production)
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 include '../../Login/Login/db.php';
 
 // Check if user is logged in, redirect if not
@@ -10,164 +15,182 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Set character set to prevent encoding issues
-$conn->set_charset("utf8mb4");
+if (isset($conn)) {
+    $conn->set_charset("utf8mb4");
+}
 
 $message = "";
 $messageType = "";
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get user_id from session - Keep as string to match database expectations
-    $user_id = $_SESSION['user_id'];
+    try {
+        // Get user_id from session - Keep as string to match database expectations
+        $user_id = $_SESSION['user_id'];
 
-    // Sanitize and validate inputs
-    $project_name = htmlspecialchars(trim($_POST['project_name'] ?? ''));
-    $project_type = in_array($_POST['project_type'] ?? '', ['software', 'hardware']) ? $_POST['project_type'] : '';
-    $description = htmlspecialchars(trim($_POST['description'] ?? ''));
-    $language = htmlspecialchars(trim($_POST['language'] ?? ''));
+        // Sanitize and validate inputs
+        $project_name = htmlspecialchars(trim($_POST['project_name'] ?? ''));
+        $project_type = in_array($_POST['project_type'] ?? '', ['software', 'hardware']) ? $_POST['project_type'] : '';
+        $description = htmlspecialchars(trim($_POST['description'] ?? ''));
+        $language = htmlspecialchars(trim($_POST['language'] ?? ''));
 
-    // New fields
-    $project_category = htmlspecialchars(trim($_POST['project_category'] ?? ''));
-    $difficulty_level = in_array($_POST['difficulty_level'] ?? '', ['beginner', 'intermediate', 'advanced', 'expert']) ? $_POST['difficulty_level'] : '';
-    $development_time = htmlspecialchars(trim($_POST['development_time'] ?? ''));
-    $team_size = filter_var($_POST['team_size'] ?? '', FILTER_VALIDATE_INT);
-    $target_audience = htmlspecialchars(trim($_POST['target_audience'] ?? ''));
-    $project_goals = htmlspecialchars(trim($_POST['project_goals'] ?? ''));
-    $challenges_faced = htmlspecialchars(trim($_POST['challenges_faced'] ?? ''));
-    $future_enhancements = htmlspecialchars(trim($_POST['future_enhancements'] ?? ''));
-    $github_repo = filter_var(trim($_POST['github_repo'] ?? ''), FILTER_VALIDATE_URL) ?: null;
-    $live_demo_url = filter_var(trim($_POST['live_demo_url'] ?? ''), FILTER_VALIDATE_URL) ?: null;
-    $project_license = htmlspecialchars(trim($_POST['project_license'] ?? ''));
-    $keywords = htmlspecialchars(trim($_POST['keywords'] ?? ''));
-    $contact_email = filter_var(trim($_POST['contact_email'] ?? ''), FILTER_VALIDATE_EMAIL) ?: null;
-    $social_links = htmlspecialchars(trim($_POST['social_links'] ?? ''));
-
-    // Classification handling
-    $classification = '';
-    if ($project_type == 'software') {
-        $valid_software_types = [
-                'web', 'mobile', 'ai_ml', 'desktop', 'system',
-                'embedded_iot', 'cybersecurity', 'game', 'data_science', 'cloud'
-        ];
-        $classification = in_array($_POST['software_classification'] ?? '', $valid_software_types)
-                ? $_POST['software_classification']
-                : '';
-    } elseif ($project_type == 'hardware') {
-        $valid_hardware_types = [
-                'embedded', 'iot', 'robotics', 'automation', 'sensor',
-                'communication', 'power', 'wearable', 'mechatronics', 'renewable'
-        ];
-        $classification = in_array($_POST['hardware_classification'] ?? '', $valid_hardware_types)
-                ? $_POST['hardware_classification']
-                : '';
-    }
-
-    // File upload function with improved validation and error handling
-    function uploadFile($file, $folder, $allowedTypes = [], $maxSize = 5 * 1024 * 1024) {
-        if (empty($file['name'])) {
-            return null;
+        // Validate required fields
+        if (empty($project_name)) {
+            throw new Exception("Project name is required.");
+        }
+        if (empty($project_type)) {
+            throw new Exception("Project type is required.");
+        }
+        if (empty($description)) {
+            throw new Exception("Project description is required.");
         }
 
-        // Check for upload errors
-        if ($file['error'] !== UPLOAD_ERR_OK) {
-            error_log("File upload error: " . $file['error']);
-            return null;
+        // New fields with proper validation
+        $project_category = htmlspecialchars(trim($_POST['project_category'] ?? ''));
+        $difficulty_level = in_array($_POST['difficulty_level'] ?? '', ['beginner', 'intermediate', 'advanced', 'expert']) ? $_POST['difficulty_level'] : null;
+        $development_time = htmlspecialchars(trim($_POST['development_time'] ?? ''));
+
+        // Handle team_size properly
+        $team_size = $_POST['team_size'] ?? '';
+        if ($team_size === '' || !is_numeric($team_size)) {
+            $team_size = null;
+        } else {
+            $team_size = (string)$team_size; // Convert to string to match database
         }
 
-        // Validate file
-        $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $fileName = uniqid() . '.' . $fileExt; // Generate unique filename
+        $target_audience = htmlspecialchars(trim($_POST['target_audience'] ?? ''));
+        $project_goals = htmlspecialchars(trim($_POST['project_goals'] ?? ''));
+        $challenges_faced = htmlspecialchars(trim($_POST['challenges_faced'] ?? ''));
+        $future_enhancements = htmlspecialchars(trim($_POST['future_enhancements'] ?? ''));
+        $github_repo = filter_var(trim($_POST['github_repo'] ?? ''), FILTER_VALIDATE_URL) ?: null;
+        $live_demo_url = filter_var(trim($_POST['live_demo_url'] ?? ''), FILTER_VALIDATE_URL) ?: null;
+        $project_license = htmlspecialchars(trim($_POST['project_license'] ?? ''));
+        $keywords = htmlspecialchars(trim($_POST['keywords'] ?? ''));
+        $contact_email = filter_var(trim($_POST['contact_email'] ?? ''), FILTER_VALIDATE_EMAIL) ?: null;
+        $social_links = htmlspecialchars(trim($_POST['social_links'] ?? ''));
 
-        // Check file type
-        if (!empty($allowedTypes) && !in_array($fileExt, $allowedTypes)) {
-            error_log("Invalid file type: " . $fileExt);
-            return null;
+        // Classification handling
+        $classification = null;
+        if ($project_type == 'software') {
+            $valid_software_types = [
+                    'web', 'mobile', 'ai_ml', 'desktop', 'system',
+                    'embedded_iot', 'cybersecurity', 'game', 'data_science', 'cloud'
+            ];
+            $classification = in_array($_POST['software_classification'] ?? '', $valid_software_types)
+                    ? $_POST['software_classification']
+                    : null;
+        } elseif ($project_type == 'hardware') {
+            $valid_hardware_types = [
+                    'embedded', 'iot', 'robotics', 'automation', 'sensor',
+                    'communication', 'power', 'wearable', 'mechatronics', 'renewable'
+            ];
+            $classification = in_array($_POST['hardware_classification'] ?? '', $valid_hardware_types)
+                    ? $_POST['hardware_classification']
+                    : null;
         }
 
-        // Check file size
-        if ($file['size'] > $maxSize) {
-            error_log("File too large: " . $file['size'] . " bytes");
-            return null;
-        }
-
-        // Create upload directory if not exists
-        $target_dir = "uploads/$folder/";
-        if (!file_exists($target_dir)) {
-            if (!mkdir($target_dir, 0755, true)) {
-                error_log("Failed to create directory: " . $target_dir);
+        // File upload function with improved validation and error handling
+        function uploadFile($file, $folder, $allowedTypes = [], $maxSize = 5 * 1024 * 1024) {
+            if (empty($file['name'])) {
                 return null;
             }
+
+            // Check for upload errors
+            if ($file['error'] !== UPLOAD_ERR_OK) {
+                error_log("File upload error: " . $file['error']);
+                return null;
+            }
+
+            // Validate file
+            $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            $fileName = uniqid() . '.' . $fileExt; // Generate unique filename
+
+            // Check file type
+            if (!empty($allowedTypes) && !in_array($fileExt, $allowedTypes)) {
+                error_log("Invalid file type: " . $fileExt);
+                return null;
+            }
+
+            // Check file size
+            if ($file['size'] > $maxSize) {
+                error_log("File too large: " . $file['size'] . " bytes");
+                return null;
+            }
+
+            // Create upload directory if not exists
+            $target_dir = "uploads/$folder/";
+            if (!file_exists($target_dir)) {
+                if (!mkdir($target_dir, 0755, true)) {
+                    error_log("Failed to create directory: " . $target_dir);
+                    return null;
+                }
+            }
+
+            // Move uploaded file
+            $target_file = $target_dir . $fileName;
+            if (move_uploaded_file($file["tmp_name"], $target_file)) {
+                return $target_file;
+            }
+
+            error_log("Failed to move uploaded file");
+            return null;
         }
 
-        // Move uploaded file
-        $target_file = $target_dir . $fileName;
-        if (move_uploaded_file($file["tmp_name"], $target_file)) {
-            return $target_file;
+        // Upload files with type restrictions
+        $image_path = null;
+        $video_path = null;
+        $code_file_path = null;
+        $instruction_file_path = null;
+        $presentation_file_path = null;
+        $additional_files_path = null;
+
+        // Handle file uploads safely
+        if (isset($_FILES['images']) && $_FILES['images']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $image_path = uploadFile($_FILES['images'], "images", ['jpg', 'jpeg', 'png', 'gif'], 2 * 1024 * 1024);
+        }
+        if (isset($_FILES['videos']) && $_FILES['videos']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $video_path = uploadFile($_FILES['videos'], "videos", ['mp4', 'avi', 'mov'], 10 * 1024 * 1024);
+        }
+        if (isset($_FILES['code_file']) && $_FILES['code_file']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $code_file_path = uploadFile($_FILES['code_file'], "code_files", ['zip', 'rar', 'tar', 'gz']);
+        }
+        if (isset($_FILES['instruction_file']) && $_FILES['instruction_file']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $instruction_file_path = uploadFile($_FILES['instruction_file'], "instructions", ['txt', 'pdf', 'docx']);
+        }
+        if (isset($_FILES['presentation_file']) && $_FILES['presentation_file']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $presentation_file_path = uploadFile($_FILES['presentation_file'], "presentations", ['ppt', 'pptx', 'pdf'], 15 * 1024 * 1024);
+        }
+        if (isset($_FILES['additional_files']) && $_FILES['additional_files']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $additional_files_path = uploadFile($_FILES['additional_files'], "additional", ['zip', 'rar', 'tar', 'gz'], 20 * 1024 * 1024);
         }
 
-        error_log("Failed to move uploaded file");
-        return null;
-    }
+        // Set default status for new projects
+        $status = "pending";
 
-    // Upload files with type restrictions
-    $image_path = null;
-    $video_path = null;
-    $code_file_path = null;
-    $instruction_file_path = null;
-    $presentation_file_path = null;
-    $additional_files_path = null;
+        // Current date and time for submission_date
+        $submission_date = date('Y-m-d H:i:s');
 
-    // Handle file uploads safely
-    if (isset($_FILES['images'])) {
-        $image_path = uploadFile($_FILES['images'], "images", ['jpg', 'jpeg', 'png', 'gif'], 2 * 1024 * 1024);
-    }
-    if (isset($_FILES['videos'])) {
-        $video_path = uploadFile($_FILES['videos'], "videos", ['mp4', 'avi', 'mov'], 10 * 1024 * 1024);
-    }
-    if (isset($_FILES['code_file'])) {
-        $code_file_path = uploadFile($_FILES['code_file'], "code_files", ['zip', 'rar', 'tar', 'gz']);
-    }
-    if (isset($_FILES['instruction_file'])) {
-        $instruction_file_path = uploadFile($_FILES['instruction_file'], "instructions", ['txt', 'pdf', 'docx']);
-    }
-    if (isset($_FILES['presentation_file'])) {
-        $presentation_file_path = uploadFile($_FILES['presentation_file'], "presentations", ['ppt', 'pptx', 'pdf'], 15 * 1024 * 1024);
-    }
-    if (isset($_FILES['additional_files'])) {
-        $additional_files_path = uploadFile($_FILES['additional_files'], "additional", ['zip', 'rar', 'tar', 'gz'], 20 * 1024 * 1024);
-    }
+        // FIXED SQL statement and parameter binding
+        $sql = "INSERT INTO projects (
+            user_id, project_name, project_type, classification, 
+            description, language, project_category, difficulty_level,
+            development_time, team_size, target_audience,
+            project_goals, challenges_faced, future_enhancements,
+            github_repo, live_demo_url, project_license, keywords,
+            contact_email, social_links, image_path, video_path, 
+            code_file_path, instruction_file_path, presentation_file_path,
+            additional_files_path, submission_date, status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    // Set default status for new projects
-    $status = "pending";
+        // Prepare statement
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            throw new Exception("Database prepare error: " . $conn->error);
+        }
 
-    // Current date and time for submission_date
-    $submission_date = date('Y-m-d H:i:s');
-
-    // FIXED SQL statement and parameter binding
-    $sql = "INSERT INTO projects (
-        user_id, project_name, project_type, classification, 
-        description, language, project_category, difficulty_level,
-        development_time, team_size, target_audience,
-        project_goals, challenges_faced, future_enhancements,
-        github_repo, live_demo_url, project_license, keywords,
-        contact_email, social_links, image_path, video_path, 
-        code_file_path, instruction_file_path, presentation_file_path,
-        additional_files_path, submission_date, status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-    // FIXED: Prepare and bind with correct parameter types
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        $message = "Database error: " . $conn->error;
-        $messageType = "danger";
-        error_log("Prepare failed: " . $conn->error);
-    } else {
-        // Convert team_size to null if empty, otherwise keep as integer
-        $team_size_param = ($team_size === false || $team_size === '') ? null : $team_size;
-
-        // FIXED: Correct parameter binding - all as strings for simplicity, MySQL will handle type conversion
+        // Bind parameters - all as strings for consistency
         $stmt->bind_param(
-                "ssssssssssssssssssssssssssss", // All strings - 28 parameters
+                "ssssssssssssssssssssssssssss", // 28 string parameters
                 $user_id,
                 $project_name,
                 $project_type,
@@ -177,7 +200,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $project_category,
                 $difficulty_level,
                 $development_time,
-                $team_size_param,
+                $team_size,
                 $target_audience,
                 $project_goals,
                 $challenges_faced,
@@ -207,17 +230,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("Location: " . $_SERVER['PHP_SELF'] . "?success=1");
             exit();
         } else {
-            $message = "Error submitting project: " . $stmt->error;
-            $messageType = "danger";
-
-            // Log the error for debugging
-            error_log("Project submission error: " . $stmt->error);
-            error_log("SQL: " . $sql);
-            error_log("User ID: " . $user_id);
+            throw new Exception("Error executing query: " . $stmt->error);
         }
 
         // Close statement
         $stmt->close();
+
+    } catch (Exception $e) {
+        $message = "Error: " . $e->getMessage();
+        $messageType = "danger";
+
+        // Log the error for debugging
+        error_log("Project submission error: " . $e->getMessage());
     }
 }
 
@@ -227,33 +251,631 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
     $messageType = "success";
 }
 
-// Close connection
-$conn->close();
+// Close connection if it exists
+if (isset($conn)) {
+    $conn->close();
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Submission - IdeaNest</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
     <link rel="stylesheet" href="../../assets/css/layout_user.css">
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="../../assets/css/new_project_add.css">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --accent-color: #4895ef;
+            --white: #ffffff;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-500: #64748b;
+            --gray-700: #334155;
+            --gray-900: #0f172a;
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --sidebar-width: 280px;
+            --border-radius: 12px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--gray-50) 0%, #e0e7ff 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            color: var(--gray-900);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Alert Styles */
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: var(--border-radius);
+        }
+
+        .alert-success {
+            color: #0f5132;
+            background-color: #d1e7dd;
+            border-color: #badbcc;
+        }
+
+        .alert-danger {
+            color: #842029;
+            background-color: #f8d7da;
+            border-color: #f5c2c7;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            padding: 2rem 1.5rem;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.75rem;
+            width: 20px;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Mobile Sidebar Toggle */
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: var(--primary-color);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+                padding-top: 80px;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+        }
+
+        /* Form Container */
+        .form-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .form-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .form-header {
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            text-align: center;
+        }
+
+        .form-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .form-body {
+            padding: 2rem;
+        }
+
+        .user-info {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--gray-50);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .user-info h4 {
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .user-info p {
+            color: var(--gray-500);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--gray-50), #f8faff);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gray-200);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        }
+
+        .form-section h3 {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--gray-200);
+            position: relative;
+        }
+
+        .form-section h3::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+
+        /* Form Controls */
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--gray-700);
+            display: block;
+        }
+
+        .form-label .text-danger {
+            color: var(--danger-color) !important;
+        }
+
+        .form-control,
+        .form-select {
+            border: 2px solid var(--gray-200);
+            border-radius: var(--border-radius);
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+            width: 100%;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: var(--gray-500);
+        }
+
+        /* Grid Layout Fix */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-left: -0.75rem;
+            margin-right: -0.75rem;
+        }
+
+        .col-md-4,
+        .col-md-6,
+        .col-md-8 {
+            flex: 0 0 auto;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+
+        .col-md-4 {
+            width: 33.333333%;
+        }
+
+        .col-md-6 {
+            width: 50%;
+        }
+
+        .col-md-8 {
+            width: 66.666667%;
+        }
+
+        @media (max-width: 768px) {
+            .col-md-4,
+            .col-md-6,
+            .col-md-8 {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+
+        /* Category Groups */
+        .category-group {
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--gray-50), #f0f4ff);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gray-200);
+            border-left: 4px solid var(--accent-color);
+            position: relative;
+        }
+
+        .category-group::before {
+            content: "";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            opacity: 0.1;
+            border-radius: 50%;
+        }
+
+        .category-group .form-label {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* File Upload Styling */
+        .file-upload-container {
+            position: relative;
+            padding: 1rem;
+            background: linear-gradient(135deg, #fafbff, var(--gray-50));
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-container:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .file-upload-container .form-control[type="file"] {
+            border: 2px dashed var(--gray-300);
+            background: transparent;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-container .form-control[type="file"]:hover {
+            border-color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .file-upload-info {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            margin-top: 0.5rem;
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* Button Styling */
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: center;
+            text-decoration: none;
+            vertical-align: middle;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: var(--white);
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-outline-secondary {
+            color: var(--gray-700);
+            border-color: var(--gray-300);
+            background: transparent;
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--gray-100);
+            border-color: var(--gray-400);
+        }
+
+        .w-100 {
+            width: 100%;
+        }
+
+        .me-2 {
+            margin-right: 0.5rem;
+        }
+
+        .me-3 {
+            margin-right: 1rem;
+        }
+
+        /* Animations */
+        .form-container {
+            animation: slideInUp 0.8s ease;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-section {
+            animation: fadeInSlideUp 0.6s ease forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .form-section:nth-child(1) { animation-delay: 0.1s; }
+        .form-section:nth-child(2) { animation-delay: 0.2s; }
+        .form-section:nth-child(3) { animation-delay: 0.3s; }
+        .form-section:nth-child(4) { animation-delay: 0.4s; }
+        .form-section:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes fadeInSlideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .form-body {
+                padding: 1.5rem;
+            }
+
+            .form-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .form-section {
+                padding: 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .user-info {
+                padding: 1rem;
+            }
+
+            .category-group {
+                padding: 1rem;
+            }
+
+            .file-upload-container {
+                padding: 0.75rem;
+            }
+
+            .btn-primary {
+                padding: 0.875rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .form-container {
+                margin: 0.5rem;
+                border-radius: 8px;
+            }
+
+            .form-header {
+                padding: 1.5rem 1rem;
+            }
+
+            .form-body {
+                padding: 1rem;
+            }
+
+            .form-section {
+                padding: 1rem;
+            }
+
+            .form-section h3 {
+                font-size: 1.1rem;
+            }
+
+            .row {
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            .col-md-4,
+            .col-md-6,
+            .col-md-8 {
+                padding-left: 0;
+                padding-right: 0;
+            }
+        }
+
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .d-flex {
+            display: flex;
+        }
+
+        .justify-content-end {
+            justify-content: flex-end;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        .float-end {
+            float: right;
+        }
+    </style>
 </head>
-
 <body>
-<?php
-// Set the correct base path for layout include
-$basePath = '../../';
-include_once '../layout.php';
-?>
-
+<?php include "../layout.php";?>
+<!-- Main Content -->
 <main class="main-content">
     <div class="form-container">
         <div class="form-header">
@@ -262,6 +884,13 @@ include_once '../layout.php';
         </div>
 
         <div class="form-body">
+            <?php if (!empty($message)): ?>
+                <div class="alert alert-<?php echo $messageType; ?>" role="alert">
+                    <i class="fas fa-<?php echo $messageType === 'success' ? 'check-circle' : 'exclamation-triangle'; ?> me-2"></i>
+                    <?php echo htmlspecialchars($message); ?>
+                </div>
+            <?php endif; ?>
+
             <div class="user-info">
                 <h4><i class="fas fa-user me-2"></i>Welcome, <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?>!</h4>
                 <p><i class="fas fa-id-badge me-2"></i>User ID: <?php echo htmlspecialchars($_SESSION['user_id']); ?></p>
@@ -275,21 +904,22 @@ include_once '../layout.php';
                     <div class="row">
                         <div class="col-md-8 mb-4">
                             <label class="form-label">
-                                <i class="fas fa-tag me-2"></i>Project Name
+                                <i class="fas fa-tag me-2"></i>Project Name <span class="text-danger">*</span>
                             </label>
-                            <input type="text" class="form-control" name="project_name" maxlength="255"
-                                   placeholder="Enter your innovative project name">
+                            <input type="text" class="form-control" name="project_name" maxlength="255" required
+                                   placeholder="Enter your innovative project name"
+                                   value="<?php echo isset($_POST['project_name']) ? htmlspecialchars($_POST['project_name']) : ''; ?>">
                         </div>
 
                         <div class="col-md-4 mb-4">
                             <label class="form-label">
-                                <i class="fas fa-layer-group me-2"></i>Project Type
+                                <i class="fas fa-layer-group me-2"></i>Project Type <span class="text-danger">*</span>
                             </label>
-                            <select class="form-select" name="project_type" id="projectType"
+                            <select class="form-select" name="project_type" id="projectType" required
                                     onchange="toggleProjectType()">
                                 <option value="">Select Project Type</option>
-                                <option value="software">Software Development</option>
-                                <option value="hardware">Hardware Engineering</option>
+                                <option value="software" <?php echo (isset($_POST['project_type']) && $_POST['project_type'] === 'software') ? 'selected' : ''; ?>>Software Development</option>
+                                <option value="hardware" <?php echo (isset($_POST['project_type']) && $_POST['project_type'] === 'hardware') ? 'selected' : ''; ?>>Hardware Engineering</option>
                             </select>
                         </div>
                     </div>
@@ -301,15 +931,15 @@ include_once '../layout.php';
                             </label>
                             <select class="form-select" name="project_category">
                                 <option value="">Select Category</option>
-                                <option value="education">Education</option>
-                                <option value="healthcare">Healthcare</option>
-                                <option value="finance">Finance</option>
-                                <option value="entertainment">Entertainment</option>
-                                <option value="productivity">Productivity</option>
-                                <option value="social">Social</option>
-                                <option value="business">Business</option>
-                                <option value="research">Research</option>
-                                <option value="other">Other</option>
+                                <option value="education" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'education') ? 'selected' : ''; ?>>Education</option>
+                                <option value="healthcare" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'healthcare') ? 'selected' : ''; ?>>Healthcare</option>
+                                <option value="finance" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'finance') ? 'selected' : ''; ?>>Finance</option>
+                                <option value="entertainment" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'entertainment') ? 'selected' : ''; ?>>Entertainment</option>
+                                <option value="productivity" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'productivity') ? 'selected' : ''; ?>>Productivity</option>
+                                <option value="social" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'social') ? 'selected' : ''; ?>>Social</option>
+                                <option value="business" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'business') ? 'selected' : ''; ?>>Business</option>
+                                <option value="research" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'research') ? 'selected' : ''; ?>>Research</option>
+                                <option value="other" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'other') ? 'selected' : ''; ?>>Other</option>
                             </select>
                         </div>
 
@@ -319,10 +949,10 @@ include_once '../layout.php';
                             </label>
                             <select class="form-select" name="difficulty_level">
                                 <option value="">Select Difficulty</option>
-                                <option value="beginner">Beginner</option>
-                                <option value="intermediate">Intermediate</option>
-                                <option value="advanced">Advanced</option>
-                                <option value="expert">Expert</option>
+                                <option value="beginner" <?php echo (isset($_POST['difficulty_level']) && $_POST['difficulty_level'] === 'beginner') ? 'selected' : ''; ?>>Beginner</option>
+                                <option value="intermediate" <?php echo (isset($_POST['difficulty_level']) && $_POST['difficulty_level'] === 'intermediate') ? 'selected' : ''; ?>>Intermediate</option>
+                                <option value="advanced" <?php echo (isset($_POST['difficulty_level']) && $_POST['difficulty_level'] === 'advanced') ? 'selected' : ''; ?>>Advanced</option>
+                                <option value="expert" <?php echo (isset($_POST['difficulty_level']) && $_POST['difficulty_level'] === 'expert') ? 'selected' : ''; ?>>Expert</option>
                             </select>
                         </div>
                     </div>
@@ -335,16 +965,16 @@ include_once '../layout.php';
                     </label>
                     <select class="form-select" name="software_classification">
                         <option value="">Select Software Category</option>
-                        <option value="web">Web Application</option>
-                        <option value="mobile">Mobile Application</option>
-                        <option value="ai_ml">AI & Machine Learning</option>
-                        <option value="desktop">Desktop Application</option>
-                        <option value="system">System Software</option>
-                        <option value="embedded_iot">Embedded Systems / IoT</option>
-                        <option value="cybersecurity">Cybersecurity</option>
-                        <option value="game">Game Development</option>
-                        <option value="data_science">Data Science & Analytics</option>
-                        <option value="cloud">Cloud Applications</option>
+                        <option value="web" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'web') ? 'selected' : ''; ?>>Web Application</option>
+                        <option value="mobile" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'mobile') ? 'selected' : ''; ?>>Mobile Application</option>
+                        <option value="ai_ml" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'ai_ml') ? 'selected' : ''; ?>>AI & Machine Learning</option>
+                        <option value="desktop" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'desktop') ? 'selected' : ''; ?>>Desktop Application</option>
+                        <option value="system" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'system') ? 'selected' : ''; ?>>System Software</option>
+                        <option value="embedded_iot" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'embedded_iot') ? 'selected' : ''; ?>>Embedded Systems / IoT</option>
+                        <option value="cybersecurity" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'cybersecurity') ? 'selected' : ''; ?>>Cybersecurity</option>
+                        <option value="game" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'game') ? 'selected' : ''; ?>>Game Development</option>
+                        <option value="data_science" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'data_science') ? 'selected' : ''; ?>>Data Science & Analytics</option>
+                        <option value="cloud" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'cloud') ? 'selected' : ''; ?>>Cloud Applications</option>
                     </select>
                 </div>
 
@@ -354,16 +984,16 @@ include_once '../layout.php';
                     </label>
                     <select class="form-select" name="hardware_classification">
                         <option value="">Select Hardware Category</option>
-                        <option value="embedded">Embedded Systems</option>
-                        <option value="iot">IoT Projects</option>
-                        <option value="robotics">Robotics</option>
-                        <option value="automation">Automation</option>
-                        <option value="sensor">Sensor-Based Projects</option>
-                        <option value="communication">Communication Systems</option>
-                        <option value="power">Power Electronics</option>
-                        <option value="wearable">Wearable Technology</option>
-                        <option value="mechatronics">Mechatronics</option>
-                        <option value="renewable">Renewable Energy</option>
+                        <option value="embedded" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'embedded') ? 'selected' : ''; ?>>Embedded Systems</option>
+                        <option value="iot" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'iot') ? 'selected' : ''; ?>>IoT Projects</option>
+                        <option value="robotics" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'robotics') ? 'selected' : ''; ?>>Robotics</option>
+                        <option value="automation" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'automation') ? 'selected' : ''; ?>>Automation</option>
+                        <option value="sensor" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'sensor') ? 'selected' : ''; ?>>Sensor-Based Projects</option>
+                        <option value="communication" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'communication') ? 'selected' : ''; ?>>Communication Systems</option>
+                        <option value="power" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'power') ? 'selected' : ''; ?>>Power Electronics</option>
+                        <option value="wearable" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'wearable') ? 'selected' : ''; ?>>Wearable Technology</option>
+                        <option value="mechatronics" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'mechatronics') ? 'selected' : ''; ?>>Mechatronics</option>
+                        <option value="renewable" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'renewable') ? 'selected' : ''; ?>>Renewable Energy</option>
                     </select>
                 </div>
 
@@ -373,10 +1003,10 @@ include_once '../layout.php';
 
                     <div class="mb-4">
                         <label class="form-label">
-                            <i class="fas fa-align-left me-2"></i>Project Description
+                            <i class="fas fa-align-left me-2"></i>Project Description <span class="text-danger">*</span>
                         </label>
-                        <textarea class="form-control" name="description" rows="5" maxlength="2000"
-                                  placeholder="Describe your project in detail - what it does, how it works, and what makes it special..."></textarea>
+                        <textarea class="form-control" name="description" rows="5" maxlength="2000" required
+                                  placeholder="Describe your project in detail - what it does, how it works, and what makes it special..."><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description']) : ''; ?></textarea>
                     </div>
 
                     <div class="mb-4">
@@ -384,7 +1014,7 @@ include_once '../layout.php';
                             <i class="fas fa-bullseye me-2"></i>Project Goals & Objectives
                         </label>
                         <textarea class="form-control" name="project_goals" rows="3" maxlength="500"
-                                  placeholder="What are the main goals and objectives of your project?"></textarea>
+                                  placeholder="What are the main goals and objectives of your project?"><?php echo isset($_POST['project_goals']) ? htmlspecialchars($_POST['project_goals']) : ''; ?></textarea>
                     </div>
 
                     <div class="row">
@@ -393,7 +1023,8 @@ include_once '../layout.php';
                                 <i class="fas fa-tools me-2"></i>Technology Stack
                             </label>
                             <input type="text" class="form-control" name="language" maxlength="200"
-                                   placeholder="e.g., Python, JavaScript, React, Arduino, C++">
+                                   placeholder="e.g., Python, JavaScript, React, Arduino, C++"
+                                   value="<?php echo isset($_POST['language']) ? htmlspecialchars($_POST['language']) : ''; ?>">
                         </div>
 
                         <div class="col-md-6 mb-4">
@@ -401,7 +1032,8 @@ include_once '../layout.php';
                                 <i class="fas fa-tags me-2"></i>Keywords
                             </label>
                             <input type="text" class="form-control" name="keywords" maxlength="200"
-                                   placeholder="machine learning, web app, automation (comma separated)">
+                                   placeholder="machine learning, web app, automation (comma separated)"
+                                   value="<?php echo isset($_POST['keywords']) ? htmlspecialchars($_POST['keywords']) : ''; ?>">
                         </div>
                     </div>
                 </div>
@@ -417,12 +1049,12 @@ include_once '../layout.php';
                             </label>
                             <select class="form-select" name="development_time">
                                 <option value="">Select Duration</option>
-                                <option value="1-2 weeks">1-2 weeks</option>
-                                <option value="1 month">1 month</option>
-                                <option value="2-3 months">2-3 months</option>
-                                <option value="3-6 months">3-6 months</option>
-                                <option value="6+ months">6+ months</option>
-                                <option value="ongoing">Ongoing</option>
+                                <option value="1-2 weeks" <?php echo (isset($_POST['development_time']) && $_POST['development_time'] === '1-2 weeks') ? 'selected' : ''; ?>>1-2 weeks</option>
+                                <option value="1 month" <?php echo (isset($_POST['development_time']) && $_POST['development_time'] === '1 month') ? 'selected' : ''; ?>>1 month</option>
+                                <option value="2-3 months" <?php echo (isset($_POST['development_time']) && $_POST['development_time'] === '2-3 months') ? 'selected' : ''; ?>>2-3 months</option>
+                                <option value="3-6 months" <?php echo (isset($_POST['development_time']) && $_POST['development_time'] === '3-6 months') ? 'selected' : ''; ?>>3-6 months</option>
+                                <option value="6+ months" <?php echo (isset($_POST['development_time']) && $_POST['development_time'] === '6+ months') ? 'selected' : ''; ?>>6+ months</option>
+                                <option value="ongoing" <?php echo (isset($_POST['development_time']) && $_POST['development_time'] === 'ongoing') ? 'selected' : ''; ?>>Ongoing</option>
                             </select>
                         </div>
 
@@ -432,11 +1064,11 @@ include_once '../layout.php';
                             </label>
                             <select class="form-select" name="team_size">
                                 <option value="">Select Team Size</option>
-                                <option value="1">Solo (1 person)</option>
-                                <option value="2">2 people</option>
-                                <option value="3">3-4 people</option>
-                                <option value="5">5-10 people</option>
-                                <option value="10">10+ people</option>
+                                <option value="1" <?php echo (isset($_POST['team_size']) && $_POST['team_size'] === '1') ? 'selected' : ''; ?>>Solo (1 person)</option>
+                                <option value="2" <?php echo (isset($_POST['team_size']) && $_POST['team_size'] === '2') ? 'selected' : ''; ?>>2 people</option>
+                                <option value="3" <?php echo (isset($_POST['team_size']) && $_POST['team_size'] === '3') ? 'selected' : ''; ?>>3-4 people</option>
+                                <option value="5" <?php echo (isset($_POST['team_size']) && $_POST['team_size'] === '5') ? 'selected' : ''; ?>>5-10 people</option>
+                                <option value="10" <?php echo (isset($_POST['team_size']) && $_POST['team_size'] === '10') ? 'selected' : ''; ?>>10+ people</option>
                             </select>
                         </div>
                     </div>
@@ -451,7 +1083,7 @@ include_once '../layout.php';
                             <i class="fas fa-user-friends me-2"></i>Target Audience
                         </label>
                         <textarea class="form-control" name="target_audience" rows="2" maxlength="500"
-                                  placeholder="Who is your target audience? (students, professionals, general public, etc.)"></textarea>
+                                  placeholder="Who is your target audience? (students, professionals, general public, etc.)"><?php echo isset($_POST['target_audience']) ? htmlspecialchars($_POST['target_audience']) : ''; ?></textarea>
                     </div>
 
                     <div class="mb-4">
@@ -459,7 +1091,7 @@ include_once '../layout.php';
                             <i class="fas fa-exclamation-triangle me-2"></i>Challenges Faced
                         </label>
                         <textarea class="form-control" name="challenges_faced" rows="3" maxlength="1000"
-                                  placeholder="What challenges did you encounter during development?"></textarea>
+                                  placeholder="What challenges did you encounter during development?"><?php echo isset($_POST['challenges_faced']) ? htmlspecialchars($_POST['challenges_faced']) : ''; ?></textarea>
                     </div>
 
                     <div class="mb-4">
@@ -467,7 +1099,7 @@ include_once '../layout.php';
                             <i class="fas fa-rocket me-2"></i>Future Enhancements
                         </label>
                         <textarea class="form-control" name="future_enhancements" rows="3" maxlength="1000"
-                                  placeholder="What improvements or features do you plan to add in the future?"></textarea>
+                                  placeholder="What improvements or features do you plan to add in the future?"><?php echo isset($_POST['future_enhancements']) ? htmlspecialchars($_POST['future_enhancements']) : ''; ?></textarea>
                     </div>
                 </div>
 
@@ -481,7 +1113,8 @@ include_once '../layout.php';
                                 <i class="fab fa-github me-2"></i>GitHub Repository
                             </label>
                             <input type="url" class="form-control" name="github_repo"
-                                   placeholder="https://github.com/username/project">
+                                   placeholder="https://github.com/username/project"
+                                   value="<?php echo isset($_POST['github_repo']) ? htmlspecialchars($_POST['github_repo']) : ''; ?>">
                         </div>
 
                         <div class="col-md-6 mb-4">
@@ -489,7 +1122,8 @@ include_once '../layout.php';
                                 <i class="fas fa-globe me-2"></i>Live Demo URL
                             </label>
                             <input type="url" class="form-control" name="live_demo_url"
-                                   placeholder="https://your-project-demo.com">
+                                   placeholder="https://your-project-demo.com"
+                                   value="<?php echo isset($_POST['live_demo_url']) ? htmlspecialchars($_POST['live_demo_url']) : ''; ?>">
                         </div>
                     </div>
 
@@ -500,12 +1134,12 @@ include_once '../layout.php';
                             </label>
                             <select class="form-select" name="project_license">
                                 <option value="">Select License</option>
-                                <option value="MIT">MIT License</option>
-                                <option value="Apache-2.0">Apache License 2.0</option>
-                                <option value="GPL-3.0">GPL v3.0</option>
-                                <option value="BSD-3-Clause">BSD 3-Clause</option>
-                                <option value="proprietary">Proprietary</option>
-                                <option value="other">Other</option>
+                                <option value="MIT" <?php echo (isset($_POST['project_license']) && $_POST['project_license'] === 'MIT') ? 'selected' : ''; ?>>MIT License</option>
+                                <option value="Apache-2.0" <?php echo (isset($_POST['project_license']) && $_POST['project_license'] === 'Apache-2.0') ? 'selected' : ''; ?>>Apache License 2.0</option>
+                                <option value="GPL-3.0" <?php echo (isset($_POST['project_license']) && $_POST['project_license'] === 'GPL-3.0') ? 'selected' : ''; ?>>GPL v3.0</option>
+                                <option value="BSD-3-Clause" <?php echo (isset($_POST['project_license']) && $_POST['project_license'] === 'BSD-3-Clause') ? 'selected' : ''; ?>>BSD 3-Clause</option>
+                                <option value="proprietary" <?php echo (isset($_POST['project_license']) && $_POST['project_license'] === 'proprietary') ? 'selected' : ''; ?>>Proprietary</option>
+                                <option value="other" <?php echo (isset($_POST['project_license']) && $_POST['project_license'] === 'other') ? 'selected' : ''; ?>>Other</option>
                             </select>
                         </div>
 
@@ -514,7 +1148,8 @@ include_once '../layout.php';
                                 <i class="fas fa-share-alt me-2"></i>Social Links
                             </label>
                             <input type="text" class="form-control" name="social_links" maxlength="500"
-                                   placeholder="LinkedIn, Twitter, Portfolio (comma separated)">
+                                   placeholder="LinkedIn, Twitter, Portfolio (comma separated)"
+                                   value="<?php echo isset($_POST['social_links']) ? htmlspecialchars($_POST['social_links']) : ''; ?>">
                         </div>
                     </div>
                 </div>
@@ -528,7 +1163,8 @@ include_once '../layout.php';
                             <i class="fas fa-envelope me-2"></i>Contact Email
                         </label>
                         <input type="email" class="form-control" name="contact_email"
-                               placeholder="your.email@example.com">
+                               placeholder="your.email@example.com"
+                               value="<?php echo isset($_POST['contact_email']) ? htmlspecialchars($_POST['contact_email']) : ''; ?>">
                     </div>
                 </div>
 
@@ -603,9 +1239,15 @@ include_once '../layout.php';
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="fas fa-paper-plane me-2"></i>Submit Project
-                </button>
+                <!-- Form Actions -->
+                <div class="d-flex justify-content-end align-items-center">
+                    <button type="button" class="btn btn-outline-secondary me-3" onclick="resetForm()">
+                        <i class="fas fa-undo me-2"></i>Reset Form
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>Submit Project
+                    </button>
+                </div>
             </form>
         </div>
     </div>
