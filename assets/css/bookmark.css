@@ -35,7 +35,7 @@
 
 /* Base Styles */
 body {
-    background: linear-gradient(135deg, #F3E8FF 0%, #FFFFFF 50%, #EDE9FE 100%);
+    background: white;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     color: var(--dark-gray);
     min-height: 100vh;
@@ -50,11 +50,6 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background:
-            radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, rgba(192, 132, 252, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 40% 70%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
-    animation: float 20s ease-in-out infinite;
     z-index: -1;
 }
 
