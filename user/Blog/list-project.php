@@ -234,7 +234,7 @@ function handleAjaxRequest() {
                             <i class="fas fa-edit me-1"></i>Edit
                         </a>
                     <?php else: ?>
-                        <button class="btn btn-outline-secondary btn-sm" disabled title="You can only edit your own projects">
+                        <button class="btn btn-outline-secondary btn-sm" disabled title="You can only edit your own idea">
                             <i class="fas fa-lock me-1"></i>Edit
                         </button>
                     <?php endif; ?>
@@ -515,7 +515,7 @@ function truncateText($text, $length = 150) {
     <div class="page-header">
         <h1 class="page-title">
             <i class="fas fa-list me-3"></i>
-            All Projects
+            All Ideas
         </h1>
         <p class="page-subtitle">Browse and explore all innovative ideas</p>
     </div>
@@ -535,21 +535,21 @@ function truncateText($text, $length = 150) {
                 <i class="fas fa-clipboard-list"></i>
             </div>
             <div class="stat-number"><?php echo intval($stats['total']); ?></div>
-            <div class="stat-label">Total Projects</div>
+            <div class="stat-label">Total Ideas</div>
         </div>
         <div class="stats-card">
             <div class="stat-icon">
                 <i class="fas fa-laptop-code"></i>
             </div>
             <div class="stat-number"><?php echo intval($stats['software']); ?></div>
-            <div class="stat-label">Software Projects</div>
+            <div class="stat-label">Software Ideas</div>
         </div>
         <div class="stats-card">
             <div class="stat-icon">
                 <i class="fas fa-microchip"></i>
             </div>
             <div class="stat-number"><?php echo intval($stats['hardware']); ?></div>
-            <div class="stat-label">Hardware Projects</div>
+            <div class="stat-label">Hardware Ideas</div>
         </div>
         <div class="stats-card">
             <div class="stat-icon">
@@ -564,7 +564,7 @@ function truncateText($text, $length = 150) {
     <div class="filters-container">
         <form method="GET" class="row g-3 align-items-end" id="filterForm">
             <div class="col-md-4">
-                <label class="form-label fw-semibold">Search Projects</label>
+                <label class="form-label fw-semibold">Search Ideas</label>
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="fas fa-search text-muted"></i>
@@ -575,7 +575,7 @@ function truncateText($text, $length = 150) {
                 </div>
             </div>
             <div class="col-md-2">
-                <label class="form-label fw-semibold">Project Type</label>
+                <label class="form-label fw-semibold">Idea Type</label>
                 <select class="form-select filter-select" name="type">
                     <option value="">All Types</option>
                     <option value="software" <?php echo ($filter_type == 'software') ? 'selected' : ''; ?>>Software</option>
@@ -624,10 +624,10 @@ function truncateText($text, $length = 150) {
                 <div class="empty-icon">
                     <i class="fas fa-folder-open"></i>
                 </div>
-                <h3>No Projects Found</h3>
-                <p>No projects match your search criteria. Try adjusting your filters.</p>
+                <h3>No idea Found</h3>
+                <p>No Ideas match your search criteria. Try adjusting your filters.</p>
                 <a href="add_project.php" class="btn btn-purple mt-3">
-                    <i class="fas fa-plus me-2"></i>Create New Project
+                    <i class="fas fa-plus me-2"></i>Create New Idea
                 </a>
             </div>
         <?php else: ?>
@@ -681,7 +681,7 @@ function truncateText($text, $length = 150) {
                                     <i class="fas fa-edit me-1"></i>Edit
                                 </a>
                             <?php else: ?>
-                                <button class="btn btn-outline-secondary btn-sm" disabled title="You can only edit your own projects">
+                                <button class="btn btn-outline-secondary btn-sm" disabled title="You can only edit your own ideas">
                                     <i class="fas fa-lock me-1"></i>Edit
                                 </button>
                             <?php endif; ?>
@@ -693,20 +693,20 @@ function truncateText($text, $length = 150) {
             <!-- Load More Button -->
             <?php if ($page < $total_pages): ?>
                 <button id="loadMoreBtn" class="load-more-btn" data-page="<?php echo $page + 1; ?>">
-                    <i class="fas fa-plus-circle me-2"></i>Load More Projects
+                    <i class="fas fa-plus-circle me-2"></i>Load More ideas
                 </button>
             <?php endif; ?>
 
             <!-- Loading Spinner -->
             <div id="loadingSpinner" class="loading-spinner" style="display: none;">
                 <div class="spinner-border" role="status"></div>
-                <div class="loading-text">Loading more projects...</div>
+                <div class="loading-text">Loading more ideas...</div>
             </div>
 
             <!-- Pagination Info -->
             <div class="text-center mt-3 text-muted">
                 <small>
-                    Showing <?php echo count($projects); ?> of <?php echo $total_projects; ?> projects
+                    Showing <?php echo count($projects); ?> of <?php echo $total_projects; ?> Ideas
                     <?php if ($page < $total_pages): ?>
                         (Page <?php echo $page; ?> of <?php echo $total_pages; ?>)
                     <?php endif; ?>
@@ -722,7 +722,7 @@ function truncateText($text, $length = 150) {
                 <div class="modal-header" style="background: var(--purple-gradient); color: white;">
                     <h5 class="modal-title" id="projectDetailModalLabel">
                         <i class="fas fa-project-diagram me-2"></i>
-                        <span id="modalProjectTitle">Project Details</span>
+                        <span id="modalProjectTitle">Idea Details</span>
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -731,12 +731,12 @@ function truncateText($text, $length = 150) {
                         <div class="spinner-border text-purple" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                        <p class="mt-2">Loading project details...</p>
+                        <p class="mt-2">Loading Idea details...</p>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button id="editProjectBtn" class="btn btn-purple" style="display: none;">
-                        <i class="fas fa-edit me-1"></i> Edit Project
+                        <i class="fas fa-edit me-1"></i> Edit Idea
                     </button>
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
@@ -781,7 +781,7 @@ function truncateText($text, $length = 150) {
                 <div class="spinner-border text-purple" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
-                <p class="mt-2">Loading project details...</p>
+                <p class="mt-2">Loading Ideas details...</p>
             </div>
         `;
                 modalTitle.textContent = 'Project Details';
@@ -824,7 +824,7 @@ function truncateText($text, $length = 150) {
                                 </h4>
                                 <p class="project-id-display mb-0">
                                     <i class="fas fa-hashtag me-1"></i>
-                                    <strong>Project ID:</strong>
+                                    <strong>Idea ID:</strong>
                                     <span class="badge bg-secondary ms-1">${project.er_number}</span>
                                 </p>
                             </div>
@@ -851,12 +851,12 @@ function truncateText($text, $length = 150) {
                         <div class="col-md-6">
                             <div class="detail-section">
                                 <h6 class="section-title">
-                                    <i class="fas fa-info-circle me-2"></i>Project Information
+                                    <i class="fas fa-info-circle me-2"></i>Project Idea Information
                                 </h6>
 
                                 <div class="detail-row">
                                     <span class="detail-label">
-                                        <i class="fas fa-cog me-2"></i>Project Type
+                                        <i class="fas fa-cog me-2"></i>Project Idea Type
                                     </span>
                                     <span class="detail-value">
                                         <i class="fas fa-${project.project_type === 'software' ? 'laptop-code' : 'microchip'} me-1"></i>
@@ -926,7 +926,7 @@ function truncateText($text, $length = 150) {
                     <div class="mb-4">
                         <div class="detail-section">
                             <h6 class="section-title">
-                                <i class="fas fa-file-alt me-2"></i>Project Description
+                                <i class="fas fa-file-alt me-2"></i>Idea Description
                             </h6>
                             <div class="description-box">
                                 ${project.description}
