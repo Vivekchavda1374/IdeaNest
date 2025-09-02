@@ -150,7 +150,8 @@ body {
 
 /* User Dropdown Menu */
 .user-profile {
-    position: relative;
+    display: flex;
+    align-items: center;
 }
 
 .user-dropdown-menu {

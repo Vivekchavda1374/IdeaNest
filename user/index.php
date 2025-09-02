@@ -159,58 +159,6 @@ if (isset($conn)) {
 <!-- Main Content -->
 <div class="main-content">
     <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <button class="mobile-menu-toggle" id="mobileMenuToggle">
-                <i class="fas fa-bars"></i>
-            </button>
-            
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" class="search-input" placeholder="Search projects, ideas, mentors..." id="search" onkeyup="fetchResults()">
-                <div id="searchResults" class="position-absolute start-0 bg-white shadow-lg rounded-3 mt-1 w-100 p-2 d-none" style="z-index: 1000; max-height: 300px; overflow-y: auto;"></div>
-            </div>
-            
-            <div class="user-profile" id="userProfileDropdown">
-                <div class="user-avatar"><?php echo htmlspecialchars($user_initial); ?></div>
-                <span class="user-name"><?php echo htmlspecialchars($user_name); ?></span>
-                <i class="fas fa-chevron-down dropdown-icon"></i>
-                
-                <!-- Dropdown Menu -->
-                <div class="user-dropdown-menu" id="userDropdownMenu">
-                    <div class="dropdown-header">
-                        <div class="dropdown-user-info">
-                            <div class="dropdown-avatar"><?php echo htmlspecialchars($user_initial); ?></div>
-                            <div class="dropdown-user-details">
-                                <div class="dropdown-user-name"><?php echo htmlspecialchars($user_name); ?></div>
-                                <div class="dropdown-user-email"><?php echo htmlspecialchars($user_email); ?></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dropdown-divider"></div>
-                    <div class="dropdown-menu-items">
-                        <a href="user_profile_setting.php" class="dropdown-item">
-                            <i class="fas fa-user"></i>
-                            <span>Profile Settings</span>
-                        </a>
-                        <a href="bookmark.php" class="dropdown-item">
-                            <i class="fas fa-bookmark"></i>
-                            <span>My Bookmarks</span>
-                        </a>
-                        <a href="all_projects.php" class="dropdown-item">
-                            <i class="fas fa-project-diagram"></i>
-                            <span>All Projects</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="../Login/Login/logout.php" class="dropdown-item dropdown-item-danger">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
 
     <!-- Dashboard Container -->
     <main class="dashboard-container">
