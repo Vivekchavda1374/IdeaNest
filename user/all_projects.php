@@ -419,10 +419,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
     <style>
         :root {
-            --primary-color: #6366f1;
+            --primary-purple: #8b5cf6;
+            --secondary-purple: #a78bfa;
+            --dark-purple: #6d28d9;
             --danger-color: #dc3545;
             --warning-color: #ffc107;
             --success-color: #198754;
@@ -440,7 +441,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--gray-100);
+            background-color: #f8fafc;
             line-height: 1.6;
         }
 
@@ -451,12 +452,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .projects-header {
-            background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+            background: linear-gradient(135deg, var(--primary-purple), var(--secondary-purple));
             color: white;
             padding: 2rem;
             border-radius: 1rem;
             margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.25);
         }
 
         .projects-header h2 {
@@ -495,24 +496,24 @@ $current_page = basename($_SERVER['PHP_SELF']);
             align-items: center;
             gap: 0.5rem;
             padding: 0.75rem 1.5rem;
-            background: white;
-            border: 2px solid var(--gray-200);
+            background: #ffffff;
+            border: 2px solid #f1f5f9;
             border-radius: 0.75rem;
             text-decoration: none;
-            color: var(--gray-900);
+            color: #1e293b;
             transition: all 0.3s ease;
             font-weight: 500;
         }
 
         .filter-btn:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
+            border-color: var(--primary-purple);
+            color: var(--primary-purple);
             transform: translateY(-2px);
         }
 
         .filter-btn.active {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
+            background: var(--primary-purple);
+            border-color: var(--primary-purple);
             color: white;
         }
 
@@ -525,10 +526,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .filter-form {
-            background: white;
+            background: #ffffff;
             padding: 2rem;
             border-radius: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.08);
             margin-bottom: 2rem;
         }
 
@@ -540,10 +541,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .project-card {
-            background: white;
+            background: #ffffff;
             border-radius: 1rem;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.08);
             transition: all 0.3s ease;
             cursor: pointer;
             display: flex;
@@ -552,7 +553,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         .project-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.25);
         }
 
         .project-card-content {
@@ -568,7 +569,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             font-size: 1.25rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
-            color: var(--gray-900);
+            color: #1e293b;
         }
 
         .badge-owner {
@@ -609,7 +610,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             gap: 1rem;
             margin-bottom: 1rem;
             font-size: 0.9rem;
-            color: var(--gray-500);
+            color: #64748b;
         }
 
         .stat-item-social {
@@ -624,7 +625,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             align-items: center;
             margin-top: auto;
             padding-top: 1rem;
-            border-top: 1px solid var(--gray-200);
+            border-top: 1px solid #f1f5f9;
         }
 
         .action-buttons {
@@ -637,18 +638,18 @@ $current_page = basename($_SERVER['PHP_SELF']);
             align-items: center;
             gap: 0.5rem;
             padding: 0.5rem 1rem;
-            border: 1px solid var(--gray-200);
-            background: white;
+            border: 1px solid #f1f5f9;
+            background: #ffffff;
             border-radius: 0.5rem;
-            color: var(--gray-500);
+            color: #64748b;
             transition: all 0.3s ease;
             font-size: 0.9rem;
             cursor: pointer;
         }
 
         .action-btn:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
+            border-color: var(--primary-purple);
+            color: var(--primary-purple);
             transform: translateY(-1px);
         }
 
@@ -665,7 +666,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .project-side-panel {
-            background: var(--gray-100);
+            background: #f8fafc;
             padding: 1rem;
             display: flex;
             flex-direction: column;
@@ -676,7 +677,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         .project-icon {
             font-size: 2rem;
-            color: var(--primary-color);
+            color: var(--primary-purple);
         }
 
         .project-status {
@@ -688,26 +689,26 @@ $current_page = basename($_SERVER['PHP_SELF']);
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
-            background: white;
+            background: #ffffff;
             border-radius: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.08);
         }
 
         .empty-state-icon {
             font-size: 4rem;
-            color: var(--gray-500);
+            color: #64748b;
             margin-bottom: 1rem;
         }
 
         .pagination-container {
-            background: white;
+            background: #ffffff;
             padding: 2rem;
             border-radius: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.08);
         }
 
         .pagination-stats {
-            color: var(--gray-500);
+            color: #64748b;
             font-size: 0.9rem;
         }
 
@@ -717,14 +718,18 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .modal-header {
-            background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+            background: linear-gradient(135deg, var(--primary-purple), var(--secondary-purple));
             color: white;
             border-bottom: none;
         }
 
         .modal-footer {
-            background: var(--gray-100);
-            border-top: 1px solid var(--gray-200);
+            background: #f8fafc;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .modal-backdrop {
+            background-color: rgba(30, 41, 59, 0.75);
         }
 
         .project-details-grid {
@@ -735,14 +740,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .detail-card {
-            background: var(--gray-100);
+            background: #f8fafc;
             border-radius: 0.75rem;
             padding: 1.25rem;
-            border-left: 4px solid var(--primary-color);
+            border-left: 4px solid var(--primary-purple);
         }
 
         .detail-card h6 {
-            color: var(--gray-700);
+            color: #475569;
             font-weight: 600;
             margin-bottom: 0.5rem;
             font-size: 0.9rem;
@@ -752,7 +757,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         .detail-card p {
             margin: 0;
-            color: var(--gray-800);
+            color: #1e293b;
             font-weight: 500;
         }
 
@@ -772,19 +777,19 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .project-description {
-            background: white;
+            background: #ffffff;
             border-radius: 0.75rem;
             padding: 1.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.08);
         }
 
         .project-goals, .challenges-section, .enhancements-section {
-            background: white;
+            background: #ffffff;
             border-radius: 0.75rem;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
-            border: 1px solid var(--gray-200);
+            border: 1px solid rgba(139, 92, 246, 0.1);
         }
 
         .section-title {
@@ -793,23 +798,23 @@ $current_page = basename($_SERVER['PHP_SELF']);
             gap: 0.75rem;
             font-size: 1.1rem;
             font-weight: 600;
-            color: var(--gray-800);
+            color: #1e293b;
             margin-bottom: 1rem;
             padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--gray-200);
+            border-bottom: 2px solid #f1f5f9;
         }
 
         .section-title i {
-            color: var(--primary-color);
+            color: var(--dark-purple);
             font-size: 1.2rem;
         }
 
         .file-downloads {
-            background: white;
+            background: #ffffff;
             border-radius: 0.75rem;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
-            border: 1px solid var(--gray-200);
+            border: 1px solid rgba(139, 92, 246, 0.1);
         }
 
         .file-item {
@@ -817,14 +822,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
             align-items: center;
             justify-content: between;
             padding: 0.75rem;
-            background: var(--gray-100);
+            background: #f8fafc;
             border-radius: 0.5rem;
             margin-bottom: 0.5rem;
             transition: all 0.3s ease;
         }
 
         .file-item:hover {
-            background: var(--gray-200);
+            background: #f1f5f9;
             transform: translateX(5px);
         }
 
@@ -837,24 +842,24 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         .file-icon {
             font-size: 1.5rem;
-            color: var(--primary-color);
+            color: var(--primary-purple);
         }
 
         .file-details h6 {
             margin: 0;
             font-size: 0.9rem;
             font-weight: 600;
-            color: var(--gray-800);
+            color: #1e293b;
         }
 
         .file-details p {
             margin: 0;
             font-size: 0.8rem;
-            color: var(--gray-500);
+            color: #64748b;
         }
 
         .download-btn {
-            background: var(--primary-color);
+            background: var(--primary-purple);
             color: white;
             border: none;
             padding: 0.5rem 1rem;
@@ -869,17 +874,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .download-btn:hover {
-            background: #4f46e5;
+            background: var(--dark-purple);
             color: white;
             transform: translateY(-1px);
         }
 
         .social-links {
-            background: white;
+            background: #ffffff;
             border-radius: 0.75rem;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
-            border: 1px solid var(--gray-200);
+            border: 1px solid rgba(139, 92, 246, 0.1);
         }
 
         .social-link-item {
@@ -887,39 +892,39 @@ $current_page = basename($_SERVER['PHP_SELF']);
             align-items: center;
             gap: 0.5rem;
             padding: 0.5rem 1rem;
-            background: var(--gray-100);
+            background: #f8fafc;
             border-radius: 2rem;
             margin: 0.25rem;
-            color: var(--gray-700);
+            color: #475569;
             text-decoration: none;
             font-size: 0.9rem;
             transition: all 0.3s ease;
         }
 
         .social-link-item:hover {
-            background: var(--primary-color);
+            background: var(--primary-purple);
             color: white;
             transform: translateY(-2px);
         }
 
         .keywords-section {
-            background: white;
+            background: #ffffff;
             border-radius: 0.75rem;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
-            border: 1px solid var(--gray-200);
+            border: 1px solid rgba(139, 92, 246, 0.1);
         }
 
         .keyword-tag {
             display: inline-block;
-            background: linear-gradient(45deg, var(--primary-color), #8b5cf6);
+            background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
             color: white;
             padding: 0.25rem 0.75rem;
             border-radius: 1rem;
             font-size: 0.8rem;
             font-weight: 500;
             margin: 0.25rem;
-            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 2px 4px rgba(139, 92, 246, 0.25);
         }
 
         .difficulty-badge {
@@ -958,17 +963,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .comment-item {
-            border: 1px solid var(--gray-200);
+            border: 1px solid #f1f5f9;
             border-radius: 0.75rem;
             padding: 1rem;
             margin-bottom: 1rem;
-            background: white;
+            background: #ffffff;
         }
 
         .reply-comment {
             margin-left: 2rem;
-            border-left: 3px solid var(--primary-color);
-            background: #f8f9ff;
+            border-left: 3px solid var(--primary-purple);
+            background: #f8fafc;
         }
 
         .comment-header {
@@ -984,7 +989,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         .comment-avatar {
             width: 2.5rem;
             height: 2.5rem;
-            background: var(--primary-color);
+            background: var(--primary-purple);
             color: white;
             border-radius: 50%;
             display: flex;
@@ -996,16 +1001,16 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         .comment-username {
             font-weight: 600;
-            color: var(--gray-900);
+            color: #1e293b;
         }
 
         .comment-date {
             font-size: 0.8rem;
-            color: var(--gray-500);
+            color: #64748b;
         }
 
         .comment-text {
-            color: var(--gray-900);
+            color: #1e293b;
             line-height: 1.6;
             margin-bottom: 0.75rem;
         }
@@ -1022,7 +1027,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             gap: 0.25rem;
             background: none;
             border: none;
-            color: var(--gray-500);
+            color: #64748b;
             cursor: pointer;
             padding: 0.25rem 0.5rem;
             border-radius: 0.25rem;
@@ -1045,7 +1050,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             gap: 0.25rem;
             background: none;
             border: none;
-            color: var(--gray-500);
+            color: #64748b;
             cursor: pointer;
             padding: 0.25rem 0.5rem;
             border-radius: 0.25rem;
@@ -1053,20 +1058,20 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .reply-btn:hover {
-            background: var(--gray-100);
-            color: var(--primary-color);
+            background: #f8fafc;
+            color: var(--primary-purple);
         }
 
         .reply-form {
             margin-top: 1rem;
             padding: 1rem;
-            background: var(--gray-100);
+            background: #f8fafc;
             border-radius: 0.5rem;
         }
 
         .reply-form textarea {
             width: 100%;
-            border: 1px solid var(--gray-200);
+            border: 1px solid #f1f5f9;
             border-radius: 0.5rem;
             padding: 0.75rem;
             resize: vertical;
@@ -1074,7 +1079,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .comment-form {
-            background: var(--gray-100);
+            background: #f8fafc;
             padding: 1.5rem;
             border-radius: 0.75rem;
             margin-bottom: 2rem;
@@ -1086,7 +1091,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             justify-content: space-between;
             margin-bottom: 1.5rem;
             padding-bottom: 0.75rem;
-            border-bottom: 2px solid var(--gray-200);
+            border-bottom: 2px solid #f1f5f9;
         }
 
         .comments-title {
@@ -1095,15 +1100,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
             gap: 0.5rem;
             font-size: 1.25rem;
             font-weight: 600;
-            color: var(--gray-900);
+            color: #1e293b;
         }
 
         .project-meta-info {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
             border-radius: 0.75rem;
             padding: 1.5rem;
             margin-bottom: 2rem;
-            border: 1px solid var(--gray-200);
+            border: 1px solid rgba(139, 92, 246, 0.1);
         }
 
         .meta-stats {
@@ -1114,25 +1119,30 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .meta-stat {
-            background: white;
+            background: #ffffff;
             padding: 1rem;
             border-radius: 0.5rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(139, 92, 246, 0.08);
         }
 
         .meta-stat-number {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--primary-color);
+            color: var(--primary-purple);
             display: block;
         }
 
         .meta-stat-label {
             font-size: 0.8rem;
-            color: var(--gray-600);
+            color: #475569;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-top: 0.25rem;
+        }
+
+        .project-modal-desc {
+            color: #475569;
+            line-height: 1.6;
         }
 
         @media (max-width: 768px) {
