@@ -1,85 +1,81 @@
 <?php
-// user/download.php - Corrected for your file structure
-session_start();
+// Include security configuration
+require_once dirname(__DIR__) . '/config/security.php';
+require_once dirname(__DIR__) . '/includes/error_handler.php';
 
-// Get the requested file
-$file_param = isset($_GET['file']) ? $_GET['file'] : '';
+// Set security headers
+setSecurityHeaders();
 
-if (empty($file_param)) {
+// Start session securely
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Authentication check
+if (!isset($_SESSION['user_name']) || empty($_SESSION['user_name'])) {
+    http_response_code(401);
+    die('Unauthorized access');
+}
+
+// Rate limiting
+if (!checkRateLimit('file_download', 30, 60)) {
+    http_response_code(429);
+    die('Too many download requests');
+}
+
+// Get and validate file parameter
+$file = $_GET['file'] ?? '';
+if (empty($file)) {
     http_response_code(400);
-    exit('No file specified');
+    die('File parameter required');
 }
 
-// Sanitize the file path to prevent directory traversal
-$file_param = str_replace(['../', '../', '..\\', '..\\\\'], '', $file_param);
+// Sanitize file path
+$file = basename($file); // Prevent directory traversal
+$file_path = __DIR__ . '/uploads/instructions/' . $file;
 
-// Build the full path - corrected to use forms/uploads/
-$base_upload_dir = __DIR__ . '/forms/uploads/';
-$file_path = $base_upload_dir . $file_param;
-
-// Additional security: ensure the resolved path is within uploads directory
-$real_base_dir = realpath($base_upload_dir);
-$real_file_path = realpath($file_path);
-
-if (!$real_file_path || strpos($real_file_path, $real_base_dir) !== 0) {
-    http_response_code(403);
-    exit('Access denied - invalid path');
-}
-
-// Check if file exists
-if (!file_exists($real_file_path) || !is_file($real_file_path)) {
+// Validate file exists and is readable
+if (!file_exists($file_path) || !is_readable($file_path)) {
     http_response_code(404);
-    exit('File not found: ' . $file_param);
+    die('File not found');
 }
 
-// Get file info
-$file_info = pathinfo($real_file_path);
-$file_extension = strtolower($file_info['extension']);
-$file_name = $file_info['basename'];
+// Validate file extension
+$allowed_extensions = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'zip', 'rar', 'mp4', 'avi', 'mov'];
+$file_extension = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
 
-// Define MIME types
+if (!in_array($file_extension, $allowed_extensions)) {
+    http_response_code(403);
+    die('File type not allowed');
+}
+
+// Set appropriate headers
 $mime_types = [
     'pdf' => 'application/pdf',
-    'zip' => 'application/zip',
-    'rar' => 'application/x-rar-compressed',
-    '7z' => 'application/x-7z-compressed',
     'doc' => 'application/msword',
     'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'ppt' => 'application/vnd.ms-powerpoint',
-    'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'txt' => 'text/plain',
     'jpg' => 'image/jpeg',
     'jpeg' => 'image/jpeg',
     'png' => 'image/png',
     'gif' => 'image/gif',
+    'zip' => 'application/zip',
+    'rar' => 'application/x-rar-compressed',
     'mp4' => 'video/mp4',
     'avi' => 'video/x-msvideo',
     'mov' => 'video/quicktime'
 ];
 
-$mime_type = isset($mime_types[$file_extension]) ? $mime_types[$file_extension] : 'application/octet-stream';
+$mime_type = $mime_types[$file_extension] ?? 'application/octet-stream';
 
-// Clear any output buffers
-if (ob_get_level()) {
-    ob_end_clean();
-}
-
-// Set headers
+// Set download headers
 header('Content-Type: ' . $mime_type);
-header('Content-Length: ' . filesize($real_file_path));
-header('Content-Description: File Transfer');
+header('Content-Disposition: inline; filename="' . basename($file_path) . '"');
+header('Content-Length: ' . filesize($file_path));
+header('Cache-Control: public, max-age=3600');
+header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 3600) . ' GMT');
 
-// For PDFs and images, display inline; for others, force download
-if (in_array($file_extension, ['pdf', 'jpg', 'jpeg', 'png', 'gif'])) {
-    header('Content-Disposition: inline; filename="' . $file_name . '"');
-} else {
-    header('Content-Disposition: attachment; filename="' . $file_name . '"');
-}
-
-// Security headers
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: DENY');
-
-// Output the file
-readfile($real_file_path);
-exit;
+// Output file
+readfile($file_path);
+exit();
 ?>
