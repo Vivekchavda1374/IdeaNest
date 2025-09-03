@@ -43,25 +43,31 @@ $classification_stats = [];
 
 if (isset($conn)) {
     // Get total approved projects
-    $total_projects_query = "SELECT COUNT(*) as total FROM admin_approved_projects";
+    $total_projects_query = "SELECT COUNT(*) as total FROM admin_approved_projects WHERE status = 'approved'";
     $total_result = $conn->query($total_projects_query);
-    $total_projects = $total_result->fetch_assoc()['total'];
+    if ($total_result) {
+        $total_projects = $total_result->fetch_assoc()['total'];
+    }
     
     // Get total ideas from blog table
     $total_ideas_query = "SELECT COUNT(*) as total FROM blog";
     $ideas_result = $conn->query($total_ideas_query);
-    $total_ideas = $ideas_result->fetch_assoc()['total'];
+    if ($ideas_result) {
+        $total_ideas = $ideas_result->fetch_assoc()['total'];
+    }
     
     // Get classification statistics
     $classification_query = "SELECT classification, COUNT(*) as count 
                            FROM admin_approved_projects 
-                           WHERE classification IS NOT NULL AND classification != '' 
+                           WHERE classification IS NOT NULL AND classification != '' AND status = 'approved'
                            GROUP BY classification 
                            ORDER BY count DESC";
     $classification_result = $conn->query($classification_query);
     
-    while ($row = $classification_result->fetch_assoc()) {
-        $classification_stats[] = $row;
+    if ($classification_result) {
+        while ($row = $classification_result->fetch_assoc()) {
+            $classification_stats[] = $row;
+        }
     }
 
     // Get monthly submission trends (last 6 months)
@@ -74,8 +80,10 @@ if (isset($conn)) {
                       GROUP BY DATE_FORMAT(submission_date, '%Y-%m')
                       ORDER BY month DESC";
     $monthly_result = $conn->query($monthly_query);
-    while ($row = $monthly_result->fetch_assoc()) {
-        $monthly_trends[] = $row;
+    if ($monthly_result) {
+        while ($row = $monthly_result->fetch_assoc()) {
+            $monthly_trends[] = $row;
+        }
     }
 
     // Get project status distribution
@@ -91,8 +99,10 @@ if (isset($conn)) {
                       FROM admin_approved_projects 
                       GROUP BY status";
     $status_result = $conn->query($status_query);
-    while ($row = $status_result->fetch_assoc()) {
-        $status_distribution[] = $row;
+    if ($status_result) {
+        while ($row = $status_result->fetch_assoc()) {
+            $status_distribution[] = $row;
+        }
     }
 
     // Get technology/language analysis
@@ -101,13 +111,15 @@ if (isset($conn)) {
                         language,
                         COUNT(*) as count
                       FROM admin_approved_projects 
-                      WHERE language IS NOT NULL AND language != ''
+                      WHERE language IS NOT NULL AND language != '' AND status = 'approved'
                       GROUP BY language 
                       ORDER BY count DESC 
                       LIMIT 8";
     $tech_result = $conn->query($tech_query);
-    while ($row = $tech_result->fetch_assoc()) {
-        $tech_analysis[] = $row;
+    if ($tech_result) {
+        while ($row = $tech_result->fetch_assoc()) {
+            $tech_analysis[] = $row;
+        }
     }
 
     // Get recent activity (latest 5 projects)
@@ -121,8 +133,10 @@ if (isset($conn)) {
                       ORDER BY submission_date DESC 
                       LIMIT 5";
     $recent_result = $conn->query($recent_query);
-    while ($row = $recent_result->fetch_assoc()) {
-        $recent_activity[] = $row;
+    if ($recent_result) {
+        while ($row = $recent_result->fetch_assoc()) {
+            $recent_activity[] = $row;
+        }
     }
 
     // Get project type distribution
@@ -131,13 +145,151 @@ if (isset($conn)) {
                         project_type,
                         COUNT(*) as count
                       FROM admin_approved_projects 
-                      WHERE project_type IS NOT NULL AND project_type != ''
+                      WHERE project_type IS NOT NULL AND project_type != '' AND status = 'approved'
                       GROUP BY project_type 
                       ORDER BY count DESC";
     $type_result = $conn->query($type_query);
-    while ($row = $type_result->fetch_assoc()) {
-        $type_distribution[] = $row;
+    if ($type_result) {
+        while ($row = $type_result->fetch_assoc()) {
+            $type_distribution[] = $row;
+        }
     }
+
+    // Get user engagement metrics
+    $engagement_metrics = [];
+    $engagement_query = "SELECT 
+                            DATE_FORMAT(submission_date, '%Y-%m-%d') as date,
+                            COUNT(*) as submissions,
+                            COUNT(DISTINCT user_id) as unique_users
+                          FROM admin_approved_projects 
+                          WHERE submission_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                          GROUP BY DATE_FORMAT(submission_date, '%Y-%m-%d')
+                          ORDER BY date DESC
+                          LIMIT 15";
+    $engagement_result = $conn->query($engagement_query);
+    if ($engagement_result) {
+        while ($row = $engagement_result->fetch_assoc()) {
+            $engagement_metrics[] = $row;
+        }
+    }
+
+    // Get project completion timeline
+    $completion_timeline = [];
+    $timeline_query = "SELECT 
+                          DATEDIFF(NOW(), submission_date) as days_since_submission,
+                          COUNT(*) as count,
+                          status
+                        FROM admin_approved_projects 
+                        WHERE submission_date >= DATE_SUB(NOW(), INTERVAL 90 DAY)
+                        GROUP BY DATEDIFF(NOW(), submission_date), status
+                        ORDER BY days_since_submission DESC";
+    $timeline_result = $conn->query($timeline_query);
+    if ($timeline_result) {
+        while ($row = $timeline_result->fetch_assoc()) {
+            $completion_timeline[] = $row;
+        }
+    }
+
+    // Get top contributors (using register table join)
+    $top_contributors = [];
+    $contributors_query = "SELECT 
+                              r.name as submitter_name,
+                              COUNT(*) as project_count,
+                              AVG(CASE WHEN a.status = 'approved' THEN 1 ELSE 0 END) * 100 as approval_rate
+                            FROM admin_approved_projects a
+                            LEFT JOIN register r ON a.user_id = r.id
+                            WHERE r.name IS NOT NULL AND r.name != ''
+                            GROUP BY r.name 
+                            HAVING project_count >= 1
+                            ORDER BY project_count DESC 
+                            LIMIT 8";
+    $contributors_result = $conn->query($contributors_query);
+    if ($contributors_result) {
+        while ($row = $contributors_result->fetch_assoc()) {
+            $top_contributors[] = $row;
+        }
+    }
+
+    // Get project complexity analysis
+    $complexity_analysis = [];
+    $complexity_query = "SELECT 
+                            CASE 
+                                WHEN LENGTH(description) < 100 THEN 'Simple'
+                                WHEN LENGTH(description) < 300 THEN 'Medium'
+                                ELSE 'Complex'
+                            END as complexity,
+                            COUNT(*) as count,
+                            AVG(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) * 100 as approval_rate
+                          FROM admin_approved_projects 
+                          WHERE description IS NOT NULL AND description != ''
+                          GROUP BY 
+                            CASE 
+                                WHEN LENGTH(description) < 100 THEN 'Simple'
+                                WHEN LENGTH(description) < 300 THEN 'Medium'
+                                ELSE 'Complex'
+                            END
+                          ORDER BY count DESC";
+    $complexity_result = $conn->query($complexity_query);
+    if ($complexity_result) {
+        while ($row = $complexity_result->fetch_assoc()) {
+            $complexity_analysis[] = $row;
+        }
+    }
+
+    // Get weekly performance metrics
+    $weekly_performance = [];
+    $weekly_query = "SELECT 
+                        WEEK(submission_date) as week_num,
+                        YEAR(submission_date) as year,
+                        COUNT(*) as submissions,
+                        SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
+                        AVG(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) * 100 as approval_rate
+                      FROM admin_approved_projects 
+                      WHERE submission_date >= DATE_SUB(NOW(), INTERVAL 12 WEEK)
+                      GROUP BY YEAR(submission_date), WEEK(submission_date)
+                      ORDER BY year DESC, week_num DESC
+                      LIMIT 12";
+    $weekly_result = $conn->query($weekly_query);
+    if ($weekly_result) {
+        while ($row = $weekly_result->fetch_assoc()) {
+            $weekly_performance[] = $row;
+        }
+    }
+}
+
+// Ensure arrays have fallback data to prevent JavaScript errors
+if (empty($classification_stats)) {
+    $classification_stats = [['classification' => 'No Data', 'count' => 0]];
+}
+if (empty($monthly_trends)) {
+    $monthly_trends = [['month' => date('Y-m'), 'count' => 0]];
+}
+if (empty($status_distribution)) {
+    $status_distribution = [['status_name' => 'No Data', 'count' => 0]];
+}
+if (empty($tech_analysis)) {
+    $tech_analysis = [['language' => 'No Data', 'count' => 0]];
+}
+if (empty($recent_activity)) {
+    $recent_activity = [['project_name' => 'No recent activity', 'classification' => '', 'submission_date' => date('Y-m-d H:i:s'), 'status' => 'pending']];
+}
+if (empty($type_distribution)) {
+    $type_distribution = [['project_type' => 'No Data', 'count' => 0]];
+}
+if (empty($engagement_metrics)) {
+    $engagement_metrics = [['date' => date('Y-m-d'), 'submissions' => 0, 'unique_users' => 0]];
+}
+if (empty($completion_timeline)) {
+    $completion_timeline = [['days_since_submission' => 0, 'count' => 0, 'status' => 'pending']];
+}
+if (empty($top_contributors)) {
+    $top_contributors = [['submitter_name' => 'No contributors', 'project_count' => 0, 'approval_rate' => 0]];
+}
+if (empty($complexity_analysis)) {
+    $complexity_analysis = [['complexity' => 'Simple', 'count' => 0, 'approval_rate' => 0]];
+}
+if (empty($weekly_performance)) {
+    $weekly_performance = [['week_num' => date('W'), 'year' => date('Y'), 'submissions' => 0, 'approved' => 0, 'approval_rate' => 0]];
 }
 ?>
 <!DOCTYPE html>
@@ -351,7 +503,8 @@ if (isset($conn)) {
                     </div>
                 </div>
 
-                <div class="row g-4">
+                <!-- Technology Stack and Project Types Row -->
+                <div class="row g-4 mb-4">
                     <div class="col-lg-6">
                         <div class="chart-container">
                             <div class="chart-header">
@@ -376,6 +529,159 @@ if (isset($conn)) {
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div>
+                                    <h3 class="chart-title">Project Types</h3>
+                                    <p class="chart-subtitle">Distribution by project categories</p>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="typeChart"></canvas>
+                            </div>
+                            <div class="type-legend">
+                                <?php foreach ($type_distribution as $index => $type): ?>
+                                    <div class="type-item">
+                                        <span class="type-dot" style="background: <?php
+                                            $colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b'];
+                                            echo $colors[$index % count($colors)];
+                                        ?>;"></span>
+                                        <span class="type-label"><?php echo htmlspecialchars($type['project_type']); ?></span>
+                                        <span class="type-count"><?php echo $type['count']; ?></span>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Engagement and Performance Metrics Row -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-8">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div>
+                                    <h3 class="chart-title">User Engagement Trends</h3>
+                                    <p class="chart-subtitle">Daily submissions and active users (Last 15 days)</p>
+                                </div>
+                                <div class="chart-actions">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-primary active" onclick="toggleEngagementView('daily')">Daily</button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="toggleEngagementView('weekly')">Weekly</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="engagementChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div>
+                                    <h3 class="chart-title">Project Complexity</h3>
+                                    <p class="chart-subtitle">Analysis by description length</p>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="complexityChart"></canvas>
+                            </div>
+                            <div class="complexity-stats">
+                                <?php foreach ($complexity_analysis as $complexity): ?>
+                                    <div class="complexity-item">
+                                        <div class="complexity-info">
+                                            <span class="complexity-label"><?php echo $complexity['complexity']; ?></span>
+                                            <span class="complexity-count"><?php echo $complexity['count']; ?> projects</span>
+                                        </div>
+                                        <div class="complexity-rate">
+                                            <span class="rate-value"><?php echo round($complexity['approval_rate'], 1); ?>%</span>
+                                            <span class="rate-label">approval</span>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Contributors and Weekly Performance Row -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div>
+                                    <h3 class="chart-title">Top Contributors</h3>
+                                    <p class="chart-subtitle">Most active project submitters</p>
+                                </div>
+                            </div>
+                            <div class="contributors-list">
+                                <?php foreach ($top_contributors as $index => $contributor): ?>
+                                    <div class="contributor-item">
+                                        <div class="contributor-rank">#<?php echo $index + 1; ?></div>
+                                        <div class="contributor-avatar">
+                                            <?php echo strtoupper(substr($contributor['submitter_name'], 0, 1)); ?>
+                                        </div>
+                                        <div class="contributor-info">
+                                            <div class="contributor-name"><?php echo htmlspecialchars($contributor['submitter_name']); ?></div>
+                                            <div class="contributor-stats">
+                                                <span class="stat-item">
+                                                    <i class="fas fa-project-diagram"></i>
+                                                    <?php echo $contributor['project_count']; ?> projects
+                                                </span>
+                                                <span class="stat-item">
+                                                    <i class="fas fa-check-circle"></i>
+                                                    <?php echo round($contributor['approval_rate'], 1); ?>% approved
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="contributor-progress">
+                                            <div class="progress-bar" style="width: <?php echo $contributor['approval_rate']; ?>%"></div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div>
+                                    <h3 class="chart-title">Weekly Performance</h3>
+                                    <p class="chart-subtitle">Submissions vs approval rates</p>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="weeklyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Timeline Analysis -->
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <div>
+                                    <h3 class="chart-title">Project Timeline Analysis</h3>
+                                    <p class="chart-subtitle">Project status distribution over time (Last 90 days)</p>
+                                </div>
+                                <div class="chart-actions">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="exportChart('timelineChart')">
+                                        <i class="fas fa-download"></i> Export
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper" style="height: 300px;">
+                                <canvas id="timelineChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -821,6 +1127,248 @@ if (isset($conn)) {
                     }
                 });
             }
+
+            // User Engagement Chart
+            const engagementCtx = document.getElementById('engagementChart');
+            if (engagementCtx) {
+                const engagementData = <?php echo json_encode($engagement_metrics); ?>;
+                const dates = engagementData.map(item => {
+                    const date = new Date(item.date);
+                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                }).reverse();
+                const submissions = engagementData.map(item => item.submissions).reverse();
+                const uniqueUsers = engagementData.map(item => item.unique_users).reverse();
+
+                new Chart(engagementCtx, {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [{
+                            label: 'Submissions',
+                            data: submissions,
+                            borderColor: 'rgba(99, 102, 241, 1)',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5
+                        }, {
+                            label: 'Active Users',
+                            data: uniqueUsers,
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                align: 'end'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Project Complexity Chart
+            const complexityCtx = document.getElementById('complexityChart');
+            if (complexityCtx) {
+                const complexityData = <?php echo json_encode($complexity_analysis); ?>;
+                const complexityLabels = complexityData.map(item => item.complexity);
+                const complexityCounts = complexityData.map(item => item.count);
+                const complexityColors = ['#10b981', '#f59e0b', '#ef4444'];
+
+                new Chart(complexityCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: complexityLabels,
+                        datasets: [{
+                            data: complexityCounts,
+                            backgroundColor: complexityColors.slice(0, complexityLabels.length),
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            }
+
+            // Weekly Performance Chart
+            const weeklyCtx = document.getElementById('weeklyChart');
+            if (weeklyCtx) {
+                const weeklyData = <?php echo json_encode($weekly_performance); ?>;
+                const weekLabels = weeklyData.map(item => `W${item.week_num}`).reverse();
+                const weeklySubmissions = weeklyData.map(item => item.submissions).reverse();
+                const weeklyApprovalRates = weeklyData.map(item => parseFloat(item.approval_rate)).reverse();
+
+                new Chart(weeklyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: weekLabels,
+                        datasets: [{
+                            label: 'Submissions',
+                            data: weeklySubmissions,
+                            backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                            borderColor: 'rgba(99, 102, 241, 1)',
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        }, {
+                            label: 'Approval Rate (%)',
+                            data: weeklyApprovalRates,
+                            type: 'line',
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Submissions'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                min: 0,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: 'Approval Rate (%)'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Project Timeline Chart
+            const timelineCtx = document.getElementById('timelineChart');
+            if (timelineCtx) {
+                const timelineData = <?php echo json_encode($completion_timeline); ?>;
+                
+                // Process timeline data for stacked chart
+                const timelineMap = {};
+                timelineData.forEach(item => {
+                    const day = item.days_since_submission;
+                    if (!timelineMap[day]) {
+                        timelineMap[day] = { approved: 0, pending: 0, rejected: 0 };
+                    }
+                    timelineMap[day][item.status] = item.count;
+                });
+
+                const sortedDays = Object.keys(timelineMap).sort((a, b) => b - a).slice(0, 30);
+                const approvedData = sortedDays.map(day => timelineMap[day].approved || 0);
+                const pendingData = sortedDays.map(day => timelineMap[day].pending || 0);
+                const rejectedData = sortedDays.map(day => timelineMap[day].rejected || 0);
+                const dayLabels = sortedDays.map(day => `${day}d ago`);
+
+                new Chart(timelineCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: dayLabels.reverse(),
+                        datasets: [{
+                            label: 'Approved',
+                            data: approvedData.reverse(),
+                            backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            borderWidth: 1
+                        }, {
+                            label: 'Pending',
+                            data: pendingData.reverse(),
+                            backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                            borderColor: 'rgba(245, 158, 11, 1)',
+                            borderWidth: 1
+                        }, {
+                            label: 'Rejected',
+                            data: rejectedData.reverse(),
+                            backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                            borderColor: 'rgba(239, 68, 68, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true,
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         // Refresh chart function
@@ -837,6 +1385,31 @@ if (isset($conn)) {
                 button.disabled = false;
                 // Here you would typically reload the chart with fresh data
             }, 1000);
+        }
+
+        // Toggle engagement view
+        function toggleEngagementView(view) {
+            const buttons = document.querySelectorAll('.btn-group .btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Here you would switch between daily and weekly views
+            console.log(`Switching to ${view} view`);
+        }
+
+        // Export chart function
+        function exportChart(chartId) {
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+            button.disabled = true;
+
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                // Here you would implement actual chart export functionality
+                console.log(`Exporting chart: ${chartId}`);
+            }, 1500);
         }
     </script>
 </body>
