@@ -1,0 +1,20 @@
+# Basic Security
+<Files ~ "^\.">
+    Require all denied
+</Files>
+
+<Files "*.log">
+    Require all denied
+</Files>
+
+# PHP Security Settings
+php_flag display_errors Off
+php_flag log_errors On
+php_flag expose_php Off
+
+# File Upload Limits
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value max_execution_time 30
+
+RewriteEngine On
