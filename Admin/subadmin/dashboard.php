@@ -187,10 +187,6 @@ ob_start();
                 <i class="bi bi-person-circle"></i>
                 Edit Profile
             </a>
-            <a href="notifications.php" class="action-button action-outline">
-                <i class="bi bi-bell-fill"></i>
-                View Notifications
-            </a>
             <a href="support.php" class="action-button action-outline">
                 <i class="bi bi-envelope-fill"></i>
                 Contact Support

@@ -48,12 +48,7 @@ function renderLayout($title, $content, $activePage = '') {
                         <span>Assigned Projects</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
-                    <a href="notifications.php" class="sidebar-link <?php echo $activePage === 'notifications' ? 'active' : ''; ?>">
-                        <i class="bi bi-bell-fill"></i>
-                        <span>Notifications</span>
-                    </a>
-                </li>
+
                 <li class="sidebar-item">
                     <a href="support.php" class="sidebar-link <?php echo $activePage === 'support' ? 'active' : ''; ?>">
                         <i class="bi bi-envelope-fill"></i>
@@ -64,20 +59,7 @@ function renderLayout($title, $content, $activePage = '') {
 
             <hr class="sidebar-divider">
 
-            <ul class="sidebar-menu">
-                <li class="sidebar-item">
-                    <a href="settings.php" class="sidebar-link <?php echo $activePage === 'settings' ? 'active' : ''; ?>">
-                        <i class="bi bi-gear-fill"></i>
-                        <span>Settings</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="help.php" class="sidebar-link <?php echo $activePage === 'help' ? 'active' : ''; ?>">
-                        <i class="bi bi-question-circle-fill"></i>
-                        <span>Help & Support</span>
-                    </a>
-                </li>
-            </ul>
+
         </div>
 
         <div class="sidebar-footer">
