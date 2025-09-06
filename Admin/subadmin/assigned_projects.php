@@ -75,7 +75,7 @@ ob_start();
 ?>
 
     <!-- Page specific styles -->
-  <link rel="stylesheet" href="../../assets/css/assigned_projects.css">
+    <link rel="stylesheet" href="../../assets/css/assigned_projects.css">
 
     <!-- Action Message Alert -->
 <?php if ($action_message): ?>
