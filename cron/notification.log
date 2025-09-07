@@ -1,0 +1,15 @@
+PHP Warning:  require_once(../Login/Login/db.php): Failed to open stream: No such file or directory in /opt/lampp/htdocs/IdeaNest/cron/weekly_notifications.php on line 2
+PHP Fatal error:  Uncaught Error: Failed opening required '../Login/Login/db.php' (include_path='.:/usr/share/php') in /opt/lampp/htdocs/IdeaNest/cron/weekly_notifications.php:2
+Stack trace:
+#0 {main}
+  thrown in /opt/lampp/htdocs/IdeaNest/cron/weekly_notifications.php on line 2
+PHP Warning:  require_once(../Login/Login/db.php): Failed to open stream: No such file or directory in /opt/lampp/htdocs/IdeaNest/cron/weekly_notifications.php on line 2
+PHP Fatal error:  Uncaught Error: Failed opening required '../Login/Login/db.php' (include_path='.:/usr/share/php') in /opt/lampp/htdocs/IdeaNest/cron/weekly_notifications.php:2
+Stack trace:
+#0 {main}
+  thrown in /opt/lampp/htdocs/IdeaNest/cron/weekly_notifications.php on line 2
+PHP Fatal error:  Uncaught Error: Class "mysqli" not found in /opt/lampp/htdocs/IdeaNest/Login/Login/db.php:7
+Stack trace:
+#0 /opt/lampp/htdocs/IdeaNest/cron/weekly_notifications.php(2): require_once()
+#1 {main}
+  thrown in /opt/lampp/htdocs/IdeaNest/Login/Login/db.php on line 7

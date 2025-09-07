@@ -8,16 +8,23 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
 
 ## ✨ Latest Updates
 
-### Production-Ready Security & Performance (December 2024)
-- **Security Enhancements**: CSRF protection, input sanitization, rate limiting
-- **Authentication System**: Secure session management and user validation
-- **File Management**: Secure upload/download system with proper permissions
-- **Database Security**: Prepared statements and error handling
-- **Admin Panel**: Enhanced subadmin functionality with project approval workflow
-- **UI/UX Improvements**: Modern responsive design with Bootstrap 5
-- **Error Handling**: Production-ready error logging and user-friendly messages
+### Weekly Email Notification System (December 2024)
+- **Database-Driven SMTP Configuration**: Uses admin_settings table for email configuration
+- **30-Minute Testing Intervals**: Configurable cron job for rapid testing
+- **User Notification Preferences**: Toggle switch in profile settings
+- **Beautiful HTML Email Templates**: Responsive design with project and idea updates
+- **Comprehensive Logging**: Tracks sent/failed notifications in database
+- **Production-Ready**: Automated weekly digest system for student engagement
 
 ## 🚀 Features
+
+### Email Notification System
+- **Weekly Digest Emails**: Automated emails every 7 days (configurable to 30 minutes for testing)
+- **User Preferences**: Students can enable/disable notifications in profile settings
+- **Database Integration**: Uses existing admin_settings for SMTP configuration
+- **Content Filtering**: Shows new projects and ideas from last 7-30 days
+- **Logging & Analytics**: Comprehensive tracking of notification delivery
+- **Template System**: Professional HTML email templates with responsive design
 
 ### Project Management
 - **Secure Project Submission**: Multi-file upload with validation
@@ -26,116 +33,31 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
 - **File Security**: Protected uploads with access control
 - **Project Categories**: Software/Hardware classification system
 
+### Authentication System
+- Traditional email/password login
+- Google OAuth integration with JWT
+- Forgot password with OTP verification (10-minute expiry)
+- Session-based security management
+- Role-based access control (Student/Sub-Admin/Admin)
+
 ### Interactive Features
-- Real-time AJAX-based like system
-  - Instant like count updates
-  - Animated button states
-  - Error handling with toast notifications
-- Enhanced bookmark system
-  - Real-time state updates
-  - Visual feedback animations
-  - Category-based organization
-- Dynamic comment system
-  - Nested replies
-  - Like functionality
-  - Real-time updates
-
-- **Project Display**
-  - Modern card-based layout with smooth transitions
-  - Responsive grid system:
-    - 4-5 cards per row on large screens
-    - 3 cards per row on medium screens
-    - 2 cards per row on tablets
-    - 1 card per row on mobile
-  - Dynamic project cards with:
-    - Hover effects and animations
-    - Like/bookmark functionality
-    - Quick view options
-    - Loading states
-  - Project classification badges
-  - Project ownership indicators
-  - Progress tracking and status updates
-
-- **File Management**
-  - Support for multiple file types:
-    - Images (jpg, jpeg, png, gif)
-    - Videos (mp4, avi, mov)
-    - Code files (zip, rar)
-    - Documentation (pdf)
-  - Real-time upload progress
-  - File type validation
-  - Secure file storage
-  - Preview functionality
-
-- **User Interface**
-  - Modern responsive design with glassmorphism effects
-  - Intuitive navigation
-  - Smooth animations and transitions
-  - Dark/Light theme support
-  - Mobile-friendly interface
-  - Accessibility features
-  - Loading states and error handling
-  - Toast notifications
+- Project like system with AJAX updates
+- Bookmark functionality for project saving
+- Comment system with like support
+- Real-time interaction feedback
+- Modal-based project viewing
 
 ### Admin Features
-- **Project Review System**
-  - Final approval authority for all projects
-  - Comprehensive project analytics dashboard
-  - Bulk project management capabilities
-  - Email notifications for status changes
-  - Advanced filtering and search
-  
-- **User Management**
-  - Role-based access control (Admin/SubAdmin/User)
-  - User registration approval system
-  - Activity monitoring and logging
-  - Profile management interface
+- **Project Review System**: Final approval authority with analytics dashboard
+- **User Management**: Role-based access control and activity monitoring
+- **Email Configuration**: SMTP settings management in admin panel
+- **Notification Dashboard**: Monitor email delivery and user preferences
 
 ### SubAdmin Features
-- **Project Assignment by Classification**
-  - Automatic assignment based on software/hardware expertise
-  - First-level project review and approval
-  - Rejection with detailed feedback system
-  - Project statistics and performance metrics
-  - Modal-based project detail viewing
-
-### Security Features
-- **Production-Grade Security**
-  - CSRF token validation on all forms
-  - Input sanitization and XSS protection
-  - Rate limiting (30 requests/minute)
-  - Secure file upload with type validation
-  - SQL injection prevention with prepared statements
-  - Session security with httpOnly cookies
-  - Error logging without information disclosure
-  - Security headers (X-Frame-Options, CSP, etc.)
-
-### Technical Features
-- **Performance**
-  - Optimized database queries
-  - Efficient caching system
-  - Lazy loading for images
-  - Minified assets
-  - Compressed resources
-  - AJAX-based interactions
-  - Debounced search
-  - Throttled API calls
-
-- **Responsive Design**
-  - Mobile-first approach
-  - Cross-browser compatibility
-  - Flexible grid system
-  - Adaptive layouts
-  - Touch-friendly interfaces
-  - Progressive enhancement
-
-### Error Handling
-- Graceful error recovery
-- User-friendly error messages
-- Offline support
-- Auto-retry mechanisms
-- Form validation
-- Data persistence
+- **Project Assignment by Classification**: Automatic assignment based on expertise
+- **Review Queue**: Organized project review with priority levels
+- **Collaborative Review**: Multiple sub-admins can review projects
+- **Performance Metrics**: Track review statistics and workload
 
 ---
 
@@ -144,8 +66,10 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
 ### Prerequisites
 - PHP 8.2.4 or higher
 - MySQL 10.4.28-MariaDB or higher
-- Apache Web Server
-- Composer for dependency management
+- Apache Web Server with mod_rewrite enabled
+- PHPMailer for email functionality
+- Cron job support for automated notifications
+- Google OAuth 2.0 credentials (optional)
 
 ### Installation
 
@@ -163,41 +87,118 @@ composer install
 - Create a new MySQL database
 - Import the SQL files from the `db` folder
 - Configure database connection in `Login/Login/db.php`
+- Run `setup_notifications.sql` to add notification tables
+- Ensure proper table structure for projects, users, notifications, and logs
 
 4. Configure web server:
 - Point your web server to the project directory
 - Ensure proper permissions for uploads folders
+- Verify .htaccess files are properly configured
+- Enable mod_rewrite for Apache
 
-5. Start using the application:
-- Navigate to the project URL
-- Register a new account or log in
-- Start exploring features
+5. Setup email notifications:
+- Configure SMTP settings in Admin panel
+- Run `cd cron && chmod +x setup_cron.sh && ./setup_cron.sh`
+- Test with `php cron/weekly_notifications.php`
 
 ---
 
-## 🛠 Development
+## 🛠 Configuration
 
-### Project Structure
+### Email Notification Setup
+1. **Admin Panel Configuration**:
+   - Login as admin
+   - Go to Settings → Email Configuration
+   - Configure SMTP settings (Gmail recommended)
+   - Set notification preferences
+
+2. **Cron Job Setup**:
+   ```bash
+   # For testing (every 30 minutes)
+   cd /opt/lampp/htdocs/IdeaNest/cron
+   ./setup_cron.sh
+   
+   # For production (weekly)
+   # Edit setup_cron.sh and change to: 0 9 * * 0
+   ```
+
+3. **Database SMTP Settings**:
+   ```sql
+   -- Current settings in admin_settings table
+   smtp_host: smtp.gmail.com
+   smtp_port: 587
+   smtp_username: ideanest.ict@gmail.com
+   smtp_password: [app-password]
+   smtp_secure: tls
+   from_email: ideanest.ict@gmail.com
+   ```
+
+### Google OAuth Setup
+1. Create Google Cloud Console project
+2. Enable Google+ API
+3. Create OAuth 2.0 credentials
+4. Add authorized JavaScript origins
+5. Update client ID in login.php
+
+---
+
+## 🔧 Project Structure
 ```
 IdeaNest/
 ├── Admin/
-│   ├── subadmin/          # SubAdmin panel
+│   ├── subadmin/                    # SubAdmin panel
+│   ├── notification_dashboard.php   # Email notification monitoring
 │   └── project_notification.php
 ├── user/
-│   ├── uploads/           # Secure file storage
-│   ├── Blog/             # Blog functionality
-│   └── forms/            # Project submission forms
-├── Login/Login/          # Authentication system
-├── config/               # Security configuration
-├── includes/             # Error handlers
-└── assets/              # CSS/JS assets
+│   ├── uploads/                     # Secure file storage
+│   ├── Blog/                        # Blog functionality
+│   ├── user_profile_setting.php     # User preferences with notification toggle
+│   └── forms/                       # Project submission forms
+├── cron/
+│   ├── weekly_notifications.php     # Main notification script
+│   ├── setup_cron.sh               # Cron job setup
+│   └── notification.log            # Notification logs
+├── Login/Login/                     # Authentication system
+├── config/                          # Security configuration
+├── includes/                        # Error handlers
+└── assets/                         # CSS/JS assets
 ```
 
-### Security Configuration
-- Environment-based settings in `config/security.php`
-- Error handling in `includes/error_handler.php`
-- File upload security in `user/uploads/.htaccess`
-- Rate limiting and CSRF protection enabled
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues
+- **403/500 Errors**: Check .htaccess configuration and file permissions
+- **Google OAuth**: Verify client ID and authorized domains
+- **Email Issues**: Ensure SMTP credentials and app passwords are correct
+- **File Uploads**: Check upload directory permissions (755 recommended)
+- **Cron Job Issues**: Check `/opt/lampp/htdocs/IdeaNest/cron/notification.log`
+- **Notification Not Sending**: Verify database SMTP settings in admin_settings table
+- **Path Errors**: Ensure cron script uses absolute paths with `__DIR__`
+
+### Email Notification Troubleshooting
+```bash
+# Test notification manually
+php /opt/lampp/htdocs/IdeaNest/cron/weekly_notifications.php
+
+# Check cron job status
+crontab -l
+
+# View notification logs
+tail -f /opt/lampp/htdocs/IdeaNest/cron/notification.log
+
+# Check database logs
+SELECT * FROM notification_logs ORDER BY created_at DESC LIMIT 10;
+```
+
+### File Permissions
+```bash
+chmod 755 user/uploads/
+chmod 644 user/uploads/*
+chmod 755 logs/
+chmod +x cron/setup_cron.sh
+```
 
 ---
 
@@ -206,17 +207,40 @@ IdeaNest/
 1. Fork the repository
 2. Create your feature branch:
 ```bash
-git checkout -b feature/AmazingFeature
+git checkout -b feature/EmailNotifications
 ```
 3. Commit your changes:
 ```bash
-git commit -m 'Add some AmazingFeature'
+git commit -m 'Add weekly email notification system'
 ```
 4. Push to the branch:
 ```bash
-git push origin feature/AmazingFeature
+git push origin feature/EmailNotifications
 ```
 5. Open a Pull Request
+
+---
+
+## 🚀 Recent Improvements
+
+### Email Notification System
+- Database-driven SMTP configuration
+- User preference management
+- Automated weekly digest emails
+- Comprehensive logging and monitoring
+- Production-ready cron job automation
+
+### Database & Backend
+- Fixed path issues in notification scripts
+- Enhanced logging with proper database schema
+- Improved error handling and debugging
+- Secure SMTP credential management
+
+### Security Enhancements
+- Production-ready security headers
+- CSRF protection on all forms
+- Secure session management
+- Protected file uploads
 
 ---
 
@@ -226,57 +250,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 🚀 Recent Improvements
+## 📞 Support
 
-### Database & Backend
-- Fixed column reference errors in project approval system
-- Implemented secure file upload/download mechanism
-- Added proper error handling and logging
-- Enhanced database query security
-
-### Frontend & UI
-- Bootstrap 5 integration with modern components
-- Responsive design for all screen sizes
-- Modal-based project viewing system
-- Improved form validation and user feedback
-
-### Security Enhancements
-- Production-ready security headers
-- CSRF protection on all forms
-- Rate limiting implementation
-- Secure session management
+For support, email ideanest.ict@gmail.com or create an issue on GitHub.
 
 ---
 
 ## 🙏 Acknowledgments
 
 - PHP community for security best practices
+- PHPMailer team for reliable email delivery
 - Bootstrap team for responsive framework
 - Font Awesome for iconography
 - All contributors and testers
-
----
-
-## 🔧 Configuration
-
-### Database Setup
-1. Import SQL files from `db/` folder
-2. Configure connection in `Login/Login/db.php`
-3. Ensure proper table structure for projects, users, subadmins
-
-### File Permissions
-```bash
-chmod 755 user/uploads/
-chmod 644 user/uploads/*
-chmod 755 logs/
-```
-
-### Production Deployment
-- Enable HTTPS in `.htaccess`
-- Set `display_errors = Off` in PHP
-- Configure proper error logging
-- Set secure session settings
-
-## 📞 Support
-
-For support, email ideanest.ict@gmail.com or create an issue on GitHub.

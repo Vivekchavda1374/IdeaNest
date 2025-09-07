@@ -1,6 +1,6 @@
 <?php
-require_once '../Login/Login/db.php';
-require_once '../vendor/autoload.php';
+require_once __DIR__ . '/../Login/Login/db.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -76,17 +76,17 @@ function sendWeeklyNotification($user, $conn) {
             $update_stmt->bind_param("i", $user['id']);
             $update_stmt->execute();
 
-            $log_query = "INSERT INTO notification_logs (user_id, notification_type, projects_count, ideas_count, status) VALUES (?, 'weekly', ?, ?, 'sent')";
+            $log_query = "INSERT INTO notification_logs (type, user_id, status, email_to, email_subject) VALUES ('weekly_notification', ?, 'sent', ?, ?)";
             $log_stmt = $conn->prepare($log_query);
-            $log_stmt->bind_param("iii", $user['id'], count($projects), count($ideas));
+            $log_stmt->bind_param("iss", $user['id'], $user['email'], $mail->Subject);
             $log_stmt->execute();
 
             echo "Notification sent to: " . $user['email'] . "\n";
             
         } catch (Exception $e) {
-            $log_query = "INSERT INTO notification_logs (user_id, notification_type, projects_count, ideas_count, status) VALUES (?, 'weekly', ?, ?, 'failed')";
+            $log_query = "INSERT INTO notification_logs (type, user_id, status, email_to, error_message) VALUES ('weekly_notification', ?, 'failed', ?, ?)";
             $log_stmt = $conn->prepare($log_query);
-            $log_stmt->bind_param("iii", $user['id'], count($projects), count($ideas));
+            $log_stmt->bind_param("iss", $user['id'], $user['email'], $e->getMessage());
             $log_stmt->execute();
             
             echo "Failed to send notification to: " . $user['email'] . "\n";
