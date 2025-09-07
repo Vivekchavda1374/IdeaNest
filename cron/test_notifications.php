@@ -20,7 +20,7 @@ if ($result->num_rows > 0) {
     
     // Get recent projects (last 30 days for testing)
     $projects_query = "SELECT p.*, r.name as author_name 
-                      FROM projects p 
+                      FROM admin_approved_projects p 
                       JOIN register r ON p.user_id = r.id 
                       WHERE p.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) 
                       AND p.user_id != ? 
