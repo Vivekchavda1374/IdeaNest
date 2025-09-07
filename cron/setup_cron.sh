@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Setup cron job for weekly notifications
-# Run every Sunday at 9:00 AM
+# Setup cron job for testing notifications
+# Run every 30 minutes for testing
 
-(crontab -l 2>/dev/null; echo "0 9 * * 0 /usr/bin/php /opt/lampp/htdocs/IdeaNest/cron/weekly_notifications.php >> /opt/lampp/htdocs/IdeaNest/cron/notification.log 2>&1") | crontab -
+(crontab -l 2>/dev/null; echo "*/30 * * * * /usr/bin/php /opt/lampp/htdocs/IdeaNest/cron/weekly_notifications.php >> /opt/lampp/htdocs/IdeaNest/cron/notification.log 2>&1") | crontab -
 
 echo "Cron job added successfully!"
-echo "Weekly notifications will run every Sunday at 9:00 AM"
+echo "Test notifications will run every 30 minutes"

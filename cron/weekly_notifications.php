@@ -8,7 +8,7 @@ use PHPMailer\PHPMailer\Exception;
 
 $query = "SELECT * FROM register 
           WHERE email_notifications = 1 
-          AND (last_notification_sent IS NULL OR last_notification_sent < DATE_SUB(NOW(), INTERVAL 7 DAY))";
+          AND (last_notification_sent IS NULL OR last_notification_sent < DATE_SUB(NOW(), INTERVAL 30 MINUTE))";
 $result = $conn->query($query);
 
 if ($result->num_rows > 0) {
@@ -21,7 +21,7 @@ function sendWeeklyNotification($user, $conn) {
     $projects_query = "SELECT p.*, r.name as author_name 
                       FROM projects p 
                       JOIN register r ON p.user_id = r.id 
-                      WHERE p.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) 
+                      WHERE p.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) 
                       AND p.user_id != ? 
                       ORDER BY p.created_at DESC 
                       LIMIT 10";
@@ -33,7 +33,7 @@ function sendWeeklyNotification($user, $conn) {
     $ideas_query = "SELECT b.*, r.name as author_name 
                    FROM blog b 
                    JOIN register r ON b.er_number = r.enrollment_number 
-                   WHERE b.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) 
+                   WHERE b.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) 
                    AND r.id != ? 
                    ORDER BY b.created_at DESC 
                    LIMIT 10";
@@ -58,7 +58,7 @@ function sendWeeklyNotification($user, $conn) {
             $mail->addAddress($user['email'], $user['name']);
 
             $mail->isHTML(true);
-            $mail->Subject = 'Weekly Update - New Projects & Ideas on IdeaNest';
+            $mail->Subject = '[TEST] 30min Update - New Projects & Ideas on IdeaNest';
             $mail->Body = generateEmailTemplate($user, $projects, $ideas);
 
             $mail->send();
@@ -110,8 +110,8 @@ function generateEmailTemplate($user, $projects, $ideas) {
     <body>
         <div class="container">
             <div class="header">
-                <h1>🚀 Weekly Update from IdeaNest</h1>
-                <p>Hello ' . htmlspecialchars($user['name']) . '! Here\'s what\'s new this week.</p>
+                <h1>🧪 Test Update from IdeaNest</h1>
+                <p>Hello ' . htmlspecialchars($user['name']) . '! This is a test notification (30min interval).</p>
             </div>
             <div class="content">';
     
