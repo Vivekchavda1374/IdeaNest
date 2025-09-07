@@ -2,6 +2,9 @@
 Options +Indexes
 DirectoryIndex disabled
 
+# Default access
+Require all granted
+
 # Security for file types
 <FilesMatch "\.(php|phtml|php3|php4|php5|pl|py|jsp|asp|sh|cgi)$">
     Require all denied

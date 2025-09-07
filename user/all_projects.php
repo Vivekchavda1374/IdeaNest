@@ -65,6 +65,73 @@ if (isset($_POST['submit_comment']) && isset($_POST['project_id']) && isset($_PO
     }
 }
 
+// Handle comment edit
+if (isset($_POST['edit_comment']) && isset($_POST['comment_id']) && isset($_POST['comment_text'])) {
+    $comment_id = intval($_POST['comment_id']);
+    $new_comment_text = trim($_POST['comment_text']);
+    
+    if (!empty($new_comment_text)) {
+        // Verify comment ownership
+        $check_ownership_sql = "SELECT user_id FROM project_comments WHERE id = ?";
+        $check_ownership_stmt = $conn->prepare($check_ownership_sql);
+        $check_ownership_stmt->bind_param("i", $comment_id);
+        $check_ownership_stmt->execute();
+        $ownership_result = $check_ownership_stmt->get_result();
+        
+        if ($ownership_result->num_rows > 0) {
+            $comment_owner = $ownership_result->fetch_assoc();
+            if ($comment_owner['user_id'] === $session_id) {
+                // Update comment
+                $update_comment_sql = "UPDATE project_comments SET comment_text = ?, updated_at = NOW() WHERE id = ?";
+                $update_comment_stmt = $conn->prepare($update_comment_sql);
+                $update_comment_stmt->bind_param("si", $new_comment_text, $comment_id);
+                
+                if ($update_comment_stmt->execute()) {
+                    $comment_message = '<div class="alert alert-success">Comment updated successfully!</div>';
+                } else {
+                    $comment_message = '<div class="alert alert-danger">Error updating comment. Please try again.</div>';
+                }
+                $update_comment_stmt->close();
+            } else {
+                $comment_message = '<div class="alert alert-danger">You can only edit your own comments.</div>';
+            }
+        }
+        $check_ownership_stmt->close();
+    }
+}
+
+// Handle comment delete
+if (isset($_POST['delete_comment']) && isset($_POST['comment_id'])) {
+    $comment_id = intval($_POST['comment_id']);
+    
+    // Verify comment ownership
+    $check_ownership_sql = "SELECT user_id FROM project_comments WHERE id = ?";
+    $check_ownership_stmt = $conn->prepare($check_ownership_sql);
+    $check_ownership_stmt->bind_param("i", $comment_id);
+    $check_ownership_stmt->execute();
+    $ownership_result = $check_ownership_stmt->get_result();
+    
+    if ($ownership_result->num_rows > 0) {
+        $comment_owner = $ownership_result->fetch_assoc();
+        if ($comment_owner['user_id'] === $session_id) {
+            // Delete comment
+            $delete_comment_sql = "DELETE FROM project_comments WHERE id = ?";
+            $delete_comment_stmt = $conn->prepare($delete_comment_sql);
+            $delete_comment_stmt->bind_param("i", $comment_id);
+            
+            if ($delete_comment_stmt->execute()) {
+                $comment_message = '<div class="alert alert-success">Comment deleted successfully!</div>';
+            } else {
+                $comment_message = '<div class="alert alert-danger">Error deleting comment. Please try again.</div>';
+            }
+            $delete_comment_stmt->close();
+        } else {
+            $comment_message = '<div class="alert alert-danger">You can only delete your own comments.</div>';
+        }
+    }
+    $check_ownership_stmt->close();
+}
+
 // Handle comment like toggle
 if (isset($_POST['toggle_comment_like']) && isset($_POST['comment_id'])) {
     $comment_id = intval($_POST['comment_id']);
@@ -1785,7 +1852,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                     if (!empty($modal_comments)):
                                         ?>
                                         <?php foreach ($modal_comments as $comment): ?>
-                                        <div class="comment-item">
+                                        <div class="comment-item" data-comment-id="<?php echo $comment['id']; ?>">
                                             <div class="comment-header">
                                                 <div class="comment-author">
                                                     <div class="comment-avatar">
@@ -1824,6 +1891,19 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                     <i class="fas fa-reply"></i>
                                                     <span>Reply</span>
                                                 </button>
+                                                
+                                                <?php if ($comment['user_id'] === $session_id): ?>
+                                                    <button type="button" class="reply-btn"
+                                                            onclick="editComment(<?php echo $comment['id']; ?>, '<?php echo htmlspecialchars(addslashes($comment['comment_text'])); ?>')">
+                                                        <i class="fas fa-edit"></i>
+                                                        <span>Edit</span>
+                                                    </button>
+                                                    <button type="button" class="reply-btn text-danger"
+                                                            onclick="deleteComment(<?php echo $comment['id']; ?>)">
+                                                        <i class="fas fa-trash"></i>
+                                                        <span>Delete</span>
+                                                    </button>
+                                                <?php endif; ?>
                                             </div>
 
                                             <!-- Reply Form -->
@@ -1849,7 +1929,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                             <!-- Display Replies -->
                                             <?php if (!empty($comment['replies'])): ?>
                                                 <?php foreach ($comment['replies'] as $reply): ?>
-                                                    <div class="comment-item reply-comment">
+                                                    <div class="comment-item reply-comment" data-comment-id="<?php echo $reply['id']; ?>">
                                                         <div class="comment-header">
                                                             <div class="comment-author">
                                                                 <div class="comment-avatar">
@@ -1882,6 +1962,19 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                                     <span><?php echo $reply['comment_likes_count']; ?></span>
                                                                 </button>
                                                             </form>
+                                                            
+                                                            <?php if ($reply['user_id'] === $session_id): ?>
+                                                                <button type="button" class="reply-btn"
+                                                                        onclick="editComment(<?php echo $reply['id']; ?>, '<?php echo htmlspecialchars(addslashes($reply['comment_text'])); ?>')">
+                                                                    <i class="fas fa-edit"></i>
+                                                                    <span>Edit</span>
+                                                                </button>
+                                                                <button type="button" class="reply-btn text-danger"
+                                                                        onclick="deleteComment(<?php echo $reply['id']; ?>)">
+                                                                    <i class="fas fa-trash"></i>
+                                                                    <span>Delete</span>
+                                                                </button>
+                                                            <?php endif; ?>
                                                         </div>
                                                     </div>
                                                 <?php endforeach; ?>
@@ -2137,6 +2230,101 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         console.log('All projects page initialized successfully');
     });
+    
+    // Edit comment function
+    window.editComment = function(commentId, currentText) {
+        const commentElement = document.querySelector(`[data-comment-id="${commentId}"] .comment-text`);
+        if (!commentElement) return;
+        
+        const originalText = commentElement.innerHTML;
+        
+        // Create edit form
+        const editForm = `
+            <div class="edit-comment-form">
+                <textarea class="form-control mb-2" rows="3">${currentText}</textarea>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary btn-sm" onclick="saveComment(${commentId}, this)">
+                        <i class="fas fa-save me-1"></i>Save
+                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="cancelEdit(${commentId}, '${originalText.replace(/'/g, "\\'")}')">Cancel</button>
+                </div>
+            </div>
+        `;
+        
+        commentElement.innerHTML = editForm;
+        commentElement.querySelector('textarea').focus();
+    };
+    
+    // Save edited comment
+    window.saveComment = function(commentId, button) {
+        const textarea = button.parentElement.parentElement.querySelector('textarea');
+        const newText = textarea.value.trim();
+        
+        if (!newText) {
+            alert('Comment cannot be empty');
+            return;
+        }
+        
+        // Show loading
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
+        button.disabled = true;
+        
+        // Create hidden form and submit
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.innerHTML = `
+            <input type="hidden" name="edit_comment" value="1">
+            <input type="hidden" name="comment_id" value="${commentId}">
+            <input type="hidden" name="comment_text" value="${newText}">
+        `;
+        document.body.appendChild(form);
+        form.submit();
+
+    };
+    
+    // Cancel edit
+    window.cancelEdit = function(commentId, originalText) {
+        const commentElement = document.querySelector(`[data-comment-id="${commentId}"] .comment-text`);
+        if (commentElement) {
+            commentElement.innerHTML = originalText;
+        }
+    };
+    
+    // Delete comment function
+    window.deleteComment = function(commentId) {
+        if (!confirm('Are you sure you want to delete this comment? This action cannot be undone.')) {
+            return;
+        }
+        
+        // Create hidden form and submit
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.innerHTML = `
+            <input type="hidden" name="delete_comment" value="1">
+            <input type="hidden" name="comment_id" value="${commentId}">
+        `;
+        document.body.appendChild(form);
+        form.submit();
+    };
+    
+    // Toast notification function
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        toast.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 5000);
+    }
 </script>
 </body>
 </html>
