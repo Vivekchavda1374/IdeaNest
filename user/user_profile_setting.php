@@ -228,6 +228,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($stmt->bind_param($types, ...$params)) {
                 if ($stmt->execute()) {
                     $success = "Profile updated successfully";
+                    
+                    // Mark profile as complete for Google users
+                    if (isset($_GET['google_setup'])) {
+                        $complete_stmt = $conn->prepare("UPDATE register SET profile_complete = 1 WHERE id = ?");
+                        $complete_stmt->bind_param("i", $user_id);
+                        $complete_stmt->execute();
+                        unset($_SESSION['google_new_user']);
+                        
+                        echo "<script>setTimeout(function(){ window.location.href = 'index.php'; }, 2000);</script>";
+                    }
 
                     // Refresh user data
                     $query = "SELECT * FROM register WHERE id = ?";
@@ -277,6 +287,12 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
         <div class="settings-header">
             <h1><i class="fas fa-user-cog"></i> Profile Settings</h1>
             <p>Manage your account information and preferences</p>
+            <?php if (isset($_GET['google_setup'])): ?>
+                <div class="alert alert-info">
+                    <i class="fas fa-google"></i>
+                    Welcome! Please complete your profile to access all features.
+                </div>
+            <?php endif; ?>
         </div>
 
         <?php if (!empty($errors)): ?>

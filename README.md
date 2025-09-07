@@ -8,20 +8,23 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
 
 ## ✨ Latest Updates
 
-### Enhanced User Interactions (August 2025)
-- Real-time like and bookmark functionality with AJAX
-- Instant visual feedback for user actions
-- Improved error handling and user notifications
-- Smooth animations for interaction states
-- Toast notifications for action confirmations
+### Production-Ready Security & Performance (December 2024)
+- **Security Enhancements**: CSRF protection, input sanitization, rate limiting
+- **Authentication System**: Secure session management and user validation
+- **File Management**: Secure upload/download system with proper permissions
+- **Database Security**: Prepared statements and error handling
+- **Admin Panel**: Enhanced subadmin functionality with project approval workflow
+- **UI/UX Improvements**: Modern responsive design with Bootstrap 5
+- **Error Handling**: Production-ready error logging and user-friendly messages
 
 ## 🚀 Features
 
 ### Project Management
-- Submit new projects with multiple file attachments
-- Edit existing projects with real-time validation
-- Track project status (pending/approved/rejected)
-- View projects in responsive grid layout (4-5 columns on desktop)
+- **Secure Project Submission**: Multi-file upload with validation
+- **Project Approval Workflow**: Three-tier system (User → SubAdmin → Admin)
+- **Real-time Status Tracking**: pending/approved/rejected with notifications
+- **File Security**: Protected uploads with access control
+- **Project Categories**: Software/Hardware classification system
 
 ### Interactive Features
 - Real-time AJAX-based like system
@@ -76,37 +79,36 @@ IdeaNest is a web-based platform designed to facilitate the management, sharing,
 
 ### Admin Features
 - **Project Review System**
-  - Streamlined approval workflow
-  - Batch project processing
-  - Detailed project analytics
-  - Comment and feedback system
-  - Activity monitoring
+  - Final approval authority for all projects
+  - Comprehensive project analytics dashboard
+  - Bulk project management capabilities
+  - Email notifications for status changes
+  - Advanced filtering and search
   
 - **User Management**
-  - Comprehensive user control
-  - Role-based access control
-  - User activity monitoring
-  - Profile management
-  - Bulk actions support
+  - Role-based access control (Admin/SubAdmin/User)
+  - User registration approval system
+  - Activity monitoring and logging
+  - Profile management interface
 
-### Sub-Admin Features
-- **Project Assignment**
-  - Efficient project distribution
-  - Task tracking
-  - Progress monitoring
-  - Team collaboration tools
-  - Performance analytics
+### SubAdmin Features
+- **Project Assignment by Classification**
+  - Automatic assignment based on software/hardware expertise
+  - First-level project review and approval
+  - Rejection with detailed feedback system
+  - Project statistics and performance metrics
+  - Modal-based project detail viewing
 
 ### Security Features
-- **Authentication & Authorization**
-  - Secure login system
-  - Role-based permissions
-  - Session management
-  - Password encryption
-  - XSS protection
-  - CSRF protection
-  - Rate limiting
-  - Input validation
+- **Production-Grade Security**
+  - CSRF token validation on all forms
+  - Input sanitization and XSS protection
+  - Rate limiting (30 requests/minute)
+  - Secure file upload with type validation
+  - SQL injection prevention with prepared statements
+  - Session security with httpOnly cookies
+  - Error logging without information disclosure
+  - Security headers (X-Frame-Options, CSP, etc.)
 
 ### Technical Features
 - **Performance**
@@ -175,32 +177,27 @@ composer install
 
 ## 🛠 Development
 
-### Building Assets
-```bash
-# Install dependencies
-npm install
-
-# Build assets
-npm run build
+### Project Structure
+```
+IdeaNest/
+├── Admin/
+│   ├── subadmin/          # SubAdmin panel
+│   └── project_notification.php
+├── user/
+│   ├── uploads/           # Secure file storage
+│   ├── Blog/             # Blog functionality
+│   └── forms/            # Project submission forms
+├── Login/Login/          # Authentication system
+├── config/               # Security configuration
+├── includes/             # Error handlers
+└── assets/              # CSS/JS assets
 ```
 
-### Running Tests
-```bash
-# Run PHPUnit tests
-./vendor/bin/phpunit
-
-# Run JavaScript tests
-npm test
-```
-
-### Coding Standards
-- Follow PSR-12 coding standard
-- Use ESLint for JavaScript
-- Run code quality checks:
-```bash
-composer check-style
-composer fix-style
-```
+### Security Configuration
+- Environment-based settings in `config/security.php`
+- Error handling in `includes/error_handler.php`
+- File upload security in `user/uploads/.htaccess`
+- Rate limiting and CSRF protection enabled
 
 ---
 
@@ -229,15 +226,57 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 🙏 Acknowledgments
+## 🚀 Recent Improvements
 
-- PHP community
-- Bootstrap team
-- Font Awesome
-- All contributors
+### Database & Backend
+- Fixed column reference errors in project approval system
+- Implemented secure file upload/download mechanism
+- Added proper error handling and logging
+- Enhanced database query security
+
+### Frontend & UI
+- Bootstrap 5 integration with modern components
+- Responsive design for all screen sizes
+- Modal-based project viewing system
+- Improved form validation and user feedback
+
+### Security Enhancements
+- Production-ready security headers
+- CSRF protection on all forms
+- Rate limiting implementation
+- Secure session management
 
 ---
 
+## 🙏 Acknowledgments
+
+- PHP community for security best practices
+- Bootstrap team for responsive framework
+- Font Awesome for iconography
+- All contributors and testers
+
+---
+
+## 🔧 Configuration
+
+### Database Setup
+1. Import SQL files from `db/` folder
+2. Configure connection in `Login/Login/db.php`
+3. Ensure proper table structure for projects, users, subadmins
+
+### File Permissions
+```bash
+chmod 755 user/uploads/
+chmod 644 user/uploads/*
+chmod 755 logs/
+```
+
+### Production Deployment
+- Enable HTTPS in `.htaccess`
+- Set `display_errors = Off` in PHP
+- Configure proper error logging
+- Set secure session settings
+
 ## 📞 Support
 
-For support, email ideanest.ict@gmail.com or join our Discord channel.
+For support, email ideanest.ict@gmail.com or create an issue on GitHub.

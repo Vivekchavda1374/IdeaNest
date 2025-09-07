@@ -2,6 +2,12 @@
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 if (!isset($basePath)) { $basePath = './'; }
 
+// Check if Google user needs to complete profile
+if (isset($_SESSION['google_new_user']) && $_SESSION['google_new_user'] === true) {
+    header("Location: user_profile_setting.php?google_setup=1");
+    exit();
+}
+
 
 
 // DB connection for stats
