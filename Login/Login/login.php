@@ -79,6 +79,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/login.css">
+    <style>
+    .google-login {
+        margin: 1rem 0;
+        display: flex;
+        justify-content: center;
+    }
+    .divider {
+        text-align: center;
+        margin: 1.5rem 0;
+        position: relative;
+    }
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #e0e0e0;
+    }
+    .divider span {
+        background: white;
+        padding: 0 1rem;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    </style>
 </head>
 <body>
 <div class="login-container">
@@ -115,7 +142,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <div class="forgot-password">
-            <a href="#" onclick="alert('Contact admin to reset password')">Forgot Password?</a>
+            <a href="forgot_password.php">Forgot Password?</a>
         </div>
 
         <button type="submit" class="login-btn">
@@ -123,6 +150,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             Sign In
         </button>
     </form>
+
+    <div class="divider">
+        <span>or</span>
+    </div>
+
+    <div class="google-login">
+        <div id="g_id_onload"
+             data-client_id="373663984974-msaj22ll4i9085r7120barr1g1akjs5d.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false"
+             data-cancel_on_tap_outside="false">
+        </div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-size="large"
+             data-theme="outline"
+             data-text="signin_with"
+             data-shape="rectangular"
+             data-logo_alignment="left"
+             data-width="300">
+        </div>
+    </div>
 
     <div class="divider">
         <span>New to IdeaNest?</span>
@@ -135,7 +184,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </div>
 
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+function handleCredentialResponse(response) {
+    if (!response.credential) {
+        alert('Google authentication failed');
+        return;
+    }
+    
+    fetch('google_auth.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            credential: response.credential
+        })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network error');
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            window.location.href = data.redirect;
+        } else {
+            alert('Login failed: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Login failed. Please try again.');
+    });
+}
+</script>
 <script src="../../assets/js/login.js"></script>
+
+
 
 </body>
 </html>

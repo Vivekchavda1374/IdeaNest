@@ -19,7 +19,7 @@ $stmt->fetch();
 $stmt->close();
 
 // Fetch projects matching either classification
-$stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE classification = ? OR classification = ?");
+$stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM admin_approved_projects WHERE classification = ? OR classification = ?");
 $stmt->bind_param("ss", $software_classification, $hardware_classification);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -65,7 +65,7 @@ if (isset($_GET['msg'])) {
 }
 
 // Re-fetch projects after potential updates
-$stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE classification = ? OR classification = ?");
+$stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM admin_approved_projects WHERE classification = ? OR classification = ?");
 $stmt->bind_param("ss", $software_classification, $hardware_classification);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -284,3 +284,4 @@ $content = ob_get_clean();
 // Render the page using the layout
 renderLayout('Assigned Projects', $content, 'projects');
 ?>
+
