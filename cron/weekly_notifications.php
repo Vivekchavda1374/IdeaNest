@@ -19,7 +19,7 @@ if ($result->num_rows > 0) {
 
 function sendWeeklyNotification($user, $conn) {
     $projects_query = "SELECT p.*, r.name as author_name 
-                      FROM projects p 
+                      FROM admin_approved_projects p 
                       JOIN register r ON p.user_id = r.id 
                       WHERE p.submission_date >= DATE_SUB(NOW(), INTERVAL 30 DAY) 
                       AND p.user_id != ? 
