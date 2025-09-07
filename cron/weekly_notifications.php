@@ -46,15 +46,23 @@ function sendWeeklyNotification($user, $conn) {
         $mail = new PHPMailer(true);
         
         try {
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'your-email@gmail.com';
-            $mail->Password = 'your-app-password';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
+            // Get SMTP settings from database
+            $smtp_query = "SELECT setting_key, setting_value FROM admin_settings WHERE setting_key IN ('smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'smtp_secure', 'from_email')";
+            $smtp_result = $conn->query($smtp_query);
+            $smtp_settings = [];
+            while ($row = $smtp_result->fetch_assoc()) {
+                $smtp_settings[$row['setting_key']] = $row['setting_value'];
+            }
 
-            $mail->setFrom('your-email@gmail.com', 'IdeaNest');
+            $mail->isSMTP();
+            $mail->Host = $smtp_settings['smtp_host'] ?? 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = $smtp_settings['smtp_username'] ?? 'ideanest.ict@gmail.com';
+            $mail->Password = $smtp_settings['smtp_password'] ?? 'luou xlhs ojuw auvx';
+            $mail->SMTPSecure = ($smtp_settings['smtp_secure'] ?? 'tls') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+            $mail->Port = $smtp_settings['smtp_port'] ?? 587;
+
+            $mail->setFrom($smtp_settings['from_email'] ?? 'ideanest.ict@gmail.com', 'IdeaNest');
             $mail->addAddress($user['email'], $user['name']);
 
             $mail->isHTML(true);
