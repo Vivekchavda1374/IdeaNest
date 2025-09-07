@@ -56,8 +56,8 @@ if ($result->num_rows > 0) {
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'your-email@gmail.com'; // Replace with your email
-            $mail->Password = 'your-app-password';    // Replace with your app password
+            $mail->Username = 'ideanest.ict@gmail.com'; // Replace with your email
+            $mail->Password = 'luou xlhs ojuw auvx';    // Replace with your app password
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
