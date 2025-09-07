@@ -21,9 +21,9 @@ function sendWeeklyNotification($user, $conn) {
     $projects_query = "SELECT p.*, r.name as author_name 
                       FROM projects p 
                       JOIN register r ON p.user_id = r.id 
-                      WHERE p.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) 
+                      WHERE p.submission_date >= DATE_SUB(NOW(), INTERVAL 30 DAY) 
                       AND p.user_id != ? 
-                      ORDER BY p.created_at DESC 
+                      ORDER BY p.submission_date DESC 
                       LIMIT 10";
     $projects_stmt = $conn->prepare($projects_query);
     $projects_stmt->bind_param("i", $user['id']);
@@ -33,9 +33,9 @@ function sendWeeklyNotification($user, $conn) {
     $ideas_query = "SELECT b.*, r.name as author_name 
                    FROM blog b 
                    JOIN register r ON b.er_number = r.enrollment_number 
-                   WHERE b.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) 
+                   WHERE b.submission_datetime >= DATE_SUB(NOW(), INTERVAL 30 DAY) 
                    AND r.id != ? 
-                   ORDER BY b.created_at DESC 
+                   ORDER BY b.submission_datetime DESC 
                    LIMIT 10";
     $ideas_stmt = $conn->prepare($ideas_query);
     $ideas_stmt->bind_param("i", $user['id']);
@@ -129,9 +129,9 @@ function generateEmailTemplate($user, $projects, $ideas) {
         
         foreach ($projects as $project) {
             $html .= '<div class="item">
-                        <h3>' . htmlspecialchars($project['project_title']) . '</h3>
+                        <h3>' . htmlspecialchars($project['project_name']) . '</h3>
                         <p><strong>By:</strong> <span class="author">' . htmlspecialchars($project['author_name']) . '</span></p>
-                        <p>' . htmlspecialchars(substr($project['project_description'], 0, 150)) . '...</p>
+                        <p>' . htmlspecialchars(substr($project['description'], 0, 150)) . '...</p>
                         <p><strong>Category:</strong> ' . htmlspecialchars($project['project_category']) . '</p>
                     </div>';
         }
@@ -144,9 +144,9 @@ function generateEmailTemplate($user, $projects, $ideas) {
         
         foreach ($ideas as $idea) {
             $html .= '<div class="item">
-                        <h3>' . htmlspecialchars($idea['title']) . '</h3>
+                        <h3>' . htmlspecialchars($idea['project_name']) . '</h3>
                         <p><strong>By:</strong> <span class="author">' . htmlspecialchars($idea['author_name']) . '</span></p>
-                        <p>' . htmlspecialchars(substr($idea['content'], 0, 150)) . '...</p>
+                        <p>' . htmlspecialchars(substr($idea['description'], 0, 150)) . '...</p>
                     </div>';
         }
         $html .= '</div>';
