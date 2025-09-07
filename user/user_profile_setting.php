@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $about = trim($_POST['about']);
     $department = trim($_POST['department']);
     $passout_year = trim($_POST['passout_year']);
+    $email_notifications = isset($_POST['email_notifications']) ? 1 : 0;
     $current_password = $_POST['current_password'] ?? '';
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
@@ -90,6 +91,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $types .= "s";
             $params[] = $passout_year;
         }
+
+        $update_fields[] = "email_notifications = ?";
+        $types .= "i";
+        $params[] = $email_notifications;
 
         // Password update
         if (!empty($current_password) && !empty($new_password) && !empty($confirm_password)) {
@@ -280,6 +285,68 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
     <title>Profile Settings - IdeaNest</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/user_profile.css">
+    <style>
+        .notification-toggle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            flex-shrink: 0;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #6366f1;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        .toggle-info h4 {
+            margin: 0 0 0.25rem 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .toggle-info p {
+            margin: 0;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+    </style>
 </head>
 <body>
 <div class="main-content">
@@ -494,6 +561,26 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
                         <div class="input-group">
                             <i class="fas fa-hashtag input-group-icon"></i>
                             <input type="text" id="gr_number" class="form-control" value="<?php echo htmlspecialchars($user['gr_number']); ?>" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-bell"></i>
+                    Notification Settings
+                </h3>
+                <div class="form-group">
+                    <div class="notification-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="email_notifications" <?php echo ($user['email_notifications'] ?? 1) ? 'checked' : ''; ?>>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <div class="toggle-info">
+                            <h4>Weekly Email Notifications</h4>
+                            <p>Receive weekly updates about new projects and ideas from other students</p>
                         </div>
                     </div>
                 </div>
