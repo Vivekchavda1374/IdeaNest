@@ -5,11 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully">
-      <change beforePath="$PROJECT_DIR$/.htaccess" beforeDir="false" afterPath="$PROJECT_DIR$/.htaccess" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cron/check_mysql.sh" beforeDir="false" afterPath="$PROJECT_DIR$/cron/check_mysql.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cron/notification.log" beforeDir="false" afterPath="$PROJECT_DIR$/cron/notification.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cron/setup_cron.sh" beforeDir="false" afterPath="$PROJECT_DIR$/cron/setup_cron.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/forms/new_project_add.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/new_project_add.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ideanest.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db/ideanest.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -254,7 +253,10 @@
       <workItem from="1757135692735" duration="146000" />
       <workItem from="1757251351834" duration="4649000" />
       <workItem from="1757257678798" duration="1887000" />
-      <workItem from="1757298787822" duration="2575000" />
+      <workItem from="1757298787822" duration="3069000" />
+      <workItem from="1757306073837" duration="3472000" />
+      <workItem from="1757313938869" duration="79000" />
+      <workItem from="1757316411500" duration="860000" />
     </task>
     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
       <option name="closed" value="true" />

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Sep 07, 2025 at 05:18 PM
+-- Generation Time: Sep 08, 2025 at 06:45 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -445,7 +445,39 @@ INSERT INTO `notification_logs` (`id`, `type`, `user_id`, `project_id`, `status`
                                                                                                                                                                 (1, 'new_user_notification', 1, NULL, 'sent', '2025-07-06 07:55:03', 'ideanest.ict@gmail.com', 'New User Registration - IdeaNest', NULL, NULL),
                                                                                                                                                                 (2, 'project_approval', 2, 1, 'sent', '2025-07-06 07:55:03', 'user@example.com', 'Congratulations! Your Project \"Test Project\" Has Been Approved', NULL, NULL),
                                                                                                                                                                 (3, 'project_rejection', 3, 2, 'sent', '2025-07-06 07:55:03', 'user2@example.com', 'Important Update About Your Project \"Another Project\"', NULL, NULL),
-                                                                                                                                                                (4, 'new_user_notification', 3, NULL, 'sent', '2025-08-06 07:07:27', 'ideanest.ict@gmail.com', 'New User Registration - IdeaNest', NULL, NULL);
+                                                                                                                                                                (4, 'new_user_notification', 3, NULL, 'sent', '2025-08-06 07:07:27', 'ideanest.ict@gmail.com', 'New User Registration - IdeaNest', NULL, NULL),
+                                                                                                                                                                (5, 'weekly_notification', 1, NULL, 'sent', '2025-09-07 15:26:56', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (6, 'weekly_notification', 2, NULL, 'sent', '2025-09-07 15:27:02', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (7, 'weekly_notification', 1, NULL, 'sent', '2025-09-07 15:57:08', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (8, 'weekly_notification', 1, NULL, 'sent', '2025-09-07 15:57:08', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (9, 'weekly_notification', 1, NULL, 'sent', '2025-09-07 15:57:09', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (10, 'weekly_notification', 2, NULL, 'sent', '2025-09-07 15:58:08', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (11, 'weekly_notification', 2, NULL, 'sent', '2025-09-07 15:58:08', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (12, 'weekly_notification', 2, NULL, 'sent', '2025-09-07 15:58:08', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (13, 'weekly_notification', 1, NULL, 'sent', '2025-09-07 16:56:19', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (14, 'weekly_notification', 1, NULL, 'sent', '2025-09-07 16:56:19', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (15, 'weekly_notification', 1, NULL, 'sent', '2025-09-07 16:56:20', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (16, 'weekly_notification', 2, NULL, 'sent', '2025-09-07 16:56:25', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (17, 'weekly_notification', 2, NULL, 'sent', '2025-09-07 16:56:25', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (18, 'weekly_notification', 2, NULL, 'sent', '2025-09-07 16:56:25', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (19, 'weekly_notification', 1, NULL, 'sent', '2025-09-08 02:44:06', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (20, 'weekly_notification', 1, NULL, 'sent', '2025-09-08 02:44:06', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (21, 'weekly_notification', 1, NULL, 'sent', '2025-09-08 02:44:06', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (22, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 02:44:11', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (23, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 02:44:11', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (24, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 02:44:11', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (25, 'weekly_notification', 1, NULL, 'sent', '2025-09-08 03:15:06', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (26, 'weekly_notification', 1, NULL, 'sent', '2025-09-08 03:15:06', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (27, 'weekly_notification', 1, NULL, 'sent', '2025-09-08 03:15:06', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (28, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 03:15:11', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (29, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 03:15:11', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (30, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 03:15:12', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (31, 'weekly_notification', 1, NULL, 'sent', '2025-09-08 04:41:08', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (32, 'weekly_notification', 1, NULL, 'sent', '2025-09-08 04:41:08', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (33, 'weekly_notification', 1, NULL, 'sent', '2025-09-08 04:41:08', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (34, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 04:41:15', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (35, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 04:41:16', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (36, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 04:41:16', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -662,16 +694,26 @@ CREATE TABLE `register` (
                             `user_image` text NOT NULL DEFAULT '',
                             `google_id` varchar(255) DEFAULT NULL,
                             `email_notifications` tinyint(1) DEFAULT 1,
-                            `last_notification_sent` datetime DEFAULT NULL
+                            `last_notification_sent` datetime DEFAULT NULL,
+                            `github_username` varchar(100) DEFAULT NULL,
+                            `github_token` text DEFAULT NULL,
+                            `github_profile_url` varchar(255) DEFAULT NULL,
+                            `github_repos_count` int(11) DEFAULT 0,
+                            `github_followers` int(11) DEFAULT 0,
+                            `github_following` int(11) DEFAULT 0,
+                            `github_bio` text DEFAULT NULL,
+                            `github_location` varchar(100) DEFAULT NULL,
+                            `github_company` varchar(100) DEFAULT NULL,
+                            `github_last_sync` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `register`
 --
 
-INSERT INTO `register` (`id`, `name`, `email`, `enrollment_number`, `gr_number`, `password`, `about`, `phone_no`, `department`, `passout_year`, `user_image`, `google_id`, `email_notifications`, `last_notification_sent`) VALUES
-                                                                                                                                                                                                                                (1, 'vivek', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$nkrc9MrI8QWIszcw7KbKSOx/YA3G.Wy5IArGvLl7ImnEZAYGUtWSS', 'i am vivek', '9104231590', 'ict', '2026', 'profile_68a6b4d8458ae.png', '116644441139882349952', 1, NULL),
-                                                                                                                                                                                                                                (2, 'vivek', 'viveksinhchavda639@gmail.com', '92200133041', '119485', '$2y$10$P0h0EpiNLoBWFxal.Jh4B.iRIzOYC9XL5OpoeBNX02UkmcgJ0j92y', 'hi i am vivek', '9104231590', 'ict', '2026', '', '111579585627734057498', 1, NULL);
+INSERT INTO `register` (`id`, `name`, `email`, `enrollment_number`, `gr_number`, `password`, `about`, `phone_no`, `department`, `passout_year`, `user_image`, `google_id`, `email_notifications`, `last_notification_sent`, `github_username`, `github_token`, `github_profile_url`, `github_repos_count`, `github_followers`, `github_following`, `github_bio`, `github_location`, `github_company`, `github_last_sync`) VALUES
+                                                                                                                                                                                                                                                                                                                                                                                                                              (1, 'vivek', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$nkrc9MrI8QWIszcw7KbKSOx/YA3G.Wy5IArGvLl7ImnEZAYGUtWSS', 'i am vivek', '9104231590', 'ict', '2026', 'profile_68a6b4d8458ae.png', '116644441139882349952', 1, '2025-09-08 10:11:08', 'Vivekchavda1374', NULL, 'https://github.com/Vivekchavda1374', 45, 15, 13, '0', NULL, NULL, '2025-09-08 04:44:11'),
+                                                                                                                                                                                                                                                                                                                                                                                                                              (2, 'vivek', 'viveksinhchavda639@gmail.com', '92200133041', '119485', '$2y$10$P0h0EpiNLoBWFxal.Jh4B.iRIzOYC9XL5OpoeBNX02UkmcgJ0j92y', 'hi i am vivek', '9104231590', 'ict', '2026', '', '111579585627734057498', 1, '2025-09-08 10:11:16', NULL, NULL, NULL, 0, 0, 0, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -852,6 +894,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (5, 't19gk6a8s544dspidejpt5rhe1', '2025-08-24 13:10:43'),
                                                                                       (5, 'tojal0944iv6bik11hcismnunk', '2025-08-25 04:24:56'),
                                                                                       (6, '0rs4kauq45f3em8j863qgna23l', '2025-09-01 08:50:01'),
+                                                                                      (6, '1asmr6k7vqhajeif0ugol6b825', '2025-09-08 03:30:10'),
                                                                                       (6, '7p4ngrvpot69vtv4ranmtqjprf', '2025-09-02 16:39:35'),
                                                                                       (6, 'f2p8bp3d2idnme0b860kkfebj1', '2025-09-03 05:14:04'),
                                                                                       (6, 'f752vcgdd6la5uc66ek2c8nmg3', '2025-09-06 08:09:01'),
@@ -884,6 +927,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (10, 't19gk6a8s544dspidejpt5rhe1', '2025-08-24 12:54:20'),
                                                                                       (10, 'tojal0944iv6bik11hcismnunk', '2025-08-25 04:18:57'),
                                                                                       (11, '0rs4kauq45f3em8j863qgna23l', '2025-09-01 08:50:01'),
+                                                                                      (11, '1asmr6k7vqhajeif0ugol6b825', '2025-09-08 03:30:10'),
                                                                                       (11, '7p4ngrvpot69vtv4ranmtqjprf', '2025-09-02 16:39:35'),
                                                                                       (11, 'f2p8bp3d2idnme0b860kkfebj1', '2025-09-03 05:14:04'),
                                                                                       (11, 'f752vcgdd6la5uc66ek2c8nmg3', '2025-09-06 08:09:01'),
@@ -904,6 +948,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (13, 't19gk6a8s544dspidejpt5rhe1', '2025-08-24 12:54:20'),
                                                                                       (13, 'tojal0944iv6bik11hcismnunk', '2025-08-25 04:18:57'),
                                                                                       (14, '0rs4kauq45f3em8j863qgna23l', '2025-09-01 08:50:01'),
+                                                                                      (14, '1asmr6k7vqhajeif0ugol6b825', '2025-09-08 03:30:10'),
                                                                                       (14, '7p4ngrvpot69vtv4ranmtqjprf', '2025-09-02 16:39:35'),
                                                                                       (14, 'f2p8bp3d2idnme0b860kkfebj1', '2025-09-03 05:14:04'),
                                                                                       (14, 'f752vcgdd6la5uc66ek2c8nmg3', '2025-09-06 08:09:01'),
@@ -942,6 +987,28 @@ CREATE TABLE `user_activity_log` (
                                      `ip_address` varchar(45) DEFAULT NULL,
                                      `user_agent` text DEFAULT NULL,
                                      `timestamp` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_github_repos`
+--
+
+CREATE TABLE `user_github_repos` (
+                                     `id` int(11) NOT NULL,
+                                     `user_id` int(11) NOT NULL,
+                                     `repo_name` varchar(255) NOT NULL,
+                                     `repo_full_name` varchar(255) NOT NULL,
+                                     `repo_description` text DEFAULT NULL,
+                                     `repo_url` varchar(255) NOT NULL,
+                                     `language` varchar(50) DEFAULT NULL,
+                                     `stars_count` int(11) DEFAULT 0,
+                                     `forks_count` int(11) DEFAULT 0,
+                                     `is_private` tinyint(1) DEFAULT 0,
+                                     `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+                                     `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+                                     `synced_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -1192,6 +1259,13 @@ ALTER TABLE `user_activity_log`
   ADD KEY `idx_timestamp` (`timestamp`);
 
 --
+-- Indexes for table `user_github_repos`
+--
+ALTER TABLE `user_github_repos`
+    ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_repo` (`user_id`,`repo_full_name`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -1265,7 +1339,7 @@ ALTER TABLE `notification_counters`
 -- AUTO_INCREMENT for table `notification_logs`
 --
 ALTER TABLE `notification_logs`
-    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `notification_templates`
@@ -1340,6 +1414,12 @@ ALTER TABLE `user_activity_log`
     MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `user_github_repos`
+--
+ALTER TABLE `user_github_repos`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- Constraints for dumped tables
 --
 
@@ -1398,6 +1478,12 @@ ALTER TABLE `support_tickets`
 --
 ALTER TABLE `support_ticket_replies`
     ADD CONSTRAINT `fk_ticket_replies_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `support_tickets` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_github_repos`
+--
+ALTER TABLE `user_github_repos`
+    ADD CONSTRAINT `user_github_repos_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
