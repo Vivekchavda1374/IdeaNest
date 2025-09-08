@@ -2,7 +2,7 @@
 session_start();
 include 'layout.php';
 include '../Login/Login/db.php';
-include 'github_service.php';
+
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $department = trim($_POST['department']);
     $passout_year = trim($_POST['passout_year']);
     $email_notifications = isset($_POST['email_notifications']) ? 1 : 0;
-    $github_username = trim($_POST['github_username'] ?? '');
+
     $current_password = $_POST['current_password'] ?? '';
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
@@ -105,13 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $types .= "i";
         $params[] = $email_notifications;
 
-        // GitHub integration
-        if (!empty($github_username) && $github_username !== ($user['github_username'] ?? '')) {
-            $github_result = syncGitHubData($conn, $user_id, $github_username);
-            if (!$github_result['success']) {
-                $errors[] = $github_result['message'];
-            }
-        }
+
 
         // Password update
         if (!empty($current_password) && !empty($new_password) && !empty($confirm_password)) {
@@ -293,23 +287,7 @@ $idea_stmt->bind_param("s", $user['enrollment_number']);
 $idea_stmt->execute();
 $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
 
-// Get GitHub data
-$stmt = $conn->prepare("SELECT github_username, github_profile_url, github_repos_count, 
-    github_followers, github_following, github_bio, github_location, github_company, github_last_sync 
-    FROM register WHERE id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$github_data = $result->fetch_assoc();
 
-$github_repos = [];
-if ($github_data['github_username']) {
-    $stmt = $conn->prepare("SELECT * FROM user_github_repos WHERE user_id = ? ORDER BY stars_count DESC LIMIT 6");
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $github_repos = $result->fetch_all(MYSQLI_ASSOC);
-}
 ?>
 
 <!DOCTYPE html>
@@ -381,65 +359,7 @@ if ($github_data['github_username']) {
             font-size: 0.875rem;
             color: #6b7280;
         }
-        .github-profile-info {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-        }
-        .github-stats {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        .github-stats .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: white;
-            border-radius: 6px;
-            border: 1px solid #e9ecef;
-        }
-        .github-repos h4 {
-            margin: 1rem 0 0.5rem 0;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-        .repos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1rem;
-        }
-        .repo-card {
-            padding: 1rem;
-            background: white;
-            border-radius: 6px;
-            border: 1px solid #e9ecef;
-        }
-        .repo-card h5 {
-            margin: 0 0 0.5rem 0;
-            font-size: 0.9rem;
-        }
-        .repo-card h5 a {
-            color: #0366d6;
-            text-decoration: none;
-        }
-        .repo-card p {
-            margin: 0 0 0.5rem 0;
-            font-size: 0.8rem;
-            color: #586069;
-        }
-        .repo-stats {
-            display: flex;
-            gap: 1rem;
-            font-size: 0.75rem;
-            color: #586069;
-        }
-        .repo-stats .language {
-            font-weight: 600;
-        }
+
     </style>
 </head>
 <body>
@@ -660,65 +580,7 @@ if ($github_data['github_username']) {
                 </div>
             </div>
 
-            <!-- GitHub Integration -->
-            <div class="form-section">
-                <h3 class="section-title">
-                    <i class="fab fa-github"></i>
-                    GitHub Integration
-                </h3>
-                <div class="form-group">
-                    <label for="github_username" class="form-label">GitHub Username</label>
-                    <div class="input-group">
-                        <i class="fab fa-github input-group-icon"></i>
-                        <input type="text" id="github_username" name="github_username" class="form-control" 
-                               value="<?php echo htmlspecialchars($github_data['github_username'] ?? ''); ?>" 
-                               placeholder="Enter your GitHub username">
-                    </div>
-                    <small class="form-text">Connect your GitHub profile to showcase your repositories</small>
-                </div>
-                
-                <?php if (!empty($github_data['github_username'])): ?>
-                <div class="github-profile-info">
-                    <div class="github-stats">
-                        <div class="stat-item">
-                            <i class="fas fa-code-branch"></i>
-                            <span><?php echo $github_data['github_repos_count'] ?? 0; ?> Repos</span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-users"></i>
-                            <span><?php echo $github_data['github_followers'] ?? 0; ?> Followers</span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-user-plus"></i>
-                            <span><?php echo $github_data['github_following'] ?? 0; ?> Following</span>
-                        </div>
-                    </div>
-                    
-                    <?php if (!empty($github_repos)): ?>
-                    <div class="github-repos">
-                        <h4>Recent Repositories</h4>
-                        <div class="repos-grid">
-                            <?php foreach (array_slice($github_repos, 0, 6) as $repo): ?>
-                            <div class="repo-card">
-                                <h5><a href="<?php echo htmlspecialchars($repo['repo_url']); ?>" target="_blank">
-                                    <?php echo htmlspecialchars($repo['repo_name']); ?>
-                                </a></h5>
-                                <p><?php echo htmlspecialchars($repo['repo_description'] ?? 'No description'); ?></p>
-                                <div class="repo-stats">
-                                    <?php if ($repo['language']): ?>
-                                    <span class="language"><?php echo htmlspecialchars($repo['language']); ?></span>
-                                    <?php endif; ?>
-                                    <span class="stars"><i class="fas fa-star"></i> <?php echo $repo['stars_count']; ?></span>
-                                    <span class="forks"><i class="fas fa-code-branch"></i> <?php echo $repo['forks_count']; ?></span>
-                                </div>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                </div>
-                <?php endif; ?>
-            </div>
+
 
             <!-- Notification Settings -->
             <div class="form-section">

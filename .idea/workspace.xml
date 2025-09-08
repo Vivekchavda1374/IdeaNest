@@ -6,9 +6,17 @@
   <component name="ChangeListManager">
     <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cron/check_mysql.sh" beforeDir="false" afterPath="$PROJECT_DIR$/cron/check_mysql.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cron/notification.log" beforeDir="false" afterPath="$PROJECT_DIR$/cron/notification.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GITHUB_INTEGRATION.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LATEST_TESTING_REPORT.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NOTIFICATION_SETUP.md" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/db/ideanest.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db/ideanest.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/api/github_sync.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/github_profile.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/github_profile_simple.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/github_service.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/layout.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/layout.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/user_profile_setting.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/user_profile_setting.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,11 +144,11 @@
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\user\forms" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/user/github" />
       <recent name="$PROJECT_DIR$/assets/css" />
       <recent name="$PROJECT_DIR$/Login/Login" />
       <recent name="$PROJECT_DIR$/db" />
       <recent name="C:\xampp\htdocs\project\IdeaNest\Login\Login" />
-      <recent name="C:\xampp\htdocs\project\IdeaNest\user" />
     </key>
   </component>
   <component name="SeleniumInternalSettingsState">
@@ -256,7 +264,8 @@
       <workItem from="1757298787822" duration="3069000" />
       <workItem from="1757306073837" duration="3472000" />
       <workItem from="1757313938869" duration="79000" />
-      <workItem from="1757316411500" duration="860000" />
+      <workItem from="1757316411500" duration="1464000" />
+      <workItem from="1757340901185" duration="2457000" />
     </task>
     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
       <option name="closed" value="true" />

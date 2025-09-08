@@ -108,10 +108,7 @@ if ($is_in_subdirectory) {
                 <i class="fas fa-user nav-icon"></i>
                 <span class="nav-text">Profile</span>
             </a>
-            <a href="<?php echo $basePath; ?>github_profile_simple.php" class="nav-item <?php echo ($current_page == 'github_profile_simple.php') ? 'active' : ''; ?>">
-                <i class="fab fa-github nav-icon"></i>
-                <span class="nav-text">GitHub</span>
-            </a>
+
             <a href="<?php echo $basePath; ?>user_profile_setting.php" class="nav-item <?php echo ($current_page == 'user_profile_setting.php') ? 'active' : ''; ?>">
                 <i class="fas fa-cog nav-icon"></i>
                 <span class="nav-text">Settings</span>
