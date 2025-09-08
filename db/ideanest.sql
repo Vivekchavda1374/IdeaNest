@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Sep 08, 2025 at 06:45 AM
+-- Generation Time: Sep 08, 2025 at 04:54 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -340,6 +340,73 @@ INSERT INTO `denial_projects` (`id`, `user_id`, `project_name`, `project_type`, 
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `github_analytics_cache`
+--
+
+CREATE TABLE `github_analytics_cache` (
+                                          `id` int(11) NOT NULL,
+                                          `user_id` int(11) NOT NULL,
+                                          `cache_key` varchar(255) NOT NULL,
+                                          `cache_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`cache_data`)),
+                                          `expires_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+                                          `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `github_contributions`
+--
+
+CREATE TABLE `github_contributions` (
+                                        `id` int(11) NOT NULL,
+                                        `user_id` int(11) NOT NULL,
+                                        `github_username` varchar(100) NOT NULL,
+                                        `contribution_date` date NOT NULL,
+                                        `commit_count` int(11) DEFAULT 0,
+                                        `pr_count` int(11) DEFAULT 0,
+                                        `issue_count` int(11) DEFAULT 0,
+                                        `review_count` int(11) DEFAULT 0,
+                                        `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+                                        `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `github_language_stats`
+--
+
+CREATE TABLE `github_language_stats` (
+                                         `id` int(11) NOT NULL,
+                                         `user_id` int(11) NOT NULL,
+                                         `language` varchar(50) NOT NULL,
+                                         `bytes_count` bigint(20) DEFAULT 0,
+                                         `percentage` decimal(5,2) DEFAULT 0.00,
+                                         `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `github_repo_analytics`
+--
+
+CREATE TABLE `github_repo_analytics` (
+                                         `id` int(11) NOT NULL,
+                                         `user_id` int(11) NOT NULL,
+                                         `repo_name` varchar(255) NOT NULL,
+                                         `commit_frequency` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`commit_frequency`)),
+                                         `contributor_count` int(11) DEFAULT 0,
+                                         `issue_resolution_time` decimal(10,2) DEFAULT 0.00,
+                                         `pr_merge_rate` decimal(5,2) DEFAULT 0.00,
+                                         `code_quality_score` decimal(5,2) DEFAULT 0.00,
+                                         `last_analyzed` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `idea_comments`
 --
 
@@ -477,7 +544,25 @@ INSERT INTO `notification_logs` (`id`, `type`, `user_id`, `project_id`, `status`
                                                                                                                                                                 (33, 'weekly_notification', 1, NULL, 'sent', '2025-09-08 04:41:08', 'viveksinhchavda@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
                                                                                                                                                                 (34, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 04:41:15', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
                                                                                                                                                                 (35, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 04:41:16', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
-                                                                                                                                                                (36, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 04:41:16', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL);
+                                                                                                                                                                (36, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 04:41:16', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (37, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 05:12:08', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (38, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 05:12:08', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (39, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 05:12:08', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (40, 'weekly_notification', 2, NULL, 'failed', '2025-09-08 06:09:37', 'viveksinhchavda639@gmail.com', NULL, NULL, 'SMTP Error: Could not connect to SMTP host. Failed to connect to server'),
+                                                                                                                                                                (41, 'weekly_notification', 2, NULL, 'failed', '2025-09-08 06:09:37', 'viveksinhchavda639@gmail.com', NULL, NULL, 'SMTP Error: Could not connect to SMTP host. Failed to connect to server'),
+                                                                                                                                                                (42, 'weekly_notification', 2, NULL, 'failed', '2025-09-08 06:09:37', 'viveksinhchavda639@gmail.com', NULL, NULL, 'SMTP Error: Could not connect to SMTP host. Failed to connect to server'),
+                                                                                                                                                                (43, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 06:11:22', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (44, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 06:11:24', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (45, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 06:11:25', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (46, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 06:11:53', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (47, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 06:11:57', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (48, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 06:11:58', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (49, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 06:42:24', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (50, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 06:42:25', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (51, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 06:42:29', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (52, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 07:13:07', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (53, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 07:13:07', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL),
+                                                                                                                                                                (54, 'weekly_notification', 2, NULL, 'sent', '2025-09-08 07:13:07', 'viveksinhchavda639@gmail.com', '[TEST] 30min Update - New Projects & Ideas on IdeaNest', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -695,25 +780,16 @@ CREATE TABLE `register` (
                             `google_id` varchar(255) DEFAULT NULL,
                             `email_notifications` tinyint(1) DEFAULT 1,
                             `last_notification_sent` datetime DEFAULT NULL,
-                            `github_username` varchar(100) DEFAULT NULL,
-                            `github_token` text DEFAULT NULL,
-                            `github_profile_url` varchar(255) DEFAULT NULL,
-                            `github_repos_count` int(11) DEFAULT 0,
-                            `github_followers` int(11) DEFAULT 0,
-                            `github_following` int(11) DEFAULT 0,
-                            `github_bio` text DEFAULT NULL,
-                            `github_location` varchar(100) DEFAULT NULL,
-                            `github_company` varchar(100) DEFAULT NULL,
-                            `github_last_sync` timestamp NULL DEFAULT NULL
+                            `github_token` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `register`
 --
 
-INSERT INTO `register` (`id`, `name`, `email`, `enrollment_number`, `gr_number`, `password`, `about`, `phone_no`, `department`, `passout_year`, `user_image`, `google_id`, `email_notifications`, `last_notification_sent`, `github_username`, `github_token`, `github_profile_url`, `github_repos_count`, `github_followers`, `github_following`, `github_bio`, `github_location`, `github_company`, `github_last_sync`) VALUES
-                                                                                                                                                                                                                                                                                                                                                                                                                              (1, 'vivek', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$nkrc9MrI8QWIszcw7KbKSOx/YA3G.Wy5IArGvLl7ImnEZAYGUtWSS', 'i am vivek', '9104231590', 'ict', '2026', 'profile_68a6b4d8458ae.png', '116644441139882349952', 1, '2025-09-08 10:11:08', 'Vivekchavda1374', NULL, 'https://github.com/Vivekchavda1374', 45, 15, 13, '0', NULL, NULL, '2025-09-08 04:44:11'),
-                                                                                                                                                                                                                                                                                                                                                                                                                              (2, 'vivek', 'viveksinhchavda639@gmail.com', '92200133041', '119485', '$2y$10$P0h0EpiNLoBWFxal.Jh4B.iRIzOYC9XL5OpoeBNX02UkmcgJ0j92y', 'hi i am vivek', '9104231590', 'ict', '2026', '', '111579585627734057498', 1, '2025-09-08 10:11:16', NULL, NULL, NULL, 0, 0, 0, NULL, NULL, NULL, NULL);
+INSERT INTO `register` (`id`, `name`, `email`, `enrollment_number`, `gr_number`, `password`, `about`, `phone_no`, `department`, `passout_year`, `user_image`, `google_id`, `email_notifications`, `last_notification_sent`, `github_token`) VALUES
+                                                                                                                                                                                                                                                (1, 'vivek', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$nkrc9MrI8QWIszcw7KbKSOx/YA3G.Wy5IArGvLl7ImnEZAYGUtWSS', 'i am vivek', '9104231590', 'ict', '2026', 'profile_68a6b4d8458ae.png', '116644441139882349952', 0, '2025-09-08 10:11:08', NULL),
+                                                                                                                                                                                                                                                (2, 'vivek', 'viveksinhchavda639@gmail.com', '92200133041', '119485', '$2y$10$P0h0EpiNLoBWFxal.Jh4B.iRIzOYC9XL5OpoeBNX02UkmcgJ0j92y', 'hi i am vivek', '9104231590', 'ict', '2026', '', '111579585627734057498', 1, '2025-09-08 12:43:07', NULL);
 
 -- --------------------------------------------------------
 
@@ -893,6 +969,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (4, 'm8qsgh56nuce6ibf33i0e45ec2', '2025-09-06 04:46:37'),
                                                                                       (5, 't19gk6a8s544dspidejpt5rhe1', '2025-08-24 13:10:43'),
                                                                                       (5, 'tojal0944iv6bik11hcismnunk', '2025-08-25 04:24:56'),
+                                                                                      (6, '0q7k0f10mc625p0tho5fskpv21', '2025-09-08 14:32:13'),
                                                                                       (6, '0rs4kauq45f3em8j863qgna23l', '2025-09-01 08:50:01'),
                                                                                       (6, '1asmr6k7vqhajeif0ugol6b825', '2025-09-08 03:30:10'),
                                                                                       (6, '7p4ngrvpot69vtv4ranmtqjprf', '2025-09-02 16:39:35'),
@@ -900,6 +977,8 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (6, 'f752vcgdd6la5uc66ek2c8nmg3', '2025-09-06 08:09:01'),
                                                                                       (6, 'hoei7f5ruh8f1787iujiep5p2k', '2025-09-04 14:32:48'),
                                                                                       (6, 'm8qsgh56nuce6ibf33i0e45ec2', '2025-09-06 04:12:26'),
+                                                                                      (6, 'p0j7m8rte9lh4b05le0e07uauk', '2025-09-08 07:42:55'),
+                                                                                      (6, 'pglj9ovjijarh6kv1bhtn1hk7v', '2025-09-08 07:21:10'),
                                                                                       (6, 'q68pts618n3tkla7sbb6b98dl0', '2025-09-07 13:32:20'),
                                                                                       (6, 'rmuog6fbd12fe5rhm63g2s7uds', '2025-08-25 05:47:14'),
                                                                                       (7, '4dgdaagrjbgjosn9rgsmeld17f', '2025-08-22 05:02:33'),
@@ -926,6 +1005,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (10, 'ri9di5c9cqi9ha45r3vq3c35ba', '2025-08-25 04:45:36'),
                                                                                       (10, 't19gk6a8s544dspidejpt5rhe1', '2025-08-24 12:54:20'),
                                                                                       (10, 'tojal0944iv6bik11hcismnunk', '2025-08-25 04:18:57'),
+                                                                                      (11, '0q7k0f10mc625p0tho5fskpv21', '2025-09-08 14:32:13'),
                                                                                       (11, '0rs4kauq45f3em8j863qgna23l', '2025-09-01 08:50:01'),
                                                                                       (11, '1asmr6k7vqhajeif0ugol6b825', '2025-09-08 03:30:10'),
                                                                                       (11, '7p4ngrvpot69vtv4ranmtqjprf', '2025-09-02 16:39:35'),
@@ -933,6 +1013,8 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (11, 'f752vcgdd6la5uc66ek2c8nmg3', '2025-09-06 08:09:01'),
                                                                                       (11, 'hoei7f5ruh8f1787iujiep5p2k', '2025-09-04 14:32:48'),
                                                                                       (11, 'm8qsgh56nuce6ibf33i0e45ec2', '2025-09-06 04:12:26'),
+                                                                                      (11, 'p0j7m8rte9lh4b05le0e07uauk', '2025-09-08 07:42:55'),
+                                                                                      (11, 'pglj9ovjijarh6kv1bhtn1hk7v', '2025-09-08 07:21:10'),
                                                                                       (11, 'q68pts618n3tkla7sbb6b98dl0', '2025-09-07 13:32:20'),
                                                                                       (11, 'rmuog6fbd12fe5rhm63g2s7uds', '2025-08-25 05:47:14'),
                                                                                       (12, '4dgdaagrjbgjosn9rgsmeld17f', '2025-08-22 05:02:33'),
@@ -947,6 +1029,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (13, 'ri9di5c9cqi9ha45r3vq3c35ba', '2025-08-25 04:45:36'),
                                                                                       (13, 't19gk6a8s544dspidejpt5rhe1', '2025-08-24 12:54:20'),
                                                                                       (13, 'tojal0944iv6bik11hcismnunk', '2025-08-25 04:18:57'),
+                                                                                      (14, '0q7k0f10mc625p0tho5fskpv21', '2025-09-08 14:32:13'),
                                                                                       (14, '0rs4kauq45f3em8j863qgna23l', '2025-09-01 08:50:01'),
                                                                                       (14, '1asmr6k7vqhajeif0ugol6b825', '2025-09-08 03:30:10'),
                                                                                       (14, '7p4ngrvpot69vtv4ranmtqjprf', '2025-09-02 16:39:35'),
@@ -954,6 +1037,8 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (14, 'f752vcgdd6la5uc66ek2c8nmg3', '2025-09-06 08:09:01'),
                                                                                       (14, 'hoei7f5ruh8f1787iujiep5p2k', '2025-09-04 14:32:48'),
                                                                                       (14, 'm8qsgh56nuce6ibf33i0e45ec2', '2025-09-06 04:12:26'),
+                                                                                      (14, 'p0j7m8rte9lh4b05le0e07uauk', '2025-09-08 07:42:55'),
+                                                                                      (14, 'pglj9ovjijarh6kv1bhtn1hk7v', '2025-09-08 07:21:10'),
                                                                                       (14, 'q68pts618n3tkla7sbb6b98dl0', '2025-09-07 13:32:20'),
                                                                                       (14, 'rmuog6fbd12fe5rhm63g2s7uds', '2025-08-25 05:47:14');
 
@@ -987,28 +1072,6 @@ CREATE TABLE `user_activity_log` (
                                      `ip_address` varchar(45) DEFAULT NULL,
                                      `user_agent` text DEFAULT NULL,
                                      `timestamp` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `user_github_repos`
---
-
-CREATE TABLE `user_github_repos` (
-                                     `id` int(11) NOT NULL,
-                                     `user_id` int(11) NOT NULL,
-                                     `repo_name` varchar(255) NOT NULL,
-                                     `repo_full_name` varchar(255) NOT NULL,
-                                     `repo_description` text DEFAULT NULL,
-                                     `repo_url` varchar(255) NOT NULL,
-                                     `language` varchar(50) DEFAULT NULL,
-                                     `stars_count` int(11) DEFAULT 0,
-                                     `forks_count` int(11) DEFAULT 0,
-                                     `is_private` tinyint(1) DEFAULT 0,
-                                     `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-                                     `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-                                     `synced_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -1096,6 +1159,39 @@ ALTER TABLE `comment_likes`
 --
 ALTER TABLE `denial_projects`
     ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `github_analytics_cache`
+--
+ALTER TABLE `github_analytics_cache`
+    ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_cache` (`user_id`,`cache_key`),
+  ADD KEY `idx_expires` (`expires_at`);
+
+--
+-- Indexes for table `github_contributions`
+--
+ALTER TABLE `github_contributions`
+    ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_date` (`user_id`,`contribution_date`),
+  ADD KEY `idx_user_date` (`user_id`,`contribution_date`),
+  ADD KEY `idx_github_username` (`github_username`);
+
+--
+-- Indexes for table `github_language_stats`
+--
+ALTER TABLE `github_language_stats`
+    ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_language` (`user_id`,`language`),
+  ADD KEY `idx_user_id` (`user_id`);
+
+--
+-- Indexes for table `github_repo_analytics`
+--
+ALTER TABLE `github_repo_analytics`
+    ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_repo` (`user_id`,`repo_name`),
+  ADD KEY `idx_user_id` (`user_id`);
 
 --
 -- Indexes for table `idea_comments`
@@ -1259,13 +1355,6 @@ ALTER TABLE `user_activity_log`
   ADD KEY `idx_timestamp` (`timestamp`);
 
 --
--- Indexes for table `user_github_repos`
---
-ALTER TABLE `user_github_repos`
-    ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_user_repo` (`user_id`,`repo_full_name`);
-
---
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -1312,6 +1401,30 @@ ALTER TABLE `denial_projects`
     MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `github_analytics_cache`
+--
+ALTER TABLE `github_analytics_cache`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `github_contributions`
+--
+ALTER TABLE `github_contributions`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `github_language_stats`
+--
+ALTER TABLE `github_language_stats`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `github_repo_analytics`
+--
+ALTER TABLE `github_repo_analytics`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `idea_comments`
 --
 ALTER TABLE `idea_comments`
@@ -1339,7 +1452,7 @@ ALTER TABLE `notification_counters`
 -- AUTO_INCREMENT for table `notification_logs`
 --
 ALTER TABLE `notification_logs`
-    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT for table `notification_templates`
@@ -1414,12 +1527,6 @@ ALTER TABLE `user_activity_log`
     MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `user_github_repos`
---
-ALTER TABLE `user_github_repos`
-    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- Constraints for dumped tables
 --
 
@@ -1440,6 +1547,30 @@ ALTER TABLE `bookmark`
 --
 ALTER TABLE `comment_likes`
     ADD CONSTRAINT `comment_likes_ibfk_1` FOREIGN KEY (`comment_id`) REFERENCES `project_comments` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `github_analytics_cache`
+--
+ALTER TABLE `github_analytics_cache`
+    ADD CONSTRAINT `github_analytics_cache_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `github_contributions`
+--
+ALTER TABLE `github_contributions`
+    ADD CONSTRAINT `github_contributions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `github_language_stats`
+--
+ALTER TABLE `github_language_stats`
+    ADD CONSTRAINT `github_language_stats_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `github_repo_analytics`
+--
+ALTER TABLE `github_repo_analytics`
+    ADD CONSTRAINT `github_repo_analytics_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `idea_comments`
@@ -1478,12 +1609,6 @@ ALTER TABLE `support_tickets`
 --
 ALTER TABLE `support_ticket_replies`
     ADD CONSTRAINT `fk_ticket_replies_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `support_tickets` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `user_github_repos`
---
-ALTER TABLE `user_github_repos`
-    ADD CONSTRAINT `user_github_repos_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

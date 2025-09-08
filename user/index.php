@@ -859,7 +859,11 @@ if (empty($weekly_performance)) {
             }
 
             // Initialize Charts
-            initializeCharts();
+            if (typeof Chart !== 'undefined') {
+                initializeCharts();
+            } else {
+                console.error('Chart.js library not loaded');
+            }
         });
 
         // Chart Configuration and Initialization
@@ -1411,10 +1415,16 @@ if (empty($weekly_performance)) {
             button.disabled = true;
 
             setTimeout(() => {
+                const canvas = document.getElementById(chartId);
+                if (canvas) {
+                    const url = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.download = `${chartId}_export.png`;
+                    link.href = url;
+                    link.click();
+                }
                 button.innerHTML = originalText;
                 button.disabled = false;
-                // Here you would implement actual chart export functionality
-                console.log(`Exporting chart: ${chartId}`);
             }, 1500);
         }
     </script>
