@@ -149,7 +149,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $image_path = uploadFile($_FILES['images'], "images", ['jpg', 'jpeg', 'png', 'gif'], 2 * 1024 * 1024);
         }
         if (isset($_FILES['videos']) && $_FILES['videos']['error'] !== UPLOAD_ERR_NO_FILE) {
-            $video_path = uploadFile($_FILES['videos'], "videos", ['mp4', 'avi', 'mov'], 10 * 1024 * 1024);
+            $video_path = uploadFile($_FILES['videos'], "videos", ['mp4', 'avi', 'mov'], 50 * 1024 * 1024);
         }
         if (isset($_FILES['code_file']) && $_FILES['code_file']['error'] !== UPLOAD_ERR_NO_FILE) {
             $code_file_path = uploadFile($_FILES['code_file'], "code_files", ['zip', 'rar', 'tar', 'gz']);
@@ -158,10 +158,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $instruction_file_path = uploadFile($_FILES['instruction_file'], "instructions", ['txt', 'pdf', 'docx']);
         }
         if (isset($_FILES['presentation_file']) && $_FILES['presentation_file']['error'] !== UPLOAD_ERR_NO_FILE) {
-            $presentation_file_path = uploadFile($_FILES['presentation_file'], "presentations", ['ppt', 'pptx', 'pdf'], 15 * 1024 * 1024);
+            $presentation_file_path = uploadFile($_FILES['presentation_file'], "presentations", ['ppt', 'pptx', 'pdf'], 50 * 1024 * 1024);
         }
         if (isset($_FILES['additional_files']) && $_FILES['additional_files']['error'] !== UPLOAD_ERR_NO_FILE) {
-            $additional_files_path = uploadFile($_FILES['additional_files'], "additional", ['zip', 'rar', 'tar', 'gz'], 20 * 1024 * 1024);
+            $additional_files_path = uploadFile($_FILES['additional_files'], "additional", ['zip', 'rar', 'tar', 'gz'], 50 * 1024 * 1024);
         }
 
         // Set default status for new projects
