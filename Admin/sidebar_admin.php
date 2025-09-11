@@ -51,6 +51,12 @@ $menu_items = [
                 'page' => 'add_subadmin.php'
         ],
         [
+                'icon' => 'bi-person-workspace',
+                'title' => 'Manage Mentors',
+                'url' => $base_admin_path . 'manage_mentors.php',
+                'page' => 'manage_mentors.php'
+        ],
+        [
                 'icon' => 'bi-bell',
                 'title' => 'Notifications',
                 'url' => $base_admin_path . 'notifications.php',
