@@ -22,7 +22,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit(); // Stop execution after redirect
         }
 
-        // If not admin, proceed with regular user login
+        // Check for mentor login using email
+        $mentor_stmt = $conn->prepare("SELECT id, password, name FROM register WHERE email = ? AND role = 'mentor'");
+        $mentor_stmt->bind_param("s", $er_number);
+        $mentor_stmt->execute();
+        $mentor_stmt->store_result();
+        
+        if ($mentor_stmt->num_rows > 0) {
+            $mentor_stmt->bind_result($mentor_id, $mentor_hashed_password, $mentor_name);
+            $mentor_stmt->fetch();
+            
+            if (password_verify($password, $mentor_hashed_password)) {
+                $_SESSION['mentor_id'] = $mentor_id;
+                $_SESSION['mentor_name'] = $mentor_name;
+                header("Location: ../../mentor/dashboard.php");
+                exit();
+            } else {
+                $error_message = "Incorrect Password!";
+            }
+        }
+        $mentor_stmt->close();
+
+        // If not mentor, proceed with regular user login
         $stmt = $conn->prepare("SELECT id, password, name FROM register WHERE enrollment_number = ? ");
         $stmt->bind_param("s", $er_number);
         $stmt->execute();
@@ -132,7 +153,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <div class="input-group">
-            <input type="text" id="er_number" name="er_number" placeholder="Enter your ER number" required autofocus>
+            <input type="text" id="er_number" name="er_number" placeholder="Enter your ER number or Email" required autofocus>
             <i class="fas fa-user input-icon"></i>
         </div>
 
