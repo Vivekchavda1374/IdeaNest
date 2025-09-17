@@ -12,14 +12,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Check for admin credentials first
         if($er_number === "ideanest.ict@gmail.com" && $password === "ideanest133"){
             // Set admin session variables
+            $_SESSION['admin_id'] = 1;
             $_SESSION['user_id'] = 'admin';
             $_SESSION['er_number'] = $er_number;
             $_SESSION['user_name'] = 'Administrator';
             $_SESSION['is_admin'] = true;
-            $_SESSION['admin_logged_in'] = true; // Add this line for admin session validation
+            $_SESSION['admin_logged_in'] = true;
 
             header("Location: ../../Admin/admin.php");
-            exit(); // Stop execution after redirect
+            exit();
         }
 
         // Check for mentor login using email
