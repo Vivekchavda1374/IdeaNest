@@ -63,6 +63,7 @@ $mentors = $conn->query($query)->fetch_all(MYSQLI_ASSOC);
                     <td><?= $mentor['current_students'] ?>/<?= $mentor['max_students'] ?></td>
                     <td>
                         <button class="btn btn-sm btn-warning" onclick="resetPassword(<?= $mentor['id'] ?>, '<?= $mentor['email'] ?>')">Reset Password</button>
+                        <button class="btn btn-sm btn-danger ms-1" onclick="removeMentor(<?= $mentor['id'] ?>, '<?= $mentor['name'] ?>')">Remove</button>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -83,6 +84,24 @@ function resetPassword(mentorId, email) {
         .then(data => {
             if (data.success) {
                 alert('New password sent to email');
+            } else {
+                alert('Error: ' + data.error);
+            }
+        });
+    }
+}
+
+function removeMentor(mentorId, mentorName) {
+    if (confirm('Are you sure you want to remove mentor "' + mentorName + '"? This action cannot be undone.')) {
+        fetch('remove_mentor.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({mentor_id: mentorId})
+        }).then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Mentor removed successfully');
+                location.reload();
             } else {
                 alert('Error: ' + data.error);
             }
