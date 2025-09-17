@@ -10,15 +10,16 @@ if (!isset($_SESSION['mentor_id'])) {
 
 $mentor_id = $_SESSION['mentor_id'];
 
-// Get active students
-$students_query = "SELECT msp.*, r.name, r.email, r.department, r.enrollment_number,
+// Get active students from accepted requests
+$students_query = "SELECT mr.id, mr.student_id, mr.project_id, mr.created_at as paired_at,
+                   r.name, r.email, r.department, r.enrollment_number,
                    p.project_name, p.classification, p.description,
-                   msp.paired_at, msp.rating, msp.feedback
-                   FROM mentor_student_pairs msp 
-                   JOIN register r ON msp.student_id = r.id 
-                   LEFT JOIN projects p ON msp.project_id = p.id 
-                   WHERE msp.mentor_id = ? AND msp.status = 'active'
-                   ORDER BY msp.paired_at DESC";
+                   NULL as rating, NULL as feedback
+                   FROM mentor_requests mr
+                   JOIN register r ON mr.student_id = r.id 
+                   LEFT JOIN projects p ON mr.project_id = p.id 
+                   WHERE mr.mentor_id = ? AND mr.status = 'accepted'
+                   ORDER BY mr.created_at DESC";
 $stmt = $conn->prepare($students_query);
 $stmt->bind_param("i", $mentor_id);
 $stmt->execute();
