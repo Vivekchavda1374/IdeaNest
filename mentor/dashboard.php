@@ -32,8 +32,8 @@ try {
         die("Mentor not found or invalid role");
     }
     
-    // Get stats from existing tables
-    $stats_query = "SELECT COUNT(*) as active_students FROM mentor_student_pairs WHERE mentor_id = ? AND status = 'active'";
+    // Get stats from mentor requests
+    $stats_query = "SELECT COUNT(*) as active_students FROM mentor_requests WHERE mentor_id = ? AND status = 'accepted'";
     $stmt = $conn->prepare($stats_query);
     $stmt->bind_param("i", $mentor_id);
     $stmt->execute();
@@ -61,18 +61,19 @@ try {
     die("Database error occurred");
 }
 
-// Get active pairings - using existing database structure
+// Get active students from accepted requests
 $active_pairs = [];
 try {
-    $pairs_query = "SELECT msp.*, r.name as student_name, r.email as student_email, r.department,
+    $pairs_query = "SELECT mr.id, mr.student_id, mr.project_id, mr.created_at as paired_at,
+                    r.name as student_name, r.email as student_email, r.department,
                     p.project_name, p.classification, p.description,
                     0 as total_sessions,
                     NULL as next_session
-                    FROM mentor_student_pairs msp 
-                    JOIN register r ON msp.student_id = r.id 
-                    LEFT JOIN projects p ON msp.project_id = p.id 
-                    WHERE msp.mentor_id = ? AND msp.status = 'active'
-                    ORDER BY msp.paired_at DESC";
+                    FROM mentor_requests mr
+                    JOIN register r ON mr.student_id = r.id 
+                    LEFT JOIN projects p ON mr.project_id = p.id 
+                    WHERE mr.mentor_id = ? AND mr.status = 'accepted'
+                    ORDER BY mr.created_at DESC";
     $stmt = $conn->prepare($pairs_query);
     $stmt->bind_param("i", $mentor_id);
     $stmt->execute();
