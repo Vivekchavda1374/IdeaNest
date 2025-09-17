@@ -100,6 +100,14 @@ if ($is_in_subdirectory) {
                 <i class="fas fa-list nav-icon"></i>
                 <span class="nav-text">All Ideas</span>
             </a>
+            <a href="<?php echo $basePath; ?>select_mentor.php" class="nav-item <?php echo ($current_page == 'select_mentor.php') ? 'active' : ''; ?>">
+                <i class="fas fa-user-graduate nav-icon"></i>
+                <span class="nav-text">Find Mentor</span>
+            </a>
+            <a href="<?php echo $basePath; ?>my_mentor_requests.php" class="nav-item <?php echo ($current_page == 'my_mentor_requests.php') ? 'active' : ''; ?>">
+                <i class="fas fa-paper-plane nav-icon"></i>
+                <span class="nav-text">My Requests</span>
+            </a>
         </div>
 
         <div class="nav-section">
