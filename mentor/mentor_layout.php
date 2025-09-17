@@ -192,6 +192,11 @@ function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '')
                     My Students
                     <span class="notification-badge" id="studentsBadge">3</span>
                 </a>
+                <a class="nav-link" href="student_requests.php">
+                    <i class="fas fa-inbox"></i>
+                    Student Requests
+                    <span class="notification-badge" id="requestsBadge">0</span>
+                </a>
                 <a class="nav-link" href="sessions.php">
                     <i class="fas fa-calendar-alt"></i>
                     Sessions
@@ -253,6 +258,24 @@ function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '')
                 }
             });
         });
+
+        // Update request count badge
+        function updateRequestCount() {
+            fetch('api/get_request_count.php')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('requestsBadge');
+                    if (badge && data.count !== undefined) {
+                        badge.textContent = data.count;
+                        badge.style.display = data.count > 0 ? 'flex' : 'none';
+                    }
+                })
+                .catch(error => console.error('Error updating request count:', error));
+        }
+
+        // Update count on page load and every 30 seconds
+        updateRequestCount();
+        setInterval(updateRequestCount, 30000);
 
         // Notification system
         function showNotification(message, type = 'success') {
