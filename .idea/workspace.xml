@@ -5,15 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully">
-      <change afterPath="$PROJECT_DIR$/mentor/mentor_layout.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Admin/project_approvel.php" beforeDir="false" afterPath="$PROJECT_DIR$/Admin/project_approvel.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/css/notifications.css" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/db/ideanest.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db/ideanest.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mentor/complete_pairing.php" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/mentor/dashboard.php" beforeDir="false" afterPath="$PROJECT_DIR$/mentor/dashboard.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mentor/pair_student.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mentor/schedule_session.php" beforeDir="false" afterPath="$PROJECT_DIR$/mentor/schedule_session.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mentor/mentor_layout.php" beforeDir="false" afterPath="$PROJECT_DIR$/mentor/mentor_layout.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mentor/projects.php" beforeDir="false" afterPath="$PROJECT_DIR$/mentor/projects.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mentor/sessions.php" beforeDir="false" afterPath="$PROJECT_DIR$/mentor/sessions.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mentor/students.php" beforeDir="false" afterPath="$PROJECT_DIR$/mentor/students.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup_notifications.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/layout.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/layout.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,11 +41,19 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;Vivekchavda1374&quot;
-  }
+  &quot;lastFilter&quot;: {}
 }</component>
+  <component name="GitHubPullRequestState"><![CDATA[{
+  "prStates": [
+    {
+      "id": {
+        "id": "PR_kwDON_u_tc6pE3Kf",
+        "number": 47
+      },
+      "lastSeen": 1758116570238
+    }
+  ]
+}]]></component>
   <component name="GitToolBoxStore">
     <option name="recentBranches">
       <RecentBranches>
@@ -71,12 +79,22 @@
       </RecentBranches>
     </option>
   </component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Vivekchavda1374/IdeaNest.git&quot;,
-    &quot;accountId&quot;: &quot;e6c95b80-6b0a-4f54-b6ae-9bda7334d4d8&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Vivekchavda1374/IdeaNest.git",
+    "accountId": "e6c95b80-6b0a-4f54-b6ae-9bda7334d4d8"
+  },
+  "recentNewPullRequestHead": {
+    "server": {
+      "useHttp": false,
+      "host": "github.com",
+      "port": null,
+      "suffix": null
+    },
+    "owner": "Vivekchavda1374",
+    "repository": "IdeaNest"
   }
-}</component>
+}]]></component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/assets/css/index.css" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/user/forms/uploads/.htaccess" root0="SKIP_INSPECTION" />
@@ -101,38 +119,38 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;JavaScript Debug.project_notification.php.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.user_project_search.php.executor&quot;: &quot;Coverage&quot;,
-    &quot;PHP Script.progressbar.php.executor&quot;: &quot;Run&quot;,
-    &quot;PHP Script.user_project_search.php.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHELLCHECK.PATH&quot;: &quot;I do mind&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/opt/lampp/htdocs/IdeaNest&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "JavaScript Debug.project_notification.php.executor": "Run",
+    "JavaScript Debug.user_project_search.php.executor": "Coverage",
+    "PHP Script.progressbar.php.executor": "Run",
+    "PHP Script.user_project_search.php.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHELLCHECK.PATH": "I do mind",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "#47 on dev",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "/opt/lampp/htdocs/IdeaNest",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;mysql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\xampp\htdocs\IdeaNest" />
@@ -141,11 +159,11 @@
       <recent name="D:\study\study\sem6\HCD\Student Project\IdeaNest\user\forms" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/mentor" />
       <recent name="$PROJECT_DIR$/mentor/api" />
       <recent name="$PROJECT_DIR$/user/github" />
       <recent name="$PROJECT_DIR$/assets/css" />
-      <recent name="$PROJECT_DIR$/Login/Login" />
-      <recent name="$PROJECT_DIR$/db" />
     </key>
   </component>
   <component name="SeleniumInternalSettingsState">
@@ -266,7 +284,11 @@
       <workItem from="1757576186546" duration="355000" />
       <workItem from="1757611650895" duration="3209000" />
       <workItem from="1758083340687" duration="49000" />
-      <workItem from="1758083406805" duration="1991000" />
+      <workItem from="1758083406805" duration="3957000" />
+      <workItem from="1758087521340" duration="91000" />
+      <workItem from="1758089883182" duration="1134000" />
+      <workItem from="1758091680520" duration="2966000" />
+      <workItem from="1758113428446" duration="3882000" />
     </task>
     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
       <option name="closed" value="true" />
