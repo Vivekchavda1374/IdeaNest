@@ -10,6 +10,14 @@ IdeaNest is a comprehensive web-based platform designed to facilitate the manage
 
 ## ✨ Latest Updates
 
+### 🎓 Mentor System (January 2025)
+- **Complete Mentor Dashboard**: Comprehensive mentor management interface
+- **Student-Mentor Pairing**: Automated and manual pairing system
+- **Session Management**: Schedule, create, and track mentoring sessions
+- **Progress Tracking**: Monitor student development and achievements
+- **Analytics Dashboard**: Performance metrics and engagement statistics
+- **Profile Management**: Dedicated mentor profiles with expertise areas
+
 ### 🚀 GitHub Integration (December 2024)
 - **Complete GitHub Profile Integration**: Connect and showcase GitHub profiles
 - **Repository Display**: Automatic sync of repositories with stats
@@ -53,7 +61,7 @@ IdeaNest is a comprehensive web-based platform designed to facilitate the manage
 - **Google OAuth Integration**: JWT-based Google sign-in
 - **Password Recovery**: OTP verification with 10-minute expiry
 - **Session Management**: Secure session-based security
-- **Role-Based Access**: Student/Sub-Admin/Admin permissions
+- **Role-Based Access**: Student/Sub-Admin/Admin/Mentor permissions
 
 ### 🎯 Interactive Features
 - **Project Engagement**: Like system with AJAX updates
@@ -68,6 +76,16 @@ IdeaNest is a comprehensive web-based platform designed to facilitate the manage
 - **Email Configuration**: SMTP settings management in admin panel
 - **Notification Dashboard**: Monitor email delivery and user preferences
 - **GitHub Analytics**: Track GitHub integration usage
+
+### 🎓 Mentor Features
+- **Student Management**: View and manage assigned students
+- **Session Scheduling**: Create and manage mentoring sessions
+- **Progress Tracking**: Monitor student development and milestones
+- **Project Guidance**: Review and provide feedback on student projects
+- **Analytics Dashboard**: Track mentoring effectiveness and engagement
+- **Profile Management**: Maintain professional mentor profiles
+- **Communication Tools**: Direct messaging and notification system
+- **Data Export**: Export student progress and session reports
 
 ### 👥 SubAdmin Features
 - **Project Assignment**: Automatic assignment based on classification expertise
@@ -213,6 +231,14 @@ IdeaNest/
 │   ├── subadmin/                    # SubAdmin management panel
 │   ├── notification_dashboard.php   # Email notification monitoring
 │   └── project_notification.php     # Project notification management
+├── mentor/
+│   ├── dashboard.php               # Mentor dashboard with analytics
+│   ├── students.php                # Student management interface
+│   ├── sessions.php                # Session management system
+│   ├── projects.php                # Project review and guidance
+│   ├── profile.php                 # Mentor profile management
+│   ├── analytics.php               # Performance analytics
+│   └── schedule_session.php        # Session scheduling interface
 ├── user/
 │   ├── uploads/                     # Secure file storage
 │   ├── Blog/                        # Blog/Ideas functionality
@@ -319,6 +345,12 @@ chmod 755 tests/
 
 ## 🚀 Recent Improvements
 
+### Mentor System (v3.0)
+- Complete mentor management system with dashboard
+- Student-mentor pairing and session management
+- Progress tracking and analytics dashboard
+- Professional mentor profiles and communication tools
+
 ### GitHub Integration (v2.0)
 - Complete GitHub profile integration with repository showcase
 - Real-time statistics and professional profile pages
@@ -422,6 +454,9 @@ For support and questions:
 ## 🔮 Roadmap
 
 ### Upcoming Features
+- **Advanced Mentor Analytics**: Detailed mentoring effectiveness metrics
+- **AI-Powered Matching**: Intelligent student-mentor pairing
+- **Video Conferencing**: Integrated video sessions
 - **Advanced GitHub Analytics**: Contribution graphs and activity timelines
 - **Repository Integration**: Direct project-repository linking
 - **GitHub Actions Integration**: CI/CD status display
