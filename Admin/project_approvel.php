@@ -97,6 +97,7 @@ if (isset($_POST['approve_project'])) {
                 // Send approval email notification
                 $email_result = sendProjectApprovalEmail($project_id, $conn);
                 
+
                 // Log the notification
                 $email_to = $project['email'] ?? '';
                 $email_subject = "Congratulations! Your Project \"{$project['project_name']}\" Has Been Approved";
@@ -154,6 +155,7 @@ if (isset($_POST['reject_project'])) {
             // Send rejection email notification
             $email_result = sendProjectRejectionEmail($project_id, $rejection_reason, $conn);
             
+
             // Log the notification
             $email_to = $project['email'] ?? '';
             $email_subject = "Important Update About Your Project \"{$project['project_name']}\"";
