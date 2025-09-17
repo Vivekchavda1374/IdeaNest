@@ -14,12 +14,60 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit();
 }
 
+// Check if viewing specific user profile
+$view_user_id = isset($_GET['view']) ? (int)$_GET['view'] : null;
+
 // Set default active tab
 $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'active';
 
 // Search functionality
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $search_term = "%{$search}%";
+
+// Get user profile data if viewing specific user
+if ($view_user_id) {
+    // Get user details
+    $user_query = "SELECT * FROM register WHERE id = ?";
+    $stmt = $conn->prepare($user_query);
+    $stmt->bind_param("i", $view_user_id);
+    $stmt->execute();
+    $user_data = $stmt->get_result()->fetch_assoc();
+    
+    if (!$user_data) {
+        $error_message = "User not found.";
+        $view_user_id = null;
+    } else {
+        // Get user's projects
+        $projects_query = "SELECT * FROM projects WHERE user_id = ? ORDER BY submission_date DESC";
+        $stmt = $conn->prepare($projects_query);
+        $stmt->bind_param("i", $view_user_id);
+        $stmt->execute();
+        $user_projects = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        
+        // Get user's approved projects
+        $approved_query = "SELECT * FROM admin_approved_projects WHERE user_id = ? ORDER BY submission_date DESC";
+        $stmt = $conn->prepare($approved_query);
+        $stmt->bind_param("s", $view_user_id);
+        $stmt->execute();
+        $approved_projects = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        
+        // Get user's ideas/blog posts
+        $ideas_query = "SELECT * FROM blog WHERE user_id = ? ORDER BY created_at DESC";
+        $stmt = $conn->prepare($ideas_query);
+        $stmt->bind_param("i", $view_user_id);
+        $stmt->execute();
+        $user_ideas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        
+        // Get user's bookmarks
+        $bookmarks_query = "SELECT b.*, ap.project_name FROM bookmark b 
+                           LEFT JOIN admin_approved_projects ap ON b.project_id = ap.id 
+                           WHERE b.user_id = ? ORDER BY b.bookmarked_at DESC";
+        $stmt = $conn->prepare($bookmarks_query);
+        $stmt->bind_param("s", $view_user_id);
+        $stmt->execute();
+        $user_bookmarks = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+}
 
 // Handle user block action
 if (isset($_POST['block_user'])) {
@@ -185,6 +233,183 @@ if (!empty($search)) {
         </div>
     <?php endif; ?>
 
+    <!-- User Profile View -->
+    <?php if ($view_user_id && $user_data): ?>
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5><i class="bi bi-person"></i> User Profile: <?php echo htmlspecialchars($user_data['name']); ?></h5>
+            <a href="user_manage_by_admin.php" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Users
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="text-center mb-3">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px; font-size: 2rem;">
+                            <?php echo strtoupper(substr($user_data['name'], 0, 1)); ?>
+                        </div>
+                        <h4 class="mt-2"><?php echo htmlspecialchars($user_data['name']); ?></h4>
+                        <span class="badge bg-<?php echo $user_data['role'] === 'mentor' ? 'success' : 'primary'; ?>">
+                            <?php echo ucfirst($user_data['role']); ?>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <h6>Contact Information</h6>
+                    <p><strong>Email:</strong> <?php echo htmlspecialchars($user_data['email']); ?></p>
+                    <p><strong>Enrollment:</strong> <?php echo htmlspecialchars($user_data['enrollment_number']); ?></p>
+                    <p><strong>GR Number:</strong> <?php echo htmlspecialchars($user_data['gr_number']); ?></p>
+                    <p><strong>Department:</strong> <?php echo htmlspecialchars($user_data['department'] ?? 'N/A'); ?></p>
+                    <p><strong>About:</strong> <?php echo htmlspecialchars($user_data['about'] ?? 'No description'); ?></p>
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-primary"><?php echo count($user_projects); ?></h3>
+                            <small>Projects Submitted</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-success"><?php echo count($approved_projects); ?></h3>
+                            <small>Approved Projects</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-info"><?php echo count($user_ideas); ?></h3>
+                            <small>Ideas Posted</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="text-warning"><?php echo count($user_bookmarks); ?></h3>
+                            <small>Bookmarks</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Projects Tab -->
+            <div class="mt-4">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#projects">Projects (<?php echo count($user_projects); ?>)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#approved">Approved (<?php echo count($approved_projects); ?>)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#ideas">Ideas (<?php echo count($user_ideas); ?>)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#bookmarks">Bookmarks (<?php echo count($user_bookmarks); ?>)</a>
+                    </li>
+                </ul>
+                
+                <div class="tab-content mt-3">
+                    <div class="tab-pane fade show active" id="projects">
+                        <?php if (count($user_projects) > 0): ?>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Date</th></tr></thead>
+                                <tbody>
+                                    <?php foreach ($user_projects as $project): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($project['project_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($project['project_type']); ?></td>
+                                        <td><span class="badge bg-<?php echo $project['status'] === 'approved' ? 'success' : ($project['status'] === 'rejected' ? 'danger' : 'warning'); ?>"><?php echo ucfirst($project['status']); ?></span></td>
+                                        <td><?php echo date('M d, Y', strtotime($project['submission_date'])); ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <?php else: ?>
+                        <p class="text-muted">No projects submitted yet.</p>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="approved">
+                        <?php if (count($approved_projects) > 0): ?>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead><tr><th>Title</th><th>Type</th><th>Language</th><th>Date</th></tr></thead>
+                                <tbody>
+                                    <?php foreach ($approved_projects as $project): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($project['project_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($project['project_type']); ?></td>
+                                        <td><?php echo htmlspecialchars($project['language']); ?></td>
+                                        <td><?php echo date('M d, Y', strtotime($project['submission_date'])); ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <?php else: ?>
+                        <p class="text-muted">No approved projects yet.</p>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="ideas">
+                        <?php if (count($user_ideas) > 0): ?>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Date</th></tr></thead>
+                                <tbody>
+                                    <?php foreach ($user_ideas as $idea): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($idea['project_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($idea['project_type']); ?></td>
+                                        <td><span class="badge bg-<?php echo $idea['status'] === 'completed' ? 'success' : ($idea['status'] === 'rejected' ? 'danger' : 'warning'); ?>"><?php echo ucfirst($idea['status']); ?></span></td>
+                                        <td><?php echo date('M d, Y', strtotime($idea['created_at'])); ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <?php else: ?>
+                        <p class="text-muted">No ideas posted yet.</p>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="bookmarks">
+                        <?php if (count($user_bookmarks) > 0): ?>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead><tr><th>Project</th><th>Bookmarked</th></tr></thead>
+                                <tbody>
+                                    <?php foreach ($user_bookmarks as $bookmark): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($bookmark['project_name'] ?? 'Unknown Project'); ?></td>
+                                        <td><?php echo date('M d, Y', strtotime($bookmark['bookmarked_at'])); ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <?php else: ?>
+                        <p class="text-muted">No bookmarks yet.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php else: ?>
+    
     <!-- Main Content Area -->
     <div class="card">
 
@@ -269,14 +494,17 @@ if (!empty($search)) {
                                     echo "<td>" . htmlspecialchars($row["enrollment_number"]) . "</td>";
                                     echo "<td>" . htmlspecialchars($row["gr_number"]) . "</td>";
                                     echo "<td>
-                                                    <form method='post' action=''>
+                                                    <a href='?view=" . $row["id"] . "' class='btn btn-primary btn-sm me-1'>
+                                                        <i class='bi bi-eye'></i> View
+                                                    </a>
+                                                    <form method='post' action='' class='d-inline'>
                                                         <input type='hidden' name='user_id' value='" . $row["id"] . "'>
                                                         <input type='hidden' name='name' value='" . htmlspecialchars($row["name"]) . "'>
                                                         <input type='hidden' name='email' value='" . htmlspecialchars($row["email"]) . "'>
                                                         <input type='hidden' name='enrollment_number' value='" . htmlspecialchars($row["enrollment_number"]) . "'>
                                                         <input type='hidden' name='gr_number' value='" . htmlspecialchars($row["gr_number"]) . "'>
                                                         <button type='submit' name='block_user' class='btn btn-danger btn-sm'>
-                                                            <i class='bi bi-slash-circle me-1'></i> Remove Access
+                                                            <i class='bi bi-slash-circle me-1'></i> Remove
                                                         </button>
                                                     </form>
                                                 </td>";
@@ -349,6 +577,7 @@ if (!empty($search)) {
             </div>
         </div>
     </div>
+    <?php endif; ?>
 </div>
 
 <!-- Bootstrap 5 JS Bundle with Popper -->

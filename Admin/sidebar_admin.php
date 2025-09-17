@@ -1,84 +1,91 @@
 <?php
-// sidebar.php - Common Sidebar Component for Admin Panel (Dynamic Paths)
+// sidebar.php - Common Sidebar Component for Admin Panel
 
 // Get current page name to set active menu item
 $current_page = basename($_SERVER['PHP_SELF']);
 
-// Automatically detect the admin base path
-$request_uri = $_SERVER['REQUEST_URI'];
-$script_name = $_SERVER['SCRIPT_NAME'];
+// Set web base path for links
+$web_base_path = '/IdeaNest/Admin/';
 
-// Extract base path dynamically
-if (strpos($request_uri, '/Admin/') !== false) {
-    $base_admin_path = substr($request_uri, 0, strpos($request_uri, '/Admin/') + 7);
-} else {
-    // Fallback method
-    $base_admin_path = dirname($_SERVER['SCRIPT_NAME']) . '/';
-    if (strpos($base_admin_path, '/subadmin') !== false) {
-        $base_admin_path = str_replace('/subadmin', '', $base_admin_path);
-    }
-}
-
-// Ensure path ends with /
-if (substr($base_admin_path, -1) !== '/') {
-    $base_admin_path .= '/';
-}
-
-// Define menu items with their corresponding pages using dynamic base path
+// Define menu items with their corresponding pages
 $menu_items = [
         [
                 'icon' => 'bi-grid-1x2',
                 'title' => 'Dashboard',
-                'url' => $base_admin_path . 'admin.php',
+                'url' => $web_base_path . 'admin.php',
                 'page' => 'admin.php'
+        ],
+        [
+                'icon' => 'bi-speedometer2',
+                'title' => 'Overview',
+                'url' => $web_base_path . 'overview.php',
+                'page' => 'overview.php'
+        ],
+        [
+                'icon' => 'bi-graph-up',
+                'title' => 'System Analytics',
+                'url' => $web_base_path . 'system_analytics.php',
+                'page' => 'system_analytics.php'
+        ],
+        [
+                'icon' => 'bi-download',
+                'title' => 'Export Overview',
+                'url' => $web_base_path . 'export_overview.php',
+                'page' => 'export_overview.php'
         ],
         [
                 'icon' => 'bi-kanban',
                 'title' => 'Projects',
-                'url' => $base_admin_path . 'admin_view_project.php',
+                'url' => $web_base_path . 'admin_view_project.php',
                 'page' => 'admin_view_project.php'
         ],
         [
                 'icon' => 'bi-people',
                 'title' => 'Users Management',
-                'url' => $base_admin_path . 'user_manage_by_admin.php',
+                'url' => $web_base_path . 'user_manage_by_admin.php',
                 'page' => 'user_manage_by_admin.php'
-        ],
-        [
-                'icon' => 'bi-person-plus',
-                'title' => 'Add Subadmin',
-                'url' => $base_admin_path . 'subadmin/add_subadmin.php',
-                'page' => 'add_subadmin.php'
         ],
         [
                 'icon' => 'bi-person-workspace',
                 'title' => 'Manage Mentors',
-                'url' => $base_admin_path . 'manage_mentors.php',
+                'url' => $web_base_path . 'manage_mentors.php',
                 'page' => 'manage_mentors.php'
+        ],
+        [
+                'icon' => 'bi-person-plus',
+                'title' => 'Subadmin Overview',
+                'url' => $web_base_path . 'subadmin_overview.php',
+                'page' => 'subadmin_overview.php'
+        ],
+        [
+                'icon' => 'bi-plus-circle',
+                'title' => 'Add Subadmin',
+                'url' => $web_base_path . 'subadmin/add_subadmin.php',
+                'page' => 'add_subadmin.php'
         ],
         [
                 'icon' => 'bi-bell',
                 'title' => 'Notifications',
-                'url' => $base_admin_path . 'notifications.php',
+                'url' => $web_base_path . 'notifications.php',
                 'page' => 'notifications.php'
         ],
         [
                 'icon' => 'bi-gear',
                 'title' => 'Settings',
-                'url' => $base_admin_path . 'settings.php',
+                'url' => $web_base_path . 'settings.php',
                 'page' => 'settings.php'
         ]
 ];
 
 // Site configuration
 $site_name = isset($site_name) ? $site_name : "IdeaNest Admin";
-$logout_url = isset($logout_url) ? $logout_url : $base_admin_path . "logout.php";
+$logout_url = isset($logout_url) ? $logout_url : $web_base_path . "logout.php";
 ?>
 
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <a href="<?php echo $base_admin_path; ?>admin.php" class="sidebar-brand">
+        <a href="<?php echo $web_base_path; ?>admin.php" class="sidebar-brand">
             <i class="bi bi-lightbulb"></i>
             <span><?php echo htmlspecialchars($site_name); ?></span>
         </a>
@@ -93,6 +100,8 @@ $logout_url = isset($logout_url) ? $logout_url : $base_admin_path . "logout.php"
                 </a>
             </li>
         <?php endforeach; ?>
+        
+
     </ul>
     <div class="sidebar-footer">
         <a href="<?php echo $logout_url; ?>" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center">
@@ -102,6 +111,19 @@ $logout_url = isset($logout_url) ? $logout_url : $base_admin_path . "logout.php"
 </div>
 
 <link rel="stylesheet" href="../assets/css/sidebar_admin.css">
+<style>
+.sidebar-divider {
+    margin: 15px 0 10px 0;
+    padding: 0 20px;
+}
+.sidebar-divider-text {
+    font-size: 0.75rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+</style>
 
 <!-- Sidebar Mobile Overlay -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
