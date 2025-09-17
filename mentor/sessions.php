@@ -10,27 +10,27 @@ if (!isset($_SESSION['mentor_id'])) {
 
 $mentor_id = $_SESSION['mentor_id'];
 
-// Get upcoming sessions
+// Get upcoming sessions using mentor requests
 $upcoming_query = "SELECT ms.*, r.name as student_name, p.project_name,
                    TIMESTAMPDIFF(HOUR, NOW(), ms.session_date) as hours_until
                    FROM mentoring_sessions ms
-                   JOIN mentor_student_pairs msp ON ms.pair_id = msp.id
-                   JOIN register r ON msp.student_id = r.id
-                   LEFT JOIN projects p ON msp.project_id = p.id
-                   WHERE msp.mentor_id = ? AND ms.status = 'scheduled' AND ms.session_date >= NOW()
+                   JOIN mentor_requests mr ON ms.pair_id = mr.id
+                   JOIN register r ON mr.student_id = r.id
+                   LEFT JOIN projects p ON mr.project_id = p.id
+                   WHERE mr.mentor_id = ? AND mr.status = 'accepted' AND ms.status = 'scheduled' AND ms.session_date >= NOW()
                    ORDER BY ms.session_date ASC";
 $stmt = $conn->prepare($upcoming_query);
 $stmt->bind_param("i", $mentor_id);
 $stmt->execute();
 $upcoming = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// Get completed sessions
+// Get completed sessions using mentor requests
 $completed_query = "SELECT ms.*, r.name as student_name, p.project_name
                     FROM mentoring_sessions ms
-                    JOIN mentor_student_pairs msp ON ms.pair_id = msp.id
-                    JOIN register r ON msp.student_id = r.id
-                    LEFT JOIN projects p ON msp.project_id = p.id
-                    WHERE msp.mentor_id = ? AND ms.status = 'completed'
+                    JOIN mentor_requests mr ON ms.pair_id = mr.id
+                    JOIN register r ON mr.student_id = r.id
+                    LEFT JOIN projects p ON mr.project_id = p.id
+                    WHERE mr.mentor_id = ? AND mr.status = 'accepted' AND ms.status = 'completed'
                     ORDER BY ms.session_date DESC LIMIT 10";
 $stmt = $conn->prepare($completed_query);
 $stmt->bind_param("i", $mentor_id);
@@ -195,9 +195,9 @@ ob_start();
                         <select class="form-select" name="pair_id" required>
                             <option value="">Select Student</option>
                             <?php
-                            $students_query = "SELECT msp.id, r.name FROM mentor_student_pairs msp 
-                                             JOIN register r ON msp.student_id = r.id 
-                                             WHERE msp.mentor_id = ? AND msp.status = 'active'";
+                            $students_query = "SELECT mr.id, r.name FROM mentor_requests mr
+                                             JOIN register r ON mr.student_id = r.id 
+                                             WHERE mr.mentor_id = ? AND mr.status = 'accepted'";
                             $stmt = $conn->prepare($students_query);
                             $stmt->bind_param("i", $mentor_id);
                             $stmt->execute();
