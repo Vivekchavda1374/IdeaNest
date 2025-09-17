@@ -9,22 +9,21 @@ if (!isset($_SESSION['mentor_id'])) {
 }
 
 $input = json_decode(file_get_contents('php://input'), true);
-$pair_id = $input['pair_id'] ?? null;
-$rating = $input['rating'] ?? null;
-$feedback = $input['feedback'] ?? '';
+$session_id = $input['session_id'] ?? null;
+$status = $input['status'] ?? null;
 
-if (!$pair_id || !$rating || !$feedback) {
+if (!$session_id || !$status) {
     echo json_encode(['error' => 'Missing required fields']);
     exit;
 }
 
 try {
-    $stmt = $conn->prepare("UPDATE mentor_student_pairs SET status = 'completed', rating = ?, feedback = ?, completed_at = NOW() WHERE id = ?");
-    $stmt->bind_param("isi", $rating, $feedback, $pair_id);
+    $stmt = $conn->prepare("UPDATE mentoring_sessions SET status = ? WHERE id = ?");
+    $stmt->bind_param("si", $status, $session_id);
     $stmt->execute();
     
     echo json_encode(['success' => true]);
 } catch (Exception $e) {
-    echo json_encode(['error' => 'Failed to complete pairing']);
+    echo json_encode(['error' => 'Failed to update session']);
 }
 ?>
