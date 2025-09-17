@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Sep 17, 2025 at 08:58 AM
+-- Generation Time: Sep 17, 2025 at 03:23 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -471,9 +471,20 @@ CREATE TABLE `mentoring_sessions` (
                                       `session_date` datetime NOT NULL,
                                       `duration_minutes` int(11) DEFAULT 60,
                                       `notes` text DEFAULT NULL,
+                                      `meeting_link` varchar(500) DEFAULT NULL,
                                       `status` enum('scheduled','completed','cancelled') DEFAULT 'scheduled',
-                                      `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+                                      `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+                                      `reminder_sent` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `mentoring_sessions`
+--
+
+INSERT INTO `mentoring_sessions` (`id`, `pair_id`, `session_date`, `duration_minutes`, `notes`, `meeting_link`, `status`, `created_at`, `reminder_sent`) VALUES
+                                                                                                                                                             (1, 3, '2025-09-17 12:32:00', 60, 'good', NULL, 'scheduled', '2025-09-17 07:01:46', 0),
+                                                                                                                                                             (2, 3, '2025-09-18 12:32:00', 60, 'discussion', NULL, 'cancelled', '2025-09-17 07:02:56', 0),
+                                                                                                                                                             (3, 4, '2025-09-17 16:04:00', 30, 'NA', 'https://meet.google.com/sfv-atoe-ekq', 'scheduled', '2025-09-17 07:35:23', 0);
 
 -- --------------------------------------------------------
 
@@ -501,7 +512,121 @@ CREATE TABLE `mentors` (
 INSERT INTO `mentors` (`id`, `user_id`, `specialization`, `experience_years`, `max_students`, `current_students`, `bio`, `linkedin_url`, `github_url`, `created_at`) VALUES
                                                                                                                                                                          (1, 4, 'AI/ML', 10, 8, 0, 'Passionate about helping students learn AI and ML concepts', 'https://linkedin.com/in/sarahjohnson', 'https://github.com/sarahjohnson', '2025-09-11 17:52:43'),
                                                                                                                                                                          (2, 5, 'Web Development', 8, 6, 0, 'Experienced full-stack developer mentoring next generation', 'https://linkedin.com/in/mikechen', 'https://github.com/mikechen', '2025-09-11 17:52:43'),
-                                                                                                                                                                         (3, 7, 'Web Development', 1, 10, 0, 'Web Development', NULL, NULL, '2025-09-11 18:06:26');
+                                                                                                                                                                         (3, 7, 'General', 1, 1, 0, 'Web Development', '', '', '2025-09-11 18:06:26');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mentor_email_logs`
+--
+
+CREATE TABLE `mentor_email_logs` (
+                                     `id` int(11) NOT NULL,
+                                     `mentor_id` int(11) NOT NULL,
+                                     `recipient_id` int(11) NOT NULL,
+                                     `email_type` enum('welcome_message','session_invitation','session_reminder','project_feedback','progress_update') NOT NULL,
+                                     `status` enum('sent','failed') NOT NULL,
+                                     `error_message` text DEFAULT NULL,
+                                     `sent_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `mentor_email_logs`
+--
+
+INSERT INTO `mentor_email_logs` (`id`, `mentor_id`, `recipient_id`, `email_type`, `status`, `error_message`, `sent_at`) VALUES
+    (1, 7, 1, 'welcome_message', 'sent', NULL, '2025-09-17 13:12:21');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mentor_email_queue`
+--
+
+CREATE TABLE `mentor_email_queue` (
+                                      `id` int(11) NOT NULL,
+                                      `mentor_id` int(11) NOT NULL,
+                                      `recipient_id` int(11) NOT NULL,
+                                      `email_type` enum('welcome_message','session_invitation','session_reminder','project_feedback','progress_update') NOT NULL,
+                                      `email_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`email_data`)),
+                                      `priority` tinyint(4) DEFAULT 5,
+                                      `status` enum('pending','processing','sent','failed') DEFAULT 'pending',
+                                      `attempts` int(11) DEFAULT 0,
+                                      `max_attempts` int(11) DEFAULT 3,
+                                      `scheduled_at` timestamp NOT NULL DEFAULT current_timestamp(),
+                                      `processed_at` timestamp NULL DEFAULT NULL,
+                                      `error_message` text DEFAULT NULL,
+                                      `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mentor_email_stats`
+--
+
+CREATE TABLE `mentor_email_stats` (
+                                      `id` int(11) NOT NULL,
+                                      `mentor_id` int(11) NOT NULL,
+                                      `date` date NOT NULL,
+                                      `emails_sent` int(11) DEFAULT 0,
+                                      `emails_failed` int(11) DEFAULT 0,
+                                      `welcome_emails` int(11) DEFAULT 0,
+                                      `session_invitations` int(11) DEFAULT 0,
+                                      `session_reminders` int(11) DEFAULT 0,
+                                      `project_feedback` int(11) DEFAULT 0,
+                                      `progress_updates` int(11) DEFAULT 0,
+                                      `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+                                      `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mentor_email_templates`
+--
+
+CREATE TABLE `mentor_email_templates` (
+                                          `id` int(11) NOT NULL,
+                                          `mentor_id` int(11) NOT NULL,
+                                          `template_type` enum('welcome_message','session_invitation','session_reminder','project_feedback','progress_update') NOT NULL,
+                                          `subject` varchar(255) NOT NULL,
+                                          `template_content` text NOT NULL,
+                                          `is_active` tinyint(1) DEFAULT 1,
+                                          `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+                                          `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mentor_project_access`
+--
+
+CREATE TABLE `mentor_project_access` (
+                                         `id` int(11) NOT NULL,
+                                         `mentor_id` int(11) NOT NULL,
+                                         `student_id` int(11) NOT NULL,
+                                         `project_id` int(11) NOT NULL,
+                                         `granted_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mentor_requests`
+--
+
+CREATE TABLE `mentor_requests` (
+                                   `id` int(11) NOT NULL,
+                                   `student_id` int(11) NOT NULL,
+                                   `mentor_id` int(11) NOT NULL,
+                                   `project_id` int(11) DEFAULT NULL,
+                                   `message` text DEFAULT NULL,
+                                   `status` enum('pending','accepted','rejected') DEFAULT 'pending',
+                                   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+                                   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -518,16 +643,20 @@ CREATE TABLE `mentor_student_pairs` (
                                         `paired_at` timestamp NOT NULL DEFAULT current_timestamp(),
                                         `completed_at` timestamp NULL DEFAULT NULL,
                                         `rating` int(11) DEFAULT NULL,
-                                        `feedback` text DEFAULT NULL
+                                        `feedback` text DEFAULT NULL,
+                                        `welcome_sent` tinyint(1) DEFAULT 0,
+                                        `last_progress_email` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `mentor_student_pairs`
 --
 
-INSERT INTO `mentor_student_pairs` (`id`, `mentor_id`, `student_id`, `project_id`, `status`, `paired_at`, `completed_at`, `rating`, `feedback`) VALUES
-                                                                                                                                                    (1, 7, 1, NULL, 'completed', '2025-09-11 18:12:03', '2025-09-11 18:12:18', 0, 'no'),
-                                                                                                                                                    (2, 7, 1, NULL, 'completed', '2025-09-17 05:03:44', '2025-09-17 06:51:19', 5, 'done');
+INSERT INTO `mentor_student_pairs` (`id`, `mentor_id`, `student_id`, `project_id`, `status`, `paired_at`, `completed_at`, `rating`, `feedback`, `welcome_sent`, `last_progress_email`) VALUES
+                                                                                                                                                                                           (1, 7, 1, NULL, 'completed', '2025-09-11 18:12:03', '2025-09-11 18:12:18', 0, 'no', 0, NULL),
+                                                                                                                                                                                           (2, 7, 1, NULL, 'completed', '2025-09-17 05:03:44', '2025-09-17 06:51:19', 5, 'done', 0, NULL),
+                                                                                                                                                                                           (3, 7, 1, NULL, 'completed', '2025-09-17 07:01:10', '2025-09-17 07:24:18', 3, '', 0, NULL),
+                                                                                                                                                                                           (4, 7, 1, NULL, 'completed', '2025-09-17 07:33:32', '2025-09-17 12:59:15', 4, 'done', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -898,6 +1027,31 @@ CREATE TABLE `removed_user` (
                                 `enrollment_number` varchar(100) DEFAULT NULL,
                                 `gr_number` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `student_email_preferences`
+--
+
+CREATE TABLE `student_email_preferences` (
+                                             `id` int(11) NOT NULL,
+                                             `student_id` int(11) NOT NULL,
+                                             `receive_session_reminders` tinyint(1) DEFAULT 1,
+                                             `receive_progress_updates` tinyint(1) DEFAULT 1,
+                                             `receive_project_feedback` tinyint(1) DEFAULT 1,
+                                             `receive_welcome_emails` tinyint(1) DEFAULT 1,
+                                             `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+                                             `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `student_email_preferences`
+--
+
+INSERT INTO `student_email_preferences` (`id`, `student_id`, `receive_session_reminders`, `receive_progress_updates`, `receive_project_feedback`, `receive_welcome_emails`, `created_at`, `updated_at`) VALUES
+                                                                                                                                                                                                            (1, 1, 1, 1, 1, 1, '2025-09-17 12:55:45', '2025-09-17 12:55:45'),
+                                                                                                                                                                                                            (2, 2, 1, 1, 1, 1, '2025-09-17 12:55:45', '2025-09-17 12:55:45');
 
 -- --------------------------------------------------------
 
@@ -1346,6 +1500,63 @@ ALTER TABLE `mentors`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `mentor_email_logs`
+--
+ALTER TABLE `mentor_email_logs`
+    ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_mentor_id` (`mentor_id`),
+  ADD KEY `idx_recipient_id` (`recipient_id`),
+  ADD KEY `idx_sent_at` (`sent_at`);
+
+--
+-- Indexes for table `mentor_email_queue`
+--
+ALTER TABLE `mentor_email_queue`
+    ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_status_priority` (`status`,`priority`),
+  ADD KEY `idx_scheduled_at` (`scheduled_at`),
+  ADD KEY `mentor_id` (`mentor_id`),
+  ADD KEY `recipient_id` (`recipient_id`);
+
+--
+-- Indexes for table `mentor_email_stats`
+--
+ALTER TABLE `mentor_email_stats`
+    ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_mentor_date` (`mentor_id`,`date`);
+
+--
+-- Indexes for table `mentor_email_templates`
+--
+ALTER TABLE `mentor_email_templates`
+    ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_mentor_template` (`mentor_id`,`template_type`);
+
+--
+-- Indexes for table `mentor_project_access`
+--
+ALTER TABLE `mentor_project_access`
+    ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_mentor_student_project` (`mentor_id`,`student_id`,`project_id`),
+  ADD KEY `mentor_id` (`mentor_id`),
+  ADD KEY `student_id` (`student_id`),
+  ADD KEY `project_id` (`project_id`),
+  ADD KEY `idx_mentor_project_access_mentor` (`mentor_id`),
+  ADD KEY `idx_mentor_project_access_student` (`student_id`);
+
+--
+-- Indexes for table `mentor_requests`
+--
+ALTER TABLE `mentor_requests`
+    ADD PRIMARY KEY (`id`),
+  ADD KEY `student_id` (`student_id`),
+  ADD KEY `mentor_id` (`mentor_id`),
+  ADD KEY `project_id` (`project_id`),
+  ADD KEY `status` (`status`),
+  ADD KEY `idx_mentor_requests_student_status` (`student_id`,`status`),
+  ADD KEY `idx_mentor_requests_mentor_status` (`mentor_id`,`status`);
+
+--
 -- Indexes for table `mentor_student_pairs`
 --
 ALTER TABLE `mentor_student_pairs`
@@ -1439,6 +1650,13 @@ ALTER TABLE `register`
 --
 ALTER TABLE `removed_user`
     ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `student_email_preferences`
+--
+ALTER TABLE `student_email_preferences`
+    ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `student_id` (`student_id`);
 
 --
 -- Indexes for table `subadmins`
@@ -1596,7 +1814,7 @@ ALTER TABLE `login`
 -- AUTO_INCREMENT for table `mentoring_sessions`
 --
 ALTER TABLE `mentoring_sessions`
-    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `mentors`
@@ -1605,10 +1823,46 @@ ALTER TABLE `mentors`
     MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `mentor_email_logs`
+--
+ALTER TABLE `mentor_email_logs`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `mentor_email_queue`
+--
+ALTER TABLE `mentor_email_queue`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `mentor_email_stats`
+--
+ALTER TABLE `mentor_email_stats`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `mentor_email_templates`
+--
+ALTER TABLE `mentor_email_templates`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `mentor_project_access`
+--
+ALTER TABLE `mentor_project_access`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `mentor_requests`
+--
+ALTER TABLE `mentor_requests`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `mentor_student_pairs`
 --
 ALTER TABLE `mentor_student_pairs`
-    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `notification_counters`
@@ -1663,6 +1917,12 @@ ALTER TABLE `register`
 --
 ALTER TABLE `removed_user`
     MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `student_email_preferences`
+--
+ALTER TABLE `student_email_preferences`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `subadmins`
@@ -1779,6 +2039,48 @@ ALTER TABLE `mentors`
     ADD CONSTRAINT `mentors_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `mentor_email_logs`
+--
+ALTER TABLE `mentor_email_logs`
+    ADD CONSTRAINT `mentor_email_logs_ibfk_1` FOREIGN KEY (`mentor_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `mentor_email_logs_ibfk_2` FOREIGN KEY (`recipient_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `mentor_email_queue`
+--
+ALTER TABLE `mentor_email_queue`
+    ADD CONSTRAINT `mentor_email_queue_ibfk_1` FOREIGN KEY (`mentor_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `mentor_email_queue_ibfk_2` FOREIGN KEY (`recipient_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `mentor_email_stats`
+--
+ALTER TABLE `mentor_email_stats`
+    ADD CONSTRAINT `mentor_email_stats_ibfk_1` FOREIGN KEY (`mentor_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `mentor_email_templates`
+--
+ALTER TABLE `mentor_email_templates`
+    ADD CONSTRAINT `mentor_email_templates_ibfk_1` FOREIGN KEY (`mentor_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `mentor_project_access`
+--
+ALTER TABLE `mentor_project_access`
+    ADD CONSTRAINT `mentor_project_access_ibfk_1` FOREIGN KEY (`mentor_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `mentor_project_access_ibfk_2` FOREIGN KEY (`student_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `mentor_project_access_ibfk_3` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `mentor_requests`
+--
+ALTER TABLE `mentor_requests`
+    ADD CONSTRAINT `mentor_requests_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `mentor_requests_ibfk_2` FOREIGN KEY (`mentor_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `mentor_requests_ibfk_3` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL;
+
+--
 -- Constraints for table `mentor_student_pairs`
 --
 ALTER TABLE `mentor_student_pairs`
@@ -1791,6 +2093,12 @@ ALTER TABLE `mentor_student_pairs`
 --
 ALTER TABLE `project_comments`
     ADD CONSTRAINT `project_comments_ibfk_1` FOREIGN KEY (`parent_comment_id`) REFERENCES `project_comments` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `student_email_preferences`
+--
+ALTER TABLE `student_email_preferences`
+    ADD CONSTRAINT `student_email_preferences_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `subadmin_classification_requests`
