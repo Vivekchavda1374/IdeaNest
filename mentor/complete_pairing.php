@@ -13,7 +13,7 @@ $pair_id = $input['pair_id'] ?? null;
 $rating = $input['rating'] ?? null;
 $feedback = $input['feedback'] ?? '';
 
-if (!$pair_id || !$rating || !$feedback) {
+if (!$pair_id || !isset($rating) || $rating < 1 || $rating > 5) {
     echo json_encode(['error' => 'Missing required fields']);
     exit;
 }

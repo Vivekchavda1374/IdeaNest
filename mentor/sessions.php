@@ -48,9 +48,20 @@ ob_start();
                     <h2><i class="fas fa-calendar-alt text-primary me-2"></i>Sessions</h2>
                     <p class="text-muted mb-0">Manage your mentoring sessions</p>
                 </div>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newSessionModal">
-                    <i class="fas fa-plus me-1"></i>New Session
-                </button>
+                <div class="d-flex gap-2">
+                    <a href="create_session.php" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>New Session
+                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-download me-1"></i>Export
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="export_sessions.php?format=csv"><i class="fas fa-file-csv me-1"></i>CSV</a></li>
+                            <li><a class="dropdown-item" href="export_sessions.php?format=json"><i class="fas fa-file-code me-1"></i>JSON</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -96,6 +107,14 @@ ob_start();
                                     <?php if ($session['notes']): ?>
                                         <div class="mb-2">
                                             <small class="text-muted"><?= htmlspecialchars($session['notes']) ?></small>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($session['meeting_link']): ?>
+                                        <div class="mb-2">
+                                            <a href="<?= htmlspecialchars($session['meeting_link']) ?>" target="_blank" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-video me-1"></i>Join Meeting
+                                            </a>
                                         </div>
                                     <?php endif; ?>
                                     
@@ -204,6 +223,10 @@ ob_start();
                     <div class="mb-3">
                         <label class="form-label">Notes</label>
                         <textarea class="form-control" name="notes" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Meeting Link</label>
+                        <input type="url" class="form-control" name="meeting_link" placeholder="https://meet.google.com/...">
                     </div>
                 </div>
                 <div class="modal-footer border-0">
