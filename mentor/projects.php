@@ -10,12 +10,12 @@ if (!isset($_SESSION['mentor_id'])) {
 
 $mentor_id = $_SESSION['mentor_id'];
 
-// Get projects from mentored students
-$projects_query = "SELECT p.*, r.name as student_name, r.email, msp.paired_at
+// Get projects that mentor has access to
+$projects_query = "SELECT DISTINCT p.*, r.name as student_name, r.email, mpa.granted_at
                    FROM projects p
                    JOIN register r ON p.user_id = r.id
-                   JOIN mentor_student_pairs msp ON msp.student_id = r.id
-                   WHERE msp.mentor_id = ? AND p.status = 'approved'
+                   JOIN mentor_project_access mpa ON p.id = mpa.project_id AND r.id = mpa.student_id
+                   WHERE mpa.mentor_id = ? AND p.status = 'approved'
                    ORDER BY p.submission_date DESC";
 $stmt = $conn->prepare($projects_query);
 $stmt->bind_param("i", $mentor_id);
@@ -24,12 +24,12 @@ $projects = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 // Get project statistics
 $stats_query = "SELECT 
-                COUNT(*) as total_projects,
+                COUNT(DISTINCT p.id) as total_projects,
                 SUM(CASE WHEN p.project_type = 'software' THEN 1 ELSE 0 END) as software_count,
                 SUM(CASE WHEN p.project_type = 'hardware' THEN 1 ELSE 0 END) as hardware_count
                 FROM projects p
-                JOIN mentor_student_pairs msp ON msp.student_id = p.user_id
-                WHERE msp.mentor_id = ? AND p.status = 'approved'";
+                JOIN mentor_project_access mpa ON p.id = mpa.project_id
+                WHERE mpa.mentor_id = ? AND p.status = 'approved'";
 $stmt = $conn->prepare($stats_query);
 $stmt->bind_param("i", $mentor_id);
 $stmt->execute();
