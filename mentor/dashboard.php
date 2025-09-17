@@ -554,15 +554,7 @@ ob_start();
                                     <option value="120">2 hours</option>
                                 </select>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Session Type</label>
-                                <select class="form-select" id="sessionType">
-                                    <option value="regular">Regular Session</option>
-                                    <option value="introduction">Introduction</option>
-                                    <option value="project_review">Project Review</option>
-                                    <option value="final_review">Final Review</option>
-                                </select>
-                            </div>
+
                             <div class="mb-3">
                                 <label class="form-label">Notes</label>
                                 <textarea class="form-control" id="notes" rows="3" placeholder="Session agenda, goals, etc."></textarea>
@@ -599,7 +591,6 @@ ob_start();
                 pair_id: pairId,
                 session_date: document.getElementById('sessionDate').value,
                 duration: document.getElementById('duration').value,
-                session_type: document.getElementById('sessionType').value,
                 notes: document.getElementById('notes').value
             };
 
@@ -686,8 +677,8 @@ ob_start();
             const rating = document.getElementById('rating').value;
             const feedback = document.getElementById('feedback').value;
 
-            if (!feedback.trim()) {
-                showNotification('Please provide feedback', 'warning');
+            if (!rating || rating < 1 || rating > 5) {
+                showNotification('Please select a rating', 'warning');
                 return;
             }
 
@@ -697,7 +688,7 @@ ob_start();
                 body: JSON.stringify({
                     pair_id: pairId,
                     rating: parseInt(rating),
-                    feedback: feedback
+                    feedback: feedback || ''
                 })
             })
                 .then(response => response.json())
