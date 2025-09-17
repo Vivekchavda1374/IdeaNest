@@ -20,6 +20,11 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit();
 }
 
+// Set admin_id for compatibility with new pages
+if (!isset($_SESSION['admin_id'])) {
+    $_SESSION['admin_id'] = 1;
+}
+
 $user_name = "Admin";
 
 // Handle project actions
