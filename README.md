@@ -72,9 +72,12 @@ IdeaNest is a comprehensive web-based platform designed to facilitate the manage
 - **Modal Views**: Enhanced project viewing experience
 
 ### 👨‍💼 Admin Features
+- **Enhanced Dashboard**: Comprehensive admin dashboard with system analytics
 - **Project Review System**: Final approval authority with analytics dashboard
-- **User Management**: Role-based access control and activity monitoring
+- **User Management**: Role-based access control and detailed user profiles
 - **Mentor Management**: Add, remove, and manage mentor accounts with full control
+- **SubAdmin Overview**: Complete subadmin management and performance tracking
+- **Data Export**: Export system data in multiple formats (CSV, PDF, Excel)
 - **Email Configuration**: SMTP settings management in admin panel
 - **Notification Dashboard**: Monitor email delivery and user preferences
 - **GitHub Analytics**: Track GitHub integration usage
@@ -237,8 +240,16 @@ php cron/weekly_notifications.php
 IdeaNest/
 ├── Admin/
 │   ├── subadmin/                    # SubAdmin management panel
+│   ├── admin_dashboard.php          # Enhanced admin dashboard
+│   ├── overview.php                 # System overview and statistics
+│   ├── system_analytics.php         # System analytics and metrics
 │   ├── manage_mentors.php           # Mentor management interface
 │   ├── remove_mentor.php            # Mentor removal backend
+│   ├── user_details.php             # Detailed user management
+│   ├── mentor_details.php           # Mentor profile details
+│   ├── subadmin_overview.php        # SubAdmin overview dashboard
+│   ├── export_data.php              # Data export functionality
+│   ├── export_overview.php          # Export overview interface
 │   ├── notification_dashboard.php   # Email notification monitoring
 │   └── project_notification.php     # Project notification management
 ├── mentor/
