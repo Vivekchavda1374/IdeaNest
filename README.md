@@ -150,6 +150,12 @@ mysql -u root -p ideanest < db/ideanest.sql
 # Setup GitHub integration
 mysql -u root -p ideanest < github_integration_update.sql
 
+# Setup mentor system tables
+php create_sessions_table.php
+
+# Add meeting link support
+php add_meeting_link.php
+
 # Or run setup script
 php setup_github_integration.php
 ```
