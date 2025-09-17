@@ -17,6 +17,7 @@ IdeaNest is a comprehensive web-based platform designed to facilitate the manage
 - **Progress Tracking**: Monitor student development and achievements
 - **Analytics Dashboard**: Performance metrics and engagement statistics
 - **Profile Management**: Dedicated mentor profiles with expertise areas
+- **Admin Mentor Control**: Full mentor lifecycle management with removal capabilities
 
 ### 🚀 GitHub Integration (December 2024)
 - **Complete GitHub Profile Integration**: Connect and showcase GitHub profiles
@@ -73,6 +74,7 @@ IdeaNest is a comprehensive web-based platform designed to facilitate the manage
 ### 👨‍💼 Admin Features
 - **Project Review System**: Final approval authority with analytics dashboard
 - **User Management**: Role-based access control and activity monitoring
+- **Mentor Management**: Add, remove, and manage mentor accounts with full control
 - **Email Configuration**: SMTP settings management in admin panel
 - **Notification Dashboard**: Monitor email delivery and user preferences
 - **GitHub Analytics**: Track GitHub integration usage
@@ -235,6 +237,8 @@ php cron/weekly_notifications.php
 IdeaNest/
 ├── Admin/
 │   ├── subadmin/                    # SubAdmin management panel
+│   ├── manage_mentors.php           # Mentor management interface
+│   ├── remove_mentor.php            # Mentor removal backend
 │   ├── notification_dashboard.php   # Email notification monitoring
 │   └── project_notification.php     # Project notification management
 ├── mentor/
