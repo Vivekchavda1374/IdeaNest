@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Sep 17, 2025 at 06:46 AM
+-- Generation Time: Sep 17, 2025 at 08:58 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -526,7 +526,8 @@ CREATE TABLE `mentor_student_pairs` (
 --
 
 INSERT INTO `mentor_student_pairs` (`id`, `mentor_id`, `student_id`, `project_id`, `status`, `paired_at`, `completed_at`, `rating`, `feedback`) VALUES
-    (1, 7, 1, NULL, 'completed', '2025-09-11 18:12:03', '2025-09-11 18:12:18', 0, 'no');
+                                                                                                                                                    (1, 7, 1, NULL, 'completed', '2025-09-11 18:12:03', '2025-09-11 18:12:18', 0, 'no'),
+                                                                                                                                                    (2, 7, 1, NULL, 'completed', '2025-09-17 05:03:44', '2025-09-17 06:51:19', 5, 'done');
 
 -- --------------------------------------------------------
 
@@ -1607,7 +1608,7 @@ ALTER TABLE `mentors`
 -- AUTO_INCREMENT for table `mentor_student_pairs`
 --
 ALTER TABLE `mentor_student_pairs`
-    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `notification_counters`

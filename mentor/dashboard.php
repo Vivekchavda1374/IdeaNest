@@ -370,6 +370,51 @@ ob_start();
                 </div>
             </div>
 
+            <!-- Email System Quick Access -->
+            <div class="glass-card mb-4">
+                <div class="card-header bg-transparent border-0 p-3 pb-0">
+                    <h6 class="mb-0">
+                        <i class="fas fa-envelope text-primary me-2"></i>
+                        Email System
+                    </h6>
+                </div>
+                <div class="card-body p-3">
+                    <?php
+                    // Get email stats for quick view
+                    $email_stats_query = "SELECT 
+                                        COUNT(*) as total_emails,
+                                        SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) as sent_emails
+                                        FROM mentor_email_logs 
+                                        WHERE mentor_id = ? 
+                                        AND sent_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+                    $stmt = $conn->prepare($email_stats_query);
+                    $stmt->bind_param("i", $mentor_id);
+                    $stmt->execute();
+                    $email_stats = $stmt->get_result()->fetch_assoc();
+                    ?>
+                    
+                    <div class="row text-center mb-3">
+                        <div class="col-6">
+                            <h5 class="text-primary mb-0"><?= $email_stats['total_emails'] ?></h5>
+                            <small class="text-muted">This Week</small>
+                        </div>
+                        <div class="col-6">
+                            <h5 class="text-success mb-0"><?= $email_stats['sent_emails'] ?></h5>
+                            <small class="text-muted">Delivered</small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="send_email.php" class="btn btn-primary btn-sm">
+                            <i class="fas fa-envelope me-1"></i>Send Email
+                        </a>
+                        <a href="email_dashboard.php" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-chart-bar me-1"></i>Email Analytics
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <!-- Quick Actions -->
             <div class="glass-card mb-4">
                 <div class="card-header bg-transparent border-0 p-3 pb-0">
