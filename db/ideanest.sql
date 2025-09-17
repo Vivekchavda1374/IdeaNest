@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Sep 08, 2025 at 04:54 PM
+-- Generation Time: Sep 17, 2025 at 06:46 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -462,6 +462,75 @@ INSERT INTO `login` (`id`, `email`, `password`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `mentoring_sessions`
+--
+
+CREATE TABLE `mentoring_sessions` (
+                                      `id` int(11) NOT NULL,
+                                      `pair_id` int(11) NOT NULL,
+                                      `session_date` datetime NOT NULL,
+                                      `duration_minutes` int(11) DEFAULT 60,
+                                      `notes` text DEFAULT NULL,
+                                      `status` enum('scheduled','completed','cancelled') DEFAULT 'scheduled',
+                                      `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mentors`
+--
+
+CREATE TABLE `mentors` (
+                           `id` int(11) NOT NULL,
+                           `user_id` int(11) NOT NULL,
+                           `specialization` varchar(255) NOT NULL,
+                           `experience_years` int(11) DEFAULT 0,
+                           `max_students` int(11) DEFAULT 5,
+                           `current_students` int(11) DEFAULT 0,
+                           `bio` text DEFAULT NULL,
+                           `linkedin_url` varchar(255) DEFAULT NULL,
+                           `github_url` varchar(255) DEFAULT NULL,
+                           `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `mentors`
+--
+
+INSERT INTO `mentors` (`id`, `user_id`, `specialization`, `experience_years`, `max_students`, `current_students`, `bio`, `linkedin_url`, `github_url`, `created_at`) VALUES
+                                                                                                                                                                         (1, 4, 'AI/ML', 10, 8, 0, 'Passionate about helping students learn AI and ML concepts', 'https://linkedin.com/in/sarahjohnson', 'https://github.com/sarahjohnson', '2025-09-11 17:52:43'),
+                                                                                                                                                                         (2, 5, 'Web Development', 8, 6, 0, 'Experienced full-stack developer mentoring next generation', 'https://linkedin.com/in/mikechen', 'https://github.com/mikechen', '2025-09-11 17:52:43'),
+                                                                                                                                                                         (3, 7, 'Web Development', 1, 10, 0, 'Web Development', NULL, NULL, '2025-09-11 18:06:26');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mentor_student_pairs`
+--
+
+CREATE TABLE `mentor_student_pairs` (
+                                        `id` int(11) NOT NULL,
+                                        `mentor_id` int(11) NOT NULL,
+                                        `student_id` int(11) NOT NULL,
+                                        `project_id` int(11) DEFAULT NULL,
+                                        `status` enum('active','completed','cancelled') DEFAULT 'active',
+                                        `paired_at` timestamp NOT NULL DEFAULT current_timestamp(),
+                                        `completed_at` timestamp NULL DEFAULT NULL,
+                                        `rating` int(11) DEFAULT NULL,
+                                        `feedback` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `mentor_student_pairs`
+--
+
+INSERT INTO `mentor_student_pairs` (`id`, `mentor_id`, `student_id`, `project_id`, `status`, `paired_at`, `completed_at`, `rating`, `feedback`) VALUES
+    (1, 7, 1, NULL, 'completed', '2025-09-11 18:12:03', '2025-09-11 18:12:18', 0, 'no');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `notification_counters`
 --
 
@@ -762,6 +831,23 @@ INSERT INTO `project_likes` (`id`, `project_id`, `user_id`, `created_at`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `realtime_notifications`
+--
+
+CREATE TABLE `realtime_notifications` (
+                                          `id` int(11) NOT NULL,
+                                          `user_id` int(11) NOT NULL,
+                                          `type` varchar(50) NOT NULL,
+                                          `title` varchar(255) NOT NULL,
+                                          `message` text NOT NULL,
+                                          `data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`data`)),
+                                          `is_read` tinyint(1) DEFAULT 0,
+                                          `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `register`
 --
 
@@ -780,16 +866,23 @@ CREATE TABLE `register` (
                             `google_id` varchar(255) DEFAULT NULL,
                             `email_notifications` tinyint(1) DEFAULT 1,
                             `last_notification_sent` datetime DEFAULT NULL,
-                            `github_token` text DEFAULT NULL
+                            `github_token` text DEFAULT NULL,
+                            `role` enum('student','mentor','admin') DEFAULT 'student',
+                            `expertise` text DEFAULT NULL,
+                            `mentor_rating` decimal(3,2) DEFAULT 0.00,
+                            `is_available` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `register`
 --
 
-INSERT INTO `register` (`id`, `name`, `email`, `enrollment_number`, `gr_number`, `password`, `about`, `phone_no`, `department`, `passout_year`, `user_image`, `google_id`, `email_notifications`, `last_notification_sent`, `github_token`) VALUES
-                                                                                                                                                                                                                                                (1, 'vivek', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$nkrc9MrI8QWIszcw7KbKSOx/YA3G.Wy5IArGvLl7ImnEZAYGUtWSS', 'i am vivek', '9104231590', 'ict', '2026', 'profile_68a6b4d8458ae.png', '116644441139882349952', 0, '2025-09-08 10:11:08', NULL),
-                                                                                                                                                                                                                                                (2, 'vivek', 'viveksinhchavda639@gmail.com', '92200133041', '119485', '$2y$10$P0h0EpiNLoBWFxal.Jh4B.iRIzOYC9XL5OpoeBNX02UkmcgJ0j92y', 'hi i am vivek', '9104231590', 'ict', '2026', '', '111579585627734057498', 1, '2025-09-08 12:43:07', NULL);
+INSERT INTO `register` (`id`, `name`, `email`, `enrollment_number`, `gr_number`, `password`, `about`, `phone_no`, `department`, `passout_year`, `user_image`, `google_id`, `email_notifications`, `last_notification_sent`, `github_token`, `role`, `expertise`, `mentor_rating`, `is_available`) VALUES
+                                                                                                                                                                                                                                                                                                      (1, 'vivek', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$nkrc9MrI8QWIszcw7KbKSOx/YA3G.Wy5IArGvLl7ImnEZAYGUtWSS', 'i am vivek', '9104231590', 'ict', '2026', 'profile_68a6b4d8458ae.png', '116644441139882349952', 0, '2025-09-08 10:11:08', NULL, 'student', NULL, 0.00, 1),
+                                                                                                                                                                                                                                                                                                      (2, 'vivek', 'viveksinhchavda639@gmail.com', '92200133041', '119485', '$2y$10$P0h0EpiNLoBWFxal.Jh4B.iRIzOYC9XL5OpoeBNX02UkmcgJ0j92y', 'hi i am vivek', '9104231590', 'ict', '2026', '', '111579585627734057498', 1, '2025-09-08 12:43:07', NULL, 'student', NULL, 0.00, 1),
+                                                                                                                                                                                                                                                                                                      (4, 'Dr. Sarah Johnson', 'sarah.mentor@ideanest.com', 'MEN001', 'MEN001', '$2y$10$rFfWNO6yrmae6m2PnQuKeeszcPP/Df.iRnx/LIYBOR9iNmhkHRSbu', 'AI/ML Expert with 10 years experience', NULL, 'Computer Science', '2015', '', NULL, 1, NULL, NULL, 'mentor', 'Artificial Intelligence, Machine Learning, Data Science', 0.00, 1),
+                                                                                                                                                                                                                                                                                                      (5, 'Prof. Mike Chen', 'mike.mentor@ideanest.com', 'MEN002', 'MEN002', '$2y$10$example', 'Full-stack developer and IoT specialist', NULL, 'ICT', '2012', '', NULL, 1, NULL, NULL, 'mentor', 'Web Development, IoT, Mobile Apps', 0.00, 1),
+                                                                                                                                                                                                                                                                                                      (7, 'vivek', 'chavdaviveksinh1374@gmail.com', 'MEN336', 'MEN336', '$2y$10$7RWp.DyvvX7Y4ckC2F66LO6iXCpz54bBdjANTOqwuN7iR6UlWVe3a', 'Web Development', NULL, 'Mentor', '2024', '', NULL, 1, NULL, NULL, 'mentor', 'Web Development', 0.00, 1);
 
 -- --------------------------------------------------------
 
@@ -976,6 +1069,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (6, 'f2p8bp3d2idnme0b860kkfebj1', '2025-09-03 05:14:04'),
                                                                                       (6, 'f752vcgdd6la5uc66ek2c8nmg3', '2025-09-06 08:09:01'),
                                                                                       (6, 'hoei7f5ruh8f1787iujiep5p2k', '2025-09-04 14:32:48'),
+                                                                                      (6, 'iqpfamo9lqceg72d599utbbepm', '2025-09-11 17:47:20'),
                                                                                       (6, 'm8qsgh56nuce6ibf33i0e45ec2', '2025-09-06 04:12:26'),
                                                                                       (6, 'p0j7m8rte9lh4b05le0e07uauk', '2025-09-08 07:42:55'),
                                                                                       (6, 'pglj9ovjijarh6kv1bhtn1hk7v', '2025-09-08 07:21:10'),
@@ -1012,6 +1106,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (11, 'f2p8bp3d2idnme0b860kkfebj1', '2025-09-03 05:14:04'),
                                                                                       (11, 'f752vcgdd6la5uc66ek2c8nmg3', '2025-09-06 08:09:01'),
                                                                                       (11, 'hoei7f5ruh8f1787iujiep5p2k', '2025-09-04 14:32:48'),
+                                                                                      (11, 'iqpfamo9lqceg72d599utbbepm', '2025-09-11 17:47:20'),
                                                                                       (11, 'm8qsgh56nuce6ibf33i0e45ec2', '2025-09-06 04:12:26'),
                                                                                       (11, 'p0j7m8rte9lh4b05le0e07uauk', '2025-09-08 07:42:55'),
                                                                                       (11, 'pglj9ovjijarh6kv1bhtn1hk7v', '2025-09-08 07:21:10'),
@@ -1036,6 +1131,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (14, 'f2p8bp3d2idnme0b860kkfebj1', '2025-09-03 05:14:04'),
                                                                                       (14, 'f752vcgdd6la5uc66ek2c8nmg3', '2025-09-06 08:09:01'),
                                                                                       (14, 'hoei7f5ruh8f1787iujiep5p2k', '2025-09-04 14:32:48'),
+                                                                                      (14, 'iqpfamo9lqceg72d599utbbepm', '2025-09-11 17:47:20'),
                                                                                       (14, 'm8qsgh56nuce6ibf33i0e45ec2', '2025-09-06 04:12:26'),
                                                                                       (14, 'p0j7m8rte9lh4b05le0e07uauk', '2025-09-08 07:42:55'),
                                                                                       (14, 'pglj9ovjijarh6kv1bhtn1hk7v', '2025-09-08 07:21:10'),
@@ -1072,6 +1168,20 @@ CREATE TABLE `user_activity_log` (
                                      `ip_address` varchar(45) DEFAULT NULL,
                                      `user_agent` text DEFAULT NULL,
                                      `timestamp` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `websocket_connections`
+--
+
+CREATE TABLE `websocket_connections` (
+                                         `id` int(11) NOT NULL,
+                                         `user_id` int(11) NOT NULL,
+                                         `connection_id` varchar(255) NOT NULL,
+                                         `last_ping` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+                                         `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -1221,6 +1331,29 @@ ALTER TABLE `login`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+-- Indexes for table `mentoring_sessions`
+--
+ALTER TABLE `mentoring_sessions`
+    ADD PRIMARY KEY (`id`),
+  ADD KEY `pair_id` (`pair_id`);
+
+--
+-- Indexes for table `mentors`
+--
+ALTER TABLE `mentors`
+    ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `mentor_student_pairs`
+--
+ALTER TABLE `mentor_student_pairs`
+    ADD PRIMARY KEY (`id`),
+  ADD KEY `mentor_id` (`mentor_id`),
+  ADD KEY `student_id` (`student_id`),
+  ADD KEY `project_id` (`project_id`);
+
+--
 -- Indexes for table `notification_counters`
 --
 ALTER TABLE `notification_counters`
@@ -1280,6 +1413,15 @@ ALTER TABLE `project_likes`
   ADD UNIQUE KEY `unique_like` (`project_id`,`user_id`),
   ADD KEY `idx_project_id` (`project_id`),
   ADD KEY `idx_user_id` (`user_id`);
+
+--
+-- Indexes for table `realtime_notifications`
+--
+ALTER TABLE `realtime_notifications`
+    ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_user_id` (`user_id`),
+  ADD KEY `idx_type` (`type`),
+  ADD KEY `idx_is_read` (`is_read`);
 
 --
 -- Indexes for table `register`
@@ -1353,6 +1495,13 @@ ALTER TABLE `user_activity_log`
   ADD KEY `idx_action` (`action`),
   ADD KEY `idx_project_id` (`project_id`),
   ADD KEY `idx_timestamp` (`timestamp`);
+
+--
+-- Indexes for table `websocket_connections`
+--
+ALTER TABLE `websocket_connections`
+    ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_connection` (`user_id`,`connection_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -1443,6 +1592,24 @@ ALTER TABLE `login`
     MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `mentoring_sessions`
+--
+ALTER TABLE `mentoring_sessions`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `mentors`
+--
+ALTER TABLE `mentors`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `mentor_student_pairs`
+--
+ALTER TABLE `mentor_student_pairs`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `notification_counters`
 --
 ALTER TABLE `notification_counters`
@@ -1479,10 +1646,16 @@ ALTER TABLE `project_likes`
     MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
+-- AUTO_INCREMENT for table `realtime_notifications`
+--
+ALTER TABLE `realtime_notifications`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `register`
 --
 ALTER TABLE `register`
-    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `removed_user`
@@ -1524,6 +1697,12 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_activity_log`
 --
 ALTER TABLE `user_activity_log`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `websocket_connections`
+--
+ALTER TABLE `websocket_connections`
     MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -1585,6 +1764,26 @@ ALTER TABLE `idea_comments`
 ALTER TABLE `idea_likes`
     ADD CONSTRAINT `idea_likes_ibfk_1` FOREIGN KEY (`idea_id`) REFERENCES `blog` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `idea_likes_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `mentoring_sessions`
+--
+ALTER TABLE `mentoring_sessions`
+    ADD CONSTRAINT `mentoring_sessions_ibfk_1` FOREIGN KEY (`pair_id`) REFERENCES `mentor_student_pairs` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `mentors`
+--
+ALTER TABLE `mentors`
+    ADD CONSTRAINT `mentors_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `mentor_student_pairs`
+--
+ALTER TABLE `mentor_student_pairs`
+    ADD CONSTRAINT `mentor_student_pairs_ibfk_1` FOREIGN KEY (`mentor_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `mentor_student_pairs_ibfk_2` FOREIGN KEY (`student_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `mentor_student_pairs_ibfk_3` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `project_comments`
