@@ -8,6 +8,7 @@
       <change beforePath="$PROJECT_DIR$/.github/workflows/jekyll-gh-pages.yml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.phpunit.result.cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/add_meeting_link.php" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/css/list_project.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/list_project.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composer.phar" beforeDir="false" />
@@ -329,7 +330,7 @@
       <workItem from="1758089883182" duration="1134000" />
       <workItem from="1758091680520" duration="2966000" />
       <workItem from="1758113428446" duration="7643000" />
-      <workItem from="1758167604758" duration="3258000" />
+      <workItem from="1758167604758" duration="3667000" />
     </task>
     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
       <option name="closed" value="true" />
