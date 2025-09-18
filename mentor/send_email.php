@@ -23,6 +23,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     switch ($action) {
         case 'send_welcome':
             if ($email_system->sendWelcomeMessage($student_id)) {
+                // Log activity
+                $student_query = "SELECT name FROM register WHERE id = ?";
+                $stmt = $conn->prepare($student_query);
+                $stmt->bind_param("i", $student_id);
+                $stmt->execute();
+                $student_name = $stmt->get_result()->fetch_assoc()['name'] ?? 'Student';
+                
+                $log_stmt = $conn->prepare("INSERT INTO mentor_activity_logs (mentor_id, activity_type, description, student_id, created_at) VALUES (?, 'email_sent', ?, ?, NOW())");
+                $activity_desc = "Sent welcome email to " . $student_name;
+                $log_stmt->bind_param("isi", $mentor_id, $activity_desc, $student_id);
+                $log_stmt->execute();
+                
                 $response = ['success' => true, 'message' => 'Welcome email sent successfully'];
             } else {
                 $response = ['success' => false, 'message' => 'Failed to send welcome email'];

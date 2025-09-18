@@ -24,6 +24,22 @@ $stmt->bind_param("i", $mentor_id);
 $stmt->execute();
 $upcoming = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
+// If no sessions found, try with mentor_student_pairs
+if (empty($upcoming)) {
+    $upcoming_query = "SELECT ms.*, r.name as student_name, p.project_name,
+                       TIMESTAMPDIFF(HOUR, NOW(), ms.session_date) as hours_until
+                       FROM mentoring_sessions ms
+                       JOIN mentor_student_pairs msp ON ms.pair_id = msp.id
+                       JOIN register r ON msp.student_id = r.id
+                       LEFT JOIN projects p ON msp.project_id = p.id
+                       WHERE msp.mentor_id = ? AND ms.status = 'scheduled' AND ms.session_date >= NOW()
+                       ORDER BY ms.session_date ASC";
+    $stmt = $conn->prepare($upcoming_query);
+    $stmt->bind_param("i", $mentor_id);
+    $stmt->execute();
+    $upcoming = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+}
+
 // Get completed sessions using mentor requests
 $completed_query = "SELECT ms.*, r.name as student_name, p.project_name
                     FROM mentoring_sessions ms
@@ -37,6 +53,21 @@ $stmt->bind_param("i", $mentor_id);
 $stmt->execute();
 $completed = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
+// If no completed sessions found, try with mentor_student_pairs
+if (empty($completed)) {
+    $completed_query = "SELECT ms.*, r.name as student_name, p.project_name
+                        FROM mentoring_sessions ms
+                        JOIN mentor_student_pairs msp ON ms.pair_id = msp.id
+                        JOIN register r ON msp.student_id = r.id
+                        LEFT JOIN projects p ON msp.project_id = p.id
+                        WHERE msp.mentor_id = ? AND ms.status = 'completed'
+                        ORDER BY ms.session_date DESC LIMIT 10";
+    $stmt = $conn->prepare($completed_query);
+    $stmt->bind_param("i", $mentor_id);
+    $stmt->execute();
+    $completed = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+}
+
 ob_start();
 ?>
 
@@ -49,9 +80,9 @@ ob_start();
                     <p class="text-muted mb-0">Manage your mentoring sessions</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="create_session.php" class="btn btn-primary">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newSessionModal">
                         <i class="fas fa-plus me-1"></i>New Session
-                    </a>
+                    </button>
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-download me-1"></i>Export
@@ -195,16 +226,33 @@ ob_start();
                         <select class="form-select" name="pair_id" required>
                             <option value="">Select Student</option>
                             <?php
+                            // Try mentor_requests first
                             $students_query = "SELECT mr.id, r.name FROM mentor_requests mr
                                              JOIN register r ON mr.student_id = r.id 
                                              WHERE mr.mentor_id = ? AND mr.status = 'accepted'";
                             $stmt = $conn->prepare($students_query);
                             $stmt->bind_param("i", $mentor_id);
                             $stmt->execute();
-                            $students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-                            foreach ($students as $student): ?>
-                                <option value="<?= $student['id'] ?>"><?= htmlspecialchars($student['name']) ?></option>
-                            <?php endforeach; ?>
+                            $modal_students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                            
+                            // If no students from mentor_requests, try mentor_student_pairs
+                            if (empty($modal_students)) {
+                                $students_query = "SELECT msp.id, r.name FROM mentor_student_pairs msp
+                                                 JOIN register r ON msp.student_id = r.id 
+                                                 WHERE msp.mentor_id = ? AND msp.status = 'active'";
+                                $stmt = $conn->prepare($students_query);
+                                $stmt->bind_param("i", $mentor_id);
+                                $stmt->execute();
+                                $modal_students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                            }
+                            
+                            if (empty($modal_students)): ?>
+                                <option value="" disabled>No students assigned yet. Please contact admin to assign students to your mentorship.</option>
+                            <?php else:
+                                foreach ($modal_students as $student): ?>
+                                    <option value="<?= $student['id'] ?>"><?= htmlspecialchars($student['name']) ?></option>
+                                <?php endforeach;
+                            endif; ?>
                         </select>
                     </div>
                     <div class="mb-3">
