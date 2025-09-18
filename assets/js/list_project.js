@@ -1,13 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Override any alert functions to prevent browser alerts
     window.alert = function(message) {
-        console.log('Alert blocked:', message);
         // Do nothing - no alerts will show
     };
 
     // Override confirm to prevent confirmation dialogs
     window.confirm = function(message) {
-        console.log('Confirm blocked:', message);
         return true; // Always return true
     };
 

@@ -154,9 +154,6 @@ mysql -u root -p -e "CREATE DATABASE ideanest;"
 # Import base schema
 mysql -u root -p ideanest < db/ideanest.sql
 
-# Setup GitHub integration
-mysql -u root -p ideanest < github_integration_update.sql
-
 # Note: Setup scripts have been removed in v3.1 cleanup
 # Database tables are now created automatically on first use
 ```
@@ -283,8 +280,6 @@ IdeaNest/
 ├── includes/                       # Error handlers
 ├── assets/                         # CSS/JS/Images
 ├── db/                            # Database schemas
-├── github_integration_update.sql   # GitHub schema updates
-├── GITHUB_INTEGRATION.md          # GitHub feature documentation
 └── TEST_REPORT.md                 # Comprehensive test report
 ```
 

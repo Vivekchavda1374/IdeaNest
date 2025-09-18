@@ -1,4 +1,5 @@
 <?php
+require_once "../../includes/csrf.php";
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -13,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    $name = trim($_POST['username'] ?? '');
+    $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $enrollment_number = trim($_POST['enrollment_number'] ?? '');
     $gr_number = trim($_POST['gr_number'] ?? '');
@@ -104,24 +105,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <form class="form-section" method="post" autocomplete="off">
         <!-- Error/Success Messages -->
-        <?php if ($error): ?>
+        <?php
+require_once "../../includes/csrf.php"; if ($error): ?>
             <div class="alert alert-error">
                 <i class="fas fa-exclamation-circle"></i>
-                <span><?php echo htmlspecialchars($error); ?></span>
+                <span><?php
+require_once "../../includes/csrf.php"; echo htmlspecialchars($error); ?></span>
             </div>
-        <?php endif; ?>
+        <?php
+require_once "../../includes/csrf.php"; endif; ?>
 
-        <?php if ($success): ?>
+        <?php
+require_once "../../includes/csrf.php"; if ($success): ?>
             <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
-                <span><?php echo $success; ?></span>
+                <span><?php
+require_once "../../includes/csrf.php"; echo $success; ?></span>
             </div>
-        <?php endif; ?>
+        <?php
+require_once "../../includes/csrf.php"; endif; ?>
 
         <!-- Personal Information -->
         <div class="form-row">
             <div class="input-group">
-                <input type="text" id="username" name="username" placeholder="Enter your full name" required autofocus>
+                <input type="text" id="name" name="name" placeholder="Enter your full name" required autofocus>
                 <i class="fas fa-user input-icon"></i>
             </div>
             <div class="input-group">
@@ -178,6 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
+        <?php echo getCSRFField(); ?>
         <button type="submit" class="register-btn">
             <i class="fas fa-user-plus" style="margin-right: 8px;"></i>
             Create Account
