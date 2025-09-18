@@ -5,29 +5,29 @@ include 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     requireCSRF();
-    if (!isset($_POST['er_number'], $_POST['password'])) {
+    if (!isset($_POST['email'], $_POST['password'])) {
         $error_message = "Invalid form submission";
     } else {
         $email = $_POST['email'];
         $password = $_POST['password'];
 
         // Check for admin credentials first
-        if($er_number === "ideanest.ict@gmail.com" && $password === "ideanest133"){
+        if($email === "ideanest.ict@gmail.com" && $password === "ideanest133"){
             // Set admin session variables
             $_SESSION['admin_id'] = 1;
             $_SESSION['user_id'] = 'admin';
-            $_SESSION['er_number'] = $er_number;
+            $_SESSION['er_number'] = $email;
             $_SESSION['user_name'] = 'Administrator';
             $_SESSION['is_admin'] = true;
             $_SESSION['admin_logged_in'] = true;
 
-            header("Location: ../../Admin/admin.php");
+            header("Location: ../../Admin/admin_dashboard.php");
             exit();
         }
 
         // Check for mentor login using email
         $mentor_stmt = $conn->prepare("SELECT id, password, name FROM register WHERE email = ? AND role = 'mentor'");
-        $mentor_stmt->bind_param("s", $er_number);
+        $mentor_stmt->bind_param("s", $email);
         $mentor_stmt->execute();
         $mentor_stmt->store_result();
         
@@ -38,6 +38,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (password_verify($password, $mentor_hashed_password)) {
                 $_SESSION['mentor_id'] = $mentor_id;
                 $_SESSION['mentor_name'] = $mentor_name;
+                $_SESSION['user_id'] = $mentor_id;
+                $_SESSION['er_number'] = $email;
                 header("Location: ../../mentor/dashboard.php");
                 exit();
             } else {
@@ -58,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if (password_verify($password, $hashed_password)) {
                 $_SESSION['user_id'] = $user_id;
-                $_SESSION['er_number'] = $er_number;
+                $_SESSION['er_number'] = $email;
                 $_SESSION['user_name'] = $user_name;
                 $_SESSION['is_admin'] = false;
 
@@ -69,16 +71,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         } else {
             // If not found in register, check subadmins table using email
-            $stmt2 = $conn->prepare("SELECT id, password FROM subadmins WHERE email = ?");
-            $stmt2->bind_param("s", $er_number);
+            $stmt2 = $conn->prepare("SELECT id, password, name FROM subadmins WHERE email = ?");
+            $stmt2->bind_param("s", $email);
             $stmt2->execute();
             $stmt2->store_result();
             if ($stmt2->num_rows > 0) {
-                $stmt2->bind_result($subadmin_id, $subadmin_hashed_password);
+                $stmt2->bind_result($subadmin_id, $subadmin_hashed_password, $subadmin_name);
                 $stmt2->fetch();
                 if (password_verify($password, $subadmin_hashed_password)) {
                     $_SESSION['subadmin_id'] = $subadmin_id;
-                    $_SESSION['subadmin_email'] = $er_number;
+                    $_SESSION['subadmin_email'] = $email;
+                    $_SESSION['subadmin_name'] = $subadmin_name;
                     $_SESSION['subadmin_logged_in'] = true;
                     header("Location: ../../Admin/subadmin/dashboard.php");
                     exit();
@@ -145,10 +148,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <form class="form-section" method="post" autocomplete="off">
         <!-- Error/Success Messages -->
-        <div class="alert alert-error" style="display: none;" id="error-alert">
+        <?php if (isset($error_message)): ?>
+        <div class="alert alert-error" id="error-alert">
             <i class="fas fa-exclamation-circle"></i>
-            <span>Invalid credentials. Please try again.</span>
+            <span><?php echo htmlspecialchars($error_message); ?></span>
         </div>
+        <?php endif; ?>
 
         <div class="alert alert-success" style="display: none;" id="success-alert">
             <i class="fas fa-check-circle"></i>

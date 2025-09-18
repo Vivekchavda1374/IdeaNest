@@ -2,28 +2,36 @@
 session_start();
 require_once '../Login/Login/db.php';
 
+header('Content-Type: application/json');
+
 if (!isset($_SESSION['mentor_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'error' => 'Not authenticated']);
     exit;
 }
 
+$mentor_id = $_SESSION['mentor_id'];
 $input = json_decode(file_get_contents('php://input'), true);
-$session_id = $input['session_id'] ?? null;
-$status = $input['status'] ?? null;
 
-if (!$session_id || !$status) {
-    echo json_encode(['error' => 'Missing required fields']);
+if (!$input || !isset($input['id']) || !isset($input['status'])) {
+    echo json_encode(['success' => false, 'error' => 'Invalid input']);
     exit;
 }
 
 try {
-    $stmt = $conn->prepare("UPDATE mentoring_sessions SET status = ? WHERE id = ?");
-    $stmt->bind_param("si", $status, $session_id);
-    $stmt->execute();
+    $update_query = "UPDATE mentoring_sessions ms 
+                     JOIN mentor_student_pairs msp ON ms.pair_id = msp.id 
+                     SET ms.status = ? 
+                     WHERE ms.id = ? AND msp.mentor_id = ?";
     
-    echo json_encode(['success' => true]);
+    $stmt = $conn->prepare($update_query);
+    $stmt->bind_param("sii", $input['status'], $input['id'], $mentor_id);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Update failed']);
+    }
 } catch (Exception $e) {
-    echo json_encode(['error' => 'Failed to update session']);
+    echo json_encode(['success' => false, 'error' => 'Database error']);
 }
 ?>
