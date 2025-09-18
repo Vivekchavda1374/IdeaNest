@@ -7,6 +7,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 include '../../Login/Login/db.php';
+require_once '../../includes/csrf.php';
 
 // Check if user is logged in, redirect if not
 if (!isset($_SESSION['user_id'])) {
@@ -24,18 +25,19 @@ $messageType = "";
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    requireCSRF();
     try {
         // Get user_id from session - Keep as string to match database expectations
         $user_id = $_SESSION['user_id'];
 
         // Sanitize and validate inputs
-        $project_name = htmlspecialchars(trim($_POST['project_name'] ?? ''));
+        $title = htmlspecialchars(trim($_POST['title'] ?? ''));
         $project_type = in_array($_POST['project_type'] ?? '', ['software', 'hardware']) ? $_POST['project_type'] : '';
         $description = htmlspecialchars(trim($_POST['description'] ?? ''));
         $language = htmlspecialchars(trim($_POST['language'] ?? ''));
 
         // Validate required fields
-        if (empty($project_name)) {
+        if (empty($title)) {
             throw new Exception("Project name is required.");
         }
         if (empty($project_type)) {
@@ -192,7 +194,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param(
                 "ssssssssssssssssssssssssssss", // 28 string parameters
                 $user_id,
-                $project_name,
+                $title,
                 $project_type,
                 $classification,
                 $description,
@@ -648,6 +650,7 @@ if (isset($conn)) {
             </div>
 
             <form action="" method="POST" enctype="multipart/form-data">
+                <?php echo getCSRFField(); ?>
                 <!-- Basic Project Information -->
                 <div class="form-section">
                     <h3><i class="fas fa-info-circle me-2"></i>Basic Information</h3>
@@ -657,9 +660,9 @@ if (isset($conn)) {
                             <label class="form-label">
                                 <i class="fas fa-tag me-2"></i>Project Name <span class="text-danger">*</span>
                             </label>
-                            <input type="text" class="form-control" name="project_name" maxlength="255" required
+                            <input type="text" class="form-control" name="title" maxlength="255" required
                                    placeholder="Enter your innovative project name"
-                                   value="<?php echo isset($_POST['project_name']) ? htmlspecialchars($_POST['project_name']) : ''; ?>">
+                                   value="<?php echo isset($_POST['title']) ? htmlspecialchars($_POST['title']) : ''; ?>">
                         </div>
 
                         <div class="col-md-4 mb-4">

@@ -1,8 +1,11 @@
 <?php
 // Process form submission
 session_start();
+require_once '../../includes/csrf.php';
+require_once '../../includes/validation.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    requireCSRF();
     // Set the timezone
     date_default_timezone_set('Asia/Kolkata');
 
@@ -742,6 +745,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <div class="card-body">
                 <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                    <?php echo getCSRFField(); ?>
                     <!-- Basic Information Section -->
                     <div class="form-section">
                         <div class="form-section-title">
@@ -760,8 +764,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="col-md-6">
                                 <div class="icon-input mb-3">
                                     <i class="fas fa-clipboard"></i>
-                                    <label for="projectName" class="form-label">Project Name</label>
-                                    <input type="text" class="form-control" id="projectName" name="projectName"
+                                    <label for="title" class="form-label">Project Title</label>
+                                    <input type="text" class="form-control" id="title" name="title"
                                         value="<?php echo isset($projectName) ? htmlspecialchars($projectName) : ''; ?>"
                                         placeholder="Enter project name" required>
                                 </div>
@@ -821,9 +825,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
 
                         <div class="mb-3">
-                            <label for="description" class="form-label">Project Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="5"
-                                placeholder="Provide a detailed description of your project..."
+                            <label for="content" class="form-label">Project Content</label>
+                            <textarea class="form-control" id="content" name="content" rows="5"
+                                placeholder="Provide detailed content for your project..."
                                 required><?php echo isset($description) ? htmlspecialchars($description) : ''; ?></textarea>
                         </div>
                     </div>

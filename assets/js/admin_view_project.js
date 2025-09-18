@@ -578,8 +578,7 @@ function showBulkActions(selectedRows) {
     // Create bulk actions modal or toolbar
     if (confirm(message + '\n\nPress OK to continue or Cancel to clear selection.')) {
         // Here you would show bulk actions UI
-        console.log('Show bulk actions for', count, 'projects');
-    } else {
+        } else {
         selectedRows.forEach(row => row.classList.remove('table-active'));
     }
 }
@@ -765,20 +764,18 @@ function loadFilterPreset(name) {
 
 function updateFilterPresetsUI() {
     // Implementation would depend on UI design for filter presets
-    console.log('Filter presets updated');
-}
+    }
 
 // Performance Monitoring
 function initPerformanceMonitoring() {
     // Monitor page load time
     window.addEventListener('load', function() {
         const loadTime = performance.now();
-        console.log(`Page loaded in ${loadTime.toFixed(2)}ms`);
+        }ms`);
 
         // Send to analytics if needed
         if (loadTime > 3000) {
-            console.warn('Page load time is slow:', loadTime);
-        }
+            }
     });
 
     // Monitor table rendering performance
@@ -787,8 +784,7 @@ function initPerformanceMonitoring() {
         const observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                    console.log('Table updated, rows added:', mutation.addedNodes.length);
-                }
+                    }
             });
         });
 
@@ -885,4 +881,3 @@ document.addEventListener('click', function(e) {
     }
 });
 
-console.log('Enhanced Admin Project Management JavaScript loaded successfully');
