@@ -25,6 +25,23 @@ $stmt->bind_param("i", $mentor_id);
 $stmt->execute();
 $students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
+// If no students from mentor_requests, try mentor_student_pairs
+if (empty($students)) {
+    $students_query = "SELECT msp.id, msp.student_id, msp.project_id, msp.paired_at,
+                       r.name, r.email, r.department, r.enrollment_number,
+                       p.project_name, p.classification, p.description,
+                       msp.rating, msp.feedback
+                       FROM mentor_student_pairs msp
+                       JOIN register r ON msp.student_id = r.id 
+                       LEFT JOIN projects p ON msp.project_id = p.id 
+                       WHERE msp.mentor_id = ? AND msp.status = 'active'
+                       ORDER BY msp.paired_at DESC";
+    $stmt = $conn->prepare($students_query);
+    $stmt->bind_param("i", $mentor_id);
+    $stmt->execute();
+    $students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+}
+
 // Get completed students
 $completed_query = "SELECT msp.*, r.name, r.email, r.department,
                     p.project_name, msp.completed_at, msp.rating, msp.feedback
@@ -92,7 +109,7 @@ ob_start();
                                     </div>
                                     
                                     <div class="mt-3 d-flex gap-2">
-                                        <button class="btn btn-sm btn-outline-success" onclick="completePairing(<?= $student['id'] ?>)">
+                                        <button class="btn btn-sm btn-outline-success" onclick="completePairing(<?= $student['id'] ?>, '<?= htmlspecialchars($student['name']) ?>')">
                                             <i class="fas fa-check me-1"></i>Complete
                                         </button>
                                         <button class="btn btn-sm btn-outline-info" onclick="viewProgress(<?= $student['id'] ?>)">
@@ -161,15 +178,125 @@ ob_start();
 </div>
 
 <script>
-function completePairing(pairId) {
-    if (confirm('Complete this mentorship?')) {
-        window.location.href = `complete_pairing.php?pair_id=${pairId}`;
+function completePairing(pairId, studentName) {
+    const modal = `
+        <div class="modal fade" id="completeModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content glass-card">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title">Complete Mentorship - ${studentName}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Rate Student (1-5) *</label>
+                            <div class="rating-stars">
+                                ${[1,2,3,4,5].map(i => `<i class="fas fa-star star-rating" data-rating="${i}"></i>`).join('')}
+                            </div>
+                            <input type="hidden" id="rating" value="5">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Feedback *</label>
+                            <textarea class="form-control" id="feedback" rows="4" placeholder="Share your experience mentoring this student..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-success" onclick="submitCompletion(${pairId})">Complete Mentorship</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modal);
+    const bootstrapModal = new bootstrap.Modal(document.getElementById('completeModal'));
+
+    // Star rating functionality
+    document.querySelectorAll('.star-rating').forEach(star => {
+        star.addEventListener('click', function() {
+            const rating = this.dataset.rating;
+            document.getElementById('rating').value = rating;
+            document.querySelectorAll('.star-rating').forEach((s, index) => {
+                s.classList.toggle('text-warning', index < rating);
+            });
+        });
+    });
+
+    // Set default 5 stars
+    document.querySelectorAll('.star-rating').forEach(star => {
+        star.classList.add('text-warning');
+    });
+
+    bootstrapModal.show();
+
+    // Clean up modal after hiding
+    document.getElementById('completeModal').addEventListener('hidden.bs.modal', function() {
+        this.remove();
+    });
+}
+
+function submitCompletion(pairId) {
+    const rating = document.getElementById('rating').value;
+    const feedback = document.getElementById('feedback').value;
+
+    if (!rating || rating < 1 || rating > 5) {
+        alert('Please select a rating');
+        return;
     }
+
+    if (!feedback.trim()) {
+        alert('Please provide feedback');
+        return;
+    }
+
+    fetch('complete_pairing.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            pair_id: pairId,
+            rating: parseInt(rating),
+            feedback: feedback.trim()
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Mentorship completed successfully!');
+            bootstrap.Modal.getInstance(document.getElementById('completeModal')).hide();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            alert(data.error || 'Failed to complete mentorship');
+        }
+    })
+    .catch(error => {
+        alert('Network error occurred');
+    });
 }
 
 function viewProgress(pairId) {
     window.location.href = `student_progress.php?pair_id=${pairId}`;
 }
+
+// Add CSS for star ratings
+const style = document.createElement('style');
+style.textContent = `
+    .rating-stars {
+        font-size: 1.5rem;
+        margin: 10px 0;
+    }
+    .star-rating {
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s;
+        margin: 0 2px;
+    }
+    .star-rating:hover,
+    .star-rating.text-warning {
+        color: #ffc107 !important;
+    }
+`;
+document.head.appendChild(style);
 </script>
 
 <?php

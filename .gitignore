@@ -1,1 +1,41 @@
+# IDE files
 .idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Dependencies
+vendor/
+node_modules/
+
+# Composer
+composer.phar
+
+# Logs
+logs/*.log
+cron/*.log
+*.log
+
+# Test files
+test_*.php
+*_test.php
+*_backup.php
+setup_*.php
+reset_*.php
+check_*.php
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Cache
+cache/
+tmp/

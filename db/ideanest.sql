@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Sep 17, 2025 at 04:23 PM
+-- Generation Time: Sep 18, 2025 at 08:03 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -101,7 +101,9 @@ CREATE TABLE `admin_logs` (
 --
 
 INSERT INTO `admin_logs` (`id`, `action`, `details`, `admin_id`, `created_at`, `timestamp`) VALUES
-    (1, 'subadmin_removed', 'Removed subadmin: vivek.chavda119486@marwadiuniversity.ac.in (). Reason: remove', NULL, '2025-08-13 16:57:35', '2025-08-13 16:57:35');
+                                                                                                (1, 'subadmin_removed', 'Removed subadmin: vivek.chavda119486@marwadiuniversity.ac.in (). Reason: remove', NULL, '2025-08-13 16:57:35', '2025-08-13 16:57:35'),
+                                                                                                (2, 'mentor_removed', 'Removed mentor: Dr. Sarah Johnson (sarah.mentor@ideanest.com)', 1, '2025-09-17 14:46:24', '2025-09-17 14:46:24'),
+                                                                                                (3, 'mentor_removed', 'Removed mentor: Prof. Mike Chen (mike.mentor@ideanest.com)', 1, '2025-09-17 14:46:27', '2025-09-17 14:46:27');
 
 -- --------------------------------------------------------
 
@@ -510,9 +512,22 @@ CREATE TABLE `mentors` (
 --
 
 INSERT INTO `mentors` (`id`, `user_id`, `specialization`, `experience_years`, `max_students`, `current_students`, `bio`, `linkedin_url`, `github_url`, `created_at`) VALUES
-                                                                                                                                                                         (1, 4, 'AI/ML', 10, 8, 0, 'Passionate about helping students learn AI and ML concepts', 'https://linkedin.com/in/sarahjohnson', 'https://github.com/sarahjohnson', '2025-09-11 17:52:43'),
-                                                                                                                                                                         (2, 5, 'Web Development', 8, 6, 0, 'Experienced full-stack developer mentoring next generation', 'https://linkedin.com/in/mikechen', 'https://github.com/mikechen', '2025-09-11 17:52:43'),
-                                                                                                                                                                         (3, 7, 'General', 1, 1, 0, 'Web Development', '', '', '2025-09-11 18:06:26');
+    (3, 7, 'General', 1, 1, 0, 'Web Development', '', '', '2025-09-11 18:06:26');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mentor_activity_logs`
+--
+
+CREATE TABLE `mentor_activity_logs` (
+                                        `id` int(11) NOT NULL,
+                                        `mentor_id` int(11) NOT NULL,
+                                        `activity_type` varchar(50) NOT NULL,
+                                        `description` text NOT NULL,
+                                        `student_id` int(11) DEFAULT NULL,
+                                        `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -1024,11 +1039,11 @@ CREATE TABLE `register` (
 --
 
 INSERT INTO `register` (`id`, `name`, `email`, `enrollment_number`, `gr_number`, `password`, `about`, `phone_no`, `department`, `passout_year`, `user_image`, `google_id`, `email_notifications`, `last_notification_sent`, `github_token`, `role`, `expertise`, `mentor_rating`, `is_available`) VALUES
-                                                                                                                                                                                                                                                                                                      (1, 'vivek', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$nkrc9MrI8QWIszcw7KbKSOx/YA3G.Wy5IArGvLl7ImnEZAYGUtWSS', 'i am vivek', '9104231590', 'ict', '2026', 'profile_68a6b4d8458ae.png', '116644441139882349952', 0, '2025-09-08 10:11:08', NULL, 'student', NULL, 0.00, 1),
-                                                                                                                                                                                                                                                                                                      (2, 'vivek', 'viveksinhchavda639@gmail.com', '92200133041', '119485', '$2y$10$P0h0EpiNLoBWFxal.Jh4B.iRIzOYC9XL5OpoeBNX02UkmcgJ0j92y', 'hi i am vivek', '9104231590', 'ict', '2026', '', '111579585627734057498', 1, '2025-09-08 12:43:07', NULL, 'student', NULL, 0.00, 1),
-                                                                                                                                                                                                                                                                                                      (4, 'Dr. Sarah Johnson', 'sarah.mentor@ideanest.com', 'MEN001', 'MEN001', '$2y$10$rFfWNO6yrmae6m2PnQuKeeszcPP/Df.iRnx/LIYBOR9iNmhkHRSbu', 'AI/ML Expert with 10 years experience', NULL, 'Computer Science', '2015', '', NULL, 1, NULL, NULL, 'mentor', 'Artificial Intelligence, Machine Learning, Data Science', 0.00, 1),
-                                                                                                                                                                                                                                                                                                      (5, 'Prof. Mike Chen', 'mike.mentor@ideanest.com', 'MEN002', 'MEN002', '$2y$10$example', 'Full-stack developer and IoT specialist', NULL, 'ICT', '2012', '', NULL, 1, NULL, NULL, 'mentor', 'Web Development, IoT, Mobile Apps', 0.00, 1),
-                                                                                                                                                                                                                                                                                                      (7, 'vivek', 'chavdaviveksinh1374@gmail.com', 'MEN336', 'MEN336', '$2y$10$7RWp.DyvvX7Y4ckC2F66LO6iXCpz54bBdjANTOqwuN7iR6UlWVe3a', 'Web Development', NULL, 'Mentor', '2024', '', NULL, 1, NULL, NULL, 'mentor', 'Web Development', 0.00, 1);
+                                                                                                                                                                                                                                                                                                      (1, 'vivek', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'i am vivek', '9104231590', 'ict', '2026', 'profile_68a6b4d8458ae.png', '116644441139882349952', 0, '2025-09-08 10:11:08', NULL, 'student', NULL, 0.00, 1),
+                                                                                                                                                                                                                                                                                                      (2, 'vivek', 'viveksinhchavda639@gmail.com', '92200133041', '119485', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'hi i am vivek', '9104231590', 'ict', '2026', '', '111579585627734057498', 1, '2025-09-08 12:43:07', NULL, 'student', NULL, 0.00, 1),
+                                                                                                                                                                                                                                                                                                      (4, 'Dr. Sarah Johnson', 'sarah.mentor@ideanest.com', 'MEN001', 'MEN001', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'AI/ML Expert with 10 years experience', NULL, 'Computer Science', '2015', '', NULL, 1, NULL, NULL, 'student', 'Artificial Intelligence, Machine Learning, Data Science', 0.00, 1),
+                                                                                                                                                                                                                                                                                                      (5, 'Prof. Mike Chen', 'mike.mentor@ideanest.com', 'MEN002', 'MEN002', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'Full-stack developer and IoT specialist', NULL, 'ICT', '2012', '', NULL, 1, NULL, NULL, 'student', 'Web Development, IoT, Mobile Apps', 0.00, 1),
+                                                                                                                                                                                                                                                                                                      (7, 'vivek', 'chavdaviveksinh1374@gmail.com', 'MEN336', 'MEN336', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'Web Development', NULL, 'Mentor', '2024', '', '109218137896780820209', 1, NULL, NULL, 'mentor', 'Web Development', 0.00, 1);
 
 -- --------------------------------------------------------
 
@@ -1094,8 +1109,8 @@ CREATE TABLE `subadmins` (
 --
 
 INSERT INTO `subadmins` (`id`, `email`, `password`, `name`, `domain`, `profile_complete`, `software_classification`, `hardware_classification`, `status`, `created_at`, `last_login`) VALUES
-                                                                                                                                                                                          (4, 'viveksinhchavda@gmail.com', '$2y$10$Kn3N9aMFNQeUuFTCJzn67unrHmrsQo4bdT.GZAHWzV8tZOZZjkiEy', 'vivek', 'ICT', 1, 'Mobile', 'Internet of Things (IoT)', 'active', '2025-08-13 16:55:57', NULL),
-                                                                                                                                                                                          (6, 'vivek.chavda119486@marwadiuniversity.ac.in', '$2y$10$YKoJ6TCkDssOlHIF6MD4Ie572fpbPRQs2/edSCbl1yyNCERt72wr6', 'vivek', 'ict', 0, 'Web', 'Internet of Things (IoT)', 'active', '2025-08-13 17:06:08', NULL);
+                                                                                                                                                                                          (4, 'viveksinhchavda@gmail.com', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'vivek', 'ICT', 1, 'Mobile', 'Internet of Things (IoT)', 'active', '2025-08-13 16:55:57', NULL),
+                                                                                                                                                                                          (6, 'vivek.chavda119486@marwadiuniversity.ac.in', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'vivek', 'ict', 0, 'Web', 'Internet of Things (IoT)', 'active', '2025-08-13 17:06:08', NULL);
 
 -- --------------------------------------------------------
 
@@ -1227,17 +1242,20 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (1, 'mr07ig97qvcibbdoafliq16fm6', '2025-08-22 05:30:12'),
                                                                                       (2, '036qneuqcmlmb17go2h301l6s3', '2025-09-17 13:26:01'),
                                                                                       (2, '0rs4kauq45f3em8j863qgna23l', '2025-09-01 09:23:06'),
+                                                                                      (2, '12b1lt7j0j9n5sc2q04cu5e5t2', '2025-09-18 04:07:29'),
                                                                                       (2, 'm8qsgh56nuce6ibf33i0e45ec2', '2025-09-06 04:46:37'),
                                                                                       (3, 't19gk6a8s544dspidejpt5rhe1', '2025-08-24 13:10:43'),
                                                                                       (3, 'tojal0944iv6bik11hcismnunk', '2025-08-25 04:24:56'),
                                                                                       (4, '036qneuqcmlmb17go2h301l6s3', '2025-09-17 13:26:01'),
                                                                                       (4, '0rs4kauq45f3em8j863qgna23l', '2025-09-01 09:23:06'),
+                                                                                      (4, '12b1lt7j0j9n5sc2q04cu5e5t2', '2025-09-18 04:07:29'),
                                                                                       (4, 'm8qsgh56nuce6ibf33i0e45ec2', '2025-09-06 04:46:37'),
                                                                                       (5, 't19gk6a8s544dspidejpt5rhe1', '2025-08-24 13:10:43'),
                                                                                       (5, 'tojal0944iv6bik11hcismnunk', '2025-08-25 04:24:56'),
                                                                                       (6, '036qneuqcmlmb17go2h301l6s3', '2025-09-17 13:25:45'),
                                                                                       (6, '0q7k0f10mc625p0tho5fskpv21', '2025-09-08 14:32:13'),
                                                                                       (6, '0rs4kauq45f3em8j863qgna23l', '2025-09-01 08:50:01'),
+                                                                                      (6, '12b1lt7j0j9n5sc2q04cu5e5t2', '2025-09-18 03:56:41'),
                                                                                       (6, '1asmr6k7vqhajeif0ugol6b825', '2025-09-08 03:30:10'),
                                                                                       (6, '7p4ngrvpot69vtv4ranmtqjprf', '2025-09-02 16:39:35'),
                                                                                       (6, 'f2p8bp3d2idnme0b860kkfebj1', '2025-09-03 05:14:04'),
@@ -1276,6 +1294,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (11, '036qneuqcmlmb17go2h301l6s3', '2025-09-17 13:25:45'),
                                                                                       (11, '0q7k0f10mc625p0tho5fskpv21', '2025-09-08 14:32:13'),
                                                                                       (11, '0rs4kauq45f3em8j863qgna23l', '2025-09-01 08:50:01'),
+                                                                                      (11, '12b1lt7j0j9n5sc2q04cu5e5t2', '2025-09-18 03:56:41'),
                                                                                       (11, '1asmr6k7vqhajeif0ugol6b825', '2025-09-08 03:30:10'),
                                                                                       (11, '7p4ngrvpot69vtv4ranmtqjprf', '2025-09-02 16:39:35'),
                                                                                       (11, 'f2p8bp3d2idnme0b860kkfebj1', '2025-09-03 05:14:04'),
@@ -1302,6 +1321,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (14, '036qneuqcmlmb17go2h301l6s3', '2025-09-17 13:25:45'),
                                                                                       (14, '0q7k0f10mc625p0tho5fskpv21', '2025-09-08 14:32:13'),
                                                                                       (14, '0rs4kauq45f3em8j863qgna23l', '2025-09-01 08:50:01'),
+                                                                                      (14, '12b1lt7j0j9n5sc2q04cu5e5t2', '2025-09-18 03:56:41'),
                                                                                       (14, '1asmr6k7vqhajeif0ugol6b825', '2025-09-08 03:30:10'),
                                                                                       (14, '7p4ngrvpot69vtv4ranmtqjprf', '2025-09-02 16:39:35'),
                                                                                       (14, 'f2p8bp3d2idnme0b860kkfebj1', '2025-09-03 05:14:04'),
@@ -1519,6 +1539,14 @@ ALTER TABLE `mentoring_sessions`
 ALTER TABLE `mentors`
     ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `mentor_activity_logs`
+--
+ALTER TABLE `mentor_activity_logs`
+    ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_mentor_activity` (`mentor_id`,`created_at`),
+  ADD KEY `idx_student_activity` (`student_id`,`created_at`);
 
 --
 -- Indexes for table `mentor_email_logs`
@@ -1757,7 +1785,7 @@ ALTER TABLE `admin_approved_projects`
 -- AUTO_INCREMENT for table `admin_logs`
 --
 ALTER TABLE `admin_logs`
-    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `admin_settings`
@@ -1841,6 +1869,12 @@ ALTER TABLE `mentoring_sessions`
 -- AUTO_INCREMENT for table `mentors`
 --
 ALTER TABLE `mentors`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `mentor_activity_logs`
+--
+ALTER TABLE `mentor_activity_logs`
     MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
@@ -1931,7 +1965,7 @@ ALTER TABLE `realtime_notifications`
 -- AUTO_INCREMENT for table `register`
 --
 ALTER TABLE `register`
-    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `removed_user`
@@ -2058,6 +2092,13 @@ ALTER TABLE `mentoring_sessions`
 --
 ALTER TABLE `mentors`
     ADD CONSTRAINT `mentors_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `mentor_activity_logs`
+--
+ALTER TABLE `mentor_activity_logs`
+    ADD CONSTRAINT `mentor_activity_logs_ibfk_1` FOREIGN KEY (`mentor_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `mentor_activity_logs_ibfk_2` FOREIGN KEY (`student_id`) REFERENCES `register` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `mentor_email_logs`

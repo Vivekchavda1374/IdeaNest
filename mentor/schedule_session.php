@@ -28,9 +28,24 @@ if (!$pair_id || !$session_date) {
 }
 
 try {
+    // Get student info for logging
+    $student_query = "SELECT msp.student_id, r.name as student_name FROM mentor_student_pairs msp JOIN register r ON msp.student_id = r.id WHERE msp.id = ?";
+    $student_stmt = $conn->prepare($student_query);
+    $student_stmt->bind_param("i", $pair_id);
+    $student_stmt->execute();
+    $student_info = $student_stmt->get_result()->fetch_assoc();
+    
     $stmt = $conn->prepare("INSERT INTO mentoring_sessions (pair_id, session_date, duration_minutes, notes, meeting_link, status) VALUES (?, ?, ?, ?, ?, 'scheduled')");
     $stmt->bind_param("isiss", $pair_id, $session_date, $duration, $notes, $meeting_link);
     $stmt->execute();
+    
+    // Log activity
+    if ($student_info) {
+        $activity_desc = "Scheduled session with " . $student_info['student_name'] . " for " . date('M j, Y g:i A', strtotime($session_date));
+        $log_stmt = $conn->prepare("INSERT INTO mentor_activity_logs (mentor_id, activity_type, description, student_id, created_at) VALUES (?, 'session_scheduled', ?, ?, NOW())");
+        $log_stmt->bind_param("isi", $_SESSION['mentor_id'], $activity_desc, $student_info['student_id']);
+        $log_stmt->execute();
+    }
     
     echo json_encode(['success' => true]);
 } catch (Exception $e) {
