@@ -209,6 +209,10 @@ function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '')
                     <i class="fas fa-chart-line"></i>
                     Analytics
                 </a>
+                <a class="nav-link" href="activity.php">
+                    <i class="fas fa-history"></i>
+                    Activity Dashboard
+                </a>
                 <div class="nav-section">
                     <small class="text-muted px-3 py-2 d-block">EMAIL SYSTEM</small>
                     <a class="nav-link" href="send_email.php">

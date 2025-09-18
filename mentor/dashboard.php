@@ -78,6 +78,24 @@ try {
     $stmt->bind_param("i", $mentor_id);
     $stmt->execute();
     $active_pairs = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    
+    // If no students from mentor_requests, try mentor_student_pairs
+    if (empty($active_pairs)) {
+        $pairs_query = "SELECT msp.id, msp.student_id, msp.project_id, msp.paired_at,
+                        r.name as student_name, r.email as student_email, r.department,
+                        p.project_name, p.classification, p.description,
+                        0 as total_sessions,
+                        NULL as next_session
+                        FROM mentor_student_pairs msp
+                        JOIN register r ON msp.student_id = r.id 
+                        LEFT JOIN projects p ON msp.project_id = p.id 
+                        WHERE msp.mentor_id = ? AND msp.status = 'active'
+                        ORDER BY msp.paired_at DESC";
+        $stmt = $conn->prepare($pairs_query);
+        $stmt->bind_param("i", $mentor_id);
+        $stmt->execute();
+        $active_pairs = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
 } catch (Exception $e) {
     error_log("Active pairs error: " . $e->getMessage());
     $active_pairs = [];
@@ -108,7 +126,9 @@ try {
 // Get upcoming sessions - using existing table
 $upcoming_sessions = [];
 try {
+    // Try with mentor_student_pairs first
     $upcoming_sessions_query = "SELECT ms.*, r.name as student_name, p.project_name,
+                               ms.session_date, ms.duration_minutes, ms.notes, ms.meeting_link,
                                TIMESTAMPDIFF(HOUR, NOW(), ms.session_date) as hours_until
                                FROM mentoring_sessions ms
                                JOIN mentor_student_pairs msp ON ms.pair_id = msp.id
@@ -123,6 +143,26 @@ try {
     $stmt->bind_param("i", $mentor_id);
     $stmt->execute();
     $upcoming_sessions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    
+    // If no sessions found, try with mentor_requests
+    if (empty($upcoming_sessions)) {
+        $upcoming_sessions_query = "SELECT ms.*, r.name as student_name, p.project_name,
+                                   ms.session_date, ms.duration_minutes, ms.notes, ms.meeting_link,
+                                   TIMESTAMPDIFF(HOUR, NOW(), ms.session_date) as hours_until
+                                   FROM mentoring_sessions ms
+                                   JOIN mentor_requests mr ON ms.pair_id = mr.id
+                                   JOIN register r ON mr.student_id = r.id
+                                   LEFT JOIN projects p ON mr.project_id = p.id
+                                   WHERE mr.mentor_id = ? AND mr.status = 'accepted'
+                                   AND ms.status = 'scheduled' 
+                                   AND ms.session_date >= NOW()
+                                   ORDER BY ms.session_date ASC
+                                   LIMIT 5";
+        $stmt = $conn->prepare($upcoming_sessions_query);
+        $stmt->bind_param("i", $mentor_id);
+        $stmt->execute();
+        $upcoming_sessions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
 } catch (Exception $e) {
     error_log("Upcoming sessions error: " . $e->getMessage());
     $upcoming_sessions = [];
@@ -349,18 +389,49 @@ ob_start();
                         </div>
                     <?php else: ?>
                         <?php foreach (array_slice($upcoming_sessions, 0, 3) as $session): ?>
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="bg-warning rounded-circle p-2 me-3">
-                                    <i class="fas fa-video text-white"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-0 small"><?= htmlspecialchars($session['student_name']) ?></h6>
-                                    <small class="text-muted">
-                                        <?= date('M j, g:i A', strtotime($session['session_date'])) ?>
-                                        <span class="badge bg-light text-dark ms-1">
-                                    <?= $session['hours_until'] ?>h
-                                </span>
-                                    </small>
+                            <div class="glass-card p-3 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="bg-warning rounded-circle p-2 me-3">
+                                        <i class="fas fa-video text-white"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1"><?= htmlspecialchars($session['student_name']) ?></h6>
+                                        <div class="mb-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                <strong>Date & Time:</strong><br>
+                                                <?= date('m/d/Y, H:i', strtotime($session['session_date'])) ?>
+                                            </small>
+                                        </div>
+                                        <div class="mb-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-clock me-1"></i>
+                                                <strong>Duration:</strong><br>
+                                                <?= $session['duration_minutes'] ?? 60 ?> minutes
+                                            </small>
+                                        </div>
+                                        <?php if (!empty($session['notes'])): ?>
+                                        <div class="mb-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-sticky-note me-1"></i>
+                                                <strong>Notes:</strong><br>
+                                                <?= htmlspecialchars(substr($session['notes'], 0, 50)) ?>...
+                                            </small>
+                                        </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($session['meeting_link'])): ?>
+                                        <div class="mb-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-link me-1"></i>
+                                                <strong>Meeting Link:</strong><br>
+                                                <a href="<?= htmlspecialchars($session['meeting_link']) ?>" target="_blank" class="text-primary">Join Meeting</a>
+                                            </small>
+                                        </div>
+                                        <?php endif; ?>
+                                        <span class="badge bg-warning text-dark">
+                                            <?= abs($session['hours_until']) ?>h <?= $session['hours_until'] < 0 ? 'overdue' : 'remaining' ?>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -588,11 +659,19 @@ ob_start();
                     <div class="modal-body">
                         <form id="sessionForm">
                             <div class="mb-3">
-                                <label class="form-label">Date & Time</label>
-                                <input type="datetime-local" class="form-control" id="sessionDate" required>
+                                <label class="form-label">Student *</label>
+                                <select class="form-select" id="studentSelect" disabled>
+                                    <option value="${pairId}">Selected Student</option>
+                                </select>
+                                <small class="text-muted">Student is pre-selected for this session</small>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Duration (minutes)</label>
+                                <label class="form-label">Date & Time *</label>
+                                <input type="datetime-local" class="form-control" id="sessionDate" required>
+                                <small class="text-muted">Format: mm/dd/yyyy, HH:MM</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Duration</label>
                                 <select class="form-select" id="duration">
                                     <option value="30">30 minutes</option>
                                     <option value="60" selected>1 hour</option>
@@ -600,10 +679,14 @@ ob_start();
                                     <option value="120">2 hours</option>
                                 </select>
                             </div>
-
                             <div class="mb-3">
                                 <label class="form-label">Notes</label>
-                                <textarea class="form-control" id="notes" rows="3" placeholder="Session agenda, goals, etc."></textarea>
+                                <textarea class="form-control" id="notes" rows="3" placeholder="Session agenda, topics to discuss..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Meeting Link</label>
+                                <input type="url" class="form-control" id="meetingLink" placeholder="https://meet.google.com/... or https://zoom.us/...">
+                                <small class="text-muted">Optional: Add Google Meet, Zoom, or other meeting link</small>
                             </div>
                         </form>
                     </div>
@@ -637,11 +720,12 @@ ob_start();
                 pair_id: pairId,
                 session_date: document.getElementById('sessionDate').value,
                 duration: document.getElementById('duration').value,
-                notes: document.getElementById('notes').value
+                notes: document.getElementById('notes').value,
+                meeting_link: document.getElementById('meetingLink').value
             };
 
             if (!sessionData.session_date) {
-                showNotification('Please select a date and time', 'warning');
+                alert('Please select a date and time');
                 return;
             }
 
@@ -653,15 +737,15 @@ ob_start();
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showNotification('Session scheduled successfully!', 'success');
+                        alert('Session scheduled successfully!');
                         bootstrap.Modal.getInstance(document.getElementById('scheduleModal')).hide();
                         setTimeout(() => location.reload(), 1500);
                     } else {
-                        showNotification(data.error || 'Failed to schedule session', 'error');
+                        alert(data.error || 'Failed to schedule session');
                     }
                 })
                 .catch(error => {
-                    showNotification('Network error occurred', 'error');
+                    alert('Network error occurred');
                 });
         }
 
@@ -677,15 +761,15 @@ ob_start();
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Rate Student (1-5)</label>
+                            <label class="form-label">Rate Student (1-5) *</label>
                             <div class="rating-stars">
                                 ${[1,2,3,4,5].map(i => `<i class="fas fa-star star-rating" data-rating="${i}"></i>`).join('')}
                             </div>
                             <input type="hidden" id="rating" value="5">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Feedback</label>
-                            <textarea class="form-control" id="feedback" rows="4" placeholder="Share your experience mentoring this student..."></textarea>
+                            <label class="form-label">Feedback *</label>
+                            <textarea class="form-control" id="feedback" rows="4" placeholder="Share your experience mentoring this student..." required></textarea>
                         </div>
                     </div>
                     <div class="modal-footer border-0">
@@ -711,6 +795,11 @@ ob_start();
                 });
             });
 
+            // Set default 5 stars
+            document.querySelectorAll('.star-rating').forEach(star => {
+                star.classList.add('text-warning');
+            });
+
             bootstrapModal.show();
 
             // Clean up modal after hiding
@@ -724,7 +813,12 @@ ob_start();
             const feedback = document.getElementById('feedback').value;
 
             if (!rating || rating < 1 || rating > 5) {
-                showNotification('Please select a rating', 'warning');
+                alert('Please select a rating');
+                return;
+            }
+
+            if (!feedback.trim()) {
+                alert('Please provide feedback');
                 return;
             }
 
@@ -734,21 +828,21 @@ ob_start();
                 body: JSON.stringify({
                     pair_id: pairId,
                     rating: parseInt(rating),
-                    feedback: feedback || ''
+                    feedback: feedback.trim()
                 })
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showNotification('Mentorship completed successfully!', 'success');
+                        alert('Mentorship completed successfully!');
                         bootstrap.Modal.getInstance(document.getElementById('completeModal')).hide();
                         setTimeout(() => location.reload(), 1500);
                     } else {
-                        showNotification(data.error || 'Failed to complete mentorship', 'error');
+                        alert(data.error || 'Failed to complete mentorship');
                     }
                 })
                 .catch(error => {
-                    showNotification('Network error occurred', 'error');
+                    alert('Network error occurred');
                 });
         }
 

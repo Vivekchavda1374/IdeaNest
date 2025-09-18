@@ -108,6 +108,10 @@ if ($is_in_subdirectory) {
                 <i class="fas fa-paper-plane nav-icon"></i>
                 <span class="nav-text">My Requests</span>
             </a>
+            <a href="<?php echo $basePath; ?>mentor_activities.php" class="nav-item <?php echo ($current_page == 'mentor_activities.php') ? 'active' : ''; ?>">
+                <i class="fas fa-history nav-icon"></i>
+                <span class="nav-text">Mentor Activities</span>
+            </a>
         </div>
 
         <div class="nav-section">
