@@ -32,13 +32,37 @@ if (empty($file)) {
 
 // Sanitize file path
 $file = basename($file); // Prevent directory traversal
-$file_path = __DIR__ . '/uploads/instructions/' . $file;
 
-// Validate file exists and is readable
-if (!file_exists($file_path) || !is_readable($file_path)) {
+// Determine the correct file path based on file location
+$possible_paths = [
+    __DIR__ . '/forms/uploads/instructions/' . $file,
+    __DIR__ . '/forms/uploads/presentations/' . $file,
+    __DIR__ . '/forms/uploads/additional/' . $file,
+    __DIR__ . '/forms/uploads/code_files/' . $file,
+    __DIR__ . '/forms/uploads/images/' . $file,
+    __DIR__ . '/forms/uploads/videos/' . $file,
+    __DIR__ . '/uploads/instructions/' . $file,
+    __DIR__ . '/uploads/presentations/' . $file,
+    __DIR__ . '/uploads/additional/' . $file,
+    __DIR__ . '/uploads/code_files/' . $file,
+    __DIR__ . '/uploads/images/' . $file,
+    __DIR__ . '/uploads/videos/' . $file
+];
+
+$file_path = null;
+foreach ($possible_paths as $path) {
+    if (file_exists($path) && is_readable($path)) {
+        $file_path = $path;
+        break;
+    }
+}
+
+if (!$file_path) {
     http_response_code(404);
     die('File not found');
 }
+
+
 
 // Validate file extension
 $allowed_extensions = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'zip', 'rar', 'mp4', 'avi', 'mov'];

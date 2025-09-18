@@ -20,7 +20,7 @@ class DatabaseTest extends UnitTestFramework {
     
     public function testDatabaseConnection() {
         $this->assertTrue($this->conn instanceof mysqli, 'Database connection should be mysqli instance');
-        $this->assertFalse($this->conn->connect_error, 'No connection errors');
+        $this->assertTrue(!$this->conn->connect_error, 'No connection errors');
         return ['message' => 'Database connection successful'];
     }
     
@@ -45,12 +45,16 @@ class DatabaseTest extends UnitTestFramework {
     }
     
     public function testBasicCRUDOperations() {
-        // Test INSERT
-        $stmt = $this->conn->prepare("INSERT INTO register (name, email, password) VALUES (?, ?, ?)");
+        // Test INSERT with required fields
+        $stmt = $this->conn->prepare("INSERT INTO register (name, email, enrollment_number, gr_number, password, about, passout_year) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $name = 'Test User';
         $email = 'test@example.com';
+        $enrollment = 'TEST123';
+        $gr_number = 'GR123';
         $password = 'testpass';
-        $stmt->bind_param("sss", $name, $email, $password);
+        $about = 'Test about';
+        $year = 2024;
+        $stmt->bind_param("ssssssi", $name, $email, $enrollment, $gr_number, $password, $about, $year);
         $this->assertTrue($stmt->execute(), 'INSERT operation should work');
         
         $testId = $this->conn->insert_id;

@@ -5,15 +5,55 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3032b921-7f46-489d-a152-2e01ffa7242f" name="Changes" comment="bookmark working successfully">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/jekyll-gh-pages.yml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/ideanest.sql" beforeDir="false" afterPath="$PROJECT_DIR$/db/ideanest.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mentor/dashboard.php" beforeDir="false" afterPath="$PROJECT_DIR$/mentor/dashboard.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mentor/mentor_layout.php" beforeDir="false" afterPath="$PROJECT_DIR$/mentor/mentor_layout.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mentor/projects.php" beforeDir="false" afterPath="$PROJECT_DIR$/mentor/projects.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mentor/sessions.php" beforeDir="false" afterPath="$PROJECT_DIR$/mentor/sessions.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mentor/students.php" beforeDir="false" afterPath="$PROJECT_DIR$/mentor/students.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup_notifications.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/layout.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/layout.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.phpunit.result.cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/add_meeting_link.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/list_project.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/list_project.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.phar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/create_sessions_table.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_tests.php" beforeDir="false" afterPath="$PROJECT_DIR$/run_tests.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup_github_integration.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup_mentor_email_system.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup_mentor_request_system.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/start_xampp.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_github.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/DatabaseTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/DatabaseTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/ValidationTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/ValidationTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/Blog/form.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/Blog/form.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/all_projects.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/all_projects.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/bookmark.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/bookmark.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/download.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/download.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/forms/new_project_add.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/new_project_add.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/search.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/search.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/uploads/.htaccess" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/uploads/images/.htaccess" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/user_profile_setting.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/user_profile_setting.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/NotificationService.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/.package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/browser.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/lib/buffer-util.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/lib/constants.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/lib/event-target.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/lib/extension.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/lib/limiter.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/lib/permessage-deflate.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/lib/receiver.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/lib/sender.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/lib/stream.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/lib/subprotocol.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/lib/validation.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/lib/websocket-server.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/lib/websocket.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/node_modules/ws/wrapper.mjs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/websocket/server.php" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,17 +83,17 @@
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {}
 }</component>
-  <component name="GitHubPullRequestState"><![CDATA[{
-  "prStates": [
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
     {
-      "id": {
-        "id": "PR_kwDON_u_tc6pE3Kf",
-        "number": 47
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDON_u_tc6pE3Kf&quot;,
+        &quot;number&quot;: 47
       },
-      "lastSeen": 1758116570238
+      &quot;lastSeen&quot;: 1758116570238
     }
   ]
-}]]></component>
+}</component>
   <component name="GitToolBoxStore">
     <option name="recentBranches">
       <RecentBranches>
@@ -79,22 +119,22 @@
       </RecentBranches>
     </option>
   </component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Vivekchavda1374/IdeaNest.git",
-    "accountId": "e6c95b80-6b0a-4f54-b6ae-9bda7334d4d8"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Vivekchavda1374/IdeaNest.git&quot;,
+    &quot;accountId&quot;: &quot;e6c95b80-6b0a-4f54-b6ae-9bda7334d4d8&quot;
   },
-  "recentNewPullRequestHead": {
-    "server": {
-      "useHttp": false,
-      "host": "github.com",
-      "port": null,
-      "suffix": null
+  &quot;recentNewPullRequestHead&quot;: {
+    &quot;server&quot;: {
+      &quot;useHttp&quot;: false,
+      &quot;host&quot;: &quot;github.com&quot;,
+      &quot;port&quot;: null,
+      &quot;suffix&quot;: null
     },
-    "owner": "Vivekchavda1374",
-    "repository": "IdeaNest"
+    &quot;owner&quot;: &quot;Vivekchavda1374&quot;,
+    &quot;repository&quot;: &quot;IdeaNest&quot;
   }
-}]]></component>
+}</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/assets/css/index.css" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/user/forms/uploads/.htaccess" root0="SKIP_INSPECTION" />
@@ -131,7 +171,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "SHELLCHECK.PATH": "I do mind",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#47 on dev",
+    "git-widget-placeholder": "dev",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "/opt/lampp/htdocs/IdeaNest",
@@ -288,7 +328,8 @@
       <workItem from="1758087521340" duration="91000" />
       <workItem from="1758089883182" duration="1134000" />
       <workItem from="1758091680520" duration="2966000" />
-      <workItem from="1758113428446" duration="3882000" />
+      <workItem from="1758113428446" duration="7643000" />
+      <workItem from="1758167604758" duration="3258000" />
     </task>
     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
       <option name="closed" value="true" />
