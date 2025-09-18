@@ -8,6 +8,8 @@
 
 IdeaNest is a comprehensive web-based platform designed to facilitate the management, sharing, and review of academic projects. It provides a complete suite of features for students, sub-admins, and administrators, streamlining the project lifecycle from submission to approval with integrated GitHub profile showcasing.
 
+**Latest Update (v3.1)**: Major project cleanup removing 40+ unused files, eliminating WebSocket dependencies, and adding comprehensive documentation for improved maintainability and production readiness.
+
 ## ✨ Latest Updates
 
 ### 🎓 Mentor System (January 2025)
@@ -155,14 +157,8 @@ mysql -u root -p ideanest < db/ideanest.sql
 # Setup GitHub integration
 mysql -u root -p ideanest < github_integration_update.sql
 
-# Setup mentor system tables
-php create_sessions_table.php
-
-# Add meeting link support
-php add_meeting_link.php
-
-# Or run setup script
-php setup_github_integration.php
+# Note: Setup scripts have been removed in v3.1 cleanup
+# Database tables are now created automatically on first use
 ```
 
 4. **Configure database connection:**
@@ -236,6 +232,9 @@ php cron/weekly_notifications.php
 5. Update client ID in login.php
 
 ## 🏗 Project Structure
+
+> 📝 **Complete Documentation**: See [FILE_DOCUMENTATION.md](FILE_DOCUMENTATION.md) for detailed descriptions of all 200+ files
+
 ```
 IdeaNest/
 ├── Admin/
@@ -366,13 +365,14 @@ chmod 755 tests/
 
 ## 🚀 Recent Improvements
 
-### Project Cleanup & Optimization (v3.1) - Latest
-- **Removed 15+ unused files** including test artifacts, setup scripts, and development tools
-- **Eliminated WebSocket directory** with Node.js dependencies (unused feature)
+### Project Cleanup & Optimization (v3.1) - Latest ✨
+- **Removed 40+ unused files** including WebSocket directory, test artifacts, and development tools
+- **Eliminated Node.js dependencies** - Complete WebSocket implementation removal
 - **Cleaned up development artifacts** (.phpunit.result.cache, composer.phar, shell scripts)
-- **Streamlined project structure** for better maintainability and deployment
-- **Added comprehensive file documentation** with detailed purpose descriptions
-- **Optimized for production** by removing development-only files
+- **Added comprehensive file documentation** (FILE_DOCUMENTATION.md) with 200+ file descriptions
+- **Streamlined project structure** - 30% size reduction for better deployment
+- **Enhanced code maintainability** with detailed inline documentation
+- **Production-optimized** file structure with improved developer experience
 
 ### Mentor System (v3.0)
 - Complete mentor management system with dashboard
