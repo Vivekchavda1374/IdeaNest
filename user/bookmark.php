@@ -106,37 +106,49 @@ if (!$result) {
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         
+    <link rel="stylesheet" href="../assets/css/index.css">
        <style>
-           /* Purple & White Theme CSS for Bookmark Page */
            :root {
                --primary-color: #6366f1;
                --secondary-color: #8b5cf6;
-               --accent-color: #a855f7;
-               --light-purple: #f8fafc;
-               --dark-purple: #4c1d95;
-               --success-color: #10b981;
+               --accent-color: #10b981;
                --warning-color: #f59e0b;
                --danger-color: #ef4444;
-               --text-primary: #1f2937;
-               --text-secondary: #6b7280;
-               --border-color: #e5e7eb;
-               --shadow-light: 0 1px 3px rgba(99, 102, 241, 0.1);
-               --shadow-medium: 0 4px 6px rgba(99, 102, 241, 0.1);
-               --shadow-heavy: 0 10px 25px rgba(99, 102, 241, 0.15);
+               --info-color: #06b6d4;
+               --success-color: #10b981;
+               --dark-color: #1e293b;
+               --light-color: #f8fafc;
+               --border-color: #e2e8f0;
+               --text-primary: #1e293b;
+               --text-secondary: #64748b;
+               --text-muted: #94a3b8;
+               --bg-primary: #ffffff;
+               --bg-secondary: #f8fafc;
+               --bg-tertiary: #f1f5f9;
+               --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+               --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+               --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+               --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+               --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+               --gradient-accent: linear-gradient(135deg, var(--accent-color), #34d399);
+               --gradient-warm: linear-gradient(135deg, var(--warning-color), #fbbf24);
            }
 
            body {
-               background: #ffffff;
-               font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+               font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+               background: var(--bg-secondary);
                color: var(--text-primary);
-               margin-left: 280px; /* Account for sidebar */
+               line-height: 1.6;
+               font-size: 14px;
+               overflow-x: hidden;
            }
 
-           /* Main Content */
            .main-content {
+               margin-left: 280px;
                padding: 2rem;
                min-height: 100vh;
-               background: #ffffff;
+               background: var(--bg-secondary);
+               transition: margin-left 0.3s ease;
            }
 
            .bookmark-container {
@@ -144,17 +156,16 @@ if (!$result) {
                margin: 0 auto;
            }
 
-           /* Bookmark Header */
            .bookmark-header {
-               background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+               background: var(--gradient-primary);
                color: white;
                padding: 3rem 2rem;
-               border-radius: 16px;
+               border-radius: 1.5rem;
                margin-bottom: 2rem;
                text-align: center;
                position: relative;
                overflow: hidden;
-               box-shadow: var(--shadow-heavy);
+               box-shadow: var(--shadow-xl);
            }
 
            .bookmark-header::before {
@@ -216,37 +227,52 @@ if (!$result) {
                letter-spacing: 0.5px;
            }
 
-           /* Project Cards */
            .project-card {
-               background: white;
-               border-radius: 16px;
-               box-shadow: var(--shadow-medium);
-               transition: all 0.3s ease;
+               background: var(--bg-primary);
+               border-radius: 1.25rem;
+               box-shadow: var(--shadow-md);
+               transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                position: relative;
                overflow: hidden;
                border: 1px solid var(--border-color);
            }
 
+           .project-card::before {
+               content: '';
+               position: absolute;
+               top: 0;
+               left: 0;
+               right: 0;
+               height: 4px;
+               background: var(--gradient-primary);
+               opacity: 0;
+               transition: opacity 0.3s ease;
+           }
+
            .project-card:hover {
-               transform: translateY(-4px);
-               box-shadow: var(--shadow-heavy);
+               transform: translateY(-8px);
+               box-shadow: var(--shadow-xl);
+           }
+
+           .project-card:hover::before {
+               opacity: 1;
            }
 
            .bookmark-icon {
                position: absolute;
                top: 1rem;
                right: 1rem;
-               background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+               background: var(--gradient-primary);
                color: white;
-               width: 40px;
-               height: 40px;
+               width: 45px;
+               height: 45px;
                border-radius: 50%;
                display: flex;
                align-items: center;
                justify-content: center;
-               font-size: 1rem;
+               font-size: 1.1rem;
                z-index: 10;
-               box-shadow: var(--shadow-light);
+               box-shadow: var(--shadow-md);
            }
 
            .project-type-badge {
@@ -325,16 +351,16 @@ if (!$result) {
            }
 
            .btn-primary-modern {
-               background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+               background: var(--gradient-primary);
                color: white;
                flex: 1;
                justify-content: center;
            }
 
            .btn-primary-modern:hover {
-               background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+               background: linear-gradient(135deg, #5b21b6, #7c3aed);
                transform: translateY(-2px);
-               box-shadow: var(--shadow-medium);
+               box-shadow: var(--shadow-md);
                color: white;
            }
 
@@ -355,13 +381,12 @@ if (!$result) {
                transform: translateY(-2px);
            }
 
-           /* Empty State */
            .empty-state {
                text-align: center;
-               padding: 4rem 2rem;
-               background: white;
-               border-radius: 16px;
-               box-shadow: var(--shadow-light);
+               padding: 5rem 2rem;
+               background: var(--bg-primary);
+               border-radius: 1.5rem;
+               box-shadow: var(--shadow-lg);
                border: 1px solid var(--border-color);
            }
 
@@ -389,23 +414,23 @@ if (!$result) {
            }
 
            .btn-explore {
-               background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+               background: var(--gradient-primary);
                color: white;
                padding: 1rem 2rem;
-               border-radius: 12px;
+               border-radius: 0.75rem;
                text-decoration: none;
                font-weight: 600;
                display: inline-flex;
                align-items: center;
-               gap: 0.5rem;
-               transition: all 0.3s ease;
-               box-shadow: var(--shadow-light);
+               gap: 0.75rem;
+               transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+               box-shadow: var(--shadow-md);
            }
 
            .btn-explore:hover {
-               background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
-               transform: translateY(-2px);
-               box-shadow: var(--shadow-medium);
+               background: linear-gradient(135deg, #5b21b6, #7c3aed);
+               transform: translateY(-3px);
+               box-shadow: var(--shadow-lg);
                color: white;
            }
 
@@ -709,13 +734,9 @@ if (!$result) {
 
            /* Responsive Design */
            @media (max-width: 1024px) {
-               body {
-                   margin-left: 0;
-               }
-
                .main-content {
-                   padding: 1rem;
-                   margin-top: 4rem; /* Account for mobile menu */
+                   margin-left: 0;
+                   padding: 1.5rem;
                }
            }
 
@@ -1081,9 +1102,9 @@ if (!$result) {
             <div class="detail-section">
                 <h6><i class="fas fa-files"></i>Project Files</h6>
                 <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                    ${project.video_path ? `<a href="${project.video_path}" class="file-link" target="_blank"><i class="fas fa-video"></i>Video</a>` : ''}
-                    ${project.code_file_path ? `<a href="${project.code_file_path}" class="file-link" target="_blank"><i class="fas fa-code"></i>Source Code</a>` : ''}
-                    ${project.instruction_file_path ? `<a href="${project.instruction_file_path}" class="file-link" target="_blank"><i class="fas fa-file-pdf"></i>Instructions</a>` : ''}
+                    ${project.video_path ? `<a href="download.php?file=${encodeURIComponent(project.video_path.split('/').pop())}" class="file-link" target="_blank"><i class="fas fa-video"></i>Video</a>` : ''}
+                    ${project.code_file_path ? `<a href="download.php?file=${encodeURIComponent(project.code_file_path.split('/').pop())}" class="file-link" target="_blank"><i class="fas fa-code"></i>Source Code</a>` : ''}
+                    ${project.instruction_file_path ? `<a href="download.php?file=${encodeURIComponent(project.instruction_file_path.split('/').pop())}" class="file-link" target="_blank"><i class="fas fa-file-pdf"></i>Instructions</a>` : ''}
                 </div>
             </div>
             ` : ''}

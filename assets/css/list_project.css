@@ -183,8 +183,9 @@ body {
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 1.5rem;
+    gap: 2rem;
     margin-bottom: 2rem;
+    padding: 0.5rem;
 }
 
 .project-card {
@@ -196,6 +197,7 @@ body {
     border: 1px solid rgba(139, 92, 246, 0.1);
     position: relative;
     overflow: hidden;
+    margin-bottom: 1rem;
 }
 
 .project-card:hover {
@@ -391,6 +393,7 @@ body {
 
     .projects-grid {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
 
     .stats-container {
@@ -408,8 +411,14 @@ body {
         grid-template-columns: 1fr;
     }
 
+    .projects-grid {
+        gap: 1rem;
+        padding: 0;
+    }
+
     .project-card {
         padding: 1rem;
+        margin-bottom: 0.5rem;
     }
 }
 
