@@ -1,12 +1,14 @@
 <?php
+require_once "../../includes/csrf.php";
 session_start();
 include 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    requireCSRF();
     if (!isset($_POST['er_number'], $_POST['password'])) {
         $error_message = "Invalid form submission";
     } else {
-        $er_number = $_POST['er_number'];
+        $email = $_POST['email'];
         $password = $_POST['password'];
 
         // Check for admin credentials first
@@ -45,8 +47,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mentor_stmt->close();
 
         // If not mentor, proceed with regular user login
-        $stmt = $conn->prepare("SELECT id, password, name FROM register WHERE enrollment_number = ? ");
-        $stmt->bind_param("s", $er_number);
+        $stmt = $conn->prepare("SELECT id, password, name FROM register WHERE email = ? OR enrollment_number = ? ");
+        $stmt->bind_param("ss", $email, $email);
         $stmt->execute();
         $stmt->store_result();
 
@@ -154,7 +156,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <div class="input-group">
-            <input type="text" id="er_number" name="er_number" placeholder="Enter your ER number or Email" required autofocus>
+            <input type="text" id="email" name="email" placeholder="Enter your ER number or Email" required autofocus>
             <i class="fas fa-user input-icon"></i>
         </div>
 
@@ -167,6 +169,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <a href="forgot_password.php">Forgot Password?</a>
         </div>
 
+        <?php echo getCSRFField(); ?>
         <button type="submit" class="login-btn">
             <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
             Sign In
