@@ -486,51 +486,90 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/index.css">
     <style>
         :root {
-            --primary-purple: #8b5cf6;
-            --secondary-purple: #a78bfa;
-            --dark-purple: #6d28d9;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --success-color: #198754;
-            --info-color: #0dcaf0;
-            --gray-100: #f8f9fa;
-            --gray-200: #e9ecef;
-            --gray-300: #dee2e6;
-            --gray-400: #ced4da;
-            --gray-500: #6c757d;
-            --gray-600: #495057;
-            --gray-700: #343a40;
-            --gray-800: #212529;
-            --gray-900: #212529;
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --accent-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #06b6d4;
+            --success-color: #10b981;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            --gradient-accent: linear-gradient(135deg, var(--accent-color), #34d399);
+            --gradient-warm: linear-gradient(135deg, var(--warning-color), #fbbf24);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
             line-height: 1.6;
+            font-size: 14px;
+            overflow-x: hidden;
         }
 
         .main-content {
+            margin-left: 280px;
             padding: 2rem;
-            margin-left: 250px;
             min-height: 100vh;
+            background: var(--bg-secondary);
+            transition: margin-left 0.3s ease;
         }
 
         .projects-header {
-            background: linear-gradient(135deg, var(--primary-purple), var(--secondary-purple));
+            background: var(--gradient-primary);
             color: white;
-            padding: 2rem;
-            border-radius: 1rem;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.25);
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .projects-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
         }
 
         .projects-header h2 {
             margin: 0;
             font-weight: 700;
-            font-size: 2rem;
+            font-size: 2.25rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .projects-header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
         }
 
         .fade-in-up {
@@ -561,27 +600,32 @@ $current_page = basename($_SERVER['PHP_SELF']);
         .filter-btn {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: #ffffff;
-            border: 2px solid #f1f5f9;
-            border-radius: 0.75rem;
+            gap: 0.75rem;
+            padding: 1rem 1.75rem;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 1rem;
             text-decoration: none;
-            color: #1e293b;
-            transition: all 0.3s ease;
-            font-weight: 500;
+            color: var(--text-primary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: var(--shadow-sm);
         }
 
         .filter-btn:hover {
-            border-color: var(--primary-purple);
-            color: var(--primary-purple);
-            transform: translateY(-2px);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
         }
 
         .filter-btn.active {
-            background: var(--primary-purple);
-            border-color: var(--primary-purple);
+            background: var(--gradient-primary);
+            border-color: var(--primary-color);
             color: white;
+            box-shadow: var(--shadow-lg);
         }
 
         .filter-btn-count {
@@ -593,34 +637,54 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .filter-form {
-            background: #ffffff;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.08);
+            background: var(--bg-primary);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow-lg);
             margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
         }
 
         .projects-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1rem;
+            gap: 2rem;
             margin-bottom: 2rem;
+            padding: 0.5rem;
         }
 
         .project-card {
-            background: #ffffff;
-            border-radius: 1rem;
+            background: var(--bg-primary);
+            border-radius: 1.25rem;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.08);
-            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             display: flex;
             flex-direction: column;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .project-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.25);
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .project-card:hover::before {
+            opacity: 1;
         }
 
         .project-card-content {
@@ -633,10 +697,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #1e293b;
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            line-height: 1.3;
         }
 
         .badge-owner {
@@ -656,20 +721,27 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .project-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.8rem;
-            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .project-badge:hover {
+            transform: translateY(-1px);
         }
 
         .badge-classification {
-            background: #e0f2fe;
-            color: #01579b;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(14, 165, 233, 0.1));
+            color: var(--info-color);
+            border: 1px solid rgba(6, 182, 212, 0.2);
         }
 
         .badge-type {
-            background: #f3e5f5;
-            color: #4a148c;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+            color: var(--secondary-color);
+            border: 1px solid rgba(139, 92, 246, 0.2);
         }
 
         .social-stats {
@@ -704,61 +776,76 @@ $current_page = basename($_SERVER['PHP_SELF']);
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border: 1px solid #f1f5f9;
-            background: #ffffff;
-            border-radius: 0.5rem;
-            color: #64748b;
-            transition: all 0.3s ease;
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--border-color);
+            background: var(--bg-primary);
+            border-radius: 0.75rem;
+            color: var(--text-secondary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.9rem;
+            font-weight: 500;
             cursor: pointer;
+            text-decoration: none;
         }
 
         .action-btn:hover {
-            border-color: var(--primary-purple);
-            color: var(--primary-purple);
-            transform: translateY(-1px);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
         }
 
         .like-btn.liked {
-            background: #ffe6e6;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.1));
             border-color: var(--danger-color);
             color: var(--danger-color);
         }
 
         .bookmark-btn.bookmarked {
-            background: #fff3cd;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1));
             border-color: var(--warning-color);
-            color: #856404;
+            color: var(--warning-color);
         }
 
         .project-side-panel {
-            background: #f8fafc;
-            padding: 1rem;
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
-            min-width: 80px;
+            gap: 0.75rem;
+            min-width: 90px;
+            border-left: 1px solid var(--border-color);
         }
 
         .project-icon {
-            font-size: 2rem;
-            color: var(--primary-purple);
+            font-size: 2.25rem;
+            color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .project-status {
             font-size: 0.8rem;
             color: var(--success-color);
-            font-weight: 500;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .empty-state {
             text-align: center;
-            padding: 4rem 2rem;
-            background: #ffffff;
-            border-radius: 1rem;
-            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.08);
+            padding: 5rem 2rem;
+            background: var(--bg-primary);
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
         }
 
         .empty-state-icon {
@@ -768,10 +855,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .pagination-container {
-            background: #ffffff;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.08);
+            background: var(--bg-primary);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
         }
 
         .pagination-stats {
@@ -785,9 +873,21 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .modal-header {
-            background: linear-gradient(135deg, var(--primary-purple), var(--secondary-purple));
+            background: var(--gradient-primary);
             color: white;
             border-bottom: none;
+            position: relative;
+        }
+
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
         }
 
         .modal-footer {
@@ -807,10 +907,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .detail-card {
-            background: #f8fafc;
-            border-radius: 0.75rem;
-            padding: 1.25rem;
-            border-left: 4px solid var(--primary-purple);
+            background: var(--bg-tertiary);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .detail-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
         .detail-card h6 {
@@ -844,19 +951,21 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .project-description {
-            background: #ffffff;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
+            background: var(--bg-primary);
+            border-radius: 1rem;
+            padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.08);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
         }
 
         .project-goals, .challenges-section, .enhancements-section {
-            background: #ffffff;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
+            background: var(--bg-primary);
+            border-radius: 1rem;
+            padding: 2rem;
             margin-bottom: 1.5rem;
-            border: 1px solid rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
         }
 
         .section-title {
@@ -872,32 +981,42 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .section-title i {
-            color: var(--dark-purple);
-            font-size: 1.2rem;
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .file-downloads {
-            background: #ffffff;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
+            background: var(--bg-primary);
+            border-radius: 1rem;
+            padding: 2rem;
             margin-bottom: 1.5rem;
-            border: 1px solid rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
         }
 
         .file-item {
             display: flex;
             align-items: center;
-            justify-content: between;
-            padding: 0.75rem;
-            background: #f8fafc;
-            border-radius: 0.5rem;
-            margin-bottom: 0.5rem;
-            transition: all 0.3s ease;
+            justify-content: space-between;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-color);
         }
 
         .file-item:hover {
-            background: #f1f5f9;
-            transform: translateX(5px);
+            background: var(--bg-secondary);
+            transform: translateX(8px);
+            box-shadow: var(--shadow-md);
         }
 
         .file-info {
@@ -908,8 +1027,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .file-icon {
-            font-size: 1.5rem;
-            color: var(--primary-purple);
+            font-size: 1.75rem;
+            color: var(--primary-color);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .file-details h6 {
@@ -926,72 +1052,85 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .download-btn {
-            background: var(--primary-purple);
+            background: var(--gradient-primary);
             color: white;
             border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.8rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            box-shadow: var(--shadow-sm);
         }
 
         .download-btn:hover {
-            background: var(--dark-purple);
+            background: linear-gradient(135deg, #5b21b6, #7c3aed);
             color: white;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
         .social-links {
-            background: #ffffff;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
+            background: var(--bg-primary);
+            border-radius: 1rem;
+            padding: 2rem;
             margin-bottom: 1.5rem;
-            border: 1px solid rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
         }
 
         .social-link-item {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: #f8fafc;
+            gap: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-tertiary);
             border-radius: 2rem;
-            margin: 0.25rem;
-            color: #475569;
+            margin: 0.5rem;
+            color: var(--text-secondary);
             text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-color);
         }
 
         .social-link-item:hover {
-            background: var(--primary-purple);
+            background: var(--gradient-primary);
             color: white;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
         }
 
         .keywords-section {
-            background: #ffffff;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
+            background: var(--bg-primary);
+            border-radius: 1rem;
+            padding: 2rem;
             margin-bottom: 1.5rem;
-            border: 1px solid rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
         }
 
         .keyword-tag {
             display: inline-block;
-            background: linear-gradient(45deg, var(--primary-purple), var(--secondary-purple));
+            background: var(--gradient-primary);
             color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.8rem;
-            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
             margin: 0.25rem;
-            box-shadow: 0 2px 4px rgba(139, 92, 246, 0.25);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .keyword-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
         .difficulty-badge {
@@ -1030,17 +1169,23 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .comment-item {
-            border: 1px solid #f1f5f9;
-            border-radius: 0.75rem;
-            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
             margin-bottom: 1rem;
-            background: #ffffff;
+            background: var(--bg-primary);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .comment-item:hover {
+            box-shadow: var(--shadow-md);
         }
 
         .reply-comment {
             margin-left: 2rem;
-            border-left: 3px solid var(--primary-purple);
-            background: #f8fafc;
+            border-left: 4px solid var(--primary-color);
+            background: var(--bg-tertiary);
         }
 
         .comment-header {
@@ -1054,16 +1199,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .comment-avatar {
-            width: 2.5rem;
-            height: 2.5rem;
-            background: var(--primary-purple);
+            width: 3rem;
+            height: 3rem;
+            background: var(--gradient-primary);
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            font-size: 1rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow-sm);
         }
 
         .comment-username {
@@ -1146,10 +1292,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .comment-form {
-            background: #f8fafc;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
+            background: var(--bg-tertiary);
+            padding: 2rem;
+            border-radius: 1rem;
             margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
         }
 
         .comments-header {
@@ -1171,11 +1319,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .project-meta-info {
-            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+            border-radius: 1rem;
+            padding: 2rem;
             margin-bottom: 2rem;
-            border: 1px solid rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
         }
 
         .meta-stats {
@@ -1186,16 +1335,23 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         .meta-stat {
-            background: #ffffff;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 4px rgba(139, 92, 246, 0.08);
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .meta-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
         .meta-stat-number {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-purple);
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--primary-color);
             display: block;
         }
 
@@ -1212,14 +1368,29 @@ $current_page = basename($_SERVER['PHP_SELF']);
             line-height: 1.6;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .main-content {
                 margin-left: 0;
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
                 padding: 1rem;
+            }
+
+            .projects-header {
+                padding: 2rem;
+            }
+
+            .projects-header h2 {
+                font-size: 1.75rem;
             }
 
             .projects-list {
                 grid-template-columns: 1fr;
+                gap: 1.5rem;
             }
 
             .filter-btn-group {
@@ -1236,6 +1407,28 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
             .meta-stats {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filter-form {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .projects-header {
+                padding: 1.5rem;
+            }
+
+            .projects-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .filter-form {
+                padding: 1rem;
+            }
+
+            .project-card-content {
+                padding: 1rem;
             }
         }
     </style>
@@ -1669,7 +1862,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                         <p><?php echo basename($file['path']); ?></p>
                                                     </div>
                                                 </div>
-                                                <a href="<?php echo htmlspecialchars($file['path']); ?>"
+                                                <a href="download.php?file=<?php echo urlencode(basename($file['path'])); ?>"
                                                    target="_blank" class="download-btn">
                                                     <i class="fas fa-download"></i>
                                                     Download
