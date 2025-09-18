@@ -1,25 +1,16 @@
 // Fixed Sidebar JavaScript for All Projects
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Sidebar script loaded');
-
     // Get elements
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
     const body = document.body;
 
-    console.log('Elements found:', {
-        mobileMenuToggle: !!mobileMenuToggle,
-        sidebar: !!sidebar,
-        overlay: !!overlay
-    });
-
     // Function to open sidebar
     function openSidebar() {
         if (sidebar) {
             sidebar.classList.add('open');
-            console.log('Sidebar opened');
-        }
+            }
         if (overlay) {
             overlay.classList.add('active');
         }
@@ -38,8 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function closeSidebar() {
         if (sidebar) {
             sidebar.classList.remove('open');
-            console.log('Sidebar closed');
-        }
+            }
         if (overlay) {
             overlay.classList.remove('active');
         }
@@ -68,7 +58,6 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileMenuToggle.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Mobile menu toggle clicked');
             toggleSidebar();
         });
     }
@@ -76,7 +65,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Overlay click event to close sidebar
     if (overlay) {
         overlay.addEventListener('click', function() {
-            console.log('Overlay clicked');
             closeSidebar();
         });
     }
@@ -89,7 +77,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Check if click is outside sidebar and toggle button
                 if (!sidebar.contains(event.target) &&
                     !mobileMenuToggle.contains(event.target)) {
-                    console.log('Clicked outside sidebar');
                     closeSidebar();
                 }
             }
@@ -109,7 +96,6 @@ document.addEventListener('DOMContentLoaded', function() {
         item.addEventListener('click', function(e) {
             // Only close on mobile/tablet
             if (window.innerWidth <= 1024) {
-                console.log('Nav item clicked on mobile');
                 // Small delay to allow navigation to start
                 setTimeout(() => {
                     closeSidebar();
@@ -154,9 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Debug function to test sidebar
     window.testSidebar = function() {
-        console.log('Testing sidebar...');
         toggleSidebar();
     };
 
-    console.log('Sidebar JavaScript initialized successfully');
-});
+    });
