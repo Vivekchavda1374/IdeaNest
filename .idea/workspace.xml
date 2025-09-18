@@ -8,11 +8,38 @@
       <change beforePath="$PROJECT_DIR$/.github/workflows/jekyll-gh-pages.yml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.phpunit.result.cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/FILE_DOCUMENTATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/FILE_DOCUMENTATION.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Login/Login/login.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/login.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Login/Login/register.php" beforeDir="false" afterPath="$PROJECT_DIR$/Login/Login/register.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/add_meeting_link.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/admin_view_project.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/admin_view_project.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/assigned_projects.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/assigned_projects.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/bookmark.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/bookmark.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/edit_idea.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/edit_idea.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/form_idea.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/form_idea.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/layout_user.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/layout_user.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/css/list_project.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/list_project.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/login.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/login.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/new_project_add.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/new_project_add.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/notification_toggle.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/notification_toggle.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/project_approvel.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/project_approvel.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/project_details.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/project_details.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/register.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/register.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/setting.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/setting.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/sidebar_admin.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/sidebar_admin.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/sidebar_subadmin.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/sidebar_subadmin.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/subadmin_dashboard.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/subadmin_dashboard.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/support_subadmin.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/support_subadmin.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/user_manage_by_admin.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/user_manage_by_admin.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/css/user_profile.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/css/user_profile.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js/admin_view_project.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/admin_view_project.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js/layout_user.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/layout_user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/js/list_project.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/js/list_project.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composer.phar" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/create_sessions_table.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/github_integration_update.sql" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/run_tests.php" beforeDir="false" afterPath="$PROJECT_DIR$/run_tests.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/setup_github_integration.php" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/setup_mentor_email_system.php" beforeDir="false" />
@@ -27,9 +54,8 @@
       <change beforePath="$PROJECT_DIR$/user/bookmark.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/bookmark.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user/download.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/download.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user/forms/new_project_add.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/forms/new_project_add.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/github_service.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/github_service.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user/search.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/search.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/uploads/.htaccess" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/uploads/images/.htaccess" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/user/user_profile_setting.php" beforeDir="false" afterPath="$PROJECT_DIR$/user/user_profile_setting.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/websocket/NotificationService.php" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/websocket/node_modules/.package-lock.json" beforeDir="false" />
@@ -330,7 +356,7 @@
       <workItem from="1758089883182" duration="1134000" />
       <workItem from="1758091680520" duration="2966000" />
       <workItem from="1758113428446" duration="7643000" />
-      <workItem from="1758167604758" duration="3667000" />
+      <workItem from="1758167604758" duration="5567000" />
     </task>
     <task id="LOCAL-00021" summary="data base fetch from data in dashboard and modified ui and solve bug issue">
       <option name="closed" value="true" />
