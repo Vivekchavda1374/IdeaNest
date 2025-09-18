@@ -12,8 +12,6 @@
 - **.htaccess** - Apache web server configuration for URL rewriting and security
 - **.gitIgnore** - Git version control ignore patterns
 
-#### Database & Setup Files
-- **github_integration_update.sql** - Database schema updates for GitHub integration features
 
 #### Documentation Files
 - **README.md** - Comprehensive project documentation and setup guide
