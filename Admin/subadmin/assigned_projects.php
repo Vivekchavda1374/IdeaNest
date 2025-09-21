@@ -78,7 +78,7 @@ ob_start();
     <link rel="stylesheet" href="../../assets/css/assigned_projects.css">
 
     <!-- Action Message Alert -->
-<?php if ($action_message): ?>
+<?php if ($action_message) : ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle me-2"></i>
         <?php echo $action_message; ?>
@@ -95,12 +95,18 @@ $rejected_count = 0;
 
 // Count projects by status
 $projects_data = [];
-while($row = $result->fetch_assoc()) {
+while ($row = $result->fetch_assoc()) {
     $projects_data[] = $row;
-    switch($row['status']) {
-        case 'approved': $approved_count++; break;
-        case 'pending': $pending_count++; break;
-        case 'rejected': $rejected_count++; break;
+    switch ($row['status']) {
+        case 'approved':
+            $approved_count++;
+            break;
+        case 'pending':
+            $pending_count++;
+            break;
+        case 'rejected':
+            $rejected_count++;
+            break;
     }
 }
 ?>
@@ -152,7 +158,7 @@ while($row = $result->fetch_assoc()) {
             </div>
         </div>
 
-        <?php if (count($projects_data) > 0): ?>
+        <?php if (count($projects_data) > 0) : ?>
             <div class="table-responsive">
                 <table class="table table-modern mb-0">
                     <thead>
@@ -166,7 +172,7 @@ while($row = $result->fetch_assoc()) {
                     </tr>
                     </thead>
                     <tbody>
-                    <?php foreach($projects_data as $row): ?>
+                    <?php foreach ($projects_data as $row) : ?>
                         <tr>
                             <td>
                                 <div class="fw-bold text-primary">
@@ -194,7 +200,7 @@ while($row = $result->fetch_assoc()) {
                                 </span>
                             </td>
                             <td>
-                                <?php if ($row['status'] == 'pending'): ?>
+                                <?php if ($row['status'] == 'pending') : ?>
                                     <div class="action-buttons">
                                         <form method="post" style="display: inline-block;">
                                             <input type="hidden" name="project_id" value="<?php echo $row['id']; ?>">
@@ -251,7 +257,7 @@ while($row = $result->fetch_assoc()) {
                                             </div>
                                         </div>
                                     </div>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <span class="text-muted fst-italic">
                                         <i class="bi bi-check-circle me-1"></i>
                                         No actions available
@@ -263,7 +269,7 @@ while($row = $result->fetch_assoc()) {
                     </tbody>
                 </table>
             </div>
-        <?php else: ?>
+        <?php else : ?>
             <div class="empty-state">
                 <div class="empty-state-icon">
                     <i class="bi bi-inbox"></i>
@@ -284,4 +290,3 @@ $content = ob_get_clean();
 // Render the page using the layout
 renderLayout('Assigned Projects', $content, 'projects');
 ?>
-
