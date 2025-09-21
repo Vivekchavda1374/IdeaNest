@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 require_once '../Login/Login/db.php';
 
@@ -22,9 +23,9 @@ try {
     $stmt->bind_param("i", $mentor_id);
     $stmt->execute();
     $is_mentor = $stmt->get_result()->num_rows > 0;
-    
+
     fputcsv($output, ['Date', 'Student', 'Duration (min)', 'Status', 'Notes']);
-    
+
     if (!$is_mentor) {
         fputcsv($output, ['Access Denied', 'User is not a mentor', '', '', '']);
     } else {
@@ -34,12 +35,12 @@ try {
                   JOIN register r ON msp.student_id = r.id
                   WHERE msp.mentor_id = ?
                   ORDER BY ms.session_date DESC";
-        
+
         $stmt = $conn->prepare($query);
         $stmt->bind_param("i", $mentor_id);
         $stmt->execute();
         $sessions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        
+
         if (empty($sessions)) {
             fputcsv($output, ['No sessions found', 'Create sessions first', '', '', '']);
         } else {
@@ -59,4 +60,3 @@ try {
 }
 
 fclose($output);
-?>
