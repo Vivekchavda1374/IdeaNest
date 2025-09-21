@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IdeaNest UI Tests</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/qunit/2.19.4/qunit.css">
+</head>
+<body>
+    <div id="qunit"></div>
+    <div id="qunit-fixture">
+        <!-- Test fixtures -->
+        <div id="test-container">
+            <form id="test-form">
+                <input type="email" id="email" name="email" required>
+                <input type="password" id="password" name="password" required>
+                <button type="submit" id="submit-btn">Submit</button>
+            </form>
+            <div id="github-profile"></div>
+            <div id="notification-area"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qunit/2.19.4/qunit.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    
+    <script>
+        // Mock GitHub service functions
+        function mockFetchGitHubProfile(username) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    if (username === 'octocat') {
+                        resolve({
+                            login: 'octocat',
+                            name: 'The Octocat',
+                            public_repos: 8,
+                            html_url: 'https://github.com/octocat'
+                        });
+                    } else {
+                        resolve(null);
+                    }
+                }, 100);
+            });
+        }
+
+        // Form validation tests
+        QUnit.module('Form Validation', function() {
+            QUnit.test('Email validation', function(assert) {
+                const emailInput = document.getElementById('email');
+                
+                emailInput.value = 'test@example.com';
+                assert.ok(emailInput.checkValidity(), 'Valid email should pass validation');
+                
+                emailInput.value = 'invalid-email';
+                assert.notOk(emailInput.checkValidity(), 'Invalid email should fail validation');
+            });
+
+            QUnit.test('Password validation', function(assert) {
+                const passwordInput = document.getElementById('password');
+                
+                passwordInput.value = 'password123';
+                assert.ok(passwordInput.checkValidity(), 'Non-empty password should pass validation');
+                
+                passwordInput.value = '';
+                assert.notOk(passwordInput.checkValidity(), 'Empty password should fail validation');
+            });
+
+            QUnit.test('Form submission prevention', function(assert) {
+                const form = document.getElementById('test-form');
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+                
+                emailInput.value = 'invalid-email';
+                passwordInput.value = '';
+                
+                let formSubmitted = false;
+                form.addEventListener('submit', function(e) {
+                    if (!form.checkValidity()) {
+                        e.preventDefault();
+                    } else {
+                        formSubmitted = true;
+                    }
+                });
+                
+                form.dispatchEvent(new Event('submit'));
+                assert.notOk(formSubmitted, 'Form with invalid data should not submit');
+            });
+        });
+
+        // GitHub integration tests
+        QUnit.module('GitHub Integration', function() {
+            QUnit.test('Fetch valid GitHub profile', async function(assert) {
+                const profile = await mockFetchGitHubProfile('octocat');
+                
+                assert.ok(profile, 'Should return profile data');
+                assert.equal(profile.login, 'octocat', 'Should return correct username');
+                assert.equal(profile.name, 'The Octocat', 'Should return correct name');
+                assert.ok(profile.public_repos >= 0, 'Should return repo count');
+            });
+
+            QUnit.test('Fetch invalid GitHub profile', async function(assert) {
+                const profile = await mockFetchGitHubProfile('nonexistentuser');
+                
+                assert.notOk(profile, 'Should return null for invalid user');
+            });
+
+            QUnit.test('Display GitHub profile', async function(assert) {
+                const profileDiv = document.getElementById('github-profile');
+                const profile = await mockFetchGitHubProfile('octocat');
+                
+                if (profile) {
+                    profileDiv.innerHTML = `
+                        <h3>${profile.name}</h3>
+                        <p>@${profile.login}</p>
+                        <p>Repositories: ${profile.public_repos}</p>
+                    `;
+                }
+                
+                assert.ok(profileDiv.innerHTML.includes('The Octocat'), 'Should display profile name');
+                assert.ok(profileDiv.innerHTML.includes('@octocat'), 'Should display username');
+                assert.ok(profileDiv.innerHTML.includes('Repositories:'), 'Should display repo count');
+            });
+        });
+
+        // UI interaction tests
+        QUnit.module('UI Interactions', function() {
+            QUnit.test('Button click handling', function(assert) {
+                const button = document.getElementById('submit-btn');
+                let clicked = false;
+                
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    clicked = true;
+                });
+                
+                button.click();
+                assert.ok(clicked, 'Button click should be handled');
+            });
+
+            QUnit.test('Notification display', function(assert) {
+                const notificationArea = document.getElementById('notification-area');
+                
+                function showNotification(message, type = 'info') {
+                    notificationArea.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+                }
+                
+                showNotification('Test notification', 'success');
+                
+                assert.ok(notificationArea.innerHTML.includes('Test notification'), 'Should display notification message');
+                assert.ok(notificationArea.innerHTML.includes('alert-success'), 'Should apply correct CSS class');
+            });
+
+            QUnit.test('Dynamic content loading', function(assert) {
+                const container = document.getElementById('test-container');
+                
+                function loadContent(content) {
+                    const div = document.createElement('div');
+                    div.id = 'dynamic-content';
+                    div.innerHTML = content;
+                    container.appendChild(div);
+                }
+                
+                loadContent('<p>Dynamic content loaded</p>');
+                
+                const dynamicDiv = document.getElementById('dynamic-content');
+                assert.ok(dynamicDiv, 'Dynamic content should be created');
+                assert.ok(dynamicDiv.innerHTML.includes('Dynamic content loaded'), 'Should contain correct content');
+            });
+        });
+
+        // AJAX simulation tests
+        QUnit.module('AJAX Operations', function() {
+            QUnit.test('Mock AJAX request', function(assert) {
+                const done = assert.async();
+                
+                function mockAjaxRequest(url, data) {
+                    return new Promise((resolve) => {
+                        setTimeout(() => {
+                            resolve({
+                                success: true,
+                                message: 'Request successful',
+                                data: data
+                            });
+                        }, 100);
+                    });
+                }
+                
+                mockAjaxRequest('/api/test', { test: 'data' })
+                    .then(response => {
+                        assert.ok(response.success, 'AJAX request should succeed');
+                        assert.equal(response.message, 'Request successful', 'Should return success message');
+                        assert.deepEqual(response.data, { test: 'data' }, 'Should return sent data');
+                        done();
+                    });
+            });
+        });
+    </script>
+</body>
+</html>
