@@ -1,6 +1,7 @@
 <?php
 // layout.php - Main layout template
-function renderLayout($title, $content, $activePage = '') {
+function renderLayout($title, $content, $activePage = '')
+{
     ?>
     <!DOCTYPE html>
     <html lang="en">
