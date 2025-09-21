@@ -1,0 +1,126 @@
+%%{init: {
+  'theme': 'dark',
+  'themeVariables': {
+    'primaryColor': '#9C27B0',
+    'primaryTextColor': '#FFFFFF',
+    'primaryBorderColor': '#BA68C8',
+    'lineColor': '#CE93D8'
+  }
+}}%%
+
+flowchart TD
+    START([👨🏫 Mentor System]):::startClass
+    
+    subgraph "🔐 Mentor Authentication"
+        MA1[Mentor Login]:::authClass
+        MA2[Role Verification]:::authClass
+        MA3[Dashboard Access]:::authClass
+    end
+    
+    subgraph "📊 Mentor Dashboard"
+        MD1[View Assigned Students]:::dashClass
+        MD2[Session Overview]:::dashClass
+        MD3[Project Reviews]:::dashClass
+        MD4[Performance Metrics]:::dashClass
+    end
+    
+    subgraph "👥 Student Management"
+        SM1[Student Assignment]:::studentClass
+        SM2[Student Profiles]:::studentClass
+        SM3[Progress Tracking]:::studentClass
+        SM4[Communication Hub]:::studentClass
+    end
+    
+    subgraph "📅 Session Management"
+        SS1[Schedule Sessions]:::sessionClass
+        SS2[Session Calendar]:::sessionClass
+        SS3[Session Notes]:::sessionClass
+        SS4[Attendance Tracking]:::sessionClass
+    end
+    
+    subgraph "📋 Project Review System"
+        PR1[Review Queue]:::reviewClass
+        PR2[Project Analysis]:::reviewClass
+        PR3[Feedback System]:::reviewClass
+        PR4[Approval Process]:::reviewClass
+    end
+    
+    subgraph "📧 Communication"
+        CM1[Email Students]:::commClass
+        CM2[Notification System]:::commClass
+        CM3[Announcement Board]:::commClass
+        CM4[Weekly Reports]:::commClass
+    end
+    
+    subgraph "📈 Analytics & Reports"
+        AR1[Student Progress]:::analyticsClass
+        AR2[Session Statistics]:::analyticsClass
+        AR3[Review Metrics]:::analyticsClass
+        AR4[Performance Reports]:::analyticsClass
+    end
+    
+    subgraph "⚙️ Profile Management"
+        PM1[Mentor Profile]:::profileClass
+        PM2[Expertise Areas]:::profileClass
+        PM3[Availability Settings]:::profileClass
+        PM4[Notification Preferences]:::profileClass
+    end
+    
+    %% Main Flow
+    START --> MA1
+    MA1 --> MA2
+    MA2 --> MA3
+    MA3 --> MD1
+    
+    %% Dashboard Connections
+    MD1 --> SM1
+    MD2 --> SS1
+    MD3 --> PR1
+    MD4 --> AR1
+    
+    %% Student Management Flow
+    SM1 --> SM2
+    SM2 --> SM3
+    SM3 --> SM4
+    SM4 --> CM1
+    
+    %% Session Management Flow
+    SS1 --> SS2
+    SS2 --> SS3
+    SS3 --> SS4
+    SS4 --> AR2
+    
+    %% Project Review Flow
+    PR1 --> PR2
+    PR2 --> PR3
+    PR3 --> PR4
+    PR4 --> AR3
+    
+    %% Communication Flow
+    CM1 --> CM2
+    CM2 --> CM3
+    CM3 --> CM4
+    CM4 --> AR4
+    
+    %% Profile Management
+    PM1 --> PM2
+    PM2 --> PM3
+    PM3 --> PM4
+    
+    %% Cross-connections
+    SM3 --> SS1
+    PR4 --> CM2
+    AR1 --> CM4
+    PM2 --> SM1
+    PM3 --> SS1
+    
+    %% Class Definitions for Mentor System
+    classDef startClass fill:#9C27B0,stroke:#BA68C8,stroke-width:3px,color:#FFFFFF
+    classDef authClass fill:#2196F3,stroke:#64B5F6,stroke-width:2px,color:#FFFFFF
+    classDef dashClass fill:#4CAF50,stroke:#81C784,stroke-width:2px,color:#FFFFFF
+    classDef studentClass fill:#FF9800,stroke:#FFB74D,stroke-width:2px,color:#FFFFFF
+    classDef sessionClass fill:#00BCD4,stroke:#4DD0E1,stroke-width:2px,color:#FFFFFF
+    classDef reviewClass fill:#F44336,stroke:#EF5350,stroke-width:2px,color:#FFFFFF
+    classDef commClass fill:#673AB7,stroke:#9575CD,stroke-width:2px,color:#FFFFFF
+    classDef analyticsClass fill:#FF5722,stroke:#FF8A65,stroke-width:2px,color:#FFFFFF
+    classDef profileClass fill:#795548,stroke:#A1887F,stroke-width:2px,color:#FFFFFF
