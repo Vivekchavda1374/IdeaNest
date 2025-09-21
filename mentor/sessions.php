@@ -106,15 +106,15 @@ ob_start();
                 <h5 class="mb-0">Upcoming Sessions (<?= count($upcoming) ?>)</h5>
             </div>
             <div class="card-body p-4">
-                <?php if (empty($upcoming)): ?>
+                <?php if (empty($upcoming)) : ?>
                     <div class="text-center py-5">
                         <i class="fas fa-calendar-plus fa-3x text-muted mb-3"></i>
                         <h6 class="text-muted">No upcoming sessions</h6>
                         <p class="text-muted">Schedule a session with your students</p>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="row">
-                        <?php foreach ($upcoming as $session): ?>
+                        <?php foreach ($upcoming as $session) : ?>
                             <div class="col-md-6 mb-3">
                                 <div class="glass-card p-3">
                                     <div class="d-flex justify-content-between align-items-start mb-2">
@@ -135,13 +135,13 @@ ob_start();
                                         <?= $session['duration_minutes'] ?> minutes
                                     </div>
                                     
-                                    <?php if ($session['notes']): ?>
+                                    <?php if ($session['notes']) : ?>
                                         <div class="mb-2">
                                             <small class="text-muted"><?= htmlspecialchars($session['notes']) ?></small>
                                         </div>
                                     <?php endif; ?>
                                     
-                                    <?php if ($session['meeting_link']): ?>
+                                    <?php if ($session['meeting_link']) : ?>
                                         <div class="mb-2">
                                             <a href="<?= htmlspecialchars($session['meeting_link']) ?>" target="_blank" class="btn btn-sm btn-primary">
                                                 <i class="fas fa-video me-1"></i>Join Meeting
@@ -175,12 +175,12 @@ ob_start();
                 <h5 class="mb-0">Recent Sessions</h5>
             </div>
             <div class="card-body p-4">
-                <?php if (empty($completed)): ?>
+                <?php if (empty($completed)) : ?>
                     <div class="text-center py-3">
                         <i class="fas fa-history fa-2x text-muted mb-2"></i>
                         <p class="text-muted">No completed sessions yet</p>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -193,7 +193,7 @@ ob_start();
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($completed as $session): ?>
+                                <?php foreach ($completed as $session) : ?>
                                     <tr>
                                         <td><?= htmlspecialchars($session['student_name']) ?></td>
                                         <td><?= htmlspecialchars($session['project_name'] ?? 'General') ?></td>
@@ -234,7 +234,7 @@ ob_start();
                             $stmt->bind_param("i", $mentor_id);
                             $stmt->execute();
                             $modal_students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-                            
+
                             // If no students from mentor_requests, try mentor_student_pairs
                             if (empty($modal_students)) {
                                 $students_query = "SELECT msp.id, r.name FROM mentor_student_pairs msp
@@ -245,11 +245,11 @@ ob_start();
                                 $stmt->execute();
                                 $modal_students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                             }
-                            
-                            if (empty($modal_students)): ?>
+
+                            if (empty($modal_students)) : ?>
                                 <option value="" disabled>No students assigned yet. Please contact admin to assign students to your mentorship.</option>
-                            <?php else:
-                                foreach ($modal_students as $student): ?>
+                            <?php else :
+                                foreach ($modal_students as $student) : ?>
                                     <option value="<?= $student['id'] ?>"><?= htmlspecialchars($student['name']) ?></option>
                                 <?php endforeach;
                             endif; ?>
