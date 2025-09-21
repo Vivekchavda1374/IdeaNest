@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 include 'db.php';
 
@@ -19,9 +20,12 @@ if (!isset($input['credential'])) {
     exit;
 }
 
-function decodeJWT($jwt) {
+function decodeJWT($jwt)
+{
     $parts = explode('.', $jwt);
-    if (count($parts) !== 3) return false;
+    if (count($parts) !== 3) {
+        return false;
+    }
     $payload = base64_decode(str_replace(['-', '_'], ['+', '/'], $parts[1]));
     return json_decode($payload, true);
 }
@@ -41,7 +45,7 @@ try {
     $stmt->bind_param("s", $google_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows > 0) {
         // User exists, log them in
         $user = $result->fetch_assoc();
@@ -49,7 +53,7 @@ try {
         $_SESSION['er_number'] = $user['enrollment_number'];
         $_SESSION['user_name'] = $user['name'];
         $_SESSION['is_admin'] = false;
-        
+
         echo json_encode(['success' => true, 'redirect' => '../../user/index.php']);
     } else {
         // Check if user exists with this email
@@ -57,25 +61,25 @@ try {
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
-        
+
         if ($result->num_rows > 0) {
             // Update existing user with Google ID
             $user = $result->fetch_assoc();
             $stmt = $conn->prepare("UPDATE register SET google_id = ? WHERE id = ?");
             $stmt->bind_param("si", $google_id, $user['id']);
             $stmt->execute();
-            
+
             // Log them in
             $stmt = $conn->prepare("SELECT id, name, enrollment_number FROM register WHERE id = ?");
             $stmt->bind_param("i", $user['id']);
             $stmt->execute();
             $user_data = $stmt->get_result()->fetch_assoc();
-            
+
             $_SESSION['user_id'] = $user_data['id'];
             $_SESSION['er_number'] = $user_data['enrollment_number'];
             $_SESSION['user_name'] = $user_data['name'];
             $_SESSION['is_admin'] = false;
-            
+
             echo json_encode(['success' => true, 'redirect' => '../../user/index.php']);
         } else {
             // Create new user with Google ID
@@ -83,16 +87,16 @@ try {
             $stmt = $conn->prepare("INSERT INTO register (name, email, enrollment_number, password, google_id) VALUES (?, ?, ?, ?, ?)");
             $dummy_password = password_hash('google_auth_' . $google_id, PASSWORD_DEFAULT);
             $stmt->bind_param("sssss", $name, $email, $enrollment_number, $dummy_password, $google_id);
-            
+
             if ($stmt->execute()) {
                 $user_id = $conn->insert_id;
-                
+
                 $_SESSION['user_id'] = $user_id;
                 $_SESSION['er_number'] = $enrollment_number;
                 $_SESSION['user_name'] = $name;
                 $_SESSION['is_admin'] = false;
                 $_SESSION['google_new_user'] = true;
-                
+
                 echo json_encode(['success' => true, 'redirect' => '../../user/user_profile_setting.php?google_setup=1']);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Failed to create user account']);
@@ -106,4 +110,3 @@ try {
 }
 
 $conn->close();
-?>
