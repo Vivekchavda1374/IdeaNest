@@ -135,7 +135,7 @@ ob_start();
     </div>
 
     <!-- Action Message Alert -->
-<?php if ($action_message): ?>
+<?php if ($action_message) : ?>
     <div class="alert alert-<?php echo htmlspecialchars($message_type); ?> alert-dismissible fade show" role="alert">
         <i class="bi bi-<?php echo $message_type === 'success' ? 'check-circle' : ($message_type === 'danger' ? 'exclamation-triangle' : 'info-circle'); ?> me-2"></i>
         <?php echo htmlspecialchars($action_message); ?>
@@ -302,8 +302,8 @@ ob_start();
         </div>
 
         <div class="p-4">
-            <?php if ($tickets_result && $tickets_result->num_rows > 0): ?>
-                <?php while($ticket = $tickets_result->fetch_assoc()): ?>
+            <?php if ($tickets_result && $tickets_result->num_rows > 0) : ?>
+                <?php while ($ticket = $tickets_result->fetch_assoc()) : ?>
                     <div class="ticket-card">
                         <div class="ticket-header">
                             <div class="flex-grow-1">
@@ -331,7 +331,7 @@ ob_start();
                         View All Tickets
                     </a>
                 </div>
-            <?php else: ?>
+            <?php else : ?>
                 <div class="text-center py-5">
                     <i class="bi bi-inbox display-1 text-muted opacity-50"></i>
                     <h4 class="mt-3 text-muted">No Support Tickets Yet</h4>
