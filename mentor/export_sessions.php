@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 require_once '../Login/Login/db.php';
 
@@ -19,7 +20,7 @@ try {
     $stmt->bind_param("i", $mentor_id);
     $stmt->execute();
     $mentor_exists = $stmt->get_result()->num_rows > 0;
-    
+
     if ($mentor_exists) {
         $query = "SELECT ms.*, r.name as student_name, p.project_name,
                   CASE ms.status 
@@ -33,7 +34,7 @@ try {
                   LEFT JOIN projects p ON msp.project_id = p.id
                   WHERE msp.mentor_id = ?
                   ORDER BY ms.session_date DESC";
-        
+
         $stmt = $conn->prepare($query);
         $stmt->bind_param("i", $mentor_id);
         $stmt->execute();
@@ -46,10 +47,10 @@ try {
 if ($format === 'csv') {
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="mentoring_sessions_' . date('Y-m-d') . '.csv"');
-    
+
     $output = fopen('php://output', 'w');
     fputcsv($output, ['Date', 'Student', 'Project', 'Duration (min)', 'Status', 'Notes', 'Meeting Link']);
-    
+
     if (empty($sessions)) {
         fputcsv($output, ['No sessions found', '', '', '', '', '', '']);
     } else {
@@ -65,10 +66,9 @@ if ($format === 'csv') {
             ]);
         }
     }
-    
+
     fclose($output);
 } else {
     header('Content-Type: application/json');
     echo json_encode($sessions ?: []);
 }
-?>
