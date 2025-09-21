@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 require_once '../Login/Login/db.php';
 
@@ -24,11 +25,10 @@ try {
     $stmt->bind_param("i", $student_id);
     $stmt->execute();
     $projects = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    
+
     header('Content-Type: application/json');
     echo json_encode($projects);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Database error']);
 }
-?>
