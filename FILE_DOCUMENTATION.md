@@ -135,7 +135,6 @@
 
 #### Database Schemas
 - **ideanest.sql** - Main database schema with all tables and relationships
-- **mentor_email_tables.sql** - Email system specific database tables
 
 ### Includes Directory (/includes/)
 
