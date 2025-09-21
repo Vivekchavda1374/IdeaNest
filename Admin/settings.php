@@ -42,7 +42,8 @@ $create_settings_table = "CREATE TABLE IF NOT EXISTS admin_settings (
 $conn->query($create_settings_table);
 
 // Function to get setting value
-function getSetting($conn, $key, $default = '') {
+function getSetting($conn, $key, $default = '')
+{
     $query = "SELECT setting_value FROM admin_settings WHERE setting_key = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("s", $key);
@@ -56,7 +57,8 @@ function getSetting($conn, $key, $default = '') {
 }
 
 // Function to save setting value
-function saveSetting($conn, $key, $value) {
+function saveSetting($conn, $key, $value)
+{
     $query = "INSERT INTO admin_settings (setting_key, setting_value) VALUES (?, ?) 
               ON DUPLICATE KEY UPDATE setting_value = ?, updated_at = CURRENT_TIMESTAMP";
     $stmt = $conn->prepare($query);
@@ -65,7 +67,8 @@ function saveSetting($conn, $key, $value) {
 }
 
 // Function to log notification attempts with enhanced details
-function logNotification($type, $user_id, $conn, $status, $project_id = null, $email_to = null, $email_subject = null, $error_message = null) {
+function logNotification($type, $user_id, $conn, $status, $project_id = null, $email_to = null, $email_subject = null, $error_message = null)
+{
     $query = "INSERT INTO notification_logs (type, user_id, project_id, status, email_to, email_subject, error_message, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("siissss", $type, $user_id, $project_id, $status, $email_to, $email_subject, $error_message);
@@ -73,7 +76,8 @@ function logNotification($type, $user_id, $conn, $status, $project_id = null, $e
 }
 
 // Function to get notification template
-function getNotificationTemplate($conn, $type) {
+function getNotificationTemplate($conn, $type)
+{
     $query = "SELECT * FROM notification_templates WHERE type = ? AND is_active = 1";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("s", $type);
@@ -87,7 +91,8 @@ function getNotificationTemplate($conn, $type) {
 }
 
 // Function to update notification template
-function updateNotificationTemplate($conn, $type, $subject, $body, $variables) {
+function updateNotificationTemplate($conn, $type, $subject, $body, $variables)
+{
     $query = "INSERT INTO notification_templates (type, subject, body, variables) VALUES (?, ?, ?, ?) 
               ON DUPLICATE KEY UPDATE subject = ?, body = ?, variables = ?, updated_at = CURRENT_TIMESTAMP";
     $stmt = $conn->prepare($query);
@@ -142,120 +147,183 @@ $create_counters_table = "CREATE TABLE IF NOT EXISTS notification_counters (
 $conn->query($create_counters_table);
 
 // Handle settings form submission
-if(isset($_POST['save_settings'])) {
+if (isset($_POST['save_settings'])) {
     $success_count = 0;
     $error_count = 0;
 
     // General Settings
-    if(isset($_POST['site_name'])) {
-        if(saveSetting($conn, 'site_name', $_POST['site_name'])) $success_count++;
-        else $error_count++;
+    if (isset($_POST['site_name'])) {
+        if (saveSetting($conn, 'site_name', $_POST['site_name'])) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
-    if(isset($_POST['site_url'])) {
-        if(saveSetting($conn, 'site_url', $_POST['site_url'])) $success_count++;
-        else $error_count++;
+    if (isset($_POST['site_url'])) {
+        if (saveSetting($conn, 'site_url', $_POST['site_url'])) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
-    if(isset($_POST['admin_email'])) {
-        if(saveSetting($conn, 'admin_email', $_POST['admin_email'])) $success_count++;
-        else $error_count++;
+    if (isset($_POST['admin_email'])) {
+        if (saveSetting($conn, 'admin_email', $_POST['admin_email'])) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
-    if(isset($_POST['timezone'])) {
-        if(saveSetting($conn, 'timezone', $_POST['timezone'])) $success_count++;
-        else $error_count++;
+    if (isset($_POST['timezone'])) {
+        if (saveSetting($conn, 'timezone', $_POST['timezone'])) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
     // Email Settings
-    if(isset($_POST['smtp_host'])) {
-        if(saveSetting($conn, 'smtp_host', $_POST['smtp_host'])) $success_count++;
-        else $error_count++;
+    if (isset($_POST['smtp_host'])) {
+        if (saveSetting($conn, 'smtp_host', $_POST['smtp_host'])) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
-    if(isset($_POST['smtp_port'])) {
-        if(saveSetting($conn, 'smtp_port', $_POST['smtp_port'])) $success_count++;
-        else $error_count++;
+    if (isset($_POST['smtp_port'])) {
+        if (saveSetting($conn, 'smtp_port', $_POST['smtp_port'])) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
-    if(isset($_POST['smtp_username'])) {
-        if(saveSetting($conn, 'smtp_username', $_POST['smtp_username'])) $success_count++;
-        else $error_count++;
+    if (isset($_POST['smtp_username'])) {
+        if (saveSetting($conn, 'smtp_username', $_POST['smtp_username'])) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
-    if(isset($_POST['smtp_password'])) {
-        if(saveSetting($conn, 'smtp_password', $_POST['smtp_password'])) $success_count++;
-        else $error_count++;
+    if (isset($_POST['smtp_password'])) {
+        if (saveSetting($conn, 'smtp_password', $_POST['smtp_password'])) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
-    if(isset($_POST['smtp_secure'])) {
-        if(saveSetting($conn, 'smtp_secure', $_POST['smtp_secure'])) $success_count++;
-        else $error_count++;
+    if (isset($_POST['smtp_secure'])) {
+        if (saveSetting($conn, 'smtp_secure', $_POST['smtp_secure'])) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
-    if(isset($_POST['from_email'])) {
-        if(saveSetting($conn, 'from_email', $_POST['from_email'])) $success_count++;
-        else $error_count++;
+    if (isset($_POST['from_email'])) {
+        if (saveSetting($conn, 'from_email', $_POST['from_email'])) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
     // Notification Settings
     $email_notifications = isset($_POST['email_notifications']) ? '1' : '0';
-    if(saveSetting($conn, 'email_notifications', $email_notifications)) $success_count++;
-    else $error_count++;
+    if (saveSetting($conn, 'email_notifications', $email_notifications)) {
+        $success_count++;
+    } else {
+        $error_count++;
+    }
 
     $project_approval_emails = isset($_POST['project_approval_emails']) ? '1' : '0';
-    if(saveSetting($conn, 'project_approval_emails', $project_approval_emails)) $success_count++;
-    else $error_count++;
+    if (saveSetting($conn, 'project_approval_emails', $project_approval_emails)) {
+        $success_count++;
+    } else {
+        $error_count++;
+    }
 
     $project_rejection_emails = isset($_POST['project_rejection_emails']) ? '1' : '0';
-    if(saveSetting($conn, 'project_rejection_emails', $project_rejection_emails)) $success_count++;
-    else $error_count++;
+    if (saveSetting($conn, 'project_rejection_emails', $project_rejection_emails)) {
+        $success_count++;
+    } else {
+        $error_count++;
+    }
 
     $new_user_notifications = isset($_POST['new_user_notifications']) ? '1' : '0';
-    if(saveSetting($conn, 'new_user_notifications', $new_user_notifications)) $success_count++;
-    else $error_count++;
+    if (saveSetting($conn, 'new_user_notifications', $new_user_notifications)) {
+        $success_count++;
+    } else {
+        $error_count++;
+    }
 
     // System Settings
-    if(isset($_POST['max_file_size'])) {
-        if(saveSetting($conn, 'max_file_size', $_POST['max_file_size'])) $success_count++;
-        else $error_count++;
+    if (isset($_POST['max_file_size'])) {
+        if (saveSetting($conn, 'max_file_size', $_POST['max_file_size'])) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
-    if(isset($_POST['allowed_file_types'])) {
-        if(saveSetting($conn, 'allowed_file_types', $_POST['allowed_file_types'])) $success_count++;
-        else $error_count++;
+    if (isset($_POST['allowed_file_types'])) {
+        if (saveSetting($conn, 'allowed_file_types', $_POST['allowed_file_types'])) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
-    if(isset($_POST['session_timeout'])) {
-        if(saveSetting($conn, 'session_timeout', $_POST['session_timeout'])) $success_count++;
-        else $error_count++;
+    if (isset($_POST['session_timeout'])) {
+        if (saveSetting($conn, 'session_timeout', $_POST['session_timeout'])) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
-    if(isset($_POST['maintenance_mode'])) {
-        if(saveSetting($conn, 'maintenance_mode', $_POST['maintenance_mode'])) $success_count++;
-        else $error_count++;
+    if (isset($_POST['maintenance_mode'])) {
+        if (saveSetting($conn, 'maintenance_mode', $_POST['maintenance_mode'])) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
     // Save notification templates
-    if(isset($_POST['new_user_subject']) && isset($_POST['new_user_body'])) {
+    if (isset($_POST['new_user_subject']) && isset($_POST['new_user_body'])) {
         $variables = '{USER_NAME}, {USER_EMAIL}, {REGISTRATION_DATE}, {SITE_NAME}';
-        if(updateNotificationTemplate($conn, 'new_user_notification', $_POST['new_user_subject'], $_POST['new_user_body'], $variables)) $success_count++;
-        else $error_count++;
+        if (updateNotificationTemplate($conn, 'new_user_notification', $_POST['new_user_subject'], $_POST['new_user_body'], $variables)) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
-    if(isset($_POST['project_approval_subject']) && isset($_POST['project_approval_body'])) {
+    if (isset($_POST['project_approval_subject']) && isset($_POST['project_approval_body'])) {
         $variables = '{USER_NAME}, {PROJECT_TITLE}, {SUBMISSION_DATE}, {APPROVAL_DATE}, {SITE_NAME}';
-        if(updateNotificationTemplate($conn, 'project_approval', $_POST['project_approval_subject'], $_POST['project_approval_body'], $variables)) $success_count++;
-        else $error_count++;
+        if (updateNotificationTemplate($conn, 'project_approval', $_POST['project_approval_subject'], $_POST['project_approval_body'], $variables)) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
-    if(isset($_POST['project_rejection_subject']) && isset($_POST['project_rejection_body'])) {
+    if (isset($_POST['project_rejection_subject']) && isset($_POST['project_rejection_body'])) {
         $variables = '{USER_NAME}, {PROJECT_TITLE}, {SUBMISSION_DATE}, {REVIEW_DATE}, {REJECTION_REASON}, {SITE_NAME}';
-        if(updateNotificationTemplate($conn, 'project_rejection', $_POST['project_rejection_subject'], $_POST['project_rejection_body'], $variables)) $success_count++;
-        else $error_count++;
+        if (updateNotificationTemplate($conn, 'project_rejection', $_POST['project_rejection_subject'], $_POST['project_rejection_body'], $variables)) {
+            $success_count++;
+        } else {
+            $error_count++;
+        }
     }
 
-    if($error_count == 0) {
+    if ($error_count == 0) {
         $message = "Settings updated successfully! ($success_count settings saved)";
     } else {
         $error = "Some settings could not be saved. $error_count errors occurred.";
@@ -263,7 +331,7 @@ if(isset($_POST['save_settings'])) {
 }
 
 // Handle test email functionality
-if(isset($_POST['test_email'])) {
+if (isset($_POST['test_email'])) {
     try {
         $mail = new PHPMailer(true);
 
@@ -344,7 +412,6 @@ if(isset($_POST['test_email'])) {
 
         $mail->send();
         $message = "Test email sent successfully! Check your inbox at: " . $smtp_username;
-
     } catch (Exception $e) {
         $error = "Test email failed: " . $mail->ErrorInfo;
     }
@@ -394,14 +461,14 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
     </div>
 
     <!-- Alert Messages -->
-    <?php if($message): ?>
+    <?php if ($message) : ?>
         <div class="alert alert-success alert-banner alert-dismissible fade show" role="alert">
             <?php echo $message; ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
 
-    <?php if($error): ?>
+    <?php if ($error) : ?>
         <div class="alert alert-danger alert-banner alert-dismissible fade show" role="alert">
             <?php echo $error; ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -594,9 +661,9 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                             <label for="new_user_subject" class="form-label">New User Notification - Subject</label>
                             <input type="text" class="form-control" id="new_user_subject" name="new_user_subject"
                                    value="<?php
-                                   $template = getNotificationTemplate($conn, 'new_user_notification');
-                                   echo htmlspecialchars($template ? $template['subject'] : 'New User Registration - {SITE_NAME}');
-                                   ?>">
+                                    $template = getNotificationTemplate($conn, 'new_user_notification');
+                                    echo htmlspecialchars($template ? $template['subject'] : 'New User Registration - {SITE_NAME}');
+                                    ?>">
                         </div>
                         <div class="form-group">
                             <label for="new_user_body" class="form-label">New User Notification - Body</label>
@@ -617,9 +684,9 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                             <label for="project_approval_subject" class="form-label">Project Approval - Subject</label>
                             <input type="text" class="form-control" id="project_approval_subject" name="project_approval_subject"
                                    value="<?php
-                                   $template = getNotificationTemplate($conn, 'project_approval');
-                                   echo htmlspecialchars($template ? $template['subject'] : 'Congratulations! Your Project "{PROJECT_TITLE}" Has Been Approved');
-                                   ?>">
+                                    $template = getNotificationTemplate($conn, 'project_approval');
+                                    echo htmlspecialchars($template ? $template['subject'] : 'Congratulations! Your Project "{PROJECT_TITLE}" Has Been Approved');
+                                    ?>">
                         </div>
                         <div class="form-group">
                             <label for="project_approval_body" class="form-label">Project Approval - Body</label>
@@ -643,9 +710,9 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                             <label for="project_rejection_subject" class="form-label">Project Rejection - Subject</label>
                             <input type="text" class="form-control" id="project_rejection_subject" name="project_rejection_subject"
                                    value="<?php
-                                   $template = getNotificationTemplate($conn, 'project_rejection');
-                                   echo htmlspecialchars($template ? $template['subject'] : 'Important Update About Your Project "{PROJECT_TITLE}"');
-                                   ?>">
+                                    $template = getNotificationTemplate($conn, 'project_rejection');
+                                    echo htmlspecialchars($template ? $template['subject'] : 'Important Update About Your Project "{PROJECT_TITLE}"');
+                                    ?>">
                         </div>
                         <div class="form-group">
                             <label for="project_rejection_body" class="form-label">Project Rejection - Body</label>
