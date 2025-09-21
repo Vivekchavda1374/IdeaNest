@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 require_once '../Login/Login/db.php';
 
@@ -23,20 +24,19 @@ try {
     $stmt->bind_param("i", $mentor_id);
     $stmt->execute();
     $result = $stmt->get_result()->fetch_assoc();
-    
+
     if (!password_verify($current_password, $result['password'])) {
         echo json_encode(['error' => 'Current password is incorrect']);
         exit;
     }
-    
+
     // Update password
     $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
     $stmt = $conn->prepare("UPDATE register SET password = ? WHERE id = ?");
     $stmt->bind_param("si", $hashed_password, $mentor_id);
     $stmt->execute();
-    
+
     echo json_encode(['success' => true]);
 } catch (Exception $e) {
     echo json_encode(['error' => 'Failed to change password']);
 }
-?>
