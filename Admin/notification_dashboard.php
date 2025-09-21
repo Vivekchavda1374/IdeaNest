@@ -119,7 +119,7 @@ $weekly_stats_result = $conn->query($weekly_stats_query);
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($row = $weekly_stats_result->fetch_assoc()): ?>
+                    <?php while ($row = $weekly_stats_result->fetch_assoc()) : ?>
                     <tr>
                         <td><?php echo date('M j, Y', strtotime($row['date'])); ?></td>
                         <td><?php echo $row['notifications_sent']; ?></td>
@@ -147,7 +147,7 @@ $weekly_stats_result = $conn->query($weekly_stats_query);
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($log = $logs_result->fetch_assoc()): ?>
+                    <?php while ($log = $logs_result->fetch_assoc()) : ?>
                     <tr>
                         <td><?php echo date('M j, Y H:i', strtotime($log['sent_at'])); ?></td>
                         <td><?php echo htmlspecialchars($log['name']); ?></td>
