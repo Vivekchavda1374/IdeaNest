@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 require_once '../Login/Login/db.php';
 
@@ -164,4 +165,3 @@ fputcsv($output, ['For Complete Export', 'Use Comprehensive Export option']);
 
 fclose($output);
 exit();
-?>
