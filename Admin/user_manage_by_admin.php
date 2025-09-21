@@ -32,7 +32,7 @@ if ($view_user_id) {
     $stmt->bind_param("i", $view_user_id);
     $stmt->execute();
     $user_data = $stmt->get_result()->fetch_assoc();
-    
+
     if (!$user_data) {
         $error_message = "User not found.";
         $view_user_id = null;
@@ -43,21 +43,21 @@ if ($view_user_id) {
         $stmt->bind_param("i", $view_user_id);
         $stmt->execute();
         $user_projects = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        
+
         // Get user's approved projects
         $approved_query = "SELECT * FROM admin_approved_projects WHERE user_id = ? ORDER BY submission_date DESC";
         $stmt = $conn->prepare($approved_query);
         $stmt->bind_param("s", $view_user_id);
         $stmt->execute();
         $approved_projects = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        
+
         // Get user's ideas/blog posts
         $ideas_query = "SELECT * FROM blog WHERE user_id = ? ORDER BY created_at DESC";
         $stmt = $conn->prepare($ideas_query);
         $stmt->bind_param("i", $view_user_id);
         $stmt->execute();
         $user_ideas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        
+
         // Get user's bookmarks
         $bookmarks_query = "SELECT b.*, ap.project_name FROM bookmark b 
                            LEFT JOIN admin_approved_projects ap ON b.project_id = ap.id 
@@ -219,14 +219,14 @@ if (!empty($search)) {
     </div>
 
     <!-- Alert Messages -->
-    <?php if(isset($success_message)): ?>
+    <?php if (isset($success_message)) : ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="bi bi-check-circle me-2"></i> <?php echo $success_message; ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
 
-    <?php if(isset($error_message)): ?>
+    <?php if (isset($error_message)) : ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="bi bi-exclamation-triangle me-2"></i> <?php echo $error_message; ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -234,7 +234,7 @@ if (!empty($search)) {
     <?php endif; ?>
 
     <!-- User Profile View -->
-    <?php if ($view_user_id && $user_data): ?>
+    <?php if ($view_user_id && $user_data) : ?>
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5><i class="bi bi-person"></i> User Profile: <?php echo htmlspecialchars($user_data['name']); ?></h5>
@@ -320,12 +320,12 @@ if (!empty($search)) {
                 
                 <div class="tab-content mt-3">
                     <div class="tab-pane fade show active" id="projects">
-                        <?php if (count($user_projects) > 0): ?>
+                        <?php if (count($user_projects) > 0) : ?>
                         <div class="table-responsive">
                             <table class="table table-sm">
                                 <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Date</th></tr></thead>
                                 <tbody>
-                                    <?php foreach ($user_projects as $project): ?>
+                                    <?php foreach ($user_projects as $project) : ?>
                                     <tr>
                                         <td><?php echo htmlspecialchars($project['project_name']); ?></td>
                                         <td><?php echo htmlspecialchars($project['project_type']); ?></td>
@@ -336,18 +336,18 @@ if (!empty($search)) {
                                 </tbody>
                             </table>
                         </div>
-                        <?php else: ?>
+                        <?php else : ?>
                         <p class="text-muted">No projects submitted yet.</p>
                         <?php endif; ?>
                     </div>
                     
                     <div class="tab-pane fade" id="approved">
-                        <?php if (count($approved_projects) > 0): ?>
+                        <?php if (count($approved_projects) > 0) : ?>
                         <div class="table-responsive">
                             <table class="table table-sm">
                                 <thead><tr><th>Title</th><th>Type</th><th>Language</th><th>Date</th></tr></thead>
                                 <tbody>
-                                    <?php foreach ($approved_projects as $project): ?>
+                                    <?php foreach ($approved_projects as $project) : ?>
                                     <tr>
                                         <td><?php echo htmlspecialchars($project['project_name']); ?></td>
                                         <td><?php echo htmlspecialchars($project['project_type']); ?></td>
@@ -358,18 +358,18 @@ if (!empty($search)) {
                                 </tbody>
                             </table>
                         </div>
-                        <?php else: ?>
+                        <?php else : ?>
                         <p class="text-muted">No approved projects yet.</p>
                         <?php endif; ?>
                     </div>
                     
                     <div class="tab-pane fade" id="ideas">
-                        <?php if (count($user_ideas) > 0): ?>
+                        <?php if (count($user_ideas) > 0) : ?>
                         <div class="table-responsive">
                             <table class="table table-sm">
                                 <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Date</th></tr></thead>
                                 <tbody>
-                                    <?php foreach ($user_ideas as $idea): ?>
+                                    <?php foreach ($user_ideas as $idea) : ?>
                                     <tr>
                                         <td><?php echo htmlspecialchars($idea['project_name']); ?></td>
                                         <td><?php echo htmlspecialchars($idea['project_type']); ?></td>
@@ -380,18 +380,18 @@ if (!empty($search)) {
                                 </tbody>
                             </table>
                         </div>
-                        <?php else: ?>
+                        <?php else : ?>
                         <p class="text-muted">No ideas posted yet.</p>
                         <?php endif; ?>
                     </div>
                     
                     <div class="tab-pane fade" id="bookmarks">
-                        <?php if (count($user_bookmarks) > 0): ?>
+                        <?php if (count($user_bookmarks) > 0) : ?>
                         <div class="table-responsive">
                             <table class="table table-sm">
                                 <thead><tr><th>Project</th><th>Bookmarked</th></tr></thead>
                                 <tbody>
-                                    <?php foreach ($user_bookmarks as $bookmark): ?>
+                                    <?php foreach ($user_bookmarks as $bookmark) : ?>
                                     <tr>
                                         <td><?php echo htmlspecialchars($bookmark['project_name'] ?? 'Unknown Project'); ?></td>
                                         <td><?php echo date('M d, Y', strtotime($bookmark['bookmarked_at'])); ?></td>
@@ -400,7 +400,7 @@ if (!empty($search)) {
                                 </tbody>
                             </table>
                         </div>
-                        <?php else: ?>
+                        <?php else : ?>
                         <p class="text-muted">No bookmarks yet.</p>
                         <?php endif; ?>
                     </div>
@@ -408,8 +408,7 @@ if (!empty($search)) {
             </div>
         </div>
     </div>
-    <?php else: ?>
-    
+    <?php else : ?>
     <!-- Main Content Area -->
     <div class="card">
 
@@ -430,7 +429,7 @@ if (!empty($search)) {
                         <button type="submit" class="btn btn-primary w-100">
                             <i class="bi bi-search me-2"></i> Search
                         </button>
-                        <?php if(!empty($search)): ?>
+                        <?php if (!empty($search)) : ?>
                             <a href="?tab=<?php echo $active_tab; ?>"
                                class="btn btn-outline-secondary w-100 mt-2">
                                 <i class="bi bi-x-circle me-2"></i> Clear Search
@@ -448,7 +447,7 @@ if (!empty($search)) {
                             type="button" role="tab" aria-controls="active-users"
                             aria-selected="<?php echo $active_tab == 'active' ? 'true' : 'false'; ?>">
                         <i class="bi bi-person-check me-2"></i> Active Users
-                        <?php if ($active_users_result->num_rows > 0): ?>
+                        <?php if ($active_users_result->num_rows > 0) : ?>
                             <span class="badge bg-primary ms-1"><?php echo $active_users_result->num_rows; ?></span>
                         <?php endif; ?>
                     </button>
@@ -459,7 +458,7 @@ if (!empty($search)) {
                             type="button" role="tab" aria-controls="blocked-users"
                             aria-selected="<?php echo $active_tab == 'blocked' ? 'true' : 'false'; ?>">
                         <i class="bi bi-person-x me-2"></i> Blocked Users
-                        <?php if ($blocked_users_result->num_rows > 0): ?>
+                        <?php if ($blocked_users_result->num_rows > 0) : ?>
                             <span class="badge bg-danger ms-1"><?php echo $blocked_users_result->num_rows; ?></span>
                         <?php endif; ?>
                     </button>
@@ -486,7 +485,7 @@ if (!empty($search)) {
                             <tbody>
                             <?php
                             if ($active_users_result->num_rows > 0) {
-                                while($row = $active_users_result->fetch_assoc()) {
+                                while ($row = $active_users_result->fetch_assoc()) {
                                     echo "<tr>";
                                     echo "<td>" . htmlspecialchars($row["id"]) . "</td>";
                                     echo "<td>" . htmlspecialchars($row["name"]) . "</td>";
@@ -541,7 +540,7 @@ if (!empty($search)) {
                             <tbody>
                             <?php
                             if ($blocked_users_result->num_rows > 0) {
-                                while($row = $blocked_users_result->fetch_assoc()) {
+                                while ($row = $blocked_users_result->fetch_assoc()) {
                                     echo "<tr>";
                                     echo "<td>" . htmlspecialchars($row["id"]) . "</td>";
                                     echo "<td>" . htmlspecialchars($row["name"]) . "</td>";
