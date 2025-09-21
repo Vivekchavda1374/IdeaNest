@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && isset($_POST['request_id'])) {
         $request_id = $_POST['request_id'];
         $action = $_POST['action'];
-        
+
         if ($action === 'accept') {
             // Accept the request and grant project access
             $conn->begin_transaction();
@@ -34,13 +34,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $details_stmt->bind_param("i", $request_id);
                 $details_stmt->execute();
                 $details = $details_stmt->get_result()->fetch_assoc();
-                
+
                 // Update request status
                 $update_query = "UPDATE mentor_requests SET status = 'accepted' WHERE id = ? AND mentor_id = ?";
                 $update_stmt = $conn->prepare($update_query);
                 $update_stmt->bind_param("ii", $request_id, $mentor_id);
                 $update_stmt->execute();
-                
+
                 // Grant access to specific project if selected
                 if ($details['project_id']) {
                     $access_query = "INSERT IGNORE INTO mentor_project_access (mentor_id, student_id, project_id) VALUES (?, ?, ?)";
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $all_projects_stmt->bind_param("iii", $mentor_id, $details['student_id'], $details['student_id']);
                     $all_projects_stmt->execute();
                 }
-                
+
                 // Send acceptance email
                 $mail = new PHPMailer(true);
                 $mail->isSMTP();
@@ -65,10 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mail->Password = 'luou xlhs ojuw auvx';
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port = 587;
-                
+
                 $mail->setFrom('ideanest.ict@gmail.com', 'IdeaNest');
                 $mail->addAddress($details['email'], $details['name']);
-                
+
                 $mail->isHTML(true);
                 $mail->Subject = 'Mentorship Request Accepted - IdeaNest';
                 $project_text = $details['project_name'] ? "for your project '{$details['project_name']}'" : "for general mentorship";
@@ -79,9 +79,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p>You can now collaborate with your mentor and get guidance on your projects.</p>
                 <p>Best regards,<br>The IdeaNest Team</p>
                 ";
-                
+
                 $mail->send();
-                
+
                 $conn->commit();
                 $success_message = "Request accepted successfully! Email sent to student.";
             } catch (Exception $e) {
@@ -101,12 +101,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $details_stmt->bind_param("i", $request_id);
                 $details_stmt->execute();
                 $details = $details_stmt->get_result()->fetch_assoc();
-                
+
                 $update_query = "UPDATE mentor_requests SET status = 'rejected' WHERE id = ? AND mentor_id = ?";
                 $update_stmt = $conn->prepare($update_query);
                 $update_stmt->bind_param("ii", $request_id, $mentor_id);
                 $update_stmt->execute();
-                
+
                 // Send rejection email
                 $mail = new PHPMailer(true);
                 $mail->isSMTP();
@@ -116,10 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mail->Password = 'luou xlhs ojuw auvx';
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port = 587;
-                
+
                 $mail->setFrom('ideanest.ict@gmail.com', 'IdeaNest');
                 $mail->addAddress($details['email'], $details['name']);
-                
+
                 $mail->isHTML(true);
                 $mail->Subject = 'Mentorship Request Update - IdeaNest';
                 $project_text = $details['project_name'] ? "for your project '{$details['project_name']}'" : "for general mentorship";
@@ -131,9 +131,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p>Don't be discouraged! You can explore other available mentors who might be a better fit for your needs.</p>
                 <p>Best regards,<br>The IdeaNest Team</p>
                 ";
-                
+
                 $mail->send();
-                
+
                 $success_message = "Request rejected. Email sent to student.";
             } catch (Exception $e) {
                 $error_message = "Failed to reject request. Please try again.";
@@ -172,14 +172,14 @@ ob_start();
         </div>
     </div>
 
-    <?php if (isset($success_message)): ?>
+    <?php if (isset($success_message)) : ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle me-2"></i><?= $success_message ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
 
-    <?php if (isset($error_message)): ?>
+    <?php if (isset($error_message)) : ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i><?= $error_message ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -189,7 +189,7 @@ ob_start();
     <div class="row">
         <div class="col-12">
             <div class="glass-card p-4">
-                <?php if ($requests_result->num_rows > 0): ?>
+                <?php if ($requests_result->num_rows > 0) : ?>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -203,7 +203,7 @@ ob_start();
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php while ($request = $requests_result->fetch_assoc()): ?>
+                                <?php while ($request = $requests_result->fetch_assoc()) : ?>
                                     <tr>
                                         <td>
                                             <div class="d-flex align-items-center">
@@ -217,16 +217,18 @@ ob_start();
                                             </div>
                                         </td>
                                         <td>
-                                            <?php if ($request['project_name']): ?>
+                                            <?php if ($request['project_name']) : ?>
                                                 <span class="badge bg-info"><?= htmlspecialchars($request['project_name']) ?></span>
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <span class="text-muted">General mentorship</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
                                             <div class="message-preview" style="max-width: 200px;">
                                                 <?= htmlspecialchars(substr($request['message'], 0, 100)) ?>
-                                                <?php if (strlen($request['message']) > 100): ?>...<?php endif; ?>
+                                                <?php if (strlen($request['message']) > 100) :
+                                                    ?>...<?php
+                                                endif; ?>
                                             </div>
                                         </td>
                                         <td>
@@ -247,7 +249,7 @@ ob_start();
                                             </span>
                                         </td>
                                         <td>
-                                            <?php if ($request['status'] === 'pending'): ?>
+                                            <?php if ($request['status'] === 'pending') : ?>
                                                 <div class="btn-group" role="group">
                                                     <form method="POST" class="d-inline">
                                                         <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
@@ -282,7 +284,7 @@ ob_start();
                                                         data-demo="<?= htmlspecialchars($request['live_demo_url'] ?? '') ?>">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <button class="btn btn-info btn-sm" data-bs-toggle="modal" 
                                                         data-bs-target="#detailsModal" 
                                                         data-message="<?= htmlspecialchars($request['message']) ?>"
@@ -306,7 +308,7 @@ ob_start();
                             </tbody>
                         </table>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="text-center py-5">
                         <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                         <h4 class="text-muted">No Requests Yet</h4>
