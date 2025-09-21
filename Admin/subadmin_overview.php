@@ -112,7 +112,7 @@ $subadmins = $conn->query("
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach($subadmins as $subadmin): ?>
+                                        <?php foreach ($subadmins as $subadmin) : ?>
                                         <tr>
                                             <td><?php echo htmlspecialchars($subadmin['name'] ?? 'Not Set'); ?></td>
                                             <td><?php echo htmlspecialchars($subadmin['email']); ?></td>
@@ -125,16 +125,16 @@ $subadmins = $conn->query("
                                                 </span>
                                             </td>
                                             <td>
-                                                <?php if($subadmin['pending_requests'] > 0): ?>
+                                                <?php if ($subadmin['pending_requests'] > 0) : ?>
                                                     <span class="badge bg-warning"><?php echo $subadmin['pending_requests']; ?></span>
-                                                <?php else: ?>
+                                                <?php else : ?>
                                                     <span class="text-muted">0</span>
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <?php if($subadmin['total_tickets'] > 0): ?>
+                                                <?php if ($subadmin['total_tickets'] > 0) : ?>
                                                     <span class="badge bg-info"><?php echo $subadmin['total_tickets']; ?></span>
-                                                <?php else: ?>
+                                                <?php else : ?>
                                                     <span class="text-muted">0</span>
                                                 <?php endif; ?>
                                             </td>
