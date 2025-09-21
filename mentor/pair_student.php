@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 require_once '../Login/Login/db.php';
 
@@ -21,9 +22,8 @@ try {
     $stmt = $conn->prepare("INSERT INTO mentor_student_pairs (mentor_id, student_id, status) VALUES (?, ?, 'active')");
     $stmt->bind_param("ii", $mentor_id, $student_id);
     $stmt->execute();
-    
+
     echo json_encode(['success' => true]);
 } catch (Exception $e) {
     echo json_encode(['error' => 'Failed to pair student']);
 }
-?>
