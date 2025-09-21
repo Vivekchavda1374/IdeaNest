@@ -1,4 +1,5 @@
 <?php
+
 // Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -14,7 +15,8 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 
-function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $email_options = []) {
+function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $email_options = [])
+{
     global $conn;
 
     $project_query = "SELECT p.*, r.email, r.name 
@@ -76,8 +78,7 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $e
         // Use custom subject if provided, otherwise randomly select one
         $subject = isset($email_options['subject']) ? $email_options['subject'] : $subject_options[array_rand($subject_options)];
         $message = createApprovedEmailContent($user_name, $project, $options);
-
-    } else if ($status == 'rejected') {
+    } elseif ($status == 'rejected') {
         // Dynamic subject line options
         $subject_options = [
             "Important Update About Your Project \"{$project_name}\"",
@@ -89,7 +90,6 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $e
         // Use custom subject if provided, otherwise randomly select one
         $subject = isset($email_options['subject']) ? $email_options['subject'] : $subject_options[array_rand($subject_options)];
         $message = createRejectedEmailContent($user_name, $project, $rejection_reason, $options);
-
     } else {
         return ['success' => false, 'message' => 'Invalid status provided'];
     }
@@ -107,7 +107,7 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $e
         $mail->Password = $options['smtp_password'];
         $mail->SMTPSecure = $options['smtp_secure'];
         $mail->Port = $options['smtp_port'];
-        
+
         // Additional settings for better compatibility
         $mail->SMTPOptions = array(
             'ssl' => array(
@@ -116,7 +116,7 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $e
                 'allow_self_signed' => true
             )
         );
-        
+
         // Set timeout values for XAMPP compatibility
         $mail->Timeout = 30;
         $mail->SMTPKeepAlive = true;
@@ -141,7 +141,8 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $e
     }
 }
 
-function createApprovedEmailContent($user_name, $project, $options) {
+function createApprovedEmailContent($user_name, $project, $options)
+{
     // Extract project details
     $project_name = $project['project_name'];
     $project_type = $project['project_type'];
@@ -241,7 +242,8 @@ function createApprovedEmailContent($user_name, $project, $options) {
     return $html;
 }
 
-function createRejectedEmailContent($user_name, $project, $rejection_reason, $options) {
+function createRejectedEmailContent($user_name, $project, $rejection_reason, $options)
+{
     // Extract project details
     $project_name = $project['project_name'];
     $project_type = $project['project_type'];
@@ -345,5 +347,3 @@ function createRejectedEmailContent($user_name, $project, $rejection_reason, $op
 
     return $html;
 }
-
-?>
