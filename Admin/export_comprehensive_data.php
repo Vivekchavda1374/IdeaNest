@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 require_once '../Login/Login/db.php';
 
@@ -19,7 +20,7 @@ if ($export_type !== 'html') {
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="ideanest_comprehensive_export_' . date('Y-m-d_H-i-s') . '.csv"');
     $output = fopen('php://output', 'w');
-    
+
     // Add header with export info
     fputcsv($output, ['IdeaNest Comprehensive Data Export']);
     fputcsv($output, ['Generated on: ' . date('Y-m-d H:i:s')]);
@@ -28,7 +29,8 @@ if ($export_type !== 'html') {
 }
 
 // Function to safely get data
-function safeQuery($conn, $query) {
+function safeQuery($conn, $query)
+{
     $result = $conn->query($query);
     return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 }
@@ -54,11 +56,11 @@ if ($export_type === 'csv' || $export_type === 'users') {
         GROUP BY r.id
         ORDER BY r.id
     ");
-    
+
     if ($export_type !== 'html') {
         fputcsv($output, ['=== USER PROFILES & ACTIVITIES ===']);
         fputcsv($output, ['ID', 'Name', 'Email', 'Enrollment', 'Department', 'Role', 'Passout Year', 'Phone', 'About', 'Submitted Projects', 'Approved Projects', 'Ideas Submitted', 'Project Likes Given', 'Idea Likes Given', 'Bookmarks', 'Email Notifications', 'GitHub Token Status']);
-        
+
         foreach ($users as $user) {
             fputcsv($output, [
                 $user['id'],
@@ -100,7 +102,7 @@ if ($export_type === 'csv' || $export_type === 'projects') {
         GROUP BY p.id
         ORDER BY p.submission_date DESC
     ");
-    
+
     // Admin approved projects
     $admin_projects = safeQuery($conn, "
         SELECT ap.*, r.name as user_name, r.email as user_email, r.department,
@@ -115,7 +117,7 @@ if ($export_type === 'csv' || $export_type === 'projects') {
         GROUP BY ap.id
         ORDER BY ap.submission_date DESC
     ");
-    
+
     // Project ideas from blog
     $ideas = safeQuery($conn, "
         SELECT b.*, r.name as user_name, r.email as user_email, r.department,
@@ -128,12 +130,12 @@ if ($export_type === 'csv' || $export_type === 'projects') {
         GROUP BY b.id
         ORDER BY b.submission_datetime DESC
     ");
-    
+
     if ($export_type !== 'html') {
         // Project submissions
         fputcsv($output, ['=== PROJECT SUBMISSIONS ===']);
         fputcsv($output, ['ID', 'Project Name', 'User Name', 'User Email', 'Department', 'Type', 'Classification', 'Category', 'Difficulty', 'Development Time', 'Team Size', 'Description', 'Language', 'Status', 'Submission Date', 'Likes', 'Comments', 'Bookmarks', 'GitHub Repo', 'Live Demo']);
-        
+
         foreach ($projects as $project) {
             fputcsv($output, [
                 $project['id'],
@@ -159,11 +161,11 @@ if ($export_type === 'csv' || $export_type === 'projects') {
             ]);
         }
         fputcsv($output, []);
-        
+
         // Admin approved projects
         fputcsv($output, ['=== ADMIN APPROVED PROJECTS ===']);
         fputcsv($output, ['ID', 'Project Name', 'User Name', 'User Email', 'Department', 'Type', 'Classification', 'Category', 'Difficulty', 'Development Time', 'Team Size', 'Description', 'Language', 'Status', 'Approval Date', 'Likes', 'Comments', 'Bookmarks', 'GitHub Repo', 'Live Demo']);
-        
+
         foreach ($admin_projects as $project) {
             fputcsv($output, [
                 $project['id'],
@@ -189,11 +191,11 @@ if ($export_type === 'csv' || $export_type === 'projects') {
             ]);
         }
         fputcsv($output, []);
-        
+
         // Project ideas
         fputcsv($output, ['=== PROJECT IDEAS ===']);
         fputcsv($output, ['ID', 'Idea Name', 'User Name', 'User Email', 'Department', 'Type', 'Classification', 'Description', 'Status', 'Priority', 'Assigned To', 'Submission Date', 'Completion Date', 'Likes', 'Comments']);
-        
+
         foreach ($ideas as $idea) {
             fputcsv($output, [
                 $idea['id'],
@@ -231,7 +233,7 @@ if ($export_type === 'csv' || $export_type === 'subadmins') {
         GROUP BY s.id
         ORDER BY s.created_at DESC
     ");
-    
+
     // Subadmin classification requests
     $subadmin_requests = safeQuery($conn, "
         SELECT scr.*, s.name as subadmin_name, s.email as subadmin_email
@@ -239,7 +241,7 @@ if ($export_type === 'csv' || $export_type === 'subadmins') {
         LEFT JOIN subadmins s ON scr.subadmin_id = s.id
         ORDER BY scr.request_date DESC
     ");
-    
+
     // Support tickets
     $support_tickets = safeQuery($conn, "
         SELECT st.*, 
@@ -249,12 +251,12 @@ if ($export_type === 'csv' || $export_type === 'subadmins') {
         GROUP BY st.id
         ORDER BY st.created_at DESC
     ");
-    
+
     if ($export_type !== 'html') {
         // Subadmin profiles
         fputcsv($output, ['=== SUBADMIN PROFILES ===']);
         fputcsv($output, ['ID', 'Name', 'Email', 'Domain', 'Software Classification', 'Hardware Classification', 'Status', 'Profile Complete', 'Total Requests', 'Approved Requests', 'Support Tickets', 'Created Date', 'Last Login']);
-        
+
         foreach ($subadmins as $subadmin) {
             fputcsv($output, [
                 $subadmin['id'],
@@ -273,11 +275,11 @@ if ($export_type === 'csv' || $export_type === 'subadmins') {
             ]);
         }
         fputcsv($output, []);
-        
+
         // Classification requests
         fputcsv($output, ['=== SUBADMIN CLASSIFICATION REQUESTS ===']);
         fputcsv($output, ['ID', 'Subadmin Name', 'Subadmin Email', 'Software Classification', 'Hardware Classification', 'Status', 'Request Date', 'Decision Date', 'Admin Comment']);
-        
+
         foreach ($subadmin_requests as $request) {
             fputcsv($output, [
                 $request['id'],
@@ -292,11 +294,11 @@ if ($export_type === 'csv' || $export_type === 'subadmins') {
             ]);
         }
         fputcsv($output, []);
-        
+
         // Support tickets
         fputcsv($output, ['=== SUPPORT TICKETS ===']);
         fputcsv($output, ['Ticket Number', 'Subadmin Name', 'Subject', 'Category', 'Priority', 'Status', 'Message', 'Admin Response', 'Reply Count', 'Created Date', 'Resolved Date']);
-        
+
         foreach ($support_tickets as $ticket) {
             fputcsv($output, [
                 $ticket['ticket_number'],
@@ -335,7 +337,7 @@ if ($export_type === 'csv' || $export_type === 'mentors') {
         GROUP BY r.id
         ORDER BY r.id
     ");
-    
+
     // Mentor-student pairings
     $mentor_pairings = safeQuery($conn, "
         SELECT msp.*, 
@@ -349,7 +351,7 @@ if ($export_type === 'csv' || $export_type === 'mentors') {
         GROUP BY msp.id
         ORDER BY msp.paired_at DESC
     ");
-    
+
     // Mentoring sessions
     $mentoring_sessions = safeQuery($conn, "
         SELECT ms.*, msp.mentor_id, msp.student_id,
@@ -361,7 +363,7 @@ if ($export_type === 'csv' || $export_type === 'mentors') {
         LEFT JOIN register rs ON msp.student_id = rs.id
         ORDER BY ms.session_date DESC
     ");
-    
+
     // Mentor activity logs
     $mentor_activities = safeQuery($conn, "
         SELECT mal.*, r.name as mentor_name, rs.name as student_name
@@ -370,12 +372,12 @@ if ($export_type === 'csv' || $export_type === 'mentors') {
         LEFT JOIN register rs ON mal.student_id = rs.id
         ORDER BY mal.created_at DESC
     ");
-    
+
     if ($export_type !== 'html') {
         // Mentor profiles
         fputcsv($output, ['=== MENTOR PROFILES ===']);
         fputcsv($output, ['ID', 'Name', 'Email', 'Department', 'Specialization', 'Experience Years', 'Max Students', 'Current Students', 'Bio', 'LinkedIn', 'GitHub', 'Total Pairings', 'Completed Pairings', 'Total Sessions', 'Completed Sessions', 'Activity Logs', 'Average Rating']);
-        
+
         foreach ($mentors as $mentor) {
             fputcsv($output, [
                 $mentor['id'],
@@ -398,11 +400,11 @@ if ($export_type === 'csv' || $export_type === 'mentors') {
             ]);
         }
         fputcsv($output, []);
-        
+
         // Mentor-student pairings
         fputcsv($output, ['=== MENTOR-STUDENT PAIRINGS ===']);
         fputcsv($output, ['ID', 'Mentor Name', 'Mentor Email', 'Student Name', 'Student Email', 'Status', 'Paired Date', 'Completed Date', 'Rating', 'Feedback', 'Session Count']);
-        
+
         foreach ($mentor_pairings as $pairing) {
             fputcsv($output, [
                 $pairing['id'],
@@ -419,11 +421,11 @@ if ($export_type === 'csv' || $export_type === 'mentors') {
             ]);
         }
         fputcsv($output, []);
-        
+
         // Mentoring sessions
         fputcsv($output, ['=== MENTORING SESSIONS ===']);
         fputcsv($output, ['ID', 'Mentor Name', 'Student Name', 'Session Date', 'Duration (minutes)', 'Status', 'Notes', 'Meeting Link', 'Created Date']);
-        
+
         foreach ($mentoring_sessions as $session) {
             fputcsv($output, [
                 $session['id'],
@@ -438,11 +440,11 @@ if ($export_type === 'csv' || $export_type === 'mentors') {
             ]);
         }
         fputcsv($output, []);
-        
+
         // Mentor activity logs
         fputcsv($output, ['=== MENTOR ACTIVITY LOGS ===']);
         fputcsv($output, ['ID', 'Mentor Name', 'Activity Type', 'Description', 'Student Name', 'Date']);
-        
+
         foreach ($mentor_activities as $activity) {
             fputcsv($output, [
                 $activity['id'],
@@ -475,7 +477,7 @@ if ($export_type === 'csv' || $export_type === 'all') {
     $notification_counters = safeQuery($conn, "SELECT * FROM notification_counters ORDER BY type, status");
     $mentor_project_access = safeQuery($conn, "SELECT mpa.*, rm.name as mentor_name, rs.name as student_name FROM mentor_project_access mpa LEFT JOIN register rm ON mpa.mentor_id = rm.id LEFT JOIN register rs ON mpa.student_id = rs.id ORDER BY mpa.granted_at DESC");
     $removed_users = safeQuery($conn, "SELECT * FROM removed_user ORDER BY id DESC");
-    
+
     if ($export_type !== 'html') {
         // Comment likes
         fputcsv($output, ['=== COMMENT LIKES ===']);
@@ -489,7 +491,7 @@ if ($export_type === 'csv' || $export_type === 'all') {
             ]);
         }
         fputcsv($output, []);
-        
+
         // Admin logs
         fputcsv($output, ['=== ADMIN LOGS ===']);
         fputcsv($output, ['ID', 'Action', 'Details', 'Admin ID', 'Date']);
@@ -503,7 +505,7 @@ if ($export_type === 'csv' || $export_type === 'all') {
             ]);
         }
         fputcsv($output, []);
-        
+
         // Admin settings
         fputcsv($output, ['=== ADMIN SETTINGS ===']);
         fputcsv($output, ['Setting Key', 'Setting Value', 'Type', 'Updated']);
@@ -516,7 +518,7 @@ if ($export_type === 'csv' || $export_type === 'all') {
             ]);
         }
         fputcsv($output, []);
-        
+
         // GitHub connected users
         fputcsv($output, ['=== GITHUB CONNECTED USERS ===']);
         fputcsv($output, ['Name', 'Email', 'GitHub Status']);
@@ -528,7 +530,7 @@ if ($export_type === 'csv' || $export_type === 'all') {
             ]);
         }
         fputcsv($output, []);
-        
+
         // Student email preferences
         fputcsv($output, ['=== STUDENT EMAIL PREFERENCES ===']);
         fputcsv($output, ['Student Name', 'Session Reminders', 'Progress Updates', 'Project Feedback', 'Welcome Emails']);
@@ -542,7 +544,7 @@ if ($export_type === 'csv' || $export_type === 'all') {
             ]);
         }
         fputcsv($output, []);
-        
+
         // Mentor project access
         fputcsv($output, ['=== MENTOR PROJECT ACCESS ===']);
         fputcsv($output, ['ID', 'Mentor Name', 'Student Name', 'Project ID', 'Granted Date']);
@@ -569,7 +571,7 @@ if ($export_type === 'csv' || $export_type === 'all') {
         ORDER BY nl.created_at DESC
         LIMIT 1000
     ");
-    
+
     // Project interactions (likes, comments, bookmarks)
     $interactions = safeQuery($conn, "
         SELECT 'project_like' as type, pl.project_id as item_id, pl.user_id, pl.created_at, r.name as user_name
@@ -586,11 +588,11 @@ if ($export_type === 'csv' || $export_type === 'all') {
         ORDER BY created_at DESC
         LIMIT 1000
     ");
-    
+
     // System notifications
     fputcsv($output, ['=== SYSTEM NOTIFICATIONS ===']);
     fputcsv($output, ['ID', 'Type', 'User Name', 'Status', 'Email To', 'Subject', 'Date', 'Error Message']);
-    
+
     foreach ($notifications as $notification) {
         fputcsv($output, [
             $notification['id'],
@@ -604,11 +606,11 @@ if ($export_type === 'csv' || $export_type === 'all') {
         ]);
     }
     fputcsv($output, []);
-    
+
     // User interactions
     fputcsv($output, ['=== USER INTERACTIONS ===']);
     fputcsv($output, ['Type', 'Item ID', 'User Name', 'Date']);
-    
+
     foreach ($interactions as $interaction) {
         fputcsv($output, [
             ucfirst(str_replace('_', ' ', $interaction['type'])),
@@ -618,7 +620,7 @@ if ($export_type === 'csv' || $export_type === 'all') {
         ]);
     }
     fputcsv($output, []);
-    
+
     // Export summary
     fputcsv($output, ['=== EXPORT SUMMARY ===']);
     fputcsv($output, ['Total Users', count($users ?? [])]);
@@ -638,4 +640,3 @@ if ($export_type !== 'html') {
     fclose($output);
     exit();
 }
-?>
