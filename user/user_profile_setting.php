@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $department = trim($_POST['department']);
     $passout_year = trim($_POST['passout_year']);
     $email_notifications = isset($_POST['email_notifications']) ? 1 : 0;
+    $github_username = trim($_POST['github_username'] ?? '');
 
     $current_password = $_POST['current_password'] ?? '';
     $new_password = $_POST['new_password'] ?? '';
@@ -105,7 +106,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $types .= "i";
         $params[] = $email_notifications;
 
-
+        // GitHub username update
+        if (!empty($github_username)) {
+            // Validate GitHub username format
+            if (preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9-]){0,38}$/', $github_username)) {
+                require_once 'github_service.php';
+                $github_profile = fetchGitHubProfile($github_username);
+                if ($github_profile) {
+                    $update_fields[] = "github_username = ?";
+                    $types .= "s";
+                    $params[] = $github_username;
+                    
+                    $update_fields[] = "github_profile_url = ?";
+                    $types .= "s";
+                    $params[] = $github_profile['html_url'];
+                    
+                    $update_fields[] = "github_repos_count = ?";
+                    $types .= "i";
+                    $params[] = $github_profile['public_repos'];
+                    
+                    $update_fields[] = "github_last_sync = NOW()";
+                } else {
+                    $errors[] = "GitHub username not found or invalid";
+                }
+            } else {
+                $errors[] = "Invalid GitHub username format";
+            }
+        } else {
+            // Clear GitHub data if username is empty
+            $update_fields[] = "github_username = NULL";
+            $update_fields[] = "github_profile_url = NULL";
+            $update_fields[] = "github_repos_count = 0";
+            $update_fields[] = "github_last_sync = NULL";
+        }
 
         // Password update
         if (!empty($current_password) && !empty($new_password) && !empty($confirm_password)) {
@@ -583,6 +616,44 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
 
 
 
+            <!-- GitHub Integration -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fab fa-github"></i>
+                    GitHub Integration
+                </h3>
+                <div class="form-group">
+                    <label for="github_username" class="form-label">GitHub Username</label>
+                    <div class="input-group">
+                        <i class="fab fa-github input-group-icon"></i>
+                        <input type="text" id="github_username" name="github_username" class="form-control" 
+                               value="<?php echo htmlspecialchars($user['github_username'] ?? ''); ?>" 
+                               placeholder="Enter your GitHub username">
+                    </div>
+                    <small class="form-text">Connect your GitHub profile to showcase your repositories and contributions</small>
+                    <?php if (!empty($user['github_username'])): ?>
+                        <div class="github-info" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fab fa-github" style="color: #333;"></i>
+                                <div>
+                                    <strong>Connected:</strong> 
+                                    <a href="<?php echo htmlspecialchars($user['github_profile_url'] ?? ''); ?>" target="_blank" style="color: #0366d6;">
+                                        <?php echo htmlspecialchars($user['github_username']); ?>
+                                    </a>
+                                    <br>
+                                    <small style="color: #666;">
+                                        <?php echo $user['github_repos_count'] ?? 0; ?> public repositories
+                                        <?php if (!empty($user['github_last_sync'])): ?>
+                                            • Last synced: <?php echo date('M j, Y', strtotime($user['github_last_sync'])); ?>
+                                        <?php endif; ?>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
             <!-- Notification Settings -->
             <div class="form-section">
                 <h3 class="section-title">
@@ -652,5 +723,110 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
     </div>
 </div>
 <script src="../assets/js/user_profile.js"></script>
+<script>
+// GitHub sync functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const githubInput = document.getElementById('github_username');
+    const githubInfo = document.querySelector('.github-info');
+    
+    if (githubInput) {
+        // Add sync button
+        const syncButton = document.createElement('button');
+        syncButton.type = 'button';
+        syncButton.className = 'btn btn-outline-primary btn-sm mt-2';
+        syncButton.innerHTML = '<i class="fab fa-github"></i> Sync Now';
+        syncButton.style.display = githubInput.value ? 'inline-block' : 'none';
+        
+        githubInput.parentNode.appendChild(syncButton);
+        
+        // Show/hide sync button based on input
+        githubInput.addEventListener('input', function() {
+            syncButton.style.display = this.value.trim() ? 'inline-block' : 'none';
+        });
+        
+        // Sync functionality
+        syncButton.addEventListener('click', function() {
+            const username = githubInput.value.trim();
+            if (!username) return;
+            
+            // Show loading state
+            syncButton.disabled = true;
+            syncButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
+            
+            // Make API call
+            fetch('sync_github.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: username })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update GitHub info display
+                    if (githubInfo) {
+                        githubInfo.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fab fa-github" style="color: #333;"></i>
+                                <div>
+                                    <strong>Connected:</strong> 
+                                    <a href="${data.data.profile_url}" target="_blank" style="color: #0366d6;">
+                                        ${data.data.username}
+                                    </a>
+                                    <br>
+                                    <small style="color: #666;">
+                                        ${data.data.repos_count} public repositories
+                                        • Last synced: Just now
+                                    </small>
+                                </div>
+                            </div>
+                        `;
+                        githubInfo.style.display = 'block';
+                    }
+                    
+                    // Show success message
+                    showNotification('GitHub profile synced successfully!', 'success');
+                } else {
+                    showNotification(data.message || 'Failed to sync GitHub profile', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Network error occurred', 'error');
+            })
+            .finally(() => {
+                // Reset button state
+                syncButton.disabled = false;
+                syncButton.innerHTML = '<i class="fab fa-github"></i> Sync Now';
+            });
+        });
+    }
+});
+
+// Notification function
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+    notification.style.position = 'fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '9999';
+    notification.style.minWidth = '300px';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+</script>
 </body>
 </html>
