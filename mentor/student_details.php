@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 require_once '../Login/Login/db.php';
 require_once 'mentor_layout.php';
@@ -16,4 +17,3 @@ if (!$student_id) {
 
 $content = '<h2>Student Details</h2><p>Student details for ID: ' . htmlspecialchars($student_id) . '</p>';
 renderLayout('Student Details', $content);
-?>
