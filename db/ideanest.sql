@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Sep 21, 2025 at 07:20 AM
+-- Generation Time: Sep 21, 2025 at 07:11 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -1103,19 +1103,23 @@ CREATE TABLE `register` (
                             `role` enum('student','mentor','admin') DEFAULT 'student',
                             `expertise` text DEFAULT NULL,
                             `mentor_rating` decimal(3,2) DEFAULT 0.00,
-                            `is_available` tinyint(1) DEFAULT 1
+                            `is_available` tinyint(1) DEFAULT 1,
+                            `github_username` varchar(100) DEFAULT NULL,
+                            `github_profile_url` varchar(255) DEFAULT NULL,
+                            `github_repos_count` int(11) DEFAULT 0,
+                            `github_last_sync` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `register`
 --
 
-INSERT INTO `register` (`id`, `name`, `email`, `enrollment_number`, `gr_number`, `password`, `about`, `phone_no`, `department`, `passout_year`, `user_image`, `google_id`, `email_notifications`, `last_notification_sent`, `github_token`, `role`, `expertise`, `mentor_rating`, `is_available`) VALUES
-                                                                                                                                                                                                                                                                                                      (1, 'vivek', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'i am vivek', '9104231590', 'ict', '2026', 'profile_68a6b4d8458ae.png', '116644441139882349952', 0, '2025-09-08 10:11:08', NULL, 'student', NULL, 0.00, 1),
-                                                                                                                                                                                                                                                                                                      (2, 'vivek', 'viveksinhchavda639@gmail.com', '92200133041', '119485', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'hi i am vivek', '9104231590', 'ict', '2026', '', '111579585627734057498', 1, '2025-09-08 12:43:07', NULL, 'student', NULL, 0.00, 1),
-                                                                                                                                                                                                                                                                                                      (4, 'Dr. Sarah Johnson', 'sarah.mentor@ideanest.com', 'MEN001', 'MEN001', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'AI/ML Expert with 10 years experience', NULL, 'Computer Science', '2015', '', NULL, 1, NULL, NULL, 'student', 'Artificial Intelligence, Machine Learning, Data Science', 0.00, 1),
-                                                                                                                                                                                                                                                                                                      (5, 'Prof. Mike Chen', 'mike.mentor@ideanest.com', 'MEN002', 'MEN002', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'Full-stack developer and IoT specialist', NULL, 'ICT', '2012', '', NULL, 1, NULL, NULL, 'student', 'Web Development, IoT, Mobile Apps', 0.00, 1),
-                                                                                                                                                                                                                                                                                                      (7, 'vivek', 'chavdaviveksinh1374@gmail.com', 'MEN336', 'MEN336', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'Web Development', NULL, 'Mentor', '2024', '', '109218137896780820209', 1, NULL, NULL, 'mentor', 'Web Development', 0.00, 1);
+INSERT INTO `register` (`id`, `name`, `email`, `enrollment_number`, `gr_number`, `password`, `about`, `phone_no`, `department`, `passout_year`, `user_image`, `google_id`, `email_notifications`, `last_notification_sent`, `github_token`, `role`, `expertise`, `mentor_rating`, `is_available`, `github_username`, `github_profile_url`, `github_repos_count`, `github_last_sync`) VALUES
+                                                                                                                                                                                                                                                                                                                                                                                         (1, 'vivek', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'i am vivek', '9104231590', 'ict', '2026', 'profile_68a6b4d8458ae.png', '116644441139882349952', 0, '2025-09-08 10:11:08', NULL, 'student', NULL, 0.00, 1, 'Vivekchavda1374', 'https://github.com/Vivekchavda1374', 46, '2025-09-21 16:48:21'),
+                                                                                                                                                                                                                                                                                                                                                                                         (2, 'vivek', 'viveksinhchavda639@gmail.com', '92200133041', '119485', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'hi i am vivek', '9104231590', 'ict', '2026', '', '111579585627734057498', 1, '2025-09-08 12:43:07', NULL, 'student', NULL, 0.00, 1, NULL, NULL, 0, NULL),
+                                                                                                                                                                                                                                                                                                                                                                                         (4, 'Dr. Sarah Johnson', 'sarah.mentor@ideanest.com', 'MEN001', 'MEN001', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'AI/ML Expert with 10 years experience', NULL, 'Computer Science', '2015', '', NULL, 1, NULL, NULL, 'student', 'Artificial Intelligence, Machine Learning, Data Science', 0.00, 1, NULL, NULL, 0, NULL),
+                                                                                                                                                                                                                                                                                                                                                                                         (5, 'Prof. Mike Chen', 'mike.mentor@ideanest.com', 'MEN002', 'MEN002', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'Full-stack developer and IoT specialist', NULL, 'ICT', '2012', '', NULL, 1, NULL, NULL, 'student', 'Web Development, IoT, Mobile Apps', 0.00, 1, NULL, NULL, 0, NULL),
+                                                                                                                                                                                                                                                                                                                                                                                         (7, 'vivek', 'chavdaviveksinh1374@gmail.com', 'MEN336', 'MEN336', '$2y$10$nG7UVKosppZ89J4ZiG3XHuRpno.EVUlfuBiZzuoNaJbpxU2P250zm', 'Web Development', NULL, 'Mentor', '2024', '', '109218137896780820209', 1, NULL, NULL, 'mentor', 'Web Development', 0.00, 1, NULL, NULL, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -1337,6 +1341,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (6, '8ml0mp447bsdo6hsfa56rbfso0', '2025-09-21 04:43:32'),
                                                                                       (6, 'f2p8bp3d2idnme0b860kkfebj1', '2025-09-03 05:14:04'),
                                                                                       (6, 'f752vcgdd6la5uc66ek2c8nmg3', '2025-09-06 08:09:01'),
+                                                                                      (6, 'gafbai2abckfkkqfgqn2r3si86', '2025-09-21 16:48:54'),
                                                                                       (6, 'hoei7f5ruh8f1787iujiep5p2k', '2025-09-04 14:32:48'),
                                                                                       (6, 'iqpfamo9lqceg72d599utbbepm', '2025-09-11 17:47:20'),
                                                                                       (6, 'm8qsgh56nuce6ibf33i0e45ec2', '2025-09-06 04:12:26'),
@@ -1345,6 +1350,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (6, 'q68pts618n3tkla7sbb6b98dl0', '2025-09-07 13:32:20'),
                                                                                       (6, 'qhacs56qimukk252chb8egfqqg', '2025-09-21 05:00:12'),
                                                                                       (6, 'rmuog6fbd12fe5rhm63g2s7uds', '2025-08-25 05:47:14'),
+                                                                                      (6, 'v98ld6vsrl25phegqgu7n0hmeu', '2025-09-21 06:43:08'),
                                                                                       (7, '4dgdaagrjbgjosn9rgsmeld17f', '2025-08-22 05:02:33'),
                                                                                       (7, '4evm1tln9kd756idpd3kjmcrmh', '2025-08-22 07:00:32'),
                                                                                       (7, '6nb1r5mraq35ah2qnk4r8e071n', '2025-08-24 04:02:21'),
@@ -1378,6 +1384,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (11, '8ml0mp447bsdo6hsfa56rbfso0', '2025-09-21 04:43:32'),
                                                                                       (11, 'f2p8bp3d2idnme0b860kkfebj1', '2025-09-03 05:14:04'),
                                                                                       (11, 'f752vcgdd6la5uc66ek2c8nmg3', '2025-09-06 08:09:01'),
+                                                                                      (11, 'gafbai2abckfkkqfgqn2r3si86', '2025-09-21 16:48:54'),
                                                                                       (11, 'hoei7f5ruh8f1787iujiep5p2k', '2025-09-04 14:32:48'),
                                                                                       (11, 'iqpfamo9lqceg72d599utbbepm', '2025-09-11 17:47:20'),
                                                                                       (11, 'm8qsgh56nuce6ibf33i0e45ec2', '2025-09-06 04:12:26'),
@@ -1386,6 +1393,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (11, 'q68pts618n3tkla7sbb6b98dl0', '2025-09-07 13:32:20'),
                                                                                       (11, 'qhacs56qimukk252chb8egfqqg', '2025-09-21 05:00:12'),
                                                                                       (11, 'rmuog6fbd12fe5rhm63g2s7uds', '2025-08-25 05:47:14'),
+                                                                                      (11, 'v98ld6vsrl25phegqgu7n0hmeu', '2025-09-21 06:43:08'),
                                                                                       (12, '4dgdaagrjbgjosn9rgsmeld17f', '2025-08-22 05:02:33'),
                                                                                       (12, '4evm1tln9kd756idpd3kjmcrmh', '2025-08-22 07:00:32'),
                                                                                       (12, '6nb1r5mraq35ah2qnk4r8e071n', '2025-08-24 04:02:21'),
@@ -1407,6 +1415,7 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (14, '8ml0mp447bsdo6hsfa56rbfso0', '2025-09-21 04:43:32'),
                                                                                       (14, 'f2p8bp3d2idnme0b860kkfebj1', '2025-09-03 05:14:04'),
                                                                                       (14, 'f752vcgdd6la5uc66ek2c8nmg3', '2025-09-06 08:09:01'),
+                                                                                      (14, 'gafbai2abckfkkqfgqn2r3si86', '2025-09-21 16:48:54'),
                                                                                       (14, 'hoei7f5ruh8f1787iujiep5p2k', '2025-09-04 14:32:48'),
                                                                                       (14, 'iqpfamo9lqceg72d599utbbepm', '2025-09-11 17:47:20'),
                                                                                       (14, 'm8qsgh56nuce6ibf33i0e45ec2', '2025-09-06 04:12:26'),
@@ -1414,7 +1423,8 @@ INSERT INTO `temp_project_ownership` (`project_id`, `user_session`, `created_at`
                                                                                       (14, 'pglj9ovjijarh6kv1bhtn1hk7v', '2025-09-08 07:21:10'),
                                                                                       (14, 'q68pts618n3tkla7sbb6b98dl0', '2025-09-07 13:32:20'),
                                                                                       (14, 'qhacs56qimukk252chb8egfqqg', '2025-09-21 05:00:12'),
-                                                                                      (14, 'rmuog6fbd12fe5rhm63g2s7uds', '2025-08-25 05:47:14');
+                                                                                      (14, 'rmuog6fbd12fe5rhm63g2s7uds', '2025-08-25 05:47:14'),
+                                                                                      (14, 'v98ld6vsrl25phegqgu7n0hmeu', '2025-09-21 06:43:08');
 
 -- --------------------------------------------------------
 
@@ -1800,7 +1810,8 @@ ALTER TABLE `register`
   ADD UNIQUE KEY `gr_number` (`gr_number`),
   ADD UNIQUE KEY `google_id` (`google_id`),
   ADD KEY `idx_register_email` (`email`),
-  ADD KEY `idx_register_enrollment` (`enrollment_number`);
+  ADD KEY `idx_register_enrollment` (`enrollment_number`),
+  ADD KEY `idx_github_username` (`github_username`);
 
 --
 -- Indexes for table `removed_user`

@@ -86,12 +86,36 @@ if (!empty($github_username)) {
                     <?php endif; ?>
                 </div>
                 <?php if (!empty($repo['description'])): ?>
-                    <p class="repo-description"><?php echo htmlspecialchars($repo['description']); ?></p>
+                    <p class="repo-description" loading="lazy"><?php echo htmlspecialchars($repo['description']); ?></p>
                 <?php endif; ?>
                 <div class="repo-meta">
                     <?php if (!empty($repo['language'])): ?>
                         <span class="language">
-                            <span class="language-dot" style="background-color: #<?php echo substr(md5($repo['language']), 0, 6); ?>;"></span>
+                            <span class="language-dot" style="background-color: <?php 
+                                $languageColors = [
+                                    'JavaScript' => '#f1e05a',
+                                    'Python' => '#3572A5',
+                                    'Java' => '#b07219',
+                                    'TypeScript' => '#2b7489',
+                                    'C++' => '#f34b7d',
+                                    'C' => '#555555',
+                                    'C#' => '#239120',
+                                    'PHP' => '#4F5D95',
+                                    'Ruby' => '#701516',
+                                    'Go' => '#00ADD8',
+                                    'Rust' => '#dea584',
+                                    'Swift' => '#ffac45',
+                                    'Kotlin' => '#F18E33',
+                                    'Dart' => '#00B4AB',
+                                    'HTML' => '#e34c26',
+                                    'CSS' => '#1572B6',
+                                    'Shell' => '#89e051',
+                                    'Jupyter Notebook' => '#DA5B0B',
+                                    'Vue' => '#2c3e50',
+                                    'React' => '#61DAFB'
+                                ];
+                                echo $languageColors[$repo['language']] ?? '#' . substr(md5($repo['language']), 0, 6);
+                            ?>;"></span>
                             <?php echo htmlspecialchars($repo['language']); ?>
                         </span>
                     <?php endif; ?>
@@ -207,6 +231,25 @@ if (!empty($github_username)) {
     border-radius: 8px;
     padding: 15px;
     background: white;
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.repo-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: #0366d6;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .repo-header {
@@ -243,6 +286,8 @@ if (!empty($github_username)) {
     color: #586069;
     font-size: 14px;
     margin-bottom: 10px;
+    content-visibility: auto;
+    contain-intrinsic-size: 0 40px;
 }
 
 .repo-meta {
@@ -270,6 +315,16 @@ if (!empty($github_username)) {
     gap: 3px;
 }
 </style>
+
+<script>
+// Animate repo cards on load
+document.addEventListener('DOMContentLoaded', function() {
+    const repoCards = document.querySelectorAll('.repo-card');
+    repoCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
+});
+</script>
 
 <?php else: ?>
 <div class="github-section">

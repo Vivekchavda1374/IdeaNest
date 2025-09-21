@@ -1,65 +1,4 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IdeaNest - Academic Project Management Platform</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .testimonial-card.animate {
-            opacity: 1;
-            transform: translateY(0);
-            transition: all 0.6s ease;
-        }
-
-        .testimonial-card {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s ease;
-        }
-
-        /* Fix for feature cards animation too */
-        .feature-card.animate {
-            opacity: 1;
-            transform: translateY(0);
-            transition: all 0.6s ease;
-        }
-
-        .feature-card {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s ease;
-        }
-    </style>
-</head>
-<body>
-
-<script>
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('animate');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, {
-        threshold: 0.2
-    });
-
-    // Observe features cards
-    document.querySelectorAll('.feature-card').forEach(card => {
-        observer.observe(card);
-    });
-
-    // Observe testimonial cards
-    document.querySelectorAll('.testimonial-card').forEach(card => {
-        observer.observe(card);
-    });
-</script>
-</body>
-</html>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -381,6 +320,689 @@
         .features {
             padding: 8rem 0;
             background: var(--light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--gray);
+            margin-bottom: 4rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .feature-card.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: var(--gray);
+            line-height: 1.8;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 6rem 0;
+            background: linear-gradient(135deg, var(--dark), #334155);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 8rem 0;
+            background: #fff;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .testimonial-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .testimonial-card.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15);
+        }
+
+        .testimonial-text {
+            font-size: 1.1rem;
+            color: #334155;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #8B5CF6, #A855F7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .author-details h4 {
+            color: #1e293b;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .author-details p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 8rem 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta-title {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-text {
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .footer-section p {
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: var(--primary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #334155;
+            color: #94a3b8;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 992px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .auth-buttons {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 2rem;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .floating-cards {
+                width: 300px;
+                height: 300px;
+            }
+
+            .card {
+                padding: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .card:nth-child(1) {
+                width: 150px;
+            }
+
+            .card:nth-child(2) {
+                width: 130px;
+            }
+
+            .card:nth-child(3) {
+                width: 160px;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+    <div class="nav-container">
+        <div class="logo">
+            IdeaNest
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+        </nav>
+        <div class="auth-buttons">
+            <a href="./Login/Login/login.php" class="login-btn">Login</a>
+            <a href="./Login/Login/register.php" class="register-btn">Register</a>
+        </div>
+        <button class="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero" id="home">
+    <div class="hero-content">
+        <div class="hero-text">
+            <h1 class="hero-title">IdeaNest</h1>
+            <h2 class="hero-subtitle">Where Academic Ideas Take Flight</h2>
+            <p class="hero-description">
+                The ultimate platform for managing, sharing, and reviewing academic projects.
+                Streamline your project workflow with our comprehensive solution for students,
+                sub-admins, and administrators.
+            </p>
+            <div class="cta-buttons">
+                <a href="./Login/Login/login.php" class="btn-primary">
+                    <i class="fas fa-rocket"></i> Get Started
+                </a>
+                <a href="#features" class="btn-secondary">
+                    <i class="fas fa-info-circle"></i> Learn More
+                </a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="floating-cards">
+                <div class="card">
+                    <h3>📚 Projects</h3>
+                    <p>Manage & Submit</p>
+                </div>
+                <div class="card">
+                    <h3>👥 Collaborate</h3>
+                    <p>Team Work</p>
+                </div>
+                <div class="card">
+                    <h3>🚀 Innovation</h3>
+                    <p>Ideas to Reality</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features" id="features">
+    <div class="container">
+        <h2 class="section-title">Powerful Features</h2>
+        <p class="section-subtitle">Everything you need to manage academic projects efficiently</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3 class="feature-title">Project Management</h3>
+                <p class="feature-description">
+                    Submit, edit, and track your projects with ease. Support for multiple file types
+                    including images, videos, code files, and documentation.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3 class="feature-title">Advanced Search</h3>
+                <p class="feature-description">
+                    Find projects quickly with powerful search and filtering capabilities.
+                    Sort by type, category, or custom criteria.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👨💼</div>
+                <h3 class="feature-title">Multi-Role Support</h3>
+                <p class="feature-description">
+                    Designed for students, sub-admins, and administrators with role-based
+                    access control and specialized features for each user type.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📁</div>
+                <h3 class="feature-title">File Management</h3>
+                <p class="feature-description">
+                    Secure file upload system with organized storage structure.
+                    Support for various file formats with validation and security.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">✅</div>
+                <h3 class="feature-title">Review System</h3>
+                <p class="feature-description">
+                    Streamlined project review process with feedback mechanisms,
+                    approval workflows, and detailed tracking.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3 class="feature-title">Secure & Reliable</h3>
+                <p class="feature-description">
+                    Built with security in mind featuring secure authentication,
+                    session management, and data protection.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats" id="stats">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number" data-target="1200">0</div>
+                <div class="stat-label">Projects</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-target="850">0</div>
+                <div class="stat-label">Active Students</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-target="95">0</div>
+                <div class="stat-label">Universities</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-target="120">0</div>
+                <div class="stat-label">Mentors</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials" id="testimonials">
+    <div class="container">
+        <h2 class="section-title">What Students Say</h2>
+        <p class="section-subtitle">Real feedback from IdeaNest users</p>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <p class="testimonial-text">"IdeaNest helped our team coordinate and submit an amazing project — reviewers were clear and fast. Highly recommended!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">A</div>
+                        <div class="author-details">
+                            <h4>Aarav Patel</h4>
+                            <p>Computer Engineering - Final Year</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <p class="testimonial-text">"The versioned reviews made it simple to track changes. Best platform for academic projects."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">S</div>
+                        <div class="author-details">
+                            <h4>Shreya Rao</h4>
+                            <p>Electronics Dept.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    <p class="testimonial-text">"Search & discover features saved us days of research — found relevant projects and reused ideas legally."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">V</div>
+                        <div class="author-details">
+                            <h4>Vivek Chavda</h4>
+                            <p>MERN Stack Dev</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section" id="cta">
+    <div class="container cta-content">
+        <h2 class="cta-title">Ready to bring your idea to life?</h2>
+        <p class="cta-text">Join thousands of students and mentors using IdeaNest to collaborate, learn and ship better projects.</p>
+        <div>
+            <a href="./Login/Login/register.php" class="btn-primary"><i class="fas fa-rocket"></i> Create Account</a>
+            <a href="#features" class="btn-secondary"><i class="fas fa-info-circle"></i> Explore Features</a>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer" id="about">
+    <div class="container footer-content">
+        <div class="footer-section">
+            <h3>IdeaNest</h3>
+            <p>Build, share and learn from academic projects. Empowering student innovators.</p>
+        </div>
+        <div class="footer-section">
+            <h3>Product</h3>
+            <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h3>Company</h3>
+            <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="mailto:ideanest.ict@gmail.com">Contact</a></li>
+                <li><a href="mailto:ideanest.ict@gmail.com">Request Demo</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h3>Follow</h3>
+            <div class="social-links">
+                <a href="https://www.linkedin.com/in/vivek-chavda-018380220/" aria-label="linkedin"><i class="fab fa-linkedin"></i></a>
+                <a href="https://github.com/Vivekchavda1374" aria-label="github"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        &copy; <span id="year"></span> IdeaNest • Built with ❤️
+    </div>
+</footer>
+
+<script>
+    // Header scroll behavior
+    const header = document.querySelector('.header');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 40) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+
+    // IntersectionObserver for animations
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.2 });
+
+    document.querySelectorAll('.feature-card, .testimonial-card').forEach(card => {
+        observer.observe(card);
+    });
+
+    // Counter animation
+    function animateCounter(el, target, duration = 1500) {
+        let start = 0;
+        const stepTime = Math.abs(Math.floor(duration / target));
+        const timer = setInterval(() => {
+            start += Math.ceil(target / (duration / stepTime));
+            if (start >= target) {
+                el.textContent = target;
+                clearInterval(timer);
+            } else {
+                el.textContent = start;
+            }
+        }, stepTime);
+    }
+
+    const statObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const el = entry.target;
+                const target = parseInt(el.getAttribute('data-target'), 10) || 0;
+                animateCounter(el, target, 1400);
+                statObserver.unobserve(el);
+            }
+        });
+    }, { threshold: 0.4 });
+
+    document.querySelectorAll('.stat-number').forEach(el => statObserver.observe(el));
+
+    // Set current year
+    document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>nd: var(--light);
         }
 
         .container {
@@ -906,8 +1528,25 @@
             }
 
             .floating-cards {
-                width: 100px;
-                height: 100px;
+                width: 300px;
+                height: 300px;
+            }
+
+            .card {
+                padding: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .card:nth-child(1) {
+                width: 150px;
+            }
+
+            .card:nth-child(2) {
+                width: 130px;
+            }
+
+            .card:nth-child(3) {
+                width: 160px;
             }
 
             .section-title {
