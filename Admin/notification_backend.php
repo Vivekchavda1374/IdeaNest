@@ -1,4 +1,5 @@
 <?php
+
 // Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -16,13 +17,14 @@ use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 
 // Function to get setting value
-function getSetting($conn, $key, $default = '') {
+function getSetting($conn, $key, $default = '')
+{
     $query = "SELECT setting_value FROM admin_settings WHERE setting_key = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("s", $key);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows > 0) {
         return $result->fetch_assoc()['setting_value'];
     }
@@ -30,27 +32,32 @@ function getSetting($conn, $key, $default = '') {
 }
 
 // Function to check if email notifications are enabled
-function isEmailNotificationsEnabled($conn) {
+function isEmailNotificationsEnabled($conn)
+{
     return getSetting($conn, 'email_notifications', '1') == '1';
 }
 
 // Function to check if project approval emails are enabled
-function isProjectApprovalEmailsEnabled($conn) {
+function isProjectApprovalEmailsEnabled($conn)
+{
     return getSetting($conn, 'project_approval_emails', '1') == '1';
 }
 
 // Function to check if project rejection emails are enabled
-function isProjectRejectionEmailsEnabled($conn) {
+function isProjectRejectionEmailsEnabled($conn)
+{
     return getSetting($conn, 'project_rejection_emails', '1') == '1';
 }
 
 // Function to check if new user notifications are enabled
-function isNewUserNotificationsEnabled($conn) {
+function isNewUserNotificationsEnabled($conn)
+{
     return getSetting($conn, 'new_user_notifications', '0') == '1';
 }
 
 // Function to send email using PHPMailer
-function sendEmail($to_email, $to_name, $subject, $html_body, $conn) {
+function sendEmail($to_email, $to_name, $subject, $html_body, $conn)
+{
     try {
         $mail = new PHPMailer(true);
 
@@ -72,7 +79,7 @@ function sendEmail($to_email, $to_name, $subject, $html_body, $conn) {
         $mail->Password = $smtp_password;
         $mail->SMTPSecure = $smtp_secure;
         $mail->Port = $smtp_port;
-        
+
         // XAMPP compatibility settings
         $mail->SMTPOptions = array(
             'ssl' => array(
@@ -81,7 +88,7 @@ function sendEmail($to_email, $to_name, $subject, $html_body, $conn) {
                 'allow_self_signed' => true
             )
         );
-        
+
         // Timeout settings
         $mail->Timeout = 30;
         $mail->SMTPKeepAlive = true;
@@ -104,7 +111,8 @@ function sendEmail($to_email, $to_name, $subject, $html_body, $conn) {
 }
 
 // Function to send project approval email
-function sendProjectApprovalEmail($project_id, $conn) {
+function sendProjectApprovalEmail($project_id, $conn)
+{
     if (!isEmailNotificationsEnabled($conn) || !isProjectApprovalEmailsEnabled($conn)) {
         return ['success' => false, 'message' => 'Email notifications are disabled'];
     }
@@ -114,7 +122,7 @@ function sendProjectApprovalEmail($project_id, $conn) {
               FROM projects p 
               JOIN register r ON p.user_id = r.id 
               WHERE p.id = ?";
-    
+
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $project_id);
     $stmt->execute();
@@ -216,7 +224,8 @@ function sendProjectApprovalEmail($project_id, $conn) {
 }
 
 // Function to send project rejection email
-function sendProjectRejectionEmail($project_id, $rejection_reason, $conn) {
+function sendProjectRejectionEmail($project_id, $rejection_reason, $conn)
+{
     if (!isEmailNotificationsEnabled($conn) || !isProjectRejectionEmailsEnabled($conn)) {
         return ['success' => false, 'message' => 'Email notifications are disabled'];
     }
@@ -226,7 +235,7 @@ function sendProjectRejectionEmail($project_id, $rejection_reason, $conn) {
               FROM projects p 
               JOIN register r ON p.user_id = r.id 
               WHERE p.id = ?";
-    
+
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $project_id);
     $stmt->execute();
@@ -333,7 +342,8 @@ function sendProjectRejectionEmail($project_id, $rejection_reason, $conn) {
 }
 
 // Function to send new user notification to admin
-function sendNewUserNotificationToAdmin($user_id, $conn) {
+function sendNewUserNotificationToAdmin($user_id, $conn)
+{
     if (!isEmailNotificationsEnabled($conn) || !isNewUserNotificationsEnabled($conn)) {
         return ['success' => false, 'message' => 'Email notifications are disabled'];
     }
@@ -430,7 +440,8 @@ function sendNewUserNotificationToAdmin($user_id, $conn) {
 }
 
 // Function to log notification attempts
-function logNotification($type, $user_id, $conn, $status, $project_id = null, $email_to = null, $email_subject = null, $error_message = null) {
+function logNotification($type, $user_id, $conn, $status, $project_id = null, $email_to = null, $email_subject = null, $error_message = null)
+{
     $query = "INSERT INTO notification_logs (type, user_id, project_id, status, email_to, email_subject, error_message, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("siissss", $type, $user_id, $project_id, $status, $email_to, $email_subject, $error_message);
@@ -464,5 +475,3 @@ $alter_queries = [
 foreach ($alter_queries as $query) {
     $conn->query($query);
 }
-
-?> 
