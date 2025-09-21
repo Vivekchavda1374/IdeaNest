@@ -1,4 +1,5 @@
 <?php
+
 // Production security configuration
 
 // Environment detection
@@ -44,36 +45,38 @@ define('VALIDATION_PATTERNS', [
 ]);
 
 // Security headers function
-function setSecurityHeaders() {
+function setSecurityHeaders()
+{
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: DENY');
     header('X-XSS-Protection: 1; mode=block');
     header('Referrer-Policy: strict-origin-when-cross-origin');
-    
+
     if (IS_PRODUCTION) {
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
     }
 }
 
 // Input validation function
-function validateInput($input, $type = 'safe_string') {
+function validateInput($input, $type = 'safe_string')
+{
     if (!isset(VALIDATION_PATTERNS[$type])) {
         return false;
     }
-    
+
     return preg_match(VALIDATION_PATTERNS[$type], $input);
 }
 
 // File validation function
-function validateFile($file, $type) {
+function validateFile($file, $type)
+{
     if (!isset(ALLOWED_FILE_TYPES[$type])) {
         return false;
     }
-    
+
     $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    
-    return in_array($extension, ALLOWED_FILE_TYPES[$type]) && 
+
+    return in_array($extension, ALLOWED_FILE_TYPES[$type]) &&
            $file['size'] <= MAX_FILE_SIZE &&
            $file['error'] === UPLOAD_ERR_OK;
 }
-?>

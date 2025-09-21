@@ -1,6 +1,6 @@
 // Enhanced Admin Project Management JavaScript
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize all components
     initSidebar();
     initAlerts();
@@ -15,13 +15,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Sidebar Management
-function initSidebar() {
+function initSidebar()
+{
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.querySelector('.sidebar');
     const mainContent = document.querySelector('.main-content');
 
     if (sidebarToggle && sidebar) {
-        sidebarToggle.addEventListener('click', function() {
+        sidebarToggle.addEventListener('click', function () {
             sidebar.classList.toggle('show');
             mainContent.classList.toggle('pushed');
 
@@ -38,7 +39,7 @@ function initSidebar() {
         }
 
         // Handle window resize
-        window.addEventListener('resize', function() {
+        window.addEventListener('resize', function () {
             if (window.innerWidth <= 991.98) {
                 sidebar.classList.remove('show');
                 mainContent.classList.remove('pushed');
@@ -49,7 +50,7 @@ function initSidebar() {
         });
 
         // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             if (window.innerWidth <= 991.98) {
                 if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
                     sidebar.classList.remove('show');
@@ -61,21 +62,22 @@ function initSidebar() {
 }
 
 // Enhanced Alert System
-function initAlerts() {
+function initAlerts()
+{
     // Auto dismiss alerts after 5 seconds with smooth transition
     const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(function(alert) {
+    alerts.forEach(function (alert) {
         // Add fade-in animation
         alert.classList.add('fade-in');
 
         // Auto dismiss after 5 seconds
-        setTimeout(function() {
+        setTimeout(function () {
             if (alert && alert.parentNode) {
                 alert.style.opacity = '0';
                 alert.style.transform = 'translateX(100%)';
                 alert.style.transition = 'all 0.3s ease';
 
-                setTimeout(function() {
+                setTimeout(function () {
                     if (alert && alert.parentNode) {
                         const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
                         bsAlert.close();
@@ -86,9 +88,9 @@ function initAlerts() {
     });
 
     // Add click to dismiss functionality
-    alerts.forEach(function(alert) {
+    alerts.forEach(function (alert) {
         alert.style.cursor = 'pointer';
-        alert.addEventListener('click', function() {
+        alert.addEventListener('click', function () {
             const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
             bsAlert.close();
         });
@@ -96,14 +98,17 @@ function initAlerts() {
 }
 
 // Table Enhancements
-function initTableEnhancements() {
+function initTableEnhancements()
+{
     const table = document.querySelector('.project-table');
-    if (!table) return;
+    if (!table) {
+        return;
+    }
 
     // Add row selection functionality
     const rows = table.querySelectorAll('tbody tr');
-    rows.forEach(function(row) {
-        row.addEventListener('click', function(e) {
+    rows.forEach(function (row) {
+        row.addEventListener('click', function (e) {
             // Don't select if clicking on buttons or links
             if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.closest('.btn-group')) {
                 return;
@@ -115,17 +120,17 @@ function initTableEnhancements() {
     });
 
     // Add hover effects with smooth transitions
-    rows.forEach(function(row) {
+    rows.forEach(function (row) {
         row.style.transition = 'all 0.2s ease';
     });
 
     // Sort functionality for table headers
     const headers = table.querySelectorAll('th[data-sortable]');
-    headers.forEach(function(header) {
+    headers.forEach(function (header) {
         header.style.cursor = 'pointer';
         header.style.userSelect = 'none';
 
-        header.addEventListener('click', function() {
+        header.addEventListener('click', function () {
             const column = this.dataset.sortable;
             sortTable(table, column, this);
         });
@@ -133,7 +138,8 @@ function initTableEnhancements() {
 }
 
 // Table sorting function
-function sortTable(table, column, header) {
+function sortTable(table, column, header)
+{
     const tbody = table.querySelector('tbody');
     const rows = Array.from(tbody.querySelectorAll('tr'));
     const isAscending = header.classList.contains('sort-asc');
@@ -147,9 +153,9 @@ function sortTable(table, column, header) {
     header.classList.add(isAscending ? 'sort-desc' : 'sort-asc');
 
     // Sort rows
-    rows.sort(function(a, b) {
-        const aVal = a.querySelector(`td[data-${column}]`).textContent.trim();
-        const bVal = b.querySelector(`td[data-${column}]`).textContent.trim();
+    rows.sort(function (a, b) {
+        const aVal = a.querySelector(`td[data - ${column}]`).textContent.trim();
+        const bVal = b.querySelector(`td[data - ${column}]`).textContent.trim();
 
         if (isAscending) {
             return bVal.localeCompare(aVal, undefined, { numeric: true });
@@ -163,11 +169,12 @@ function sortTable(table, column, header) {
 }
 
 // Form Validation Enhancement
-function initFormValidation() {
+function initFormValidation()
+{
     const forms = document.querySelectorAll('form');
 
-    forms.forEach(function(form) {
-        form.addEventListener('submit', function(e) {
+    forms.forEach(function (form) {
+        form.addEventListener('submit', function (e) {
             const isValid = validateForm(form);
             if (!isValid) {
                 e.preventDefault();
@@ -179,12 +186,12 @@ function initFormValidation() {
 
         // Real-time validation
         const inputs = form.querySelectorAll('input, textarea, select');
-        inputs.forEach(function(input) {
-            input.addEventListener('blur', function() {
+        inputs.forEach(function (input) {
+            input.addEventListener('blur', function () {
                 validateField(input);
             });
 
-            input.addEventListener('input', function() {
+            input.addEventListener('input', function () {
                 // Clear validation state on input
                 input.classList.remove('is-valid', 'is-invalid');
             });
@@ -192,11 +199,12 @@ function initFormValidation() {
     });
 }
 
-function validateForm(form) {
+function validateForm(form)
+{
     let isValid = true;
     const inputs = form.querySelectorAll('input, textarea, select');
 
-    inputs.forEach(function(input) {
+    inputs.forEach(function (input) {
         if (!validateField(input)) {
             isValid = false;
         }
@@ -205,7 +213,8 @@ function validateForm(form) {
     return isValid;
 }
 
-function validateField(field) {
+function validateField(field)
+{
     let isValid = true;
 
     // Required field validation
@@ -231,18 +240,19 @@ function validateField(field) {
             isValid = false;
             showFieldError(field, 'Please enter a valid URL.');
         }
-    }
+}
 
-    if (isValid) {
-        field.classList.remove('is-invalid');
-        field.classList.add('is-valid');
-        hideFieldError(field);
-    }
+if (isValid) {
+    field.classList.remove('is-invalid');
+    field.classList.add('is-valid');
+    hideFieldError(field);
+}
 
     return isValid;
 }
 
-function showFieldError(field, message) {
+function showFieldError(field, message)
+{
     field.classList.remove('is-valid');
     field.classList.add('is-invalid');
 
@@ -255,7 +265,8 @@ function showFieldError(field, message) {
     errorDiv.textContent = message;
 }
 
-function hideFieldError(field) {
+function hideFieldError(field)
+{
     const errorDiv = field.parentNode.querySelector('.invalid-feedback');
     if (errorDiv) {
         errorDiv.remove();
@@ -263,9 +274,12 @@ function hideFieldError(field) {
 }
 
 // Search Enhancements
-function initSearchEnhancements() {
+function initSearchEnhancements()
+{
     const searchInput = document.querySelector('input[name="search"]');
-    if (!searchInput) return;
+    if (!searchInput) {
+        return;
+    }
 
     let searchTimeout;
 
@@ -275,24 +289,24 @@ function initSearchEnhancements() {
     suggestionsDiv.className = 'search-suggestions';
     suggestionsDiv.style.cssText = `
         position: absolute;
-        top: 100%;
+        top: 100 % ;
         left: 0;
         right: 0;
         background: white;
         border: 1px solid #d1d5db;
-        border-top: none;
-        border-radius: 0 0 0.5rem 0.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        max-height: 200px;
-        overflow-y: auto;
-        z-index: 1000;
+        border - top: none;
+        border - radius: 0 0 0.5rem 0.5rem;
+        box - shadow: 0 4px 6px - 1px rgba(0, 0, 0, 0.1);
+        max - height: 200px;
+        overflow - y: auto;
+        z - index: 1000;
         display: none;
     `;
     searchWrapper.style.position = 'relative';
     searchWrapper.appendChild(suggestionsDiv);
 
     // Debounced search
-    searchInput.addEventListener('input', function() {
+    searchInput.addEventListener('input', function () {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
             if (this.value.length >= 2) {
@@ -304,14 +318,14 @@ function initSearchEnhancements() {
     });
 
     // Hide suggestions when clicking outside
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (!searchWrapper.contains(e.target)) {
             suggestionsDiv.style.display = 'none';
         }
     });
 
     // Keyboard navigation for suggestions
-    searchInput.addEventListener('keydown', function(e) {
+    searchInput.addEventListener('keydown', function (e) {
         const suggestions = suggestionsDiv.querySelectorAll('.suggestion-item');
         const currentActive = suggestionsDiv.querySelector('.suggestion-item.active');
 
@@ -326,7 +340,9 @@ function initSearchEnhancements() {
             }
 
             suggestions.forEach(s => s.classList.remove('active'));
-            if (nextActive) nextActive.classList.add('active');
+            if (nextActive) {
+                nextActive.classList.add('active');
+            }
         } else if (e.key === 'Enter' && currentActive) {
             e.preventDefault();
             currentActive.click();
@@ -334,7 +350,8 @@ function initSearchEnhancements() {
     });
 }
 
-function fetchSearchSuggestions(query, suggestionsDiv) {
+function fetchSearchSuggestions(query, suggestionsDiv)
+{
     // Simulate API call - replace with actual implementation
     const suggestions = [
         'Web Development Projects',
@@ -347,23 +364,23 @@ function fetchSearchSuggestions(query, suggestionsDiv) {
 
     if (suggestions.length > 0) {
         suggestionsDiv.innerHTML = suggestions.map(suggestion => `
-            <div class="suggestion-item" style="padding: 0.5rem 0.75rem; cursor: pointer; border-bottom: 1px solid #f3f4f6;">
+            < div class = "suggestion-item" style = "padding: 0.5rem 0.75rem; cursor: pointer; border-bottom: 1px solid #f3f4f6;" >
                 ${suggestion}
-            </div>
+            <  / div >
         `).join('');
 
         suggestionsDiv.style.display = 'block';
 
         // Add click handlers
         suggestionsDiv.querySelectorAll('.suggestion-item').forEach(item => {
-            item.addEventListener('click', function() {
+            item.addEventListener('click', function () {
                 document.querySelector('input[name="search"]').value = this.textContent;
                 suggestionsDiv.style.display = 'none';
                 // Trigger search
                 this.closest('form').submit();
             });
 
-            item.addEventListener('mouseenter', function() {
+            item.addEventListener('mouseenter', function () {
                 suggestionsDiv.querySelectorAll('.suggestion-item').forEach(s => s.classList.remove('active'));
                 this.classList.add('active');
             });
@@ -374,14 +391,15 @@ function fetchSearchSuggestions(query, suggestionsDiv) {
 }
 
 // Modal Enhancements
-function initModalEnhancements() {
+function initModalEnhancements()
+{
     const modals = document.querySelectorAll('.modal');
 
-    modals.forEach(function(modal) {
+    modals.forEach(function (modal) {
         const bsModal = new bootstrap.Modal(modal);
 
         // Enhanced modal animations
-        modal.addEventListener('show.bs.modal', function() {
+        modal.addEventListener('show.bs.modal', function () {
             modal.style.display = 'block';
             modal.style.opacity = '0';
             modal.style.transition = 'opacity 0.3s ease';
@@ -391,12 +409,12 @@ function initModalEnhancements() {
             }, 10);
         });
 
-        modal.addEventListener('hide.bs.modal', function() {
+        modal.addEventListener('hide.bs.modal', function () {
             modal.style.opacity = '0';
         });
 
         // Auto-focus first input in modal
-        modal.addEventListener('shown.bs.modal', function() {
+        modal.addEventListener('shown.bs.modal', function () {
             const firstInput = modal.querySelector('input, textarea, select');
             if (firstInput) {
                 firstInput.focus();
@@ -404,7 +422,7 @@ function initModalEnhancements() {
         });
 
         // Prevent modal close on backdrop click for forms with data
-        modal.addEventListener('hide.bs.modal', function(e) {
+        modal.addEventListener('hide.bs.modal', function (e) {
             const form = modal.querySelector('form');
             if (form && hasFormData(form)) {
                 if (!confirm('You have unsaved changes. Are you sure you want to close?')) {
@@ -416,7 +434,7 @@ function initModalEnhancements() {
         // Handle form submission in modals
         const form = modal.querySelector('form');
         if (form) {
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', function (e) {
                 const submitButton = form.querySelector('button[type="submit"]');
                 if (submitButton) {
                     setLoadingState(submitButton, true);
@@ -426,7 +444,8 @@ function initModalEnhancements() {
     });
 }
 
-function hasFormData(form) {
+function hasFormData(form)
+{
     const inputs = form.querySelectorAll('input, textarea, select');
     return Array.from(inputs).some(input => {
         if (input.type === 'checkbox' || input.type === 'radio') {
@@ -437,10 +456,11 @@ function hasFormData(form) {
 }
 
 // Tooltips Initialization
-function initTooltips() {
+function initTooltips()
+{
     // Initialize Bootstrap tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function(tooltipTriggerEl) {
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl, {
             delay: { show: 500, hide: 100 },
             animation: true,
@@ -450,16 +470,22 @@ function initTooltips() {
 
     // Add tooltips to action buttons
     const actionButtons = document.querySelectorAll('.btn-group .btn');
-    actionButtons.forEach(function(button) {
+    actionButtons.forEach(function (button) {
         if (!button.hasAttribute('title') && !button.hasAttribute('data-bs-original-title')) {
             const icon = button.querySelector('i');
             if (icon) {
                 let title = '';
-                if (icon.classList.contains('bi-eye')) title = 'View Details';
-                else if (icon.classList.contains('bi-check-circle')) title = 'Approve Project';
-                else if (icon.classList.contains('bi-x-circle')) title = 'Reject Project';
-                else if (icon.classList.contains('bi-pencil')) title = 'Edit Project';
-                else if (icon.classList.contains('bi-trash')) title = 'Delete Project';
+                if (icon.classList.contains('bi-eye')) {
+                    title = 'View Details';
+                } else if (icon.classList.contains('bi-check-circle')) {
+                    title = 'Approve Project';
+                } else if (icon.classList.contains('bi-x-circle')) {
+                    title = 'Reject Project';
+                } else if (icon.classList.contains('bi-pencil')) {
+                    title = 'Edit Project';
+                } else if (icon.classList.contains('bi-trash')) {
+                    title = 'Delete Project';
+                }
 
                 if (title) {
                     button.setAttribute('title', title);
@@ -472,11 +498,12 @@ function initTooltips() {
 }
 
 // Loading States Management
-function initLoadingStates() {
+function initLoadingStates()
+{
     // Add loading states to all forms
     const forms = document.querySelectorAll('form');
-    forms.forEach(function(form) {
-        form.addEventListener('submit', function() {
+    forms.forEach(function (form) {
+        form.addEventListener('submit', function () {
             const submitButton = form.querySelector('button[type="submit"]');
             if (submitButton) {
                 setLoadingState(submitButton, true);
@@ -486,14 +513,15 @@ function initLoadingStates() {
 
     // Add loading states to action links
     const actionLinks = document.querySelectorAll('a[href*="action=approve"], a[href*="action=reject"]');
-    actionLinks.forEach(function(link) {
-        link.addEventListener('click', function() {
+    actionLinks.forEach(function (link) {
+        link.addEventListener('click', function () {
             setLoadingState(this, true);
         });
     });
 }
 
-function setLoadingState(element, isLoading) {
+function setLoadingState(element, isLoading)
+{
     if (isLoading) {
         element.classList.add('loading');
         element.disabled = true;
@@ -518,8 +546,9 @@ function setLoadingState(element, isLoading) {
 }
 
 // Keyboard Shortcuts
-function initKeyboardShortcuts() {
-    document.addEventListener('keydown', function(e) {
+function initKeyboardShortcuts()
+{
+    document.addEventListener('keydown', function (e) {
         // Ctrl/Cmd + K for search
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
@@ -536,7 +565,9 @@ function initKeyboardShortcuts() {
             const openModals = document.querySelectorAll('.modal.show');
             openModals.forEach(modal => {
                 const bsModal = bootstrap.Modal.getInstance(modal);
-                if (bsModal) bsModal.hide();
+                if (bsModal) {
+                    bsModal.hide();
+                }
             });
 
             // Clear table selections
@@ -571,20 +602,24 @@ function initKeyboardShortcuts() {
     });
 }
 
-function showBulkActions(selectedRows) {
+function showBulkActions(selectedRows)
+{
     const count = selectedRows.length;
-    const message = `${count} project${count > 1 ? 's' : ''} selected. What would you like to do?`;
+    const message = `${count} project${count > 1 ? 's' : ''} selected. What would you like to do {
+        ? `;
+    }
 
     // Create bulk actions modal or toolbar
     if (confirm(message + '\n\nPress OK to continue or Cancel to clear selection.')) {
         // Here you would show bulk actions UI
-        } else {
+    } else {
         selectedRows.forEach(row => row.classList.remove('table-active'));
     }
 }
 
 // Statistics Animation
-function initStatsAnimation() {
+function initStatsAnimation()
+{
     const statsNumbers = document.querySelectorAll('.stats-number');
 
     const animateNumber = (element) => {
@@ -624,9 +659,11 @@ function initStatsAnimation() {
 }
 
 // Utility Functions
-function debounce(func, wait) {
+function debounce(func, wait)
+{
     let timeout;
-    return function executedFunction(...args) {
+    return function executedFunction(...args)
+    {
         const later = () => {
             clearTimeout(timeout);
             func(...args);
@@ -636,9 +673,10 @@ function debounce(func, wait) {
     };
 }
 
-function throttle(func, limit) {
+function throttle(func, limit)
+{
     let inThrottle;
-    return function() {
+    return function () {
         const args = arguments;
         const context = this;
         if (!inThrottle) {
@@ -650,9 +688,12 @@ function throttle(func, limit) {
 }
 
 // Data Export Functionality
-function exportTableData(format = 'csv') {
+function exportTableData(format = 'csv')
+{
     const table = document.querySelector('.project-table');
-    if (!table) return;
+    if (!table) {
+        return;
+    }
 
     const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
     const rows = Array.from(table.querySelectorAll('tbody tr')).map(row => {
@@ -670,214 +711,230 @@ function exportTableData(format = 'csv') {
     }
 }
 
-function exportToCSV(data, filename) {
-    const csvContent = data.map(row =>
-        row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(',')
+function exportToCSV(data, filename)
+{
+    const csvContent = data.map(
+        row =>
+        row.map(cell => `"${cell.replace(/" / g, '""')}"`
+    ).join(',')
     ).join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     downloadFile(blob, filename);
-}
+    }
 
-function exportToJSON(headers, rows, filename) {
-    const jsonData = rows.map(row => {
-        const obj = {};
-        headers.forEach((header, index) => {
-            obj[header] = row[index];
-        });
+    function exportToJSON(headers, rows, filename)
+    {
+        const jsonData = rows.map(row => {
+            const obj = {};
+            headers.forEach((header, index) => {
+                obj[header] = row[index];
+            });
         return obj;
-    });
+        });
 
-    const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
-    downloadFile(blob, filename);
-}
+        const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+        downloadFile(blob, filename);
+    }
 
-function downloadFile(blob, filename) {
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-}
+    function downloadFile(blob, filename)
+    {
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
 
 // Filter Management
-function clearAllFilters() {
-    const form = document.querySelector('.filter-bar form');
-    if (form) {
-        const inputs = form.querySelectorAll('input, select');
-        inputs.forEach(input => {
-            if (input.type === 'text' || input.type === 'search') {
-                input.value = '';
-            } else if (input.tagName === 'SELECT') {
-                input.selectedIndex = 0;
-            }
-        });
-        form.submit();
-    }
-}
-
-function saveFilterPreset(name) {
-    const form = document.querySelector('.filter-bar form');
-    if (form) {
-        const formData = new FormData(form);
-        const filters = {};
-        for (let [key, value] of formData.entries()) {
-            if (value && value !== 'all') {
-                filters[key] = value;
-            }
-        }
-
-        let presets = JSON.parse(localStorage.getItem('filterPresets') || '{}');
-        presets[name] = filters;
-        localStorage.setItem('filterPresets', JSON.stringify(presets));
-
-        updateFilterPresetsUI();
-    }
-}
-
-function loadFilterPreset(name) {
-    const presets = JSON.parse(localStorage.getItem('filterPresets') || '{}');
-    const preset = presets[name];
-
-    if (preset) {
+    function clearAllFilters()
+    {
         const form = document.querySelector('.filter-bar form');
         if (form) {
-            // Clear current filters
             const inputs = form.querySelectorAll('input, select');
             inputs.forEach(input => {
                 if (input.type === 'text' || input.type === 'search') {
-                    input.value = preset[input.name] || '';
+                    input.value = '';
                 } else if (input.tagName === 'SELECT') {
-                    const option = input.querySelector(`option[value="${preset[input.name] || 'all'}"]`);
-                    if (option) {
-                        input.value = preset[input.name] || 'all';
-                    }
+                    input.selectedIndex = 0;
                 }
             });
             form.submit();
         }
     }
-}
 
-function updateFilterPresetsUI() {
-    // Implementation would depend on UI design for filter presets
+    function saveFilterPreset(name)
+    {
+        const form = document.querySelector('.filter-bar form');
+        if (form) {
+            const formData = new FormData(form);
+            const filters = {};
+            for (let [key, value] of formData.entries()) {
+                if (value && value !== 'all') {
+                    filters[key] = value;
+                }
+            }
+
+            let presets = JSON.parse(localStorage.getItem('filterPresets') || '{}');
+            presets[name] = filters;
+            localStorage.setItem('filterPresets', JSON.stringify(presets));
+
+            updateFilterPresetsUI();
+        }
+    }
+
+    function loadFilterPreset(name)
+    {
+        const presets = JSON.parse(localStorage.getItem('filterPresets') || '{}');
+        const preset = presets[name];
+
+        if (preset) {
+            const form = document.querySelector('.filter-bar form');
+            if (form) {
+                // Clear current filters
+                const inputs = form.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    if (input.type === 'text' || input.type === 'search') {
+                        input.value = preset[input.name] || '';
+                    } else if (input.tagName === 'SELECT') {
+                        const option = input.querySelector(`option[value = "${preset[input.name] || 'all'}"]`);
+                        if (option) {
+                            input.value = preset[input.name] || 'all';
+                        }
+                    }
+                });
+                form.submit();
+            }
+        }
+    }
+
+    function updateFilterPresetsUI()
+    {
+        // Implementation would depend on UI design for filter presets
     }
 
 // Performance Monitoring
-function initPerformanceMonitoring() {
-    // Monitor page load time
-    window.addEventListener('load', function() {
-        const loadTime = performance.now();
+    function initPerformanceMonitoring()
+    {
+        // Monitor page load time
+        window.addEventListener('load', function () {
+            const loadTime = performance.now();
         }ms`);
 
-        // Send to analytics if needed
+            // Send to analytics if needed
         if (loadTime > 3000) {
-            }
+        }
     });
 
     // Monitor table rendering performance
     const table = document.querySelector('.project-table');
     if (table) {
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
+        const observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
                 if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                    }
+                }
             });
         });
 
         observer.observe(table.querySelector('tbody'), { childList: true });
     }
-}
+    }
 
 // Initialize performance monitoring
-initPerformanceMonitoring();
+    initPerformanceMonitoring();
 
 // Global error handling
-window.addEventListener('error', function(e) {
-    console.error('JavaScript error:', e.error);
+    window.addEventListener('error', function (e) {
+        console.error('JavaScript error:', e.error);
 
-    // Show user-friendly error message
-    showErrorNotification('An unexpected error occurred. Please refresh the page.');
-});
+        // Show user-friendly error message
+        showErrorNotification('An unexpected error occurred. Please refresh the page.');
+    });
 
-function showErrorNotification(message) {
-    const notification = document.createElement('div');
-    notification.className = 'alert alert-danger alert-dismissible fade show position-fixed';
-    notification.style.cssText = 'top: 20px; right: 20px; z-index: 1060; max-width: 300px;';
-    notification.innerHTML = `
+    function showErrorNotification(message)
+    {
+        const notification = document.createElement('div');
+        notification.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 1060; max-width: 300px;';
+        notification.innerHTML = `
         ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
+        < button type = "button" class = "btn-close" data - bs - dismiss = "alert" > < / button >
+        `;
 
-    document.body.appendChild(notification);
+        document.body.appendChild(notification);
 
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        if (notification.parentNode) {
-            const bsAlert = bootstrap.Alert.getOrCreateInstance(notification);
-            bsAlert.close();
-        }
-    }, 5000);
-}
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                const bsAlert = bootstrap.Alert.getOrCreateInstance(notification);
+                bsAlert.close();
+            }
+        }, 5000);
+    }
 
 // Add some additional utility functions for enhanced functionality
-function confirmAction(message, callback) {
-    if (confirm(message)) {
-        callback();
-    }
-}
-
-function showSuccessNotification(message) {
-    const notification = document.createElement('div');
-    notification.className = 'alert alert-success alert-dismissible fade show position-fixed';
-    notification.style.cssText = 'top: 20px; right: 20px; z-index: 1060; max-width: 300px;';
-    notification.innerHTML = `
-        <i class="bi bi-check-circle me-2"></i>${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        if (notification.parentNode) {
-            const bsAlert = bootstrap.Alert.getOrCreateInstance(notification);
-            bsAlert.close();
+    function confirmAction(message, callback)
+    {
+        if (confirm(message)) {
+            callback();
         }
-    }, 3000);
-}
+    }
+
+    function showSuccessNotification(message)
+    {
+        const notification = document.createElement('div');
+        notification.className = 'alert alert-success alert-dismissible fade show position-fixed';
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 1060; max-width: 300px;';
+        notification.innerHTML = `
+        < i class = "bi bi-check-circle me-2" > < / i > ${message}
+        < button type = "button" class = "btn-close" data - bs - dismiss = "alert" > < / button >
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            if (notification.parentNode) {
+                const bsAlert = bootstrap.Alert.getOrCreateInstance(notification);
+                bsAlert.close();
+            }
+        }, 3000);
+    }
 
 // Enhanced form submission with progress indication
-function submitFormWithProgress(form, progressCallback) {
-    const formData = new FormData(form);
-    const submitButton = form.querySelector('button[type="submit"]');
+    function submitFormWithProgress(form, progressCallback)
+    {
+        const formData = new FormData(form);
+        const submitButton = form.querySelector('button[type="submit"]');
 
-    setLoadingState(submitButton, true);
+        setLoadingState(submitButton, true);
 
-    // Simulate progress for demo - replace with actual implementation
-    let progress = 0;
-    const progressInterval = setInterval(() => {
-        progress += 10;
-        if (progressCallback) progressCallback(progress);
+        // Simulate progress for demo - replace with actual implementation
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += 10;
+            if (progressCallback) {
+                progressCallback(progress);
+            }
 
-        if (progress >= 100) {
-            clearInterval(progressInterval);
-            setLoadingState(submitButton, false);
-        }
-    }, 100);
-}
+            if (progress >= 100) {
+                clearInterval(progressInterval);
+                setLoadingState(submitButton, false);
+            }
+        }, 100);
+    }
 
 // Add event listeners for export functionality
-document.addEventListener('click', function(e) {
-    if (e.target.matches('[data-export]')) {
-        const format = e.target.dataset.export;
-        exportTableData(format);
-    }
+    document.addEventListener('click', function (e) {
+        if (e.target.matches('[data-export]')) {
+            const format = e.target.dataset.export;
+            exportTableData(format);
+        }
 
-    if (e.target.matches('[data-clear-filters]')) {
-        clearAllFilters();
-    }
-});
+        if (e.target.matches('[data-clear-filters]')) {
+            clearAllFilters();
+        }
+    });
 

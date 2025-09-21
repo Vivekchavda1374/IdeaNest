@@ -17,7 +17,7 @@ try {
     // Test connection first
     $test_query = "SHOW TABLES";
     $test_result = $conn->query($test_query);
-    
+
     $stats_query = "SELECT 
         COUNT(*) as total_users,
         COUNT(CASE WHEN role = 'student' OR role IS NULL THEN 1 END) as students,
@@ -75,10 +75,10 @@ try {
     $additional_stats = [];
     $tables_to_check = [
         'bookmarks' => 'bookmark',
-        'project_likes' => 'project_likes', 
+        'project_likes' => 'project_likes',
         'project_comments' => 'project_comments',
         'idea_likes' => 'idea_likes',
-        'idea_comments' => 'idea_comments', 
+        'idea_comments' => 'idea_comments',
         'idea_reports' => 'idea_reports',
         'support_tickets' => 'support_tickets',
         'mentor_requests' => 'mentor_requests',
@@ -86,16 +86,15 @@ try {
         'notifications' => 'notification_logs',
         'denied_projects' => 'denial_projects'
     ];
-    
+
     foreach ($tables_to_check as $key => $table) {
         $check_result = $conn->query("SELECT COUNT(*) as count FROM $table");
         $additional_stats[$key] = $check_result ? $check_result->fetch_assoc()['count'] : 0;
     }
-
 } catch (Exception $e) {
     // Debug: Show error
     error_log("Export Overview Error: " . $e->getMessage());
-    
+
     // Set default values if queries fail
     $stats = ['total_users' => 0, 'students' => 0, 'mentors' => 0, 'subadmins' => 0];
     $project_stats = ['total' => 0, 'pending' => 0, 'approved' => 0, 'rejected' => 0];

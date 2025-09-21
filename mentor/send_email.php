@@ -14,12 +14,12 @@ $mentor_id = $_SESSION['mentor_id'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     require_once 'email_system.php';
     $email_system = new MentorEmailSystem($conn, $mentor_id);
-    
+
     $action = $_POST['action'] ?? '';
     $student_id = $_POST['student_id'] ?? 0;
-    
+
     $response = ['success' => false, 'message' => 'Invalid action'];
-    
+
     switch ($action) {
         case 'send_welcome':
             if ($email_system->sendWelcomeMessage($student_id)) {
@@ -29,24 +29,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $stmt->bind_param("i", $student_id);
                 $stmt->execute();
                 $student_name = $stmt->get_result()->fetch_assoc()['name'] ?? 'Student';
-                
+
                 $log_stmt = $conn->prepare("INSERT INTO mentor_activity_logs (mentor_id, activity_type, description, student_id, created_at) VALUES (?, 'email_sent', ?, ?, NOW())");
                 $activity_desc = "Sent welcome email to " . $student_name;
                 $log_stmt->bind_param("isi", $mentor_id, $activity_desc, $student_id);
                 $log_stmt->execute();
-                
+
                 $response = ['success' => true, 'message' => 'Welcome email sent successfully'];
             } else {
                 $response = ['success' => false, 'message' => 'Failed to send welcome email'];
             }
             break;
-            
+
         case 'send_session_invitation':
             $session_data = [
                 'session_date' => $_POST['session_date'] ?? '',
                 'topic' => $_POST['topic'] ?? ''
             ];
-            
+
             if ($email_system->sendSessionInvitation($student_id, $session_data)) {
                 $response = ['success' => true, 'message' => 'Session invitation sent successfully'];
             } else {
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
             break;
     }
-    
+
     header('Content-Type: application/json');
     echo json_encode($response);
     exit;
@@ -99,7 +99,7 @@ ob_start();
     <h2><i class="fas fa-envelope"></i> Email Management</h2>
     
     <!-- Setup Notice -->
-    <?php if (empty($email_logs)): ?>
+    <?php if (empty($email_logs)) : ?>
         <div class="alert alert-warning">
             <h5><i class="fas fa-exclamation-triangle"></i> Email System Setup Required</h5>
             <p>To use the email system, please complete the setup:</p>
@@ -120,7 +120,7 @@ ob_start();
                     <div class="mb-3">
                         <select class="form-select" name="student_id" required>
                             <option value="">Select Student</option>
-                            <?php foreach ($students as $student): ?>
+                            <?php foreach ($students as $student) : ?>
                                 <option value="<?= $student['id'] ?>"><?= htmlspecialchars($student['name']) ?></option>
                             <?php endforeach; ?>
                         </select>
@@ -137,7 +137,7 @@ ob_start();
                     <div class="mb-3">
                         <select class="form-select" name="student_id" required>
                             <option value="">Select Student</option>
-                            <?php foreach ($students as $student): ?>
+                            <?php foreach ($students as $student) : ?>
                                 <option value="<?= $student['id'] ?>"><?= htmlspecialchars($student['name']) ?></option>
                             <?php endforeach; ?>
                         </select>
@@ -165,7 +165,7 @@ ob_start();
                     <div class="mb-3">
                         <select class="form-select" name="student_id" required>
                             <option value="">Select Student</option>
-                            <?php foreach ($students as $student): ?>
+                            <?php foreach ($students as $student) : ?>
                                 <option value="<?= $student['id'] ?>"><?= htmlspecialchars($student['name']) ?></option>
                             <?php endforeach; ?>
                         </select>
@@ -200,7 +200,7 @@ ob_start();
                     <div class="mb-3">
                         <select class="form-select" name="student_id" required>
                             <option value="">Select Student</option>
-                            <?php foreach ($students as $student): ?>
+                            <?php foreach ($students as $student) : ?>
                                 <option value="<?= $student['id'] ?>"><?= htmlspecialchars($student['name']) ?></option>
                             <?php endforeach; ?>
                         </select>
@@ -228,10 +228,10 @@ ob_start();
             <h5><i class="fas fa-history"></i> Email History</h5>
         </div>
         <div class="card-body">
-            <?php if (empty($email_logs)): ?>
+            <?php if (empty($email_logs)) : ?>
                 <p class="text-muted">No emails sent yet. Complete setup to start sending emails.</p>
-            <?php else: ?>
-                <?php foreach ($email_logs as $log): ?>
+            <?php else : ?>
+                <?php foreach ($email_logs as $log) : ?>
                     <div class="card email-card <?= $log['status'] === 'sent' ? 'email-success' : 'email-failed' ?> mb-3">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
@@ -246,7 +246,7 @@ ob_start();
                                         <strong>To:</strong> <?= htmlspecialchars($log['recipient_name']) ?> 
                                         (<?= htmlspecialchars($log['recipient_email']) ?>)
                                     </p>
-                                    <?php if ($log['error_message']): ?>
+                                    <?php if ($log['error_message']) : ?>
                                         <p class="text-danger small">Error: <?= htmlspecialchars($log['error_message']) ?></p>
                                     <?php endif; ?>
                                 </div>
@@ -327,5 +327,5 @@ $additionalJS = '
     }
 ';
 
-renderLayout('Email Management', $content, $additionalCSS, $additionalJS);
+renderLayout($content, $title);
 ?>

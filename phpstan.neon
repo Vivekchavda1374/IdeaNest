@@ -1,0 +1,23 @@
+parameters:
+    level: 5
+    paths:
+        - includes/
+        - user/
+        - Admin/
+        - mentor/
+        - Login/Login/
+    excludePaths:
+        - vendor/
+        - tests/
+        - user/forms/uploads/
+    ignoreErrors:
+        - '#Call to an undefined method mysqli::#'
+        - '#Variable \$conn might not be defined#'
+        - '#Variable \$.* might not be defined#'
+        - '#Instantiated class PHPMailer\\PHPMailer\\PHPMailer not found#'
+        - '#Call to method .* on an unknown class PHPMailer\\PHPMailer\\PHPMailer#'
+        - '#Access to property .* on an unknown class PHPMailer\\PHPMailer\\PHPMailer#'
+        - '#Caught class PHPMailer\\PHPMailer\\Exception not found#'
+        - '#Function setSecurityHeaders not found#'
+        - identifier: missingType.iterableValue
+        - identifier: missingType.generics

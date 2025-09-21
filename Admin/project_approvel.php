@@ -7,26 +7,26 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 
 // Check if admin is logged in
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    // Redirect to admin login page if not logged in
-    header("Location: ../Login/Login/login.php");
-    exit();
-}
+    if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+        // Redirect to admin login page if not logged in
+        header("Location: ../Login/Login/login.php");
+        exit();
+    }
 }
 
 // Handle bookmark toggle
 if (isset($_POST['toggle_bookmark'])) {
     $project_id = $_POST['project_id'];
     $session_id = session_id();
-    
+
     // Check if bookmark already exists for this project
     $check_sql = "SELECT * FROM bookmark WHERE project_id = $project_id AND user_id = '$session_id'";
     $check_result = $conn->query($check_sql);
-    
+
     if ($check_result->num_rows > 0) {
         // Bookmark exists, so remove it
         $delete_sql = "DELETE FROM bookmark WHERE project_id = $project_id AND user_id = '$session_id'";
-        if ($conn->query($delete_sql) === TRUE) {
+        if ($conn->query($delete_sql) === true) {
             echo "<div class='alert alert-info shadow-sm'>
                     <div class='d-flex align-items-center'>
                         <i class='bi bi-bookmark me-2'></i>
@@ -45,10 +45,10 @@ if (isset($_POST['toggle_bookmark'])) {
         // First, remove any existing bookmarks for this user
         $delete_all_sql = "DELETE FROM bookmark WHERE user_id = '$session_id'";
         $conn->query($delete_all_sql);
-        
+
         // Then add the new bookmark
         $insert_sql = "INSERT INTO bookmark (project_id, user_id) VALUES ($project_id, '$session_id')";
-        if ($conn->query($insert_sql) === TRUE) {
+        if ($conn->query($insert_sql) === true) {
             echo "<div class='alert alert-success shadow-sm'>
                     <div class='d-flex align-items-center'>
                         <i class='bi bi-bookmark-fill me-2'></i>
@@ -72,14 +72,14 @@ include "notification_backend.php";
 // Handle project approval
 if (isset($_POST['approve_project'])) {
     $project_id = $_POST['project_id'];
-    
+
     // Get the project data
     $get_project_sql = "SELECT * FROM projects WHERE id = $project_id";
     $project_result = $conn->query($get_project_sql);
-    
+
     if ($project_result->num_rows > 0) {
         $project = $project_result->fetch_assoc();
-        
+
         // Insert into admin_approved_projects
         $insert_sql = "INSERT INTO admin_approved_projects 
                       (project_name, project_type, classification, description, language, 
@@ -89,29 +89,37 @@ if (isset($_POST['approve_project'])) {
                        '{$project['description']}', '{$project['language']}', '{$project['image_path']}', 
                        '{$project['video_path']}', '{$project['code_file_path']}', '{$project['instruction_file_path']}', 
                        '{$project['submission_date']}')";
-        
-        if ($conn->query($insert_sql) === TRUE) {
+
+        if ($conn->query($insert_sql) === true) {
             // Delete from projects table
             $delete_sql = "DELETE FROM projects WHERE id = $project_id";
-            if ($conn->query($delete_sql) === TRUE) {
+            if ($conn->query($delete_sql) === true) {
                 // Send approval email notification
                 $email_result = sendProjectApprovalEmail($project_id, $conn);
-                
+
 
                 // Log the notification
                 $email_to = $project['email'] ?? '';
                 $email_subject = "Congratulations! Your Project \"{$project['project_name']}\" Has Been Approved";
                 $error_message = $email_result['success'] ? null : $email_result['message'];
-                logNotification('project_approval', $project['user_id'], $conn, 
-                              $email_result['success'] ? 'sent' : 'failed', $project_id, $email_to, $email_subject, $error_message);
-                
+                logNotification(
+                    'project_approval',
+                    $project['user_id'],
+                    $conn,
+                    $email_result['success'] ? 'sent' : 'failed',
+                    $project_id,
+                    $email_to,
+                    $email_subject,
+                    $error_message
+                );
+
                 $email_message = '';
                 if ($email_result['success']) {
                     $email_message = " Email notification sent to user.";
                 } else {
                     $email_message = " Email notification failed: " . $email_result['message'];
                 }
-                
+
                 echo "<div class='alert alert-success shadow-sm'>
                         <div class='d-flex align-items-center'>
                             <i class='bi bi-check-circle-fill me-2'></i>
@@ -141,35 +149,43 @@ if (isset($_POST['approve_project'])) {
 if (isset($_POST['reject_project'])) {
     $project_id = $_POST['project_id'];
     $rejection_reason = $_POST['rejection_reason'] ?? 'Project does not meet our criteria.';
-    
+
     // Get the project data before deletion
     $get_project_sql = "SELECT * FROM projects WHERE id = $project_id";
     $project_result = $conn->query($get_project_sql);
-    
+
     if ($project_result->num_rows > 0) {
         $project = $project_result->fetch_assoc();
-        
+
         // Delete from projects table
         $delete_sql = "DELETE FROM projects WHERE id = $project_id";
-        if ($conn->query($delete_sql) === TRUE) {
+        if ($conn->query($delete_sql) === true) {
             // Send rejection email notification
             $email_result = sendProjectRejectionEmail($project_id, $rejection_reason, $conn);
-            
+
 
             // Log the notification
             $email_to = $project['email'] ?? '';
             $email_subject = "Important Update About Your Project \"{$project['project_name']}\"";
             $error_message = $email_result['success'] ? null : $email_result['message'];
-            logNotification('project_rejection', $project['user_id'], $conn, 
-                          $email_result['success'] ? 'sent' : 'failed', $project_id, $email_to, $email_subject, $error_message);
-            
+            logNotification(
+                'project_rejection',
+                $project['user_id'],
+                $conn,
+                $email_result['success'] ? 'sent' : 'failed',
+                $project_id,
+                $email_to,
+                $email_subject,
+                $error_message
+            );
+
             $email_message = '';
             if ($email_result['success']) {
                 $email_message = " Email notification sent to user.";
             } else {
                 $email_message = " Email notification failed: " . $email_result['message'];
             }
-            
+
             echo "<div class='alert alert-warning shadow-sm'>
                     <div class='d-flex align-items-center'>
                         <i class='bi bi-exclamation-triangle-fill me-2'></i>
@@ -252,8 +268,8 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
 
                 <?php
                 if ($pending_result && $pending_result->num_rows > 0) {
-                    while($row = $pending_result->fetch_assoc()) {
-                ?>
+                    while ($row = $pending_result->fetch_assoc()) {
+                        ?>
                 <div class="project-card card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 fw-bold"><?php echo htmlspecialchars($row["project_name"]); ?></h5>
@@ -312,28 +328,28 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
                                         <h6 class="card-title fw-bold mb-3"><i class="bi bi-file-earmark me-1"></i>
                                             Project Files</h6>
 
-                                        <?php if(!empty($row["image_path"])): ?>
+                                        <?php if (!empty($row["image_path"])) : ?>
                                         <a href="<?php echo htmlspecialchars($row["image_path"]); ?>" target="_blank"
                                             class="file-link">
                                             <i class="bi bi-file-earmark-image"></i> View Image
                                         </a>
                                         <?php endif; ?>
 
-                                        <?php if(!empty($row["video_path"])): ?>
+                                        <?php if (!empty($row["video_path"])) : ?>
                                         <a href="<?php echo htmlspecialchars($row["video_path"]); ?>" target="_blank"
                                             class="file-link">
                                             <i class="bi bi-file-earmark-play"></i> View Video
                                         </a>
                                         <?php endif; ?>
 
-                                        <?php if(!empty($row["code_file_path"])): ?>
+                                        <?php if (!empty($row["code_file_path"])) : ?>
                                         <a href="<?php echo htmlspecialchars($row["code_file_path"]); ?>"
                                             target="_blank" class="file-link">
                                             <i class="bi bi-file-earmark-code"></i> View Code
                                         </a>
                                         <?php endif; ?>
 
-                                        <?php if(!empty($row["instruction_file_path"])): ?>
+                                        <?php if (!empty($row["instruction_file_path"])) : ?>
                                         <a href="<?php echo htmlspecialchars($row["instruction_file_path"]); ?>"
                                             target="_blank" class="file-link">
                                             <i class="bi bi-file-earmark-text"></i> View Instructions
@@ -345,16 +361,16 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
                         </div>
                     </div>
                 </div>
-                <?php
+                        <?php
                     }
                 } else {
-                ?>
+                    ?>
                 <div class="empty-projects">
                     <i class="bi bi-hourglass"></i>
                     <h3>No Pending Projects</h3>
                     <p class="text-muted">There are currently no pending projects to review.</p>
                 </div>
-                <?php
+                    <?php
                 }
                 ?>
             </div>
@@ -368,8 +384,8 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
 
                 <?php
                 if ($approved_result && $approved_result->num_rows > 0) {
-                    while($row = $approved_result->fetch_assoc()) {
-                ?>
+                    while ($row = $approved_result->fetch_assoc()) {
+                        ?>
                 <div class="project-card card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
@@ -425,28 +441,28 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
                                             Project
                                             Files</h6>
 
-                                        <?php if(!empty($row["image_path"])): ?>
+                                        <?php if (!empty($row["image_path"])) : ?>
                                         <a href="<?php echo htmlspecialchars($row["image_path"]); ?>" target="_blank"
                                             class="file-link">
                                             <i class="bi bi-file-earmark-image"></i> View Image
                                         </a>
                                         <?php endif; ?>
 
-                                        <?php if(!empty($row["video_path"])): ?>
+                                        <?php if (!empty($row["video_path"])) : ?>
                                         <a href="<?php echo htmlspecialchars($row["video_path"]); ?>" target="_blank"
                                             class="file-link">
                                             <i class="bi bi-file-earmark-play"></i> View Video
                                         </a>
                                         <?php endif; ?>
 
-                                        <?php if(!empty($row["code_file_path"])): ?>
+                                        <?php if (!empty($row["code_file_path"])) : ?>
                                         <a href="<?php echo htmlspecialchars($row["code_file_path"]); ?>"
                                             target="_blank" class="file-link">
                                             <i class="bi bi-file-earmark-code"></i> View Code
                                         </a>
                                         <?php endif; ?>
 
-                                        <?php if(!empty($row["instruction_file_path"])): ?>
+                                        <?php if (!empty($row["instruction_file_path"])) : ?>
                                         <a href="<?php echo htmlspecialchars($row["instruction_file_path"]); ?>"
                                             target="_blank" class="file-link">
                                             <i class="bi bi-file-earmark-text"></i> View Instructions
@@ -458,16 +474,16 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
                         </div>
                     </div>
                 </div>
-                <?php
+                        <?php
                     }
                 } else {
-                ?>
+                    ?>
                 <div class="empty-projects">
                     <i class="bi bi-check2-all"></i>
                     <h3>No Approved Projects</h3>
                     <p class="text-muted">There are currently no approved projects to display.</p>
                 </div>
-                <?php
+                    <?php
                 }
                 ?>
             </div>

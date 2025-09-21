@@ -13,13 +13,13 @@ include '../Login/Login/db.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_status') {
     $report_id = (int)$_POST['report_id'];
     $status = $_POST['status'];
-    
+
     $update_sql = "UPDATE idea_reports SET status = ? WHERE id = ?";
     $update_stmt = $conn->prepare($update_sql);
     $update_stmt->bind_param("si", $status, $report_id);
     $update_stmt->execute();
     $update_stmt->close();
-    
+
     header("Location: view_reports.php");
     exit();
 }
@@ -54,7 +54,7 @@ $reports_result = $conn->query($reports_sql);
                     </a>
                 </div>
 
-                <?php if ($reports_result && $reports_result->num_rows > 0): ?>
+                <?php if ($reports_result && $reports_result->num_rows > 0) : ?>
                     <div class="table-responsive">
                         <table class="table table-striped">
                             <thead class="table-dark">
@@ -70,7 +70,7 @@ $reports_result = $conn->query($reports_sql);
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php while ($report = $reports_result->fetch_assoc()): ?>
+                                <?php while ($report = $reports_result->fetch_assoc()) : ?>
                                     <tr>
                                         <td><?php echo $report['id']; ?></td>
                                         <td>
@@ -85,11 +85,13 @@ $reports_result = $conn->query($reports_sql);
                                             </span>
                                         </td>
                                         <td>
-                                            <?php if (!empty($report['description'])): ?>
+                                            <?php if (!empty($report['description'])) : ?>
                                                 <small><?php echo htmlspecialchars(substr($report['description'], 0, 100)); ?>
-                                                <?php if (strlen($report['description']) > 100): ?>...<?php endif; ?>
+                                                <?php if (strlen($report['description']) > 100) :
+                                                    ?>...<?php
+                                                endif; ?>
                                                 </small>
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <em class="text-muted">No description</em>
                                             <?php endif; ?>
                                         </td>
@@ -113,12 +115,12 @@ $reports_result = $conn->query($reports_sql);
                                                 <form method="POST" class="d-inline">
                                                     <input type="hidden" name="action" value="update_status">
                                                     <input type="hidden" name="report_id" value="<?php echo $report['id']; ?>">
-                                                    <?php if ($report['status'] !== 'reviewed'): ?>
+                                                    <?php if ($report['status'] !== 'reviewed') : ?>
                                                         <button type="submit" name="status" value="reviewed" class="btn btn-info btn-sm">
                                                             <i class="fas fa-eye"></i>
                                                         </button>
                                                     <?php endif; ?>
-                                                    <?php if ($report['status'] !== 'resolved'): ?>
+                                                    <?php if ($report['status'] !== 'resolved') : ?>
                                                         <button type="submit" name="status" value="resolved" class="btn btn-success btn-sm">
                                                             <i class="fas fa-check"></i>
                                                         </button>
@@ -131,7 +133,7 @@ $reports_result = $conn->query($reports_sql);
                             </tbody>
                         </table>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
                         No reports found.

@@ -232,11 +232,11 @@ if ($tables_check->num_rows > 0) {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php 
+                                        <?php
                                         $total = array_sum(array_column($classification_stats, 'count'));
-                                        foreach($classification_stats as $stat): 
+                                        foreach ($classification_stats as $stat) :
                                             $percentage = $total > 0 ? round(($stat['count'] / $total) * 100, 1) : 0;
-                                        ?>
+                                            ?>
                                         <tr>
                                             <td><?php echo htmlspecialchars($stat['classification']); ?></td>
                                             <td><?php echo $stat['count']; ?></td>

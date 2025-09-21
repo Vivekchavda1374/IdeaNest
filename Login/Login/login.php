@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = $_POST['password'];
 
         // Check for admin credentials first
-        if($email === "ideanest.ict@gmail.com" && $password === "ideanest133"){
+        if ($email === "ideanest.ict@gmail.com" && $password === "ideanest133") {
             // Set admin session variables
             $_SESSION['admin_id'] = 1;
             $_SESSION['user_id'] = 'admin';
@@ -30,11 +30,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mentor_stmt->bind_param("s", $email);
         $mentor_stmt->execute();
         $mentor_stmt->store_result();
-        
+
         if ($mentor_stmt->num_rows > 0) {
             $mentor_stmt->bind_result($mentor_id, $mentor_hashed_password, $mentor_name);
             $mentor_stmt->fetch();
-            
+
             if (password_verify($password, $mentor_hashed_password)) {
                 $_SESSION['mentor_id'] = $mentor_id;
                 $_SESSION['mentor_name'] = $mentor_name;
@@ -148,19 +148,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <form class="form-section" method="post" autocomplete="off">
         <!-- Error/Success Messages -->
-        <?php if (isset($error_message)): ?>
+        <?php if (isset($error_message)) : ?>
         <div class="alert alert-error" id="error-alert">
             <i class="fas fa-exclamation-circle"></i>
             <span><?php echo htmlspecialchars($error_message); ?></span>
         </div>
         <?php endif; ?>
 
-        <?php if (isset($_GET['logout']) && $_GET['logout'] === 'success'): ?>
+        <?php if (isset($_GET['logout']) && $_GET['logout'] === 'success') : ?>
         <div class="alert alert-success" id="success-alert">
             <i class="fas fa-check-circle"></i>
             <span>You have been successfully logged out!</span>
         </div>
-        <?php else: ?>
+        <?php else : ?>
         <div class="alert alert-success" style="display: none;" id="success-alert">
             <i class="fas fa-check-circle"></i>
             <span>You have been successfully logged out!</span>

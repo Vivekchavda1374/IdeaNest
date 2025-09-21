@@ -28,12 +28,12 @@ if ($table_check && $table_check->num_rows > 0) {
                             ROUND(AVG(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) * 100, 2) as success_rate
                           FROM mentor_email_logs 
                           WHERE mentor_id = ?";
-        
+
         $stmt = $conn->prepare($overall_query);
         $stmt->bind_param("i", $mentor_id);
         $stmt->execute();
         $overall_stats = $stmt->get_result()->fetch_assoc();
-        
+
         // Get recent email activity
         $recent_query = "SELECT mel.*, r.name as recipient_name, r.email as recipient_email 
                          FROM mentor_email_logs mel 
@@ -41,7 +41,7 @@ if ($table_check && $table_check->num_rows > 0) {
                          WHERE mel.mentor_id = ? 
                          ORDER BY mel.sent_at DESC 
                          LIMIT 20";
-        
+
         $stmt = $conn->prepare($recent_query);
         $stmt->bind_param("i", $mentor_id);
         $stmt->execute();
@@ -94,7 +94,7 @@ ob_start();
     </div>
 
     <!-- Setup Notice -->
-    <?php if (empty($recent_emails) && $overall_stats['total_emails'] == 0): ?>
+    <?php if (empty($recent_emails) && $overall_stats['total_emails'] == 0) : ?>
         <div class="alert alert-info">
             <h5><i class="fas fa-info-circle"></i> Email System Setup</h5>
             <p>The email system is ready to use! To get started:</p>
@@ -113,10 +113,10 @@ ob_start();
             <h5><i class="fas fa-history"></i> Recent Email Activity</h5>
         </div>
         <div class="card-body">
-            <?php if (empty($recent_emails)): ?>
+            <?php if (empty($recent_emails)) : ?>
                 <p class="text-muted">No recent email activity.</p>
                 <a href="send_email.php" class="btn btn-primary">Send Your First Email</a>
-            <?php else: ?>
+            <?php else : ?>
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
@@ -128,7 +128,7 @@ ob_start();
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($recent_emails as $email): ?>
+                            <?php foreach ($recent_emails as $email) : ?>
                                 <tr>
                                     <td><?= date('M j, Y g:i A', strtotime($email['sent_at'])) ?></td>
                                     <td>
@@ -144,7 +144,7 @@ ob_start();
                                         <span class="badge bg-<?= $email['status'] === 'sent' ? 'success' : 'danger' ?>">
                                             <?= ucfirst($email['status']) ?>
                                         </span>
-                                        <?php if ($email['error_message']): ?>
+                                        <?php if ($email['error_message']) : ?>
                                             <br><small class="text-danger"><?= htmlspecialchars($email['error_message']) ?></small>
                                         <?php endif; ?>
                                     </td>

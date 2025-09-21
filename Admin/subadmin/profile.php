@@ -161,14 +161,14 @@ ob_start();
                         </div>
                     </div>
 
-                    <?php if($success): ?>
+                    <?php if ($success) : ?>
                         <div class="alert alert-success d-flex align-items-center mb-4">
                             <i class="bi bi-check-circle-fill me-2"></i>
                             <?php echo htmlspecialchars($success); ?>
                         </div>
                     <?php endif; ?>
 
-                    <?php if($error): ?>
+                    <?php if ($error) : ?>
                         <div class="alert alert-danger d-flex align-items-center mb-4">
                             <i class="bi bi-exclamation-triangle-fill me-2"></i>
                             <?php echo htmlspecialchars($error); ?>
@@ -204,8 +204,10 @@ ob_start();
                             </label>
                             <select class="form-select" disabled>
                                 <option value="">Select Software Classification</option>
-                                <?php foreach($software_options as $opt): ?>
-                                    <option value="<?php echo htmlspecialchars($opt); ?>" <?php if($software_classification == $opt) echo 'selected'; ?>>
+                                <?php foreach ($software_options as $opt) : ?>
+                                    <option value="<?php echo htmlspecialchars($opt); ?>" <?php if ($software_classification == $opt) {
+                                        echo 'selected';
+                                                   } ?>>
                                         <?php echo htmlspecialchars($opt); ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -219,8 +221,10 @@ ob_start();
                             </label>
                             <select class="form-select" disabled>
                                 <option value="">Select Hardware Classification</option>
-                                <?php foreach($hardware_options as $opt): ?>
-                                    <option value="<?php echo htmlspecialchars($opt); ?>" <?php if($hardware_classification == $opt) echo 'selected'; ?>>
+                                <?php foreach ($hardware_options as $opt) : ?>
+                                    <option value="<?php echo htmlspecialchars($opt); ?>" <?php if ($hardware_classification == $opt) {
+                                        echo 'selected';
+                                                   } ?>>
                                         <?php echo htmlspecialchars($opt); ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -265,11 +269,11 @@ ob_start();
                     </h5>
 
                     <!-- Current Request Status -->
-                    <?php if($has_request): ?>
+                    <?php if ($has_request) : ?>
                         <div class="mb-4">
                             <h6 class="fw-semibold mb-3">Current Request Status</h6>
 
-                            <?php if($req_status === 'pending'): ?>
+                            <?php if ($req_status === 'pending') : ?>
                                 <div class="alert alert-warning">
                                     <div class="d-flex align-items-center mb-2">
                                         <i class="bi bi-clock-fill me-2"></i>
@@ -280,7 +284,7 @@ ob_start();
                                         <div><strong>Hardware:</strong> <?php echo htmlspecialchars($req_hardware ?: 'No change'); ?></div>
                                     </div>
                                 </div>
-                            <?php elseif($req_status === 'approved'): ?>
+                            <?php elseif ($req_status === 'approved') : ?>
                                 <div class="alert alert-success">
                                     <div class="d-flex align-items-center mb-2">
                                         <i class="bi bi-check-circle-fill me-2"></i>
@@ -288,7 +292,7 @@ ob_start();
                                     </div>
                                     <div class="small">Your classification has been updated successfully.</div>
                                 </div>
-                            <?php elseif($req_status === 'rejected'): ?>
+                            <?php elseif ($req_status === 'rejected') : ?>
                                 <div class="alert alert-danger">
                                     <div class="d-flex align-items-center mb-2">
                                         <i class="bi bi-x-circle-fill me-2"></i>
@@ -298,7 +302,7 @@ ob_start();
                                         <div><strong>Software:</strong> <?php echo htmlspecialchars($req_software ?: 'No change'); ?></div>
                                         <div><strong>Hardware:</strong> <?php echo htmlspecialchars($req_hardware ?: 'No change'); ?></div>
                                     </div>
-                                    <?php if($admin_comment): ?>
+                                    <?php if ($admin_comment) : ?>
                                         <div class="small">
                                             <strong>Admin Comment:</strong><br>
                                             <?php echo htmlspecialchars($admin_comment); ?>
@@ -313,12 +317,14 @@ ob_start();
                     <button class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center"
                             data-bs-toggle="modal"
                             data-bs-target="#classificationRequestModal"
-                            <?php if(!$can_request) echo 'disabled'; ?>>
+                            <?php if (!$can_request) {
+                                echo 'disabled';
+                            } ?>>
                         <i class="bi bi-send-fill me-2"></i>
                         Request Classification Change
                     </button>
 
-                    <?php if(!$can_request): ?>
+                    <?php if (!$can_request) : ?>
                         <div class="small text-muted text-center mt-2">
                             You have a pending request. Please wait for admin response.
                         </div>
@@ -371,7 +377,7 @@ ob_start();
                                 </label>
                                 <select class="form-select" name="requested_software_classification">
                                     <option value="">No change requested</option>
-                                    <?php foreach($software_options as $opt): ?>
+                                    <?php foreach ($software_options as $opt) : ?>
                                         <option value="<?php echo htmlspecialchars($opt); ?>"><?php echo htmlspecialchars($opt); ?></option>
                                     <?php endforeach; ?>
                                 </select>
@@ -383,7 +389,7 @@ ob_start();
                                 </label>
                                 <select class="form-select" name="requested_hardware_classification">
                                     <option value="">No change requested</option>
-                                    <?php foreach($hardware_options as $opt): ?>
+                                    <?php foreach ($hardware_options as $opt) : ?>
                                         <option value="<?php echo htmlspecialchars($opt); ?>"><?php echo htmlspecialchars($opt); ?></option>
                                     <?php endforeach; ?>
                                 </select>

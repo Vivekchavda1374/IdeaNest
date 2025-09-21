@@ -67,8 +67,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $admin_email = getSetting($conn, 'admin_email', 'ideanest.ict@gmail.com');
                 $email_subject = "New User Registration - " . getSetting($conn, 'site_name', 'IdeaNest');
                 $error_message = $notification_result['success'] ? null : $notification_result['message'];
-                logNotification('new_user_notification', $user_id, $conn,
-                        $notification_result['success'] ? 'sent' : 'failed', null, $admin_email, $email_subject, $error_message);
+                logNotification(
+                    'new_user_notification',
+                    $user_id,
+                    $conn,
+                    $notification_result['success'] ? 'sent' : 'failed',
+                    null,
+                    $admin_email,
+                    $email_subject,
+                    $error_message
+                );
 
                 $success = 'Registration successful! You can now login.';
             } else {
@@ -106,24 +114,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form class="form-section" method="post" autocomplete="off">
         <!-- Error/Success Messages -->
         <?php
-require_once "../../includes/csrf.php"; if ($error): ?>
+        require_once "../../includes/csrf.php"; if ($error) : ?>
             <div class="alert alert-error">
                 <i class="fas fa-exclamation-circle"></i>
                 <span><?php
-require_once "../../includes/csrf.php"; echo htmlspecialchars($error); ?></span>
+                require_once "../../includes/csrf.php";
+                echo htmlspecialchars($error); ?></span>
             </div>
-        <?php
-require_once "../../includes/csrf.php"; endif; ?>
+                <?php
+                require_once "../../includes/csrf.php";
+        endif; ?>
 
         <?php
-require_once "../../includes/csrf.php"; if ($success): ?>
+        require_once "../../includes/csrf.php"; if ($success) : ?>
             <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
                 <span><?php
-require_once "../../includes/csrf.php"; echo $success; ?></span>
+                require_once "../../includes/csrf.php";
+                echo $success; ?></span>
             </div>
-        <?php
-require_once "../../includes/csrf.php"; endif; ?>
+                <?php
+                require_once "../../includes/csrf.php";
+        endif; ?>
 
         <!-- Personal Information -->
         <div class="form-row">

@@ -126,10 +126,10 @@ $stats['avg_rating'] = $result['avg_rating'] ? round($result['avg_rating'], 1) :
                         <h4><?php echo htmlspecialchars($mentor['name']); ?></h4>
                         <span class="badge bg-success fs-6">Mentor</span>
                         <div class="mt-3">
-                            <?php if ($stats['avg_rating'] > 0): ?>
+                            <?php if ($stats['avg_rating'] > 0) : ?>
                             <div class="d-flex justify-content-center align-items-center">
                                 <span class="text-warning me-1">
-                                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <?php for ($i = 1; $i <= 5; $i++) : ?>
                                         <i class="bi bi-star<?php echo $i <= $stats['avg_rating'] ? '-fill' : ''; ?>"></i>
                                     <?php endfor; ?>
                                 </span>
@@ -156,7 +156,7 @@ $stats['avg_rating'] = $result['avg_rating'] ? round($result['avg_rating'], 1) :
                                 <p><i class="bi bi-briefcase"></i> Experience: 
                                     <?php echo htmlspecialchars($mentor['experience'] ?? 'Not specified'); ?>
                                 </p>
-                                <?php if ($mentor['github_username']): ?>
+                                <?php if ($mentor['github_username']) : ?>
                                 <p><i class="bi bi-github"></i> GitHub: 
                                     <a href="https://github.com/<?php echo htmlspecialchars($mentor['github_username']); ?>" target="_blank">
                                         <?php echo htmlspecialchars($mentor['github_username']); ?>
@@ -219,8 +219,8 @@ $stats['avg_rating'] = $result['avg_rating'] ? round($result['avg_rating'], 1) :
                         <span class="badge bg-success"><?php echo $students->num_rows; ?> students</span>
                     </div>
                     <div class="card-body">
-                        <?php if ($students->num_rows > 0): ?>
-                            <?php while ($student = $students->fetch_assoc()): ?>
+                        <?php if ($students->num_rows > 0) : ?>
+                            <?php while ($student = $students->fetch_assoc()) : ?>
                             <div class="d-flex align-items-center justify-content-between mb-3 p-2 border rounded">
                                 <div class="d-flex align-items-center">
                                     <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -240,7 +240,7 @@ $stats['avg_rating'] = $result['avg_rating'] ? round($result['avg_rating'], 1) :
                                 </div>
                             </div>
                             <?php endwhile; ?>
-                        <?php else: ?>
+                        <?php else : ?>
                             <div class="text-center py-4">
                                 <i class="bi bi-people fs-1 text-muted"></i>
                                 <p class="text-muted mt-2">No students assigned yet.</p>
@@ -257,8 +257,8 @@ $stats['avg_rating'] = $result['avg_rating'] ? round($result['avg_rating'], 1) :
                         <span class="badge bg-primary"><?php echo $sessions->num_rows; ?> sessions</span>
                     </div>
                     <div class="card-body">
-                        <?php if ($sessions->num_rows > 0): ?>
-                            <?php while ($session = $sessions->fetch_assoc()): ?>
+                        <?php if ($sessions->num_rows > 0) : ?>
+                            <?php while ($session = $sessions->fetch_assoc()) : ?>
                             <div class="d-flex align-items-center justify-content-between mb-3 p-2 border rounded">
                                 <div>
                                     <div class="fw-bold"><?php echo htmlspecialchars($session['title'] ?? 'Session'); ?></div>
@@ -271,16 +271,16 @@ $stats['avg_rating'] = $result['avg_rating'] ? round($result['avg_rating'], 1) :
                                     </small>
                                 </div>
                                 <div class="text-end">
-                                    <span class="badge bg-<?php 
-                                        echo $session['status'] === 'completed' ? 'success' : 
-                                            ($session['status'] === 'cancelled' ? 'danger' : 'warning'); 
+                                    <span class="badge bg-<?php
+                                        echo $session['status'] === 'completed' ? 'success' :
+                                            ($session['status'] === 'cancelled' ? 'danger' : 'warning');
                                     ?>">
                                         <?php echo ucfirst($session['status']); ?>
                                     </span>
                                 </div>
                             </div>
                             <?php endwhile; ?>
-                        <?php else: ?>
+                        <?php else : ?>
                             <div class="text-center py-4">
                                 <i class="bi bi-calendar-event fs-1 text-muted"></i>
                                 <p class="text-muted mt-2">No sessions conducted yet.</p>

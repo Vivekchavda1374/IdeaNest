@@ -33,13 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor'])) {
     $mentor_id = $_POST['mentor_id'];
     $project_id = $_POST['project_id'] ?? null;
     $message = $_POST['message'];
-    
+
     // Check if request already exists
     $check_query = "SELECT id FROM mentor_requests WHERE student_id = ? AND mentor_id = ? AND status = 'pending'";
     $check_stmt = $conn->prepare($check_query);
     $check_stmt->bind_param("ii", $user_id, $mentor_id);
     $check_stmt->execute();
-    
+
     if ($check_stmt->get_result()->num_rows == 0) {
         try {
             // Get mentor and student details
@@ -53,12 +53,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor'])) {
             $details_stmt->bind_param("iii", $project_id, $user_id, $mentor_id);
             $details_stmt->execute();
             $details = $details_stmt->get_result()->fetch_assoc();
-            
+
             $insert_query = "INSERT INTO mentor_requests (student_id, mentor_id, project_id, message) VALUES (?, ?, ?, ?)";
             $insert_stmt = $conn->prepare($insert_query);
             $insert_stmt->bind_param("iiis", $user_id, $mentor_id, $project_id, $message);
             $insert_stmt->execute();
-            
+
             // Send email notification to mentor
             $mail = new PHPMailer(true);
             $mail->isSMTP();
@@ -68,10 +68,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor'])) {
             $mail->Password = 'luou xlhs ojuw auvx';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
-            
+
             $mail->setFrom('ideanest.ict@gmail.com', 'IdeaNest');
             $mail->addAddress($details['mentor_email'], $details['mentor_name']);
-            
+
             $mail->isHTML(true);
             $mail->Subject = 'New Mentorship Request - IdeaNest';
             $project_text = $details['project_name'] ? "for the project '{$details['project_name']}'" : "for general mentorship";
@@ -85,9 +85,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor'])) {
             <p><a href='http://localhost/IdeaNest/mentor/student_requests.php' style='background: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>View Request</a></p>
             <p>Best regards,<br>The IdeaNest Team</p>
             ";
-            
+
             $mail->send();
-            
+
             $success_message = "Mentor request sent successfully! The mentor has been notified via email.";
         } catch (Exception $e) {
             $error_message = "Failed to send request. Please try again.";
@@ -129,14 +129,14 @@ include 'layout.php';
                 </div>
             </div>
 
-            <?php if (isset($success_message)): ?>
+            <?php if (isset($success_message)) : ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="fas fa-check-circle me-2"></i><?= $success_message ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             <?php endif; ?>
 
-            <?php if (isset($error_message)): ?>
+            <?php if (isset($error_message)) : ?>
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="fas fa-exclamation-circle me-2"></i><?= $error_message ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -144,8 +144,8 @@ include 'layout.php';
             <?php endif; ?>
 
             <div class="row">
-                <?php if ($mentors_result->num_rows > 0): ?>
-                    <?php while ($mentor = $mentors_result->fetch_assoc()): ?>
+                <?php if ($mentors_result->num_rows > 0) : ?>
+                    <?php while ($mentor = $mentors_result->fetch_assoc()) : ?>
                         <div class="col-lg-6 col-xl-4 mb-4">
                             <div class="mentor-card p-4 h-100">
                                 <div class="d-flex align-items-center mb-3">
@@ -172,7 +172,7 @@ include 'layout.php';
                                     </small>
                                 </div>
 
-                                <?php if ($mentor['bio']): ?>
+                                <?php if ($mentor['bio']) : ?>
                                     <p class="text-muted small mb-3"><?= htmlspecialchars(substr($mentor['bio'], 0, 100)) ?>...</p>
                                 <?php endif; ?>
 
@@ -183,7 +183,7 @@ include 'layout.php';
                             </div>
                         </div>
                     <?php endwhile; ?>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="col-12">
                         <div class="mentor-card p-5 text-center">
                             <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
@@ -216,7 +216,7 @@ include 'layout.php';
                             <label for="project_id" class="form-label">Select Project (Optional)</label>
                             <select class="form-select" name="project_id" id="project_id">
                                 <option value="">No specific project</option>
-                                <?php while ($project = $projects_result->fetch_assoc()): ?>
+                                <?php while ($project = $projects_result->fetch_assoc()) : ?>
                                     <option value="<?= $project['id'] ?>"><?= htmlspecialchars($project['project_name']) ?></option>
                                 <?php endwhile; ?>
                             </select>

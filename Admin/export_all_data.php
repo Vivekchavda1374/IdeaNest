@@ -34,9 +34,9 @@ $mentors = $conn->query("SELECT * FROM register WHERE role = 'mentor'")->fetch_a
 if ($export_type === 'csv') {
     header('Content-Type: text/csv');
     header('Content-Disposition: attachment; filename="ideanest_data_' . date('Y-m-d') . '.csv"');
-    
+
     $output = fopen('php://output', 'w');
-    
+
     // Users
     fputcsv($output, ['=== USERS ===']);
     fputcsv($output, ['ID', 'Name', 'Email', 'Department', 'Role', 'Created']);
@@ -50,7 +50,7 @@ if ($export_type === 'csv') {
             $user['created_at'] ?? 'N/A'
         ]);
     }
-    
+
     // Ideas
     fputcsv($output, []);
     fputcsv($output, ['=== IDEAS ===']);
@@ -66,7 +66,7 @@ if ($export_type === 'csv') {
             $idea['submission_datetime']
         ]);
     }
-    
+
     // Projects
     if (!empty($projects)) {
         fputcsv($output, []);
@@ -82,7 +82,7 @@ if ($export_type === 'csv') {
             ]);
         }
     }
-    
+
     // Subadmins
     fputcsv($output, []);
     fputcsv($output, ['=== SUBADMINS ===']);
@@ -96,7 +96,7 @@ if ($export_type === 'csv') {
             $subadmin['created_at'] ?? 'N/A'
         ]);
     }
-    
+
     // Mentors
     fputcsv($output, []);
     fputcsv($output, ['=== MENTORS ===']);
@@ -110,7 +110,7 @@ if ($export_type === 'csv') {
             $mentor['expertise'] ?? 'N/A'
         ]);
     }
-    
+
     // Reports
     if (!empty($reports)) {
         fputcsv($output, []);
@@ -127,7 +127,7 @@ if ($export_type === 'csv') {
             ]);
         }
     }
-    
+
     fclose($output);
     exit;
 }
@@ -161,7 +161,7 @@ if ($export_type === 'csv') {
                 <tr><th>ID</th><th>Name</th><th>Email</th><th>Department</th><th>Role</th></tr>
             </thead>
             <tbody>
-                <?php foreach ($users as $user): ?>
+                <?php foreach ($users as $user) : ?>
                 <tr>
                     <td><?php echo $user['id']; ?></td>
                     <td><?php echo htmlspecialchars($user['name']); ?></td>
@@ -180,7 +180,7 @@ if ($export_type === 'csv') {
                 <tr><th>ID</th><th>Name</th><th>Author</th><th>Type</th><th>Status</th><th>Date</th></tr>
             </thead>
             <tbody>
-                <?php foreach ($ideas as $idea): ?>
+                <?php foreach ($ideas as $idea) : ?>
                 <tr>
                     <td><?php echo $idea['id']; ?></td>
                     <td><?php echo htmlspecialchars($idea['project_name']); ?></td>
@@ -194,14 +194,14 @@ if ($export_type === 'csv') {
         </table>
 
         <!-- Projects -->
-        <?php if (!empty($projects)): ?>
+        <?php if (!empty($projects)) : ?>
         <h2>Approved Projects (<?php echo count($projects); ?>)</h2>
         <table class="table table-sm table-striped">
             <thead>
                 <tr><th>ID</th><th>Name</th><th>Category</th><th>Status</th></tr>
             </thead>
             <tbody>
-                <?php foreach ($projects as $project): ?>
+                <?php foreach ($projects as $project) : ?>
                 <tr>
                     <td><?php echo $project['id']; ?></td>
                     <td><?php echo htmlspecialchars($project['project_name']); ?></td>
@@ -220,7 +220,7 @@ if ($export_type === 'csv') {
                 <tr><th>ID</th><th>Name</th><th>Email</th><th>Department</th></tr>
             </thead>
             <tbody>
-                <?php foreach ($subadmins as $subadmin): ?>
+                <?php foreach ($subadmins as $subadmin) : ?>
                 <tr>
                     <td><?php echo $subadmin['id']; ?></td>
                     <td><?php echo htmlspecialchars($subadmin['name']); ?></td>
@@ -238,7 +238,7 @@ if ($export_type === 'csv') {
                 <tr><th>ID</th><th>Name</th><th>Email</th><th>Department</th><th>Expertise</th></tr>
             </thead>
             <tbody>
-                <?php foreach ($mentors as $mentor): ?>
+                <?php foreach ($mentors as $mentor) : ?>
                 <tr>
                     <td><?php echo $mentor['id']; ?></td>
                     <td><?php echo htmlspecialchars($mentor['name']); ?></td>
@@ -251,14 +251,14 @@ if ($export_type === 'csv') {
         </table>
 
         <!-- Reports -->
-        <?php if (!empty($reports)): ?>
+        <?php if (!empty($reports)) : ?>
         <h2>Reports (<?php echo count($reports); ?>)</h2>
         <table class="table table-sm table-striped">
             <thead>
                 <tr><th>ID</th><th>Idea</th><th>Reporter</th><th>Type</th><th>Status</th><th>Date</th></tr>
             </thead>
             <tbody>
-                <?php foreach ($reports as $report): ?>
+                <?php foreach ($reports as $report) : ?>
                 <tr>
                     <td><?php echo $report['id']; ?></td>
                     <td><?php echo htmlspecialchars($report['project_name'] ?? 'Unknown'); ?></td>

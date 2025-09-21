@@ -54,7 +54,7 @@ $mentors = $conn->query($query)->fetch_all(MYSQLI_ASSOC);
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($mentors as $mentor): ?>
+                <?php foreach ($mentors as $mentor) : ?>
                 <tr>
                     <td><?= htmlspecialchars($mentor['name']) ?></td>
                     <td><?= htmlspecialchars($mentor['email']) ?></td>

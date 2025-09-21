@@ -1,5 +1,5 @@
 // Fixed Sidebar JavaScript for All Projects
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Get elements
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const sidebar = document.getElementById('sidebar');
@@ -7,10 +7,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const body = document.body;
 
     // Function to open sidebar
-    function openSidebar() {
+    function openSidebar()
+    {
         if (sidebar) {
             sidebar.classList.add('open');
-            }
+        }
         if (overlay) {
             overlay.classList.add('active');
         }
@@ -26,10 +27,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Function to close sidebar
-    function closeSidebar() {
+    function closeSidebar()
+    {
         if (sidebar) {
             sidebar.classList.remove('open');
-            }
+        }
         if (overlay) {
             overlay.classList.remove('active');
         }
@@ -45,7 +47,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Function to toggle sidebar
-    function toggleSidebar() {
+    function toggleSidebar()
+    {
         if (sidebar && sidebar.classList.contains('open')) {
             closeSidebar();
         } else {
@@ -55,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Mobile menu toggle click event
     if (mobileMenuToggle) {
-        mobileMenuToggle.addEventListener('click', function(e) {
+        mobileMenuToggle.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
             toggleSidebar();
@@ -64,13 +67,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Overlay click event to close sidebar
     if (overlay) {
-        overlay.addEventListener('click', function() {
+        overlay.addEventListener('click', function () {
             closeSidebar();
         });
     }
 
     // Close sidebar when clicking outside
-    document.addEventListener('click', function(event) {
+    document.addEventListener('click', function (event) {
         // Only apply on mobile/tablet
         if (window.innerWidth <= 1024) {
             if (sidebar && sidebar.classList.contains('open')) {
@@ -85,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Prevent sidebar content clicks from closing sidebar
     if (sidebar) {
-        sidebar.addEventListener('click', function(e) {
+        sidebar.addEventListener('click', function (e) {
             e.stopPropagation();
         });
     }
@@ -93,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Close sidebar when clicking nav links on mobile
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
-        item.addEventListener('click', function(e) {
+        item.addEventListener('click', function (e) {
             // Only close on mobile/tablet
             if (window.innerWidth <= 1024) {
                 // Small delay to allow navigation to start
@@ -105,7 +108,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Handle window resize
-    function handleResize() {
+    function handleResize()
+    {
         if (window.innerWidth > 1024) {
             // Desktop view - ensure sidebar is visible and overlay is hidden
             if (sidebar) {
@@ -129,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', handleResize);
 
     // Handle escape key
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && window.innerWidth <= 1024) {
             closeSidebar();
         }
@@ -139,8 +143,8 @@ document.addEventListener('DOMContentLoaded', function() {
     handleResize();
 
     // Debug function to test sidebar
-    window.testSidebar = function() {
+    window.testSidebar = function () {
         toggleSidebar();
     };
 
-    });
+});

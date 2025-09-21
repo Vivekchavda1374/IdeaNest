@@ -1,5 +1,6 @@
 <?php
-function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '') {
+function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '')
+{
     ?>
     <!DOCTYPE html>
     <html lang="en">

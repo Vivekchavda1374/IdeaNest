@@ -26,8 +26,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // ✅ Get logged-in user_id from session (must be set during login)
     if (!isset($_SESSION['user_id'])) {
         $error_message = "Error: User not logged in.";
-    } elseif (empty($erNumber) || empty($projectName) || empty($projectType) ||
-            empty($classification) || empty($description)) {
+    } elseif (
+        empty($erNumber) || empty($projectName) || empty($projectType) ||
+            empty($classification) || empty($description)
+    ) {
         $error_message = "Error: All required fields must be filled";
     } else {
         // Database connection
@@ -46,18 +48,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 (er_number, project_name, project_type, classification, description, submission_datetime, priority1, status, assigned_to, completion_date, user_id) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-            $stmt->bind_param("ssssssssssi",
-                    $erNumber,
-                    $projectName,
-                    $projectType,
-                    $classification,
-                    $description,
-                    $submissionDateTime,
-                    $priority1,
-                    $status,
-                    $assignedTo,
-                    $completionDate,
-                    $_SESSION['user_id']   // ✅ logged-in user
+            $stmt->bind_param(
+                "ssssssssssi",
+                $erNumber,
+                $projectName,
+                $projectType,
+                $classification,
+                $description,
+                $submissionDateTime,
+                $priority1,
+                $status,
+                $assignedTo,
+                $completionDate,
+                $_SESSION['user_id']   // ✅ logged-in user
             );
 
             if ($stmt->execute()) {
@@ -709,13 +712,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <?php include '../layout.php'?>
     <div class="container form-container">
-        <?php if (isset($error_message)): ?>
+        <?php if (isset($error_message)) : ?>
         <div class="alert alert-danger" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i> <?php echo $error_message; ?>
         </div>
         <?php endif; ?>
 
-        <?php if (isset($success_message) && isset($project_id)): ?>
+        <?php if (isset($success_message) && isset($project_id)) : ?>
         <div class="card">
             <div class="card-body success-container">
                 <i class="fas fa-check-circle success-icon"></i>
@@ -737,7 +740,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             </div>
         </div>
-        <?php else: ?>
+        <?php else : ?>
         <div class="card">
             <div class="card-header text-white">
                 <h3 class="mb-0"><i class="fas fa-project-diagram me-2"></i> Project Submission Portal</h3>
@@ -1080,7 +1083,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             updateClassifications();
 
             // If classification is already set, select it
-            <?php if(isset($classification) && !empty($classification)): ?>
+            <?php if (isset($classification) && !empty($classification)) : ?>
             setTimeout(() => {
                 document.getElementById('classification').value = '<?php echo $classification; ?>';
             }, 100);
