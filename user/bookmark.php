@@ -874,7 +874,7 @@ if (!$result) {
 
                 <div class="bookmark-stats">
                     <div class="stat-item">
-                        <span class="stat-number"><?php echo $result ? $result->num_rows : 0; ?></span>
+                        <span class="stat-number"><?php echo true; ?></span>
                         <span class="stat-label">Bookmarked Projects</span>
                     </div>
                     <div class="stat-item">
@@ -889,7 +889,7 @@ if (!$result) {
             </div>
 
             <!-- Display bookmark message if set -->
-            <?php if (isset($bookmark_message)): ?>
+            <?php if (isset($bookmark_message)) : ?>
                 <div class="alert alert-modern">
                     <?php echo $bookmark_message; ?>
                 </div>
@@ -897,8 +897,8 @@ if (!$result) {
 
             <!-- Bookmarked Projects -->
             <div class="row g-4">
-                <?php if ($result && $result->num_rows > 0): ?>
-                    <?php while($row = $result->fetch_assoc()): ?>
+                <?php if ($result && $result->num_rows > 0) : ?>
+                    <?php while ($row = $result->fetch_assoc()) : ?>
                         <div class="col-md-6 col-lg-4">
                             <div class="card project-card h-100 border-0">
                                 <div class="bookmark-icon">
@@ -963,7 +963,7 @@ if (!$result) {
                             </div>
                         </div>
                     <?php endwhile; ?>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="col-12">
                         <div class="empty-state">
                             <i class="fas fa-bookmark empty-state-icon"></i>
