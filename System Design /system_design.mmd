@@ -1,0 +1,171 @@
+%%{init: {
+  'theme': 'dark',
+  'themeVariables': {
+    'primaryColor': '#4CAF50',
+    'primaryTextColor': '#FFFFFF',
+    'primaryBorderColor': '#81C784',
+    'lineColor': '#64B5F6',
+    'secondaryColor': '#2196F3',
+    'tertiaryColor': '#FF9800',
+    'background': '#1E1E1E',
+    'mainBkg': '#2D2D2D',
+    'secondBkg': '#3D3D3D',
+    'tertiaryBkg': '#4D4D4D'
+  }
+}}%%
+
+graph TB
+    %% User Layer
+    subgraph "👥 User Layer"
+        U1[👨🎓 Students]:::userClass
+        U2[👨💼 Sub-Admins]:::subadminClass
+        U3[👨💻 Admins]:::adminClass
+        U4[👨🏫 Mentors]:::mentorClass
+    end
+
+    %% Authentication Layer
+    subgraph "🔐 Authentication Layer"
+        AUTH[Authentication System]:::authClass
+        GOOGLE[Google OAuth 2.0]:::oauthClass
+        SESSION[Session Management]:::sessionClass
+        OTP[OTP Verification]:::otpClass
+    end
+
+    %% Core Application Layer
+    subgraph "🏗️ Core Application Layer"
+        subgraph "📋 Project Management"
+            PM1[Project Submission]:::projectClass
+            PM2[File Upload System]:::fileClass
+            PM3[Project Review Workflow]:::workflowClass
+            PM4[Status Tracking]:::statusClass
+        end
+        
+        subgraph "🎯 Interactive Features"
+            IF1[Like System]:::interactiveClass
+            IF2[Comment System]:::interactiveClass
+            IF3[Bookmark System]:::interactiveClass
+            IF4[Modal Views]:::interactiveClass
+        end
+        
+        subgraph "👨🏫 Mentor System"
+            MS1[Mentor Dashboard]:::mentorClass
+            MS2[Student Management]:::mentorClass
+            MS3[Session Scheduling]:::mentorClass
+            MS4[Project Review]:::mentorClass
+            MS5[Communication Hub]:::mentorClass
+            MS6[Analytics & Reports]:::mentorClass
+        end
+    end
+
+    %% Integration Layer
+    subgraph "🔗 Integration Layer"
+        GITHUB[GitHub API v3]:::githubClass
+        EMAIL[Email System]:::emailClass
+        CRON[Cron Jobs]:::cronClass
+    end
+
+    %% Data Layer
+    subgraph "💾 Data Layer"
+        DB[(MySQL Database)]:::dbClass
+        FILES[File Storage]:::fileClass
+        LOGS[System Logs]:::logClass
+    end
+
+    %% External Services
+    subgraph "🌐 External Services"
+        GMAIL[Gmail SMTP]:::emailClass
+        GITHUB_API[GitHub API]:::githubClass
+        GOOGLE_API[Google API]:::oauthClass
+    end
+
+    %% User Connections
+    U1 --> AUTH
+    U2 --> AUTH
+    U3 --> AUTH
+    U4 --> AUTH
+
+    %% Authentication Flow
+    AUTH --> GOOGLE
+    AUTH --> SESSION
+    AUTH --> OTP
+    GOOGLE --> GOOGLE_API
+    
+    %% Core Application Connections
+    U1 --> PM1
+    U1 --> IF1
+    U1 --> IF2
+    U1 --> IF3
+    
+    U2 --> PM3
+    U2 --> PM4
+    
+    U3 --> PM3
+    U3 --> PM4
+    
+    U4 --> MS1
+    U4 --> MS2
+    U4 --> MS3
+    U4 --> MS4
+    U4 --> MS5
+    U4 --> MS6
+    
+    %% Project Management Flow
+    PM1 --> PM2
+    PM2 --> PM3
+    PM3 --> PM4
+    
+    %% Mentor System Flow
+    MS1 --> MS2
+    MS2 --> MS3
+    MS3 --> MS4
+    MS4 --> MS5
+    MS5 --> MS6
+    
+    %% Integration Connections
+    PM1 --> GITHUB
+    EMAIL --> CRON
+    GITHUB --> GITHUB_API
+    EMAIL --> GMAIL
+    MS5 --> EMAIL
+    MS6 --> EMAIL
+    
+    %% Data Layer Connections
+    PM1 --> DB
+    PM2 --> FILES
+    PM3 --> DB
+    PM4 --> DB
+    IF1 --> DB
+    IF2 --> DB
+    IF3 --> DB
+    MS1 --> DB
+    MS2 --> DB
+    MS3 --> DB
+    MS4 --> DB
+    MS5 --> DB
+    MS6 --> DB
+    AUTH --> DB
+    SESSION --> DB
+    
+    %% System Monitoring
+    CRON --> LOGS
+    EMAIL --> LOGS
+    
+    %% Class Definitions for Dark Theme
+    classDef userClass fill:#4CAF50,stroke:#81C784,stroke-width:2px,color:#FFFFFF
+    classDef subadminClass fill:#FF9800,stroke:#FFB74D,stroke-width:2px,color:#FFFFFF
+    classDef adminClass fill:#F44336,stroke:#EF5350,stroke-width:2px,color:#FFFFFF
+    classDef mentorClass fill:#9C27B0,stroke:#BA68C8,stroke-width:2px,color:#FFFFFF
+    classDef authClass fill:#2196F3,stroke:#64B5F6,stroke-width:2px,color:#FFFFFF
+    classDef oauthClass fill:#FF5722,stroke:#FF8A65,stroke-width:2px,color:#FFFFFF
+    classDef sessionClass fill:#607D8B,stroke:#90A4AE,stroke-width:2px,color:#FFFFFF
+    classDef otpClass fill:#795548,stroke:#A1887F,stroke-width:2px,color:#FFFFFF
+    classDef projectClass fill:#3F51B5,stroke:#7986CB,stroke-width:2px,color:#FFFFFF
+    classDef fileClass fill:#009688,stroke:#4DB6AC,stroke-width:2px,color:#FFFFFF
+    classDef workflowClass fill:#673AB7,stroke:#9575CD,stroke-width:2px,color:#FFFFFF
+    classDef statusClass fill:#E91E63,stroke:#F06292,stroke-width:2px,color:#FFFFFF
+    classDef interactiveClass fill:#00BCD4,stroke:#4DD0E1,stroke-width:2px,color:#FFFFFF
+    classDef githubClass fill:#333333,stroke:#666666,stroke-width:2px,color:#FFFFFF
+    classDef emailClass fill:#FFC107,stroke:#FFCA28,stroke-width:2px,color:#000000
+    classDef cronClass fill:#8BC34A,stroke:#AED581,stroke-width:2px,color:#FFFFFF
+    classDef dbClass fill:#FF6F00,stroke:#FF8F00,stroke-width:3px,color:#FFFFFF
+    classDef logClass fill:#455A64,stroke:#78909C,stroke-width:2px,color:#FFFFFF

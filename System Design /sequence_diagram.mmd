@@ -1,0 +1,57 @@
+%%{init: {
+  'theme': 'white',
+  'themeVariables': {
+    'primaryColor': '#4CAF50',
+    'primaryTextColor': '#FFFFFF'
+  }
+}}%%
+
+sequenceDiagram
+    participant S as 👨🎓 Student
+    participant SYS as 🏗️ System
+    participant SA as 👨💼 Sub-Admin
+    participant A as 👨💻 Admin
+    participant EMAIL as 📧 Email Service
+    participant GH as 🔗 GitHub API
+
+    Note over S,GH: Project Submission & Review Flow
+    
+    S->>SYS: Login/Register
+    SYS->>S: Authentication Success
+    
+    S->>SYS: Submit Project
+    SYS->>SYS: Validate Files
+    SYS->>SYS: Store Project Data
+    SYS->>EMAIL: Send Submission Confirmation
+    EMAIL->>S: Confirmation Email
+    
+    SYS->>SA: Auto-assign for Review
+    SA->>SYS: Review Project
+    
+    alt Sub-Admin Approves
+        SA->>SYS: Approve Project
+        SYS->>A: Forward for Final Review
+        A->>SYS: Final Decision
+        
+        alt Admin Approves
+            SYS->>EMAIL: Send Approval Notification
+            EMAIL->>S: Project Approved
+        else Admin Rejects
+            SYS->>EMAIL: Send Rejection Notification
+            EMAIL->>S: Project Rejected
+        end
+        
+    else Sub-Admin Rejects
+        SA->>SYS: Reject Project
+        SYS->>EMAIL: Send Rejection Notification
+        EMAIL->>S: Project Rejected
+    end
+    
+    Note over S,GH: GitHub Integration Flow
+    
+    S->>SYS: Update Profile with GitHub Username
+    SYS->>GH: Fetch User Profile
+    GH->>SYS: Return Profile Data
+    SYS->>GH: Fetch Repositories
+    GH->>SYS: Return Repository Data
+    SYS->>S: Display GitHub Integration

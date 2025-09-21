@@ -1,0 +1,77 @@
+%%{init: {
+  'theme': 'dark',
+  'themeVariables': {
+    'primaryColor': '#4CAF50',
+    'primaryTextColor': '#FFFFFF',
+    'primaryBorderColor': '#81C784',
+    'lineColor': '#64B5F6'
+  }
+}}%%
+
+flowchart TD
+    START([🚀 Project Submission]):::startClass
+    
+    subgraph "📝 Submission Phase"
+        S1[Student Uploads Project]:::userClass
+        S2[File Validation & Storage]:::fileClass
+        S3[Project Metadata Entry]:::dataClass
+    end
+    
+    subgraph "🔍 Review Phase"
+        R1{Sub-Admin Assignment}:::decisionClass
+        R2[Sub-Admin Review]:::subadminClass
+        R3{Sub-Admin Decision}:::decisionClass
+        R4[Admin Final Review]:::adminClass
+        R5{Admin Decision}:::decisionClass
+    end
+    
+    subgraph "📊 Status Updates"
+        ST1[Pending Status]:::pendingClass
+        ST2[Under Review]:::reviewClass
+        ST3[Approved]:::approvedClass
+        ST4[Rejected]:::rejectedClass
+    end
+    
+    subgraph "📧 Notifications"
+        N1[Email Notifications]:::emailClass
+        N2[Dashboard Updates]:::updateClass
+        N3[Weekly Digest]:::digestClass
+    end
+    
+    START --> S1
+    S1 --> S2
+    S2 --> S3
+    S3 --> ST1
+    ST1 --> R1
+    
+    R1 --> R2
+    R2 --> ST2
+    ST2 --> R3
+    
+    R3 -->|Approve| R4
+    R3 -->|Reject| ST4
+    
+    R4 --> R5
+    R5 -->|Approve| ST3
+    R5 -->|Reject| ST4
+    
+    ST2 --> N1
+    ST3 --> N1
+    ST4 --> N1
+    N1 --> N2
+    N1 --> N3
+    
+    classDef startClass fill:#4CAF50,stroke:#81C784,stroke-width:3px,color:#FFFFFF
+    classDef userClass fill:#2196F3,stroke:#64B5F6,stroke-width:2px,color:#FFFFFF
+    classDef fileClass fill:#009688,stroke:#4DB6AC,stroke-width:2px,color:#FFFFFF
+    classDef dataClass fill:#FF9800,stroke:#FFB74D,stroke-width:2px,color:#FFFFFF
+    classDef decisionClass fill:#9C27B0,stroke:#BA68C8,stroke-width:2px,color:#FFFFFF
+    classDef subadminClass fill:#FF5722,stroke:#FF8A65,stroke-width:2px,color:#FFFFFF
+    classDef adminClass fill:#F44336,stroke:#EF5350,stroke-width:2px,color:#FFFFFF
+    classDef pendingClass fill:#FFC107,stroke:#FFCA28,stroke-width:2px,color:#000000
+    classDef reviewClass fill:#FF9800,stroke:#FFB74D,stroke-width:2px,color:#FFFFFF
+    classDef approvedClass fill:#4CAF50,stroke:#81C784,stroke-width:2px,color:#FFFFFF
+    classDef rejectedClass fill:#F44336,stroke:#EF5350,stroke-width:2px,color:#FFFFFF
+    classDef emailClass fill:#673AB7,stroke:#9575CD,stroke-width:2px,color:#FFFFFF
+    classDef updateClass fill:#00BCD4,stroke:#4DD0E1,stroke-width:2px,color:#FFFFFF
+    classDef digestClass fill:#795548,stroke:#A1887F,stroke-width:2px,color:#FFFFFF
