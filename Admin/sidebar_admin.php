@@ -93,7 +93,7 @@ $logout_url = isset($logout_url) ? $logout_url : $web_base_path . "logout.php";
         </a>
     </div>
     <ul class="sidebar-menu">
-        <?php foreach ($menu_items as $item): ?>
+        <?php foreach ($menu_items as $item) : ?>
             <li class="sidebar-item">
                 <a href="<?php echo $item['url']; ?>"
                    class="sidebar-link <?php echo ($current_page == $item['page']) ? 'active' : ''; ?>">
