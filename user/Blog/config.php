@@ -1,4 +1,5 @@
 <?php
+
 // Include the database configuration file
 //require_once 'con.php';
 
@@ -59,4 +60,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // The HTML form will be included in the main file, so no need to output it here
-?>
