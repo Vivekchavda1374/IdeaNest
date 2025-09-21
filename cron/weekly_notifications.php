@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../Login/Login/db.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -17,7 +18,8 @@ if ($result->num_rows > 0) {
     }
 }
 
-function sendWeeklyNotification($user, $conn) {
+function sendWeeklyNotification($user, $conn)
+{
     $projects_query = "SELECT p.*, r.name as author_name 
                       FROM admin_approved_projects p 
                       JOIN register r ON p.user_id = r.id 
@@ -44,7 +46,7 @@ function sendWeeklyNotification($user, $conn) {
 
     if (count($projects) > 0 || count($ideas) > 0) {
         $mail = new PHPMailer(true);
-        
+
         try {
             // Get SMTP settings from database
             $smtp_query = "SELECT setting_key, setting_value FROM admin_settings WHERE setting_key IN ('smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'smtp_secure', 'from_email')";
@@ -70,7 +72,7 @@ function sendWeeklyNotification($user, $conn) {
             $mail->Body = generateEmailTemplate($user, $projects, $ideas);
 
             $mail->send();
-            
+
             $update_query = "UPDATE register SET last_notification_sent = NOW() WHERE id = ?";
             $update_stmt = $conn->prepare($update_query);
             $update_stmt->bind_param("i", $user['id']);
@@ -82,19 +84,19 @@ function sendWeeklyNotification($user, $conn) {
             $log_stmt->execute();
 
             echo "Notification sent to: " . $user['email'] . "\n";
-            
         } catch (Exception $e) {
             $log_query = "INSERT INTO notification_logs (type, user_id, status, email_to, error_message) VALUES ('weekly_notification', ?, 'failed', ?, ?)";
             $log_stmt = $conn->prepare($log_query);
             $log_stmt->bind_param("iss", $user['id'], $user['email'], $e->getMessage());
             $log_stmt->execute();
-            
+
             echo "Failed to send notification to: " . $user['email'] . "\n";
         }
     }
 }
 
-function generateEmailTemplate($user, $projects, $ideas) {
+function generateEmailTemplate($user, $projects, $ideas)
+{
     $html = '<!DOCTYPE html>
     <html>
     <head>
@@ -122,11 +124,11 @@ function generateEmailTemplate($user, $projects, $ideas) {
                 <p>Hello ' . htmlspecialchars($user['name']) . '! This is a test notification (30min interval).</p>
             </div>
             <div class="content">';
-    
+
     if (count($projects) > 0) {
         $html .= '<div class="section">
                     <h2>📁 New Projects (' . count($projects) . ')</h2>';
-        
+
         foreach ($projects as $project) {
             $html .= '<div class="item">
                         <h3>' . htmlspecialchars($project['project_name']) . '</h3>
@@ -137,11 +139,11 @@ function generateEmailTemplate($user, $projects, $ideas) {
         }
         $html .= '</div>';
     }
-    
+
     if (count($ideas) > 0) {
         $html .= '<div class="section">
                     <h2>💡 New Ideas (' . count($ideas) . ')</h2>';
-        
+
         foreach ($ideas as $idea) {
             $html .= '<div class="item">
                         <h3>' . htmlspecialchars($idea['project_name']) . '</h3>
@@ -151,7 +153,7 @@ function generateEmailTemplate($user, $projects, $ideas) {
         }
         $html .= '</div>';
     }
-    
+
     $html .= '<div style="text-align: center; margin-top: 30px;">
                     <a href="http://localhost/IdeaNest/user/all_projects.php" class="btn">View All Projects</a>
                     <a href="http://localhost/IdeaNest/user/Blog/list-project.php" class="btn">View All Ideas</a>
@@ -164,7 +166,6 @@ function generateEmailTemplate($user, $projects, $ideas) {
         </div>
     </body>
     </html>';
-    
+
     return $html;
 }
-?>
