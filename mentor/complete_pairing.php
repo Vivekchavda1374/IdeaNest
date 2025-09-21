@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 require_once '../Login/Login/db.php';
 
@@ -22,9 +23,8 @@ try {
     $stmt = $conn->prepare("UPDATE mentor_student_pairs SET status = 'completed', rating = ?, feedback = ?, completed_at = NOW() WHERE id = ?");
     $stmt->bind_param("isi", $rating, $feedback, $pair_id);
     $stmt->execute();
-    
+
     echo json_encode(['success' => true]);
 } catch (Exception $e) {
     echo json_encode(['error' => 'Failed to complete pairing']);
 }
-?>

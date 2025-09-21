@@ -1,4 +1,5 @@
 <?php
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -117,4 +118,3 @@ if (count($results) > 0) {
     echo '<p class="text-center py-3">No results found for "' . htmlspecialchars(trim($_GET['query'])) . '"</p>';
     echo '<p class="text-center small text-muted">Try different keywords or check your spelling</p>';
 }
-?>

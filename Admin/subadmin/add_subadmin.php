@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && !isset($_
         $check_stmt->execute();
         $result = $check_stmt->get_result();
 
-        if ($result->num_rows > 0) {
+        if ($result->num_rows !== false) {
             $error = "A subadmin with this email already exists.";
             $check_stmt->close();
         } else {
@@ -92,7 +92,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && !isset($_
 
                         $mail->send();
                         $message = "Subadmin added successfully and credentials sent to $email.";
-
                     } catch (Exception $e) {
                         $error = "Subadmin added, but email could not be sent. Mailer Error: {$mail->ErrorInfo}";
                     }
@@ -113,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_subadmin']) &&
     $subadmin_id = intval($_POST['subadmin_id']);
     $removal_reason = trim($_POST['removal_reason'] ?? '');
 
-    if ($subadmin_id > 0) {
+    if ($subadmin_id !== false) {
         // Get subadmin details before deletion for logging
         $stmt = $conn->prepare("SELECT email, name FROM subadmins WHERE id = ?");
         $stmt->bind_param("i", $subadmin_id);
@@ -124,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_subadmin']) &&
             $stmt->close();
 
             // Start transaction for safe deletion
-            $conn->autocommit(FALSE);
+            $conn->autocommit(false);
 
             try {
                 // Delete related classification requests first
@@ -148,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_subadmin']) &&
 
                 // Commit transaction
                 $conn->commit();
-                $conn->autocommit(TRUE);
+                $conn->autocommit(true);
 
                 $message = "Subadmin removed successfully.";
 
@@ -179,11 +178,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_subadmin']) &&
                 } catch (Exception $e) {
                     // Silently fail email notification
                 }
-
             } catch (Exception $e) {
                 // Rollback on error
                 $conn->rollback();
-                $conn->autocommit(TRUE);
+                $conn->autocommit(true);
                 $error = "Failed to remove subadmin. Please try again.";
             }
         } else {
@@ -241,7 +239,6 @@ if (isset($_POST['request_action']) && isset($_POST['request_id']) && !isset($_P
             $stmt3->bind_param("si", $admin_comment, $request_id);
             $stmt3->execute();
             $stmt3->close();
-
         } elseif ($action === 'reject') {
             // Mark request as rejected
             $stmt3 = $conn->prepare("
@@ -790,14 +787,14 @@ $active_tab = $_GET['tab'] ?? 'overview';
     </div>
 
     <!-- Alert Messages -->
-    <?php if ($message): ?>
+    <?php if ($message) : ?>
         <div class="alert alert-success alert-banner alert-dismissible fade show" role="alert">
             <?php echo htmlspecialchars($message); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
 
-    <?php if ($error): ?>
+    <?php if ($error) : ?>
         <div class="alert alert-danger alert-banner alert-dismissible fade show" role="alert">
             <?php echo htmlspecialchars($error); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -826,7 +823,7 @@ $active_tab = $_GET['tab'] ?? 'overview';
             <li class="nav-item" role="presentation">
                 <button class="nav-link <?php echo $active_tab === 'pending' ? 'active' : ''; ?>" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-controls="pending" aria-selected="<?php echo $active_tab === 'pending' ? 'true' : 'false'; ?>">
                     <i class="bi bi-hourglass-split me-1"></i> Pending Requests
-                    <?php if (count($pending_requests) > 0): ?>
+                    <?php if (count($pending_requests) !== false) : ?>
                         <span class="badge bg-warning text-dark ms-1"><?php echo count($pending_requests); ?></span>
                     <?php endif; ?>
                 </button>
@@ -834,7 +831,7 @@ $active_tab = $_GET['tab'] ?? 'overview';
             <li class="nav-item" role="presentation">
                 <button class="nav-link <?php echo $active_tab === 'tickets' ? 'active' : ''; ?>" id="tickets-tab" data-bs-toggle="tab" data-bs-target="#tickets" type="button" role="tab" aria-controls="tickets" aria-selected="<?php echo $active_tab === 'tickets' ? 'true' : 'false'; ?>">
                     <i class="bi bi-headset me-1"></i> Support Tickets
-                    <?php if ($ticket_stats['open_count'] + $ticket_stats['in_progress_count'] > 0): ?>
+                    <?php if ($ticket_stats['open_count'] + $ticket_stats['in_progress_count'] !== false) : ?>
                         <span class="badge bg-danger ms-1"><?php echo $ticket_stats['open_count'] + $ticket_stats['in_progress_count']; ?></span>
                     <?php endif; ?>
                 </button>
@@ -862,37 +859,75 @@ $active_tab = $_GET['tab'] ?? 'overview';
                             <label class="form-label">Department</label>
                             <select class="form-select" name="department">
                                 <option value="">All Departments</option>
-                                <option value="ICT" <?php if($department=='ICT') echo 'selected'; ?>>ICT</option>
-                                <option value="CSE" <?php if($department=='CSE') echo 'selected'; ?>>CSE</option>
-                                <option value="ECE" <?php if($department=='ECE') echo 'selected'; ?>>ECE</option>
-                                <option value="EEE" <?php if($department=='EEE') echo 'selected'; ?>>EEE</option>
-                                <option value="ME" <?php if($department=='ME') echo 'selected'; ?>>ME</option>
-                                <option value="CE" <?php if($department=='CE') echo 'selected'; ?>>CE</option>
-                                <option value="Other" <?php if($department=='Other') echo 'selected'; ?>>Other</option>
+                                <option value="ICT" <?php if ($department == 'ICT') {
+                                    echo 'selected';
+                                                    } ?>>ICT</option>
+                                <option value="CSE" <?php if ($department == 'CSE') {
+                                    echo 'selected';
+                                                    } ?>>CSE</option>
+                                <option value="ECE" <?php if ($department == 'ECE') {
+                                    echo 'selected';
+                                                    } ?>>ECE</option>
+                                <option value="EEE" <?php if ($department == 'EEE') {
+                                    echo 'selected';
+                                                    } ?>>EEE</option>
+                                <option value="ME" <?php if ($department == 'ME') {
+                                    echo 'selected';
+                                                   } ?>>ME</option>
+                                <option value="CE" <?php if ($department == 'CE') {
+                                    echo 'selected';
+                                                   } ?>>CE</option>
+                                <option value="Other" <?php if ($department == 'Other') {
+                                    echo 'selected';
+                                                      } ?>>Other</option>
                             </select>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Status</label>
                             <select class="form-select" name="status">
                                 <option value="">All Status</option>
-                                <option value="active" <?php if($status=='active') echo 'selected'; ?>>Active</option>
-                                <option value="inactive" <?php if($status=='inactive') echo 'selected'; ?>>Inactive</option>
+                                <option value="active" <?php if ($status == 'active') {
+                                    echo 'selected';
+                                                       } ?>>Active</option>
+                                <option value="inactive" <?php if ($status == 'inactive') {
+                                    echo 'selected';
+                                                         } ?>>Inactive</option>
                             </select>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Software Classification</label>
                             <select class="form-select" name="software_classification">
                                 <option value="">All Software</option>
-                                <option value="Web" <?php if($software=='Web') echo 'selected'; ?>>Web</option>
-                                <option value="Mobile" <?php if($software=='Mobile') echo 'selected'; ?>>Mobile</option>
-                                <option value="Artificial Intelligence & Machine Learning" <?php if($software=='Artificial Intelligence & Machine Learning') echo 'selected'; ?>>AI & ML</option>
-                                <option value="Desktop" <?php if($software=='Desktop') echo 'selected'; ?>>Desktop</option>
-                                <option value="System Software" <?php if($software=='System Software') echo 'selected'; ?>>System Software</option>
-                                <option value="Embedded/IoT Software" <?php if($software=='Embedded/IoT Software') echo 'selected'; ?>>Embedded/IoT</option>
-                                <option value="Cybersecurity" <?php if($software=='Cybersecurity') echo 'selected'; ?>>Cybersecurity</option>
-                                <option value="Game Development" <?php if($software=='Game Development') echo 'selected'; ?>>Game Development</option>
-                                <option value="Data Science & Analytics" <?php if($software=='Data Science & Analytics') echo 'selected'; ?>>Data Science</option>
-                                <option value="Cloud-Based Applications" <?php if($software=='Cloud-Based Applications') echo 'selected'; ?>>Cloud Applications</option>
+                                <option value="Web" <?php if ($software == 'Web') {
+                                    echo 'selected';
+                                                    } ?>>Web</option>
+                                <option value="Mobile" <?php if ($software == 'Mobile') {
+                                    echo 'selected';
+                                                       } ?>>Mobile</option>
+                                <option value="Artificial Intelligence & Machine Learning" <?php if ($software == 'Artificial Intelligence & Machine Learning') {
+                                    echo 'selected';
+                                                                                           } ?>>AI & ML</option>
+                                <option value="Desktop" <?php if ($software == 'Desktop') {
+                                    echo 'selected';
+                                                        } ?>>Desktop</option>
+                                <option value="System Software" <?php if ($software == 'System Software') {
+                                    echo 'selected';
+                                                                } ?>>System Software</option>
+                                <option value="Embedded/IoT Software" <?php if ($software == 'Embedded/IoT Software') {
+                                    echo 'selected';
+                                                                      } ?>>Embedded/IoT</option>
+                                <option value="Cybersecurity" <?php if ($software == 'Cybersecurity') {
+                                    echo 'selected';
+                                                              } ?>>Cybersecurity</option>
+                                <option value="Game Development" <?php if ($software == 'Game Development') {
+                                    echo 'selected';
+                                                                 } ?>>Game Development</option>
+                                <option value="Data Science & Analytics" <?php if ($software == 'Data Science & Analytics') {
+                                    echo 'selected';
+                                                                         } ?>>Data Science</option>
+                                <option value="Cloud-Based Applications" <?php if ($software == 'Cloud-Based Applications') {
+                                    echo 'selected';
+                                                                         } ?>>Cloud Applications</option>
                             </select>
                         </div>
                         <div class="col-md-1 d-flex align-items-end">
@@ -918,7 +953,7 @@ $active_tab = $_GET['tab'] ?? 'overview';
                             </tr>
                             </thead>
                             <tbody>
-                            <?php foreach ($subadmin_list as $sub): ?>
+                            <?php foreach ($subadmin_list as $sub) : ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($sub['name'] ?? 'Not Set'); ?></td>
                                     <td><?php echo htmlspecialchars($sub['email'] ?? ''); ?></td>
@@ -988,7 +1023,7 @@ $active_tab = $_GET['tab'] ?? 'overview';
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <?php foreach ($subadmin_list as $sub): ?>
+                                        <?php foreach ($subadmin_list as $sub) : ?>
                                             <tr>
                                                 <td><?php echo $sub['id']; ?></td>
                                                 <td><?php echo htmlspecialchars($sub['name'] ?? 'Not Set'); ?></td>
@@ -1100,7 +1135,7 @@ $active_tab = $_GET['tab'] ?? 'overview';
                                     </table>
                                 </div>
 
-                                <?php if (empty($subadmin_list)): ?>
+                                <?php if (empty($subadmin_list)) : ?>
                                     <div class="alert alert-info text-center">
                                         <i class="bi bi-info-circle me-2"></i>
                                         No subadmins found. <a href="#" onclick="document.getElementById('addsubadmin-tab').click()">Add your first subadmin</a>.
@@ -1120,11 +1155,11 @@ $active_tab = $_GET['tab'] ?? 'overview';
                             <div class="card-body">
                                 <h4 class="mb-4">
                                     <i class="bi bi-hourglass-split me-2"></i>Pending Classification Change Requests
-                                    <?php if (count($pending_requests) > 0): ?>
+                                    <?php if (count($pending_requests) !== false) : ?>
                                         <span class="badge bg-warning text-dark ms-2"><?php echo count($pending_requests); ?> Pending</span>
                                     <?php endif; ?>
                                 </h4>
-                                <?php if (count($pending_requests) > 0): ?>
+                                <?php if (count($pending_requests) !== false) : ?>
                                     <div class="table-responsive">
                                         <table class="table table-hover align-middle">
                                             <thead class="table-light">
@@ -1139,7 +1174,7 @@ $active_tab = $_GET['tab'] ?? 'overview';
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            <?php foreach ($pending_requests as $req): ?>
+                                            <?php foreach ($pending_requests as $req) : ?>
                                                 <tr>
                                                     <td>
                                                         <strong><?php echo htmlspecialchars($req['email']); ?></strong>
@@ -1243,7 +1278,7 @@ $active_tab = $_GET['tab'] ?? 'overview';
                                             </tbody>
                                         </table>
                                     </div>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <div class="alert alert-info text-center mb-0">
                                         <i class="bi bi-info-circle me-2"></i>
                                         No pending classification change requests at this time.
@@ -1319,33 +1354,67 @@ $active_tab = $_GET['tab'] ?? 'overview';
                                     <div class="col-md-3">
                                         <label class="form-label">Status</label>
                                         <select class="form-select" name="ticket_status">
-                                            <option value="all" <?php if($ticket_filter=='all') echo 'selected'; ?>>All Status</option>
-                                            <option value="open" <?php if($ticket_filter=='open') echo 'selected'; ?>>Open</option>
-                                            <option value="in_progress" <?php if($ticket_filter=='in_progress') echo 'selected'; ?>>In Progress</option>
-                                            <option value="resolved" <?php if($ticket_filter=='resolved') echo 'selected'; ?>>Resolved</option>
-                                            <option value="closed" <?php if($ticket_filter=='closed') echo 'selected'; ?>>Closed</option>
+                                            <option value="all" <?php if ($ticket_filter == 'all') {
+                                                echo 'selected';
+                                                                } ?>>All Status</option>
+                                            <option value="open" <?php if ($ticket_filter == 'open') {
+                                                echo 'selected';
+                                                                 } ?>>Open</option>
+                                            <option value="in_progress" <?php if ($ticket_filter == 'in_progress') {
+                                                echo 'selected';
+                                                                        } ?>>In Progress</option>
+                                            <option value="resolved" <?php if ($ticket_filter == 'resolved') {
+                                                echo 'selected';
+                                                                     } ?>>Resolved</option>
+                                            <option value="closed" <?php if ($ticket_filter == 'closed') {
+                                                echo 'selected';
+                                                                   } ?>>Closed</option>
                                         </select>
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label">Priority</label>
                                         <select class="form-select" name="ticket_priority">
-                                            <option value="all" <?php if($ticket_priority=='all') echo 'selected'; ?>>All Priority</option>
-                                            <option value="urgent" <?php if($ticket_priority=='urgent') echo 'selected'; ?>>Urgent</option>
-                                            <option value="high" <?php if($ticket_priority=='high') echo 'selected'; ?>>High</option>
-                                            <option value="medium" <?php if($ticket_priority=='medium') echo 'selected'; ?>>Medium</option>
-                                            <option value="low" <?php if($ticket_priority=='low') echo 'selected'; ?>>Low</option>
+                                            <option value="all" <?php if ($ticket_priority == 'all') {
+                                                echo 'selected';
+                                                                } ?>>All Priority</option>
+                                            <option value="urgent" <?php if ($ticket_priority == 'urgent') {
+                                                echo 'selected';
+                                                                   } ?>>Urgent</option>
+                                            <option value="high" <?php if ($ticket_priority == 'high') {
+                                                echo 'selected';
+                                                                 } ?>>High</option>
+                                            <option value="medium" <?php if ($ticket_priority == 'medium') {
+                                                echo 'selected';
+                                                                   } ?>>Medium</option>
+                                            <option value="low" <?php if ($ticket_priority == 'low') {
+                                                echo 'selected';
+                                                                } ?>>Low</option>
                                         </select>
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label">Category</label>
                                         <select class="form-select" name="ticket_category">
-                                            <option value="all" <?php if($ticket_category=='all') echo 'selected'; ?>>All Categories</option>
-                                            <option value="technical" <?php if($ticket_category=='technical') echo 'selected'; ?>>Technical</option>
-                                            <option value="account" <?php if($ticket_category=='account') echo 'selected'; ?>>Account</option>
-                                            <option value="project" <?php if($ticket_category=='project') echo 'selected'; ?>>Project</option>
-                                            <option value="bug_report" <?php if($ticket_category=='bug_report') echo 'selected'; ?>>Bug Report</option>
-                                            <option value="feature_request" <?php if($ticket_category=='feature_request') echo 'selected'; ?>>Feature Request</option>
-                                            <option value="other" <?php if($ticket_category=='other') echo 'selected'; ?>>Other</option>
+                                            <option value="all" <?php if ($ticket_category == 'all') {
+                                                echo 'selected';
+                                                                } ?>>All Categories</option>
+                                            <option value="technical" <?php if ($ticket_category == 'technical') {
+                                                echo 'selected';
+                                                                      } ?>>Technical</option>
+                                            <option value="account" <?php if ($ticket_category == 'account') {
+                                                echo 'selected';
+                                                                    } ?>>Account</option>
+                                            <option value="project" <?php if ($ticket_category == 'project') {
+                                                echo 'selected';
+                                                                    } ?>>Project</option>
+                                            <option value="bug_report" <?php if ($ticket_category == 'bug_report') {
+                                                echo 'selected';
+                                                                       } ?>>Bug Report</option>
+                                            <option value="feature_request" <?php if ($ticket_category == 'feature_request') {
+                                                echo 'selected';
+                                                                            } ?>>Feature Request</option>
+                                            <option value="other" <?php if ($ticket_category == 'other') {
+                                                echo 'selected';
+                                                                  } ?>>Other</option>
                                         </select>
                                     </div>
                                     <div class="col-md-3">
@@ -1371,7 +1440,7 @@ $active_tab = $_GET['tab'] ?? 'overview';
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <?php if (empty($support_tickets)): ?>
+                                        <?php if (empty($support_tickets)) : ?>
                                             <tr>
                                                 <td colspan="8" class="text-center py-4">
                                                     <div class="alert alert-info mb-0">
@@ -1380,8 +1449,8 @@ $active_tab = $_GET['tab'] ?? 'overview';
                                                     </div>
                                                 </td>
                                             </tr>
-                                        <?php else: ?>
-                                            <?php foreach ($support_tickets as $ticket): ?>
+                                        <?php else : ?>
+                                            <?php foreach ($support_tickets as $ticket) : ?>
                                                 <tr>
                                                     <td>
                                                         <strong><?php echo htmlspecialchars($ticket['ticket_number']); ?></strong>
@@ -1484,7 +1553,7 @@ $active_tab = $_GET['tab'] ?? 'overview';
                                                                             </div>
                                                                         </div>
 
-                                                                        <?php if ($ticket['admin_response']): ?>
+                                                                        <?php if ($ticket['admin_response']) : ?>
                                                                             <div class="mb-3">
                                                                                 <strong>Admin Response:</strong>
                                                                                 <div class="p-3 bg-primary bg-opacity-10 rounded">
@@ -1502,11 +1571,11 @@ $active_tab = $_GET['tab'] ?? 'overview';
                                                                         }
                                                                         ?>
 
-                                                                        <?php if (!empty($replies)): ?>
+                                                                        <?php if (!empty($replies)) : ?>
                                                                             <hr>
                                                                             <h6><strong>Conversation History:</strong></h6>
                                                                             <div class="ticket-conversation">
-                                                                                <?php foreach ($replies as $reply): ?>
+                                                                                <?php foreach ($replies as $reply) : ?>
                                                                                     <div class="message-bubble <?php echo $reply['sender_type']; ?>">
                                                                                         <div class="message-content">
                                                                                             <?php echo nl2br(htmlspecialchars($reply['message'])); ?>

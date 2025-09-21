@@ -1,5 +1,29 @@
 {
     "require": {
         "phpmailer/phpmailer": "^6.10"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "squizlabs/php_codesniffer": "^3.7",
+        "phpstan/phpstan": "^1.10",
+        "guzzlehttp/guzzle": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "IdeaNest\\": "src/",
+            "IdeaNest\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test-unit": "phpunit --testsuite=unit",
+        "test-integration": "phpunit --testsuite=integration",
+        "test-functional": "phpunit --testsuite=functional",
+        "phpcs": "phpcs --standard=PSR12 --ignore=vendor/,tests/ .",
+        "phpstan": "phpstan analyse src/ --level=5",
+        "quality": [
+            "@phpcs",
+            "@phpstan"
+        ]
     }
 }

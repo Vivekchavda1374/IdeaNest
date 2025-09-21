@@ -80,15 +80,15 @@ ob_start();
                 <h5 class="mb-0">Student Projects (<?= count($projects) ?>)</h5>
             </div>
             <div class="card-body p-4">
-                <?php if (empty($projects)): ?>
+                <?php if (empty($projects)) : ?>
                     <div class="text-center py-5">
                         <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
                         <h6 class="text-muted">No projects yet</h6>
                         <p class="text-muted">Projects from your mentored students will appear here</p>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="row">
-                        <?php foreach ($projects as $project): ?>
+                        <?php foreach ($projects as $project) : ?>
                             <div class="col-lg-6 mb-4">
                                 <div class="glass-card p-3 h-100">
                                     <div class="d-flex justify-content-between align-items-start mb-3">
@@ -105,7 +105,7 @@ ob_start();
                                     
                                     <div class="mb-3">
                                         <span class="badge bg-secondary me-1"><?= htmlspecialchars($project['classification']) ?></span>
-                                        <?php if ($project['difficulty_level']): ?>
+                                        <?php if ($project['difficulty_level']) : ?>
                                             <span class="badge bg-light text-dark"><?= ucfirst($project['difficulty_level']) ?></span>
                                         <?php endif; ?>
                                     </div>
@@ -118,7 +118,7 @@ ob_start();
                                         <small class="text-muted">
                                             <i class="fas fa-code me-1"></i><?= htmlspecialchars($project['language']) ?>
                                         </small>
-                                        <?php if ($project['team_size']): ?>
+                                        <?php if ($project['team_size']) : ?>
                                             <small class="text-muted ms-3">
                                                 <i class="fas fa-users me-1"></i><?= htmlspecialchars($project['team_size']) ?> members
                                             </small>
@@ -130,12 +130,12 @@ ob_start();
                                             Submitted: <?= date('M j, Y', strtotime($project['submission_date'])) ?>
                                         </small>
                                         <div>
-                                            <?php if ($project['github_repo']): ?>
+                                            <?php if ($project['github_repo']) : ?>
                                                 <a href="<?= htmlspecialchars($project['github_repo']) ?>" target="_blank" class="btn btn-sm btn-outline-dark">
                                                     <i class="fab fa-github me-1"></i>Code
                                                 </a>
                                             <?php endif; ?>
-                                            <?php if ($project['live_demo_url']): ?>
+                                            <?php if ($project['live_demo_url']) : ?>
                                                 <a href="<?= htmlspecialchars($project['live_demo_url']) ?>" target="_blank" class="btn btn-sm btn-outline-primary">
                                                     <i class="fas fa-external-link-alt me-1"></i>Demo
                                                 </a>
@@ -143,7 +143,7 @@ ob_start();
                                         </div>
                                     </div>
                                     
-                                    <?php if ($project['image_path']): ?>
+                                    <?php if ($project['image_path']) : ?>
                                         <div class="mt-3">
                                             <img src="../user/<?= htmlspecialchars($project['image_path']) ?>" 
                                                  class="img-fluid rounded" style="max-height: 200px; width: 100%; object-fit: cover;">

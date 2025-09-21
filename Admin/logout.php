@@ -1,4 +1,5 @@
 <?php
+
 // Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -11,7 +12,7 @@ $_SESSION = array();
 
 // Destroy the session cookie
 if (isset($_COOKIE[session_name()])) {
-    setcookie(session_name(), '', time()-3600, '/');
+    setcookie(session_name(), '', time() - 3600, '/');
 }
 
 // Destroy the session
@@ -23,4 +24,3 @@ session_write_close();
 // Redirect to admin login page with a success message
 header("Location: ../Login/Login/login.php?logout=success");
 exit();
-?> 

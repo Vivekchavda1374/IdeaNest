@@ -33,8 +33,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
     $updateDateTime = date('Y-m-d H:i:s');
 
     // Validate the data
-    if (empty($erNumber) || empty($projectName) || empty($projectType) ||
-            empty($classification) || empty($description)) {
+    if (
+        empty($erNumber) || empty($projectName) || empty($projectType) ||
+            empty($classification) || empty($description)
+    ) {
         $error_message = "Error: All required fields must be filled";
     } else {
         // Database connection parameters
@@ -70,19 +72,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
                             priority1=?, status=?, assigned_to=?, completion_date=?, updated_at=? 
                         WHERE id=? AND user_id=?");
 
-                    $stmt->bind_param("ssssssssssii",
-                            $erNumber,
-                            $projectName,
-                            $projectType,
-                            $classification,
-                            $description,
-                            $priority1,
-                            $status,
-                            $assignedTo,
-                            $completionDate,
-                            $updateDateTime,
-                            $id,
-                            $current_user_id
+                    $stmt->bind_param(
+                        "ssssssssssii",
+                        $erNumber,
+                        $projectName,
+                        $projectType,
+                        $classification,
+                        $description,
+                        $priority1,
+                        $status,
+                        $assignedTo,
+                        $completionDate,
+                        $updateDateTime,
+                        $id,
+                        $current_user_id
                     );
 
                     // Execute the statement
@@ -171,10 +174,10 @@ if ($id > 0) {
 
 <body>
 <div class="container form-container">
-    <?php if (isset($error_message)): ?>
+    <?php if (isset($error_message)) : ?>
         <div class="alert alert-danger" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i> <?php echo htmlspecialchars($error_message); ?>
-            <?php if (!$projectData): ?>
+            <?php if (!$projectData) : ?>
                 <div class="mt-3">
                     <a href="list-project.php" class="btn btn-outline-primary">
                         <i class="fas fa-arrow-left me-2"></i>Back to Projects List
@@ -184,13 +187,13 @@ if ($id > 0) {
         </div>
     <?php endif; ?>
 
-    <?php if (isset($success_message)): ?>
+    <?php if (isset($success_message)) : ?>
         <div class="alert alert-success" role="alert">
             <i class="fas fa-check-circle me-2"></i> <?php echo htmlspecialchars($success_message); ?>
         </div>
     <?php endif; ?>
 
-    <?php if ($projectData): ?>
+    <?php if ($projectData) : ?>
         <div class="card">
             <div class="card-header text-white">
                 <h3 class="mb-0"><i class="fas fa-edit me-2"></i> Edit Project</h3>
@@ -204,7 +207,7 @@ if ($id > 0) {
                             <p><span class="label"><i class="fas fa-calendar me-2"></i>Submitted:</span> <?php echo date('F j, Y, g:i a', strtotime($submissionDateTime)); ?></p>
                         </div>
                         <div class="col-md-6">
-                            <?php if (!empty($projectData['updated_at'])): ?>
+                            <?php if (!empty($projectData['updated_at'])) : ?>
                                 <p><span class="label"><i class="fas fa-sync me-2"></i>Last Updated:</span> <?php echo date('F j, Y, g:i a', strtotime($projectData['updated_at'])); ?></p>
                             <?php endif; ?>
                             <p><span class="label"><i class="fas fa-user me-2"></i>Owner:</span> You</p>
@@ -371,7 +374,7 @@ if ($id > 0) {
                 </form>
             </div>
         </div>
-    <?php else: ?>
+    <?php else : ?>
         <div class="alert alert-danger" role="alert">
             <i class="fas fa-exclamation-triangle me-2"></i> Project not found or you don't have permission to edit this project.
             <div class="mt-3">

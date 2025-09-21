@@ -1,4 +1,5 @@
 <?php
+
 /**
  * GitHub Profile Display Component
  */
@@ -30,13 +31,13 @@ if (!empty($github_username)) {
     // Fetch fresh GitHub data
     $github_profile = fetchGitHubProfile($github_username);
     $github_repos = fetchGitHubRepos($github_username);
-    
+
     // Limit to top 6 repositories
     $github_repos = array_slice($github_repos, 0, 6);
 }
 ?>
 
-<?php if (!empty($github_username) && $github_profile): ?>
+<?php if (!empty($github_username) && $github_profile) : ?>
 <div class="github-section">
     <div class="section-header">
         <h3><i class="fab fa-github"></i> GitHub Profile</h3>
@@ -51,7 +52,7 @@ if (!empty($github_username)) {
             <div class="profile-details">
                 <h4><?php echo htmlspecialchars($github_profile['name'] ?? $github_profile['login']); ?></h4>
                 <p class="username">@<?php echo htmlspecialchars($github_profile['login']); ?></p>
-                <?php if (!empty($github_profile['bio'])): ?>
+                <?php if (!empty($github_profile['bio'])) : ?>
                     <p class="bio"><?php echo htmlspecialchars($github_profile['bio']); ?></p>
                 <?php endif; ?>
             </div>
@@ -73,25 +74,25 @@ if (!empty($github_username)) {
         </div>
     </div>
     
-    <?php if (!empty($github_repos)): ?>
+    <?php if (!empty($github_repos)) : ?>
     <div class="github-repos">
         <h4>Recent Repositories</h4>
         <div class="repos-grid">
-            <?php foreach ($github_repos as $repo): ?>
+            <?php foreach ($github_repos as $repo) : ?>
             <div class="repo-card">
                 <div class="repo-header">
                     <h5><a href="<?php echo htmlspecialchars($repo['html_url']); ?>" target="_blank"><?php echo htmlspecialchars($repo['name']); ?></a></h5>
-                    <?php if (!$repo['private']): ?>
+                    <?php if (!$repo['private']) : ?>
                         <span class="badge badge-public">Public</span>
                     <?php endif; ?>
                 </div>
-                <?php if (!empty($repo['description'])): ?>
+                <?php if (!empty($repo['description'])) : ?>
                     <p class="repo-description" loading="lazy"><?php echo htmlspecialchars($repo['description']); ?></p>
                 <?php endif; ?>
                 <div class="repo-meta">
-                    <?php if (!empty($repo['language'])): ?>
+                    <?php if (!empty($repo['language'])) : ?>
                         <span class="language">
-                            <span class="language-dot" style="background-color: <?php 
+                            <span class="language-dot" style="background-color: <?php
                                 $languageColors = [
                                     'JavaScript' => '#f1e05a',
                                     'Python' => '#3572A5',
@@ -115,16 +116,16 @@ if (!empty($github_username)) {
                                     'React' => '#61DAFB'
                                 ];
                                 echo $languageColors[$repo['language']] ?? '#' . substr(md5($repo['language']), 0, 6);
-                            ?>;"></span>
+                                ?>;"></span>
                             <?php echo htmlspecialchars($repo['language']); ?>
                         </span>
                     <?php endif; ?>
-                    <?php if ($repo['stargazers_count'] > 0): ?>
+                    <?php if ($repo['stargazers_count'] > 0) : ?>
                         <span class="stars">
                             <i class="fas fa-star"></i> <?php echo $repo['stargazers_count']; ?>
                         </span>
                     <?php endif; ?>
-                    <?php if ($repo['forks_count'] > 0): ?>
+                    <?php if ($repo['forks_count'] > 0) : ?>
                         <span class="forks">
                             <i class="fas fa-code-branch"></i> <?php echo $repo['forks_count']; ?>
                         </span>
@@ -326,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php else: ?>
+<?php else : ?>
 <div class="github-section">
     <div class="no-github">
         <div class="text-center">

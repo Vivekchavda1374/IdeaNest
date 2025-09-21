@@ -1,6 +1,10 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
-if (!isset($basePath)) { $basePath = './'; }
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (!isset($basePath)) {
+    $basePath = './';
+}
 
 // Check if Google user needs to complete profile
 if (isset($_SESSION['google_new_user']) && $_SESSION['google_new_user'] === true) {
@@ -54,14 +58,14 @@ if (isset($conn)) {
     if ($total_result) {
         $total_projects = $total_result->fetch_assoc()['total'];
     }
-    
+
     // Get total ideas from blog table
     $total_ideas_query = "SELECT COUNT(*) as total FROM blog";
     $ideas_result = $conn->query($total_ideas_query);
     if ($ideas_result) {
         $total_ideas = $ideas_result->fetch_assoc()['total'];
     }
-    
+
     // Get classification statistics
     $classification_query = "SELECT classification, COUNT(*) as count 
                            FROM admin_approved_projects 
@@ -69,7 +73,7 @@ if (isset($conn)) {
                            GROUP BY classification 
                            ORDER BY count DESC";
     $classification_result = $conn->query($classification_query);
-    
+
     if ($classification_result) {
         while ($row = $classification_result->fetch_assoc()) {
             $classification_stats[] = $row;
@@ -276,7 +280,7 @@ if (empty($status_distribution)) {
 if (empty($tech_analysis)) {
     $tech_analysis = [['language' => 'No Data', 'count' => 0]];
 }
-if (empty($recent_activity)) {
+if (!$recent_activity) {
     $recent_activity = [['project_name' => 'No recent activity', 'classification' => '', 'submission_date' => date('Y-m-d H:i:s'), 'status' => 'pending']];
 }
 if (empty($type_distribution)) {
@@ -410,7 +414,7 @@ if (empty($weekly_performance)) {
                                 <canvas id="classificationsChart"></canvas>
                             </div>
                             <div class="chart-stats">
-                                <?php foreach ($classification_stats as $index => $classification): ?>
+                                <?php foreach ($classification_stats as $index => $classification) : ?>
                                     <div class="chart-stat-item">
                                         <div class="chart-stat-icon" style="background: <?php
                                             $colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#06b6d4'];
@@ -441,7 +445,7 @@ if (empty($weekly_performance)) {
                                 <canvas id="statusChart"></canvas>
                             </div>
                             <div class="status-legend">
-                                <?php foreach ($status_distribution as $status): ?>
+                                <?php foreach ($status_distribution as $status) : ?>
                                     <div class="status-item">
                                         <span class="status-dot" style="background: <?php
                                             echo $status['status_name'] === 'Approved' ? '#10b981' :
@@ -483,8 +487,8 @@ if (empty($weekly_performance)) {
                                 </div>
                             </div>
                             <div class="activity-feed">
-                                <?php if (!empty($recent_activity)): ?>
-                                    <?php foreach ($recent_activity as $activity): ?>
+                                <?php if (!!$recent_activity) : ?>
+                                    <?php foreach ($recent_activity as $activity) : ?>
                                         <div class="activity-item">
                                             <div class="activity-icon">
                                                 <i class="fas fa-plus-circle text-success"></i>
@@ -501,7 +505,7 @@ if (empty($weekly_performance)) {
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
-                                <?php else: ?>
+                                <?php else : ?>
                                     <div class="text-center py-4">
                                         <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
                                         <p class="text-muted">No recent activity</p>
@@ -526,7 +530,7 @@ if (empty($weekly_performance)) {
                                 <canvas id="techChart"></canvas>
                             </div>
                             <div class="tech-list">
-                                <?php foreach (array_slice($tech_analysis, 0, 5) as $tech): ?>
+                                <?php foreach (array_slice($tech_analysis, 0, 5) as $tech) : ?>
                                     <div class="tech-item">
                                         <div class="tech-name"><?php echo htmlspecialchars($tech['language']); ?></div>
                                         <div class="tech-bar">
@@ -554,7 +558,7 @@ if (empty($weekly_performance)) {
                                 <canvas id="typeChart"></canvas>
                             </div>
                             <div class="type-legend">
-                                <?php foreach ($type_distribution as $index => $type): ?>
+                                <?php foreach ($type_distribution as $index => $type) : ?>
                                     <div class="type-item">
                                         <span class="type-dot" style="background: <?php
                                             $colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b'];
@@ -603,7 +607,7 @@ if (empty($weekly_performance)) {
                                 <canvas id="complexityChart"></canvas>
                             </div>
                             <div class="complexity-stats">
-                                <?php foreach ($complexity_analysis as $complexity): ?>
+                                <?php foreach ($complexity_analysis as $complexity) : ?>
                                     <div class="complexity-item">
                                         <div class="complexity-info">
                                             <span class="complexity-label"><?php echo $complexity['complexity']; ?></span>
@@ -631,7 +635,7 @@ if (empty($weekly_performance)) {
                                 </div>
                             </div>
                             <div class="contributors-list">
-                                <?php foreach ($top_contributors as $index => $contributor): ?>
+                                <?php foreach ($top_contributors as $index => $contributor) : ?>
                                     <div class="contributor-item">
                                         <div class="contributor-rank">#<?php echo $index + 1; ?></div>
                                         <div class="contributor-avatar">

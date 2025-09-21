@@ -75,15 +75,15 @@ ob_start();
                 <h5 class="mb-0">Active Students (<?= count($students) ?>)</h5>
             </div>
             <div class="card-body p-4">
-                <?php if (empty($students)): ?>
+                <?php if (empty($students)) : ?>
                     <div class="text-center py-5">
                         <i class="fas fa-user-plus fa-3x text-muted mb-3"></i>
                         <h6 class="text-muted">No active students</h6>
                         <p class="text-muted">Accept pairing suggestions from the dashboard</p>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="row">
-                        <?php foreach ($students as $student): ?>
+                        <?php foreach ($students as $student) : ?>
                             <div class="col-md-6 mb-3">
                                 <div class="glass-card p-3">
                                     <div class="d-flex align-items-start">
@@ -95,7 +95,7 @@ ob_start();
                                             <small class="text-muted d-block"><?= htmlspecialchars($student['department']) ?></small>
                                             <small class="text-muted"><?= htmlspecialchars($student['email']) ?></small>
                                             
-                                            <?php if ($student['project_name']): ?>
+                                            <?php if ($student['project_name']) : ?>
                                                 <div class="mt-2">
                                                     <span class="badge bg-info"><?= htmlspecialchars($student['project_name']) ?></span>
                                                     <span class="badge bg-secondary"><?= htmlspecialchars($student['classification']) ?></span>
@@ -134,12 +134,12 @@ ob_start();
                 <h5 class="mb-0">Completed Mentorships (<?= count($completed) ?>)</h5>
             </div>
             <div class="card-body p-4">
-                <?php if (empty($completed)): ?>
+                <?php if (empty($completed)) : ?>
                     <div class="text-center py-3">
                         <i class="fas fa-trophy fa-2x text-muted mb-2"></i>
                         <p class="text-muted">No completed mentorships yet</p>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -152,7 +152,7 @@ ob_start();
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($completed as $student): ?>
+                                <?php foreach ($completed as $student) : ?>
                                     <tr>
                                         <td>
                                             <strong><?= htmlspecialchars($student['name']) ?></strong><br>
@@ -161,7 +161,7 @@ ob_start();
                                         <td><?= htmlspecialchars($student['project_name'] ?? 'N/A') ?></td>
                                         <td><?= date('M j, Y', strtotime($student['completed_at'])) ?></td>
                                         <td>
-                                            <?php for($i = 1; $i <= 5; $i++): ?>
+                                            <?php for ($i = 1; $i <= 5; $i++) : ?>
                                                 <i class="fas fa-star <?= $i <= ($student['rating'] ?? 0) ? 'text-warning' : 'text-muted' ?>"></i>
                                             <?php endfor; ?>
                                         </td>

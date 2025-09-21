@@ -49,7 +49,7 @@ if (isset($_POST['toggle_like']) && isset($_POST['project_id'])) {
 if (isset($_POST['submit_comment']) && isset($_POST['project_id']) && isset($_POST['comment_text'])) {
     $project_id = intval($_POST['project_id']);
     $comment_text = trim($_POST['comment_text']);
-    $parent_comment_id = isset($_POST['parent_comment_id']) && !empty($_POST['parent_comment_id']) ? intval($_POST['parent_comment_id']) : NULL;
+    $parent_comment_id = isset($_POST['parent_comment_id']) && !empty($_POST['parent_comment_id']) ? intval($_POST['parent_comment_id']) : null;
 
     if (!empty($comment_text)) {
         $insert_comment_sql = "INSERT INTO project_comments (project_id, user_id, user_name, comment_text, parent_comment_id) VALUES (?, ?, ?, ?, ?)";
@@ -69,7 +69,7 @@ if (isset($_POST['submit_comment']) && isset($_POST['project_id']) && isset($_PO
 if (isset($_POST['edit_comment']) && isset($_POST['comment_id']) && isset($_POST['comment_text'])) {
     $comment_id = intval($_POST['comment_id']);
     $new_comment_text = trim($_POST['comment_text']);
-    
+
     if (!empty($new_comment_text)) {
         // Verify comment ownership
         $check_ownership_sql = "SELECT user_id FROM project_comments WHERE id = ?";
@@ -77,7 +77,7 @@ if (isset($_POST['edit_comment']) && isset($_POST['comment_id']) && isset($_POST
         $check_ownership_stmt->bind_param("i", $comment_id);
         $check_ownership_stmt->execute();
         $ownership_result = $check_ownership_stmt->get_result();
-        
+
         if ($ownership_result->num_rows > 0) {
             $comment_owner = $ownership_result->fetch_assoc();
             if ($comment_owner['user_id'] === $session_id) {
@@ -85,7 +85,7 @@ if (isset($_POST['edit_comment']) && isset($_POST['comment_id']) && isset($_POST
                 $update_comment_sql = "UPDATE project_comments SET comment_text = ?, updated_at = NOW() WHERE id = ?";
                 $update_comment_stmt = $conn->prepare($update_comment_sql);
                 $update_comment_stmt->bind_param("si", $new_comment_text, $comment_id);
-                
+
                 if ($update_comment_stmt->execute()) {
                     $comment_message = '<div class="alert alert-success">Comment updated successfully!</div>';
                 } else {
@@ -103,14 +103,14 @@ if (isset($_POST['edit_comment']) && isset($_POST['comment_id']) && isset($_POST
 // Handle comment delete
 if (isset($_POST['delete_comment']) && isset($_POST['comment_id'])) {
     $comment_id = intval($_POST['comment_id']);
-    
+
     // Verify comment ownership
     $check_ownership_sql = "SELECT user_id FROM project_comments WHERE id = ?";
     $check_ownership_stmt = $conn->prepare($check_ownership_sql);
     $check_ownership_stmt->bind_param("i", $comment_id);
     $check_ownership_stmt->execute();
     $ownership_result = $check_ownership_stmt->get_result();
-    
+
     if ($ownership_result->num_rows > 0) {
         $comment_owner = $ownership_result->fetch_assoc();
         if ($comment_owner['user_id'] === $session_id) {
@@ -118,7 +118,7 @@ if (isset($_POST['delete_comment']) && isset($_POST['comment_id'])) {
             $delete_comment_sql = "DELETE FROM project_comments WHERE id = ?";
             $delete_comment_stmt = $conn->prepare($delete_comment_sql);
             $delete_comment_stmt->bind_param("i", $comment_id);
-            
+
             if ($delete_comment_stmt->execute()) {
                 $comment_message = '<div class="alert alert-success">Comment deleted successfully!</div>';
             } else {
@@ -259,14 +259,19 @@ $count_stmt->close();
 
 $total_pages = ceil($total_projects / $projects_per_page);
 
-// Main query - Updated to fetch ALL fields from admin_approved_projects
+// Main query - Updated to fetch ALL fields from admin_approved_projects with user details
 $sql = "SELECT ap.*, 
+               r.name as user_name, r.email as user_email, r.phone_no as user_phone, 
+               r.about as user_bio, r.department as user_department,
                CASE WHEN b.project_id IS NOT NULL THEN 1 ELSE 0 END AS is_bookmarked,
                CASE WHEN tpo.project_id IS NOT NULL THEN 1 ELSE 0 END AS is_owner,
                CASE WHEN pl.project_id IS NOT NULL THEN 1 ELSE 0 END AS is_liked,
                COALESCE(like_counts.total_likes, 0) AS total_likes,
-               COALESCE(comment_counts.total_comments, 0) AS total_comments
+               COALESCE(comment_counts.total_comments, 0) AS total_comments,
+               COALESCE(user_stats.user_total_projects, 0) AS user_total_projects,
+               COALESCE(user_stats.user_approved_projects, 0) AS user_approved_projects
         FROM admin_approved_projects ap
+        LEFT JOIN register r ON ap.user_id = r.id
         LEFT JOIN bookmark b ON ap.id = b.project_id AND b.user_id = ?
         LEFT JOIN temp_project_ownership tpo ON ap.id = tpo.project_id AND tpo.user_session = ?
         LEFT JOIN project_likes pl ON ap.id = pl.project_id AND pl.user_id = ?
@@ -280,7 +285,14 @@ $sql = "SELECT ap.*,
             FROM project_comments 
             WHERE is_deleted = 0
             GROUP BY project_id
-        ) comment_counts ON ap.id = comment_counts.project_id";
+        ) comment_counts ON ap.id = comment_counts.project_id
+        LEFT JOIN (
+            SELECT user_id, 
+                   COUNT(*) as user_total_projects,
+                   SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as user_approved_projects
+            FROM admin_approved_projects
+            GROUP BY user_id
+        ) user_stats ON ap.user_id = user_stats.user_id";
 
 $main_conditions = " WHERE 1=1";
 $params = [$session_id, $session_id, $session_id];
@@ -390,7 +402,8 @@ $all_count = $all_count_stmt->get_result()->fetch_assoc()['total'];
 $all_count_stmt->close();
 
 // Function to get comments for a project
-function getProjectComments($conn, $project_id, $session_id) {
+function getProjectComments($conn, $project_id, $session_id)
+{
     $comments_sql = "SELECT pc.*, 
                             CASE WHEN cl.comment_id IS NOT NULL THEN 1 ELSE 0 END AS is_liked,
                             COALESCE(comment_like_counts.total_likes, 0) AS comment_likes_count
@@ -438,7 +451,8 @@ function getProjectComments($conn, $project_id, $session_id) {
 }
 
 // Helper function to format difficulty level
-function formatDifficultyLevel($level) {
+function formatDifficultyLevel($level)
+{
     $levels = [
             'beginner' => 'Beginner',
             'intermediate' => 'Intermediate',
@@ -449,8 +463,11 @@ function formatDifficultyLevel($level) {
 }
 
 // Helper function to get file extension icon
-function getFileIcon($filePath) {
-    if (empty($filePath)) return 'fas fa-file';
+function getFileIcon($filePath)
+{
+    if (empty($filePath)) {
+        return 'fas fa-file';
+    }
 
     $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
     $icons = [
@@ -647,7 +664,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         .projects-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
             gap: 2rem;
             margin-bottom: 2rem;
             padding: 0.5rem;
@@ -655,15 +672,16 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         .project-card {
             background: var(--bg-primary);
-            border-radius: 1.25rem;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: var(--shadow-md);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.08);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
             display: flex;
             flex-direction: column;
-            border: 1px solid var(--border-color);
+            border: 1px solid rgba(139, 92, 246, 0.08);
             position: relative;
+            transform: translateY(0);
         }
 
         .project-card::before {
@@ -673,63 +691,81 @@ $current_page = basename($_SERVER['PHP_SELF']);
             left: 0;
             right: 0;
             height: 4px;
-            background: var(--gradient-primary);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            background: linear-gradient(90deg, #8b5cf6, #a78bfa, #c084fc);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
         }
 
         .project-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-xl);
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(139, 92, 246, 0.15);
+            border-color: rgba(139, 92, 246, 0.2);
         }
 
         .project-card:hover::before {
-            opacity: 1;
+            transform: scaleX(1);
+        }
+
+        .project-card:active {
+            transform: translateY(-6px) scale(1.01);
+            transition: all 0.1s ease;
         }
 
         .project-card-content {
-            padding: 1.5rem;
+            padding: 2rem;
             flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .project-card-header {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            position: relative;
         }
 
         .card-title {
-            font-size: 1.35rem;
+            font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 0.75rem;
             color: var(--text-primary);
             line-height: 1.3;
+            transition: color 0.3s ease;
+        }
+
+        .project-card:hover .card-title {
+            color: var(--primary-color);
         }
 
         .badge-owner {
             background: linear-gradient(45deg, #ffd700, #ffed4a);
             color: #856404;
-            font-size: 0.7rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.5rem;
-            margin-left: 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 1rem;
+            margin-left: 0.75rem;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
         }
 
         .project-badges {
             display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
 
         .project-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 1.5rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
             font-size: 0.85rem;
             font-weight: 600;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .project-badge:hover {
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .badge-classification {
@@ -746,16 +782,34 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         .social-stats {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
             color: #64748b;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-radius: 1rem;
+            border: 1px solid rgba(139, 92, 246, 0.05);
         }
 
         .stat-item-social {
             display: flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .stat-item-social i {
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .project-description {
+            color: #64748b;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            flex: 1;
         }
 
         .project-actions {
@@ -763,36 +817,37 @@ $current_page = basename($_SERVER['PHP_SELF']);
             justify-content: space-between;
             align-items: center;
             margin-top: auto;
-            padding-top: 1rem;
-            border-top: 1px solid #f1f5f9;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f1f5f9;
         }
 
         .action-buttons {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
 
         .action-btn {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.6rem 1.2rem;
+            padding: 0.75rem 1.25rem;
             border: 2px solid var(--border-color);
             background: var(--bg-primary);
-            border-radius: 0.75rem;
+            border-radius: 1rem;
             color: var(--text-secondary);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.9rem;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             text-decoration: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .action-btn:hover {
             border-color: var(--primary-color);
             color: var(--primary-color);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.2);
             background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
         }
 
@@ -800,43 +855,36 @@ $current_page = basename($_SERVER['PHP_SELF']);
             background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.1));
             border-color: var(--danger-color);
             color: var(--danger-color);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
         }
 
         .bookmark-btn.bookmarked {
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1));
             border-color: var(--warning-color);
             color: var(--warning-color);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
         }
 
-        .project-side-panel {
-            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.75rem;
-            min-width: 90px;
-            border-left: 1px solid var(--border-color);
-        }
-
-        .project-icon {
-            font-size: 2.25rem;
-            color: var(--primary-color);
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .project-status {
+        .project-status-badge {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: linear-gradient(135deg, var(--success-color), #34d399);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem;
             font-size: 0.8rem;
-            color: var(--success-color);
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .project-status-badge i {
+            font-size: 0.7rem;
         }
 
         .empty-state {
@@ -865,6 +913,77 @@ $current_page = basename($_SERVER['PHP_SELF']);
         .pagination-stats {
             color: #64748b;
             font-size: 0.9rem;
+        }
+
+        /* User Details Section Styles */
+        .user-details-section {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .user-info-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            box-shadow: var(--shadow-md);
+            flex-shrink: 0;
+        }
+
+        .user-details h5 {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .user-details p {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-details i {
+            color: var(--primary-color);
+            width: 16px;
+        }
+
+        .user-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .stat-badge {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-sm);
         }
 
         /* Modal Styles */
@@ -1368,10 +1487,21 @@ $current_page = basename($_SERVER['PHP_SELF']);
             line-height: 1.6;
         }
 
+        @media (max-width: 1200px) {
+            .projects-list {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 1.5rem;
+            }
+        }
+
         @media (max-width: 1024px) {
             .main-content {
                 margin-left: 0;
                 padding: 1.5rem;
+            }
+
+            .projects-list {
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             }
         }
 
@@ -1391,14 +1521,46 @@ $current_page = basename($_SERVER['PHP_SELF']);
             .projects-list {
                 grid-template-columns: 1fr;
                 gap: 1.5rem;
+                padding: 0;
+            }
+
+            .project-card {
+                border-radius: 16px;
+            }
+
+            .project-card-content {
+                padding: 1.5rem;
+            }
+
+            .card-title {
+                font-size: 1.3rem;
+            }
+
+            .project-status-badge {
+                top: 1rem;
+                right: 1rem;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
+
+            .social-stats {
+                flex-direction: column;
+                gap: 0.75rem;
+                padding: 0.75rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .action-btn {
+                justify-content: center;
+                text-align: center;
             }
 
             .filter-btn-group {
                 flex-direction: column;
-            }
-
-            .action-buttons {
-                flex-wrap: wrap;
             }
 
             .project-details-grid {
@@ -1428,7 +1590,25 @@ $current_page = basename($_SERVER['PHP_SELF']);
             }
 
             .project-card-content {
-                padding: 1rem;
+                padding: 1.25rem;
+            }
+
+            .card-title {
+                font-size: 1.2rem;
+            }
+
+            .project-badges {
+                gap: 0.5rem;
+            }
+
+            .project-badge {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            .social-stats {
+                padding: 0.5rem;
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -1491,20 +1671,36 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <label for="classification" class="form-label">Classification</label>
                 <select class="form-select" id="classification" name="classification">
                     <option value="">All Classifications</option>
-                    <option value="Web Development" <?php if ($filter_classification === 'Web Development') echo 'selected'; ?>>Web Development</option>
-                    <option value="Mobile App" <?php if ($filter_classification === 'Mobile App') echo 'selected'; ?>>Mobile App</option>
-                    <option value="Data Science" <?php if ($filter_classification === 'Data Science') echo 'selected'; ?>>Data Science</option>
-                    <option value="AI/ML" <?php if ($filter_classification === 'AI/ML') echo 'selected'; ?>>AI/ML</option>
+                    <option value="Web Development" <?php if ($filter_classification === 'Web Development') {
+                        echo 'selected';
+                                                    } ?>>Web Development</option>
+                    <option value="Mobile App" <?php if ($filter_classification === 'Mobile App') {
+                        echo 'selected';
+                                               } ?>>Mobile App</option>
+                    <option value="Data Science" <?php if ($filter_classification === 'Data Science') {
+                        echo 'selected';
+                                                 } ?>>Data Science</option>
+                    <option value="AI/ML" <?php if ($filter_classification === 'AI/ML') {
+                        echo 'selected';
+                                          } ?>>AI/ML</option>
                 </select>
             </div>
             <div class="col-6 col-md-3">
                 <label for="type" class="form-label">Project Type</label>
                 <select class="form-select" id="type" name="type">
                     <option value="">All Types</option>
-                    <option value="Frontend" <?php if ($filter_type === 'Frontend') echo 'selected'; ?>>Frontend</option>
-                    <option value="Backend" <?php if ($filter_type === 'Backend') echo 'selected'; ?>>Backend</option>
-                    <option value="Full Stack" <?php if ($filter_type === 'Full Stack') echo 'selected'; ?>>Full Stack</option>
-                    <option value="API" <?php if ($filter_type === 'API') echo 'selected'; ?>>API</option>
+                    <option value="Frontend" <?php if ($filter_type === 'Frontend') {
+                        echo 'selected';
+                                             } ?>>Frontend</option>
+                    <option value="Backend" <?php if ($filter_type === 'Backend') {
+                        echo 'selected';
+                                            } ?>>Backend</option>
+                    <option value="Full Stack" <?php if ($filter_type === 'Full Stack') {
+                        echo 'selected';
+                                               } ?>>Full Stack</option>
+                    <option value="API" <?php if ($filter_type === 'API') {
+                        echo 'selected';
+                                        } ?>>API</option>
                 </select>
             </div>
             <div class="col-12 col-md-2 d-grid">
@@ -1517,35 +1713,49 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
     <!-- Alert Messages -->
     <?php
-    if (isset($bookmark_message)) echo $bookmark_message;
-    if (isset($like_message)) echo $like_message;
-    if (isset($comment_message)) echo $comment_message;
+    if (isset($bookmark_message)) {
+        echo $bookmark_message;
+    }
+    if (isset($like_message)) {
+        echo $like_message;
+    }
+    if (isset($comment_message)) {
+        echo $comment_message;
+    }
     ?>
 
     <!-- Projects List -->
     <div class="projects-list">
-        <?php if (count($projects) > 0): ?>
-            <?php foreach ($projects as $index => $project): ?>
+        <?php if (count($projects) > 0) : ?>
+            <?php foreach ($projects as $index => $project) : ?>
                 <div class="project-card fade-in-up" style="animation-delay: <?php echo $index * 0.1; ?>s;">
+                    <!-- Status Badge -->
+                    <div class="project-status-badge">
+                        <i class="fas fa-check-circle"></i>
+                        Approved
+                    </div>
+
                     <div class="project-card-content">
                         <div class="project-card-header">
                             <h5 class="card-title">
-                                <span><?php echo htmlspecialchars($project['project_name']); ?></span>
-                                <?php if ($project['is_owner']): ?>
+                                <?php echo htmlspecialchars($project['project_name']); ?>
+                                <?php if ($project['is_owner']) : ?>
                                     <span class="badge badge-owner">
-                                        <i class="fas fa-edit me-1"></i>Owner
+                                        <i class="fas fa-crown me-1"></i>Owner
                                     </span>
                                 <?php endif; ?>
                             </h5>
 
                             <div class="project-badges">
-                                <?php if (!empty($project['classification'])): ?>
+                                <?php if (!empty($project['classification'])) : ?>
                                     <span class="project-badge badge-classification">
+                                        <i class="fas fa-tag me-1"></i>
                                         <?php echo htmlspecialchars($project['classification']); ?>
                                     </span>
                                 <?php endif; ?>
-                                <?php if (!empty($project['project_type'])): ?>
+                                <?php if (!empty($project['project_type'])) : ?>
                                     <span class="project-badge badge-type">
+                                        <i class="fas fa-cogs me-1"></i>
                                         <?php echo htmlspecialchars($project['project_type']); ?>
                                     </span>
                                 <?php endif; ?>
@@ -1568,9 +1778,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
                             </div>
                         </div>
 
-                        <p class="card-text">
-                            <?php echo htmlspecialchars(mb_strimwidth($project['description'], 0, 200, '...')); ?>
-                        </p>
+                        <div class="project-description">
+                            <?php echo htmlspecialchars(mb_strimwidth($project['description'], 0, 180, '...')); ?>
+                        </div>
 
                         <!-- Action Buttons -->
                         <div class="project-actions">
@@ -1608,21 +1818,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                             </div>
 
                             <!-- Edit Button for Owners -->
-                            <?php if ($project['is_owner']): ?>
+                            <?php if ($project['is_owner']) : ?>
                                 <a href="edit_project.php?id=<?php echo $project['id']; ?>"
                                    class="btn btn-warning btn-sm">
                                     <i class="fas fa-edit me-1"></i>Edit Project
                                 </a>
                             <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <div class="project-side-panel">
-                        <div class="project-icon">
-                            <i class="fas fa-project-diagram"></i>
-                        </div>
-                        <div class="project-status">
-                            <i class="fas fa-check-circle me-1"></i>Approved
                         </div>
                     </div>
                 </div>
@@ -1635,7 +1836,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 <h5 class="modal-title">
                                     <i class="fas fa-project-diagram me-2"></i>
                                     <?php echo htmlspecialchars($project['project_name']); ?>
-                                    <?php if (!empty($project['difficulty_level'])): ?>
+                                    <?php if (!empty($project['difficulty_level'])) : ?>
                                         <span class="difficulty-badge difficulty-<?php echo $project['difficulty_level']; ?> ms-3">
                                             <i class="fas fa-signal"></i>
                                             <?php echo formatDifficultyLevel($project['difficulty_level']); ?>
@@ -1660,7 +1861,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                             <span class="meta-stat-number"><?php echo date('M j', strtotime($project['submission_date'])); ?></span>
                                             <span class="meta-stat-label">Submitted</span>
                                         </div>
-                                        <?php if (!empty($project['development_time'])): ?>
+                                        <?php if (!empty($project['development_time'])) : ?>
                                             <div class="meta-stat">
                                                 <span class="meta-stat-number"><?php echo htmlspecialchars($project['development_time']); ?></span>
                                                 <span class="meta-stat-label">Dev Time</span>
@@ -1669,44 +1870,87 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                     </div>
                                 </div>
 
+                                <!-- User Details Section -->
+                                <div class="user-details-section">
+                                    <h6 class="section-title">
+                                        <i class="fas fa-user"></i>Project Creator Details
+                                    </h6>
+                                    <div class="user-info-card">
+                                        <div class="user-avatar">
+                                            <?php echo strtoupper(substr($project['user_name'] ?? $project['submitter_name'] ?? 'U', 0, 1)); ?>
+                                        </div>
+                                        <div class="user-details">
+                                            <h5><?php echo htmlspecialchars($project['user_name'] ?? $project['submitter_name'] ?? 'Unknown User'); ?></h5>
+                                            <?php if (!empty($project['user_email'])) : ?>
+                                                <p><i class="fas fa-envelope"></i> <?php echo htmlspecialchars($project['user_email']); ?></p>
+                                            <?php endif; ?>
+                                            <?php if (!empty($project['user_phone'])) : ?>
+                                                <p><i class="fas fa-phone"></i> <?php echo htmlspecialchars($project['user_phone']); ?></p>
+                                            <?php endif; ?>
+                                            <?php if (!empty($project['user_department'])) : ?>
+                                                <p><i class="fas fa-graduation-cap"></i> <?php echo htmlspecialchars($project['user_department']); ?></p>
+                                            <?php endif; ?>
+                                            <?php if (!empty($project['user_bio'])) : ?>
+                                                <p><i class="fas fa-info-circle"></i> <?php echo htmlspecialchars($project['user_bio']); ?></p>
+                                            <?php endif; ?>
+                                            <div class="user-stats">
+                                                <span class="stat-badge">
+                                                    <i class="fas fa-project-diagram"></i>
+                                                    <?php echo $project['user_total_projects'] ?? 0; ?> Total Projects
+                                                </span>
+                                                <span class="stat-badge">
+                                                    <i class="fas fa-check-circle"></i>
+                                                    <?php echo $project['user_approved_projects'] ?? 0; ?> Approved
+                                                </span>
+                                                <?php if (!empty($project['user_joined'])) : ?>
+                                                    <span class="stat-badge">
+                                                        <i class="fas fa-calendar-alt"></i>
+                                                        Joined <?php echo date('M Y', strtotime($project['user_joined'])); ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Project Details Grid -->
                                 <div class="project-details-grid">
-                                    <?php if (!empty($project['classification'])): ?>
+                                    <?php if (!empty($project['classification'])) : ?>
                                         <div class="detail-card">
                                             <h6><i class="fas fa-tags"></i> Classification</h6>
                                             <p><?php echo htmlspecialchars($project['classification']); ?></p>
                                         </div>
                                     <?php endif; ?>
 
-                                    <?php if (!empty($project['project_type'])): ?>
+                                    <?php if (!empty($project['project_type'])) : ?>
                                         <div class="detail-card">
                                             <h6><i class="fas fa-cogs"></i> Project Type</h6>
                                             <p><?php echo htmlspecialchars($project['project_type']); ?></p>
                                         </div>
                                     <?php endif; ?>
 
-                                    <?php if (!empty($project['project_category'])): ?>
+                                    <?php if (!empty($project['project_category'])) : ?>
                                         <div class="detail-card highlight">
                                             <h6><i class="fas fa-folder"></i> Category</h6>
                                             <p><?php echo htmlspecialchars($project['project_category']); ?></p>
                                         </div>
                                     <?php endif; ?>
 
-                                    <?php if (!empty($project['language'])): ?>
+                                    <?php if (!empty($project['language'])) : ?>
                                         <div class="detail-card info">
                                             <h6><i class="fas fa-code"></i> Language</h6>
                                             <p><?php echo htmlspecialchars($project['language']); ?></p>
                                         </div>
                                     <?php endif; ?>
 
-                                    <?php if (!empty($project['team_size'])): ?>
+                                    <?php if (!empty($project['team_size'])) : ?>
                                         <div class="detail-card">
                                             <h6><i class="fas fa-users"></i> Team Size</h6>
                                             <p><?php echo htmlspecialchars($project['team_size']); ?></p>
                                         </div>
                                     <?php endif; ?>
 
-                                    <?php if (!empty($project['project_license'])): ?>
+                                    <?php if (!empty($project['project_license'])) : ?>
                                         <div class="detail-card success">
                                             <h6><i class="fas fa-certificate"></i> License</h6>
                                             <p><?php echo htmlspecialchars($project['project_license']); ?></p>
@@ -1725,7 +1969,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 </div>
 
                                 <!-- Target Audience -->
-                                <?php if (!empty($project['target_audience'])): ?>
+                                <?php if (!empty($project['target_audience'])) : ?>
                                     <div class="project-goals">
                                         <h6 class="section-title">
                                             <i class="fas fa-users"></i>Target Audience
@@ -1735,7 +1979,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 <?php endif; ?>
 
                                 <!-- Project Goals -->
-                                <?php if (!empty($project['project_goals'])): ?>
+                                <?php if (!empty($project['project_goals'])) : ?>
                                     <div class="project-goals">
                                         <h6 class="section-title">
                                             <i class="fas fa-bullseye"></i>Project Goals
@@ -1745,7 +1989,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 <?php endif; ?>
 
                                 <!-- Challenges Faced -->
-                                <?php if (!empty($project['challenges_faced'])): ?>
+                                <?php if (!empty($project['challenges_faced'])) : ?>
                                     <div class="challenges-section">
                                         <h6 class="section-title">
                                             <i class="fas fa-mountain"></i>Challenges Faced
@@ -1755,7 +1999,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 <?php endif; ?>
 
                                 <!-- Future Enhancements -->
-                                <?php if (!empty($project['future_enhancements'])): ?>
+                                <?php if (!empty($project['future_enhancements'])) : ?>
                                     <div class="enhancements-section">
                                         <h6 class="section-title">
                                             <i class="fas fa-rocket"></i>Future Enhancements
@@ -1765,7 +2009,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 <?php endif; ?>
 
                                 <!-- Keywords -->
-                                <?php if (!empty($project['keywords'])): ?>
+                                <?php if (!empty($project['keywords'])) : ?>
                                     <div class="keywords-section">
                                         <h6 class="section-title">
                                             <i class="fas fa-hashtag"></i>Keywords & Tags
@@ -1773,12 +2017,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                         <div>
                                             <?php
                                             $keywords = explode(',', $project['keywords']);
-                                            foreach ($keywords as $keyword):
+                                            foreach ($keywords as $keyword) :
                                                 $keyword = trim($keyword);
-                                                if (!empty($keyword)):
+                                                if (!empty($keyword)) :
                                                     ?>
                                                     <span class="keyword-tag"><?php echo htmlspecialchars($keyword); ?></span>
-                                                <?php
+                                                    <?php
                                                 endif;
                                             endforeach;
                                             ?>
@@ -1787,13 +2031,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 <?php endif; ?>
 
                                 <!-- Links Section -->
-                                <?php if (!empty($project['github_repo']) || !empty($project['live_demo_url']) || !empty($project['social_links'])): ?>
+                                <?php if (!empty($project['github_repo']) || !empty($project['live_demo_url']) || !empty($project['social_links'])) : ?>
                                     <div class="social-links">
                                         <h6 class="section-title">
                                             <i class="fas fa-link"></i>Links & Resources
                                         </h6>
                                         <div>
-                                            <?php if (!empty($project['github_repo'])): ?>
+                                            <?php if (!empty($project['github_repo'])) : ?>
                                                 <a href="<?php echo htmlspecialchars($project['github_repo']); ?>"
                                                    target="_blank" class="social-link-item">
                                                     <i class="fab fa-github"></i>
@@ -1801,7 +2045,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                 </a>
                                             <?php endif; ?>
 
-                                            <?php if (!empty($project['live_demo_url'])): ?>
+                                            <?php if (!empty($project['live_demo_url'])) : ?>
                                                 <a href="<?php echo htmlspecialchars($project['live_demo_url']); ?>"
                                                    target="_blank" class="social-link-item">
                                                     <i class="fas fa-external-link-alt"></i>
@@ -1809,19 +2053,19 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                 </a>
                                             <?php endif; ?>
 
-                                            <?php if (!empty($project['social_links'])): ?>
+                                            <?php if (!empty($project['social_links'])) : ?>
                                                 <?php
                                                 $social_links = explode(',', $project['social_links']);
-                                                foreach ($social_links as $link):
+                                                foreach ($social_links as $link) :
                                                     $link = trim($link);
-                                                    if (!empty($link)):
+                                                    if (!empty($link)) :
                                                         ?>
                                                         <a href="<?php echo htmlspecialchars($link); ?>"
                                                            target="_blank" class="social-link-item">
                                                             <i class="fas fa-globe"></i>
                                                             Social Link
                                                         </a>
-                                                    <?php
+                                                        <?php
                                                     endif;
                                                 endforeach;
                                                 ?>
@@ -1841,17 +2085,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                         ['path' => $project['video_path'], 'name' => 'Project Video', 'icon' => 'fas fa-video']
                                 ];
 
-                                $available_files = array_filter($files, function($file) {
+                                $available_files = array_filter($files, function ($file) {
                                     return !empty($file['path']);
                                 });
 
-                                if (!empty($available_files)):
+                                if (!empty($available_files)) :
                                     ?>
                                     <div class="file-downloads">
                                         <h6 class="section-title">
                                             <i class="fas fa-download"></i>Downloads & Resources
                                         </h6>
-                                        <?php foreach ($available_files as $file): ?>
+                                        <?php foreach ($available_files as $file) : ?>
                                             <div class="file-item">
                                                 <div class="file-info">
                                                     <div class="file-icon">
@@ -1873,7 +2117,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 <?php endif; ?>
 
                                 <!-- Contact Information -->
-                                <?php if (!empty($project['contact_email'])): ?>
+                                <?php if (!empty($project['contact_email'])) : ?>
                                     <div class="social-links">
                                         <h6 class="section-title">
                                             <i class="fas fa-envelope"></i>Contact Information
@@ -1922,9 +2166,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                         <?php
                                         $recent_comments = getProjectComments($conn, $project['id'], $session_id);
                                         $preview_comments = array_slice($recent_comments, 0, 3);
-                                        if (!empty($preview_comments)):
+                                        if (!empty($preview_comments)) :
                                             ?>
-                                            <?php foreach ($preview_comments as $comment): ?>
+                                            <?php foreach ($preview_comments as $comment) : ?>
                                             <div class="comment-item">
                                                 <div class="comment-header">
                                                     <div class="comment-author">
@@ -1934,7 +2178,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                         <div class="comment-meta">
                                                             <div class="comment-username">
                                                                 <?php echo htmlspecialchars($comment['user_name']); ?>
-                                                                <?php if ($comment['user_id'] === $session_id): ?>
+                                                                <?php if ($comment['user_id'] === $session_id) : ?>
                                                                     <span class="badge bg-primary ms-1" style="font-size: 0.6rem;">You</span>
                                                                 <?php endif; ?>
                                                             </div>
@@ -1948,8 +2192,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                     <?php echo nl2br(htmlspecialchars(mb_strimwidth($comment['comment_text'], 0, 150, '...'))); ?>
                                                 </div>
                                             </div>
-                                        <?php endforeach; ?>
-                                            <?php if (count($recent_comments) > 3): ?>
+                                            <?php endforeach; ?>
+                                            <?php if (count($recent_comments) > 3) : ?>
                                             <div class="text-center">
                                                 <button type="button" class="btn btn-outline-primary btn-sm"
                                                         onclick="openCommentsModal(<?php echo $project['id']; ?>)">
@@ -1957,8 +2201,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                     View All <?php echo $project['total_comments']; ?> Comments
                                                 </button>
                                             </div>
-                                        <?php endif; ?>
-                                        <?php else: ?>
+                                            <?php endif; ?>
+                                        <?php else : ?>
                                             <div class="text-center py-3">
                                                 <i class="fas fa-comments text-muted" style="font-size: 2rem;"></i>
                                                 <p class="text-muted mb-0">No comments yet. Be the first!</p>
@@ -1994,7 +2238,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                     </button>
                                 </form>
 
-                                <?php if ($project['is_owner']): ?>
+                                <?php if ($project['is_owner']) : ?>
                                     <a href="edit_project.php?id=<?php echo $project['id']; ?>" class="btn btn-primary">
                                         <i class="fas fa-edit me-2"></i>Edit Project
                                     </a>
@@ -2042,9 +2286,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 <div class="comments-list">
                                     <?php
                                     $modal_comments = getProjectComments($conn, $project['id'], $session_id);
-                                    if (!empty($modal_comments)):
+                                    if (!empty($modal_comments)) :
                                         ?>
-                                        <?php foreach ($modal_comments as $comment): ?>
+                                        <?php foreach ($modal_comments as $comment) : ?>
                                         <div class="comment-item" data-comment-id="<?php echo $comment['id']; ?>">
                                             <div class="comment-header">
                                                 <div class="comment-author">
@@ -2054,7 +2298,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                     <div class="comment-meta">
                                                         <div class="comment-username">
                                                             <?php echo htmlspecialchars($comment['user_name']); ?>
-                                                            <?php if ($comment['user_id'] === $session_id): ?>
+                                                            <?php if ($comment['user_id'] === $session_id) : ?>
                                                                 <span class="badge bg-primary ms-1" style="font-size: 0.6rem;">You</span>
                                                             <?php endif; ?>
                                                         </div>
@@ -2085,7 +2329,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                     <span>Reply</span>
                                                 </button>
                                                 
-                                                <?php if ($comment['user_id'] === $session_id): ?>
+                                                <?php if ($comment['user_id'] === $session_id) : ?>
                                                     <button type="button" class="reply-btn"
                                                             onclick="editComment(<?php echo $comment['id']; ?>, '<?php echo htmlspecialchars(addslashes($comment['comment_text'])); ?>')">
                                                         <i class="fas fa-edit"></i>
@@ -2120,8 +2364,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                             </div>
 
                                             <!-- Display Replies -->
-                                            <?php if (!empty($comment['replies'])): ?>
-                                                <?php foreach ($comment['replies'] as $reply): ?>
+                                            <?php if (!empty($comment['replies'])) : ?>
+                                                <?php foreach ($comment['replies'] as $reply) : ?>
                                                     <div class="comment-item reply-comment" data-comment-id="<?php echo $reply['id']; ?>">
                                                         <div class="comment-header">
                                                             <div class="comment-author">
@@ -2131,7 +2375,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                                 <div class="comment-meta">
                                                                     <div class="comment-username">
                                                                         <?php echo htmlspecialchars($reply['user_name']); ?>
-                                                                        <?php if ($reply['user_id'] === $session_id): ?>
+                                                                        <?php if ($reply['user_id'] === $session_id) : ?>
                                                                             <span class="badge bg-primary ms-1" style="font-size: 0.6rem;">You</span>
                                                                         <?php endif; ?>
                                                                     </div>
@@ -2156,7 +2400,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                                 </button>
                                                             </form>
                                                             
-                                                            <?php if ($reply['user_id'] === $session_id): ?>
+                                                            <?php if ($reply['user_id'] === $session_id) : ?>
                                                                 <button type="button" class="reply-btn"
                                                                         onclick="editComment(<?php echo $reply['id']; ?>, '<?php echo htmlspecialchars(addslashes($reply['comment_text'])); ?>')">
                                                                     <i class="fas fa-edit"></i>
@@ -2173,8 +2417,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                 <?php endforeach; ?>
                                             <?php endif; ?>
                                         </div>
-                                    <?php endforeach; ?>
-                                    <?php else: ?>
+                                        <?php endforeach; ?>
+                                    <?php else : ?>
                                         <div class="text-center py-4">
                                             <i class="fas fa-comments text-muted" style="font-size: 3rem; margin-bottom: 1rem;"></i>
                                             <p class="text-muted">No comments yet. Be the first to share your thoughts!</p>
@@ -2186,22 +2430,26 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     </div>
                 </div>
             <?php endforeach; ?>
-        <?php else: ?>
+        <?php else : ?>
             <div class="empty-state fade-in-up">
                 <div class="empty-state-icon">
-                    <?php if ($view_filter === 'owned'): ?>
+                    <?php if ($view_filter === 'owned') : ?>
                         <i class="fas fa-user-plus"></i>
-                    <?php elseif ($view_filter === 'bookmarked'): ?>
+                    <?php elseif ($view_filter === 'bookmarked') : ?>
                         <i class="fas fa-bookmark"></i>
-                    <?php else: ?>
+                    <?php else : ?>
                         <i class="fas fa-search"></i>
                     <?php endif; ?>
                 </div>
                 <h4>
                     <?php
-                    if ($view_filter === 'owned') echo 'No projects found in your collection';
-                    elseif ($view_filter === 'bookmarked') echo 'No bookmarked projects found';
-                    else echo 'No projects found';
+                    if ($view_filter === 'owned') {
+                        echo 'No projects found in your collection';
+                    } elseif ($view_filter === 'bookmarked') {
+                        echo 'No bookmarked projects found';
+                    } else {
+                        echo 'No projects found';
+                    }
                     ?>
                 </h4>
                 <p>
@@ -2215,11 +2463,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     }
                     ?>
                 </p>
-                <?php if ($view_filter === 'owned'): ?>
+                <?php if ($view_filter === 'owned') : ?>
                     <a href="submit_project.php" class="btn btn-primary mt-3">
                         <i class="fas fa-plus me-2"></i>Submit Your First Project
                     </a>
-                <?php else: ?>
+                <?php else : ?>
                     <a href="?view=all" class="btn btn-primary mt-3">
                         <i class="fas fa-th-large me-2"></i>View All Projects
                     </a>
@@ -2229,7 +2477,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </div>
 
     <!-- Pagination -->
-    <?php if ($total_pages > 1): ?>
+    <?php if ($total_pages > 1) : ?>
         <div class="pagination-container fade-in-up">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="pagination-stats">
@@ -2252,7 +2500,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     $start_page = max(1, $current_page_num - 2);
                     $end_page = min($total_pages, $current_page_num + 2);
 
-                    for ($i = $start_page; $i <= $end_page; $i++): ?>
+                    for ($i = $start_page; $i <= $end_page; $i++) : ?>
                         <li class="page-item <?php echo ($i == $current_page_num) ? 'active' : ''; ?>">
                             <a class="page-link" href="?<?php echo http_build_query(array_merge($_GET, ['page' => $i])); ?>">
                                 <?php echo $i; ?>

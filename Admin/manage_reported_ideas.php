@@ -16,16 +16,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $idea_id = (int)($_POST['idea_id'] ?? 0);
     $report_id = (int)($_POST['report_id'] ?? 0);
-    
+
     if ($action === 'send_warning' && $idea_id > 0) {
         $warning_reason = $conn->real_escape_string($_POST['warning_reason'] ?? '');
-        
+
         // Get idea and user details
         $idea_query = "SELECT b.*, r.name, r.email FROM blog b 
                       JOIN register r ON b.user_id = r.id 
                       WHERE b.id = $idea_id";
         $idea_result = $conn->query($idea_query);
-        
+
         if ($idea_result && $idea_row = $idea_result->fetch_assoc()) {
             // Send warning email
             $to = $idea_row['email'];
@@ -41,13 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p>Best regards,<br>IdeaNest Admin Team</p>
             </body>
             </html>";
-            
+
             $headers = "MIME-Version: 1.0\r\n";
             $headers .= "Content-type:text/html;charset=UTF-8\r\n";
             $headers .= "From: ideanest.ict@gmail.com\r\n";
-            
+
             $email_sent = mail($to, $subject, $message, $headers);
-            
+
             // Create warnings table if not exists
             $conn->query("CREATE TABLE IF NOT EXISTS idea_warnings (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -58,29 +58,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 status VARCHAR(20) DEFAULT 'sent',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )");
-            
+
             // Log warning
             $admin_id = $_SESSION['admin_id'] ?? 1;
             $status = $email_sent ? 'sent' : 'failed';
             $conn->query("INSERT INTO idea_warnings (idea_id, user_id, warning_reason, admin_id, status) 
                          VALUES ($idea_id, {$idea_row['user_id']}, '$warning_reason', $admin_id, '$status')");
-            
+
             // Update report status
             if ($report_id > 0) {
                 $conn->query("UPDATE idea_reports SET status = 'reviewed' WHERE id = $report_id");
             }
-            
+
             $success_msg = $email_sent ? "Warning email sent successfully!" : "Warning logged but email failed to send.";
         }
     }
-    
+
     if ($action === 'delete_idea' && $idea_id > 0) {
         $deletion_reason = $conn->real_escape_string($_POST['deletion_reason'] ?? '');
-        
+
         // Get idea details before deletion
         $idea_query = "SELECT * FROM blog WHERE id = $idea_id";
         $idea_result = $conn->query($idea_query);
-        
+
         if ($idea_result && $idea_row = $idea_result->fetch_assoc()) {
             // Create deleted ideas table if not exists
             $conn->query("CREATE TABLE IF NOT EXISTS deleted_ideas (
@@ -93,22 +93,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 deleted_by_admin INT,
                 deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )");
-            
+
             // Archive deleted idea
             $admin_id = $_SESSION['admin_id'] ?? 1;
             $conn->query("INSERT INTO deleted_ideas (original_idea_id, user_id, project_name, description, deletion_reason, deleted_by_admin) 
                          VALUES ($idea_id, {$idea_row['user_id']}, '{$idea_row['project_name']}', '{$idea_row['description']}', '$deletion_reason', $admin_id)");
-            
+
             // Delete the idea
             $conn->query("DELETE FROM blog WHERE id = $idea_id");
-            
+
             // Update all related reports
             $conn->query("UPDATE idea_reports SET status = 'resolved' WHERE idea_id = $idea_id");
-            
+
             $success_msg = "Idea deleted successfully!";
         }
     }
-    
+
     if ($action === 'dismiss_report' && $report_id > 0) {
         $conn->query("UPDATE idea_reports SET status = 'resolved' WHERE id = $report_id");
         $success_msg = "Report dismissed successfully!";
@@ -165,7 +165,7 @@ $reported_ideas = $conn->query($reported_ideas_query);
                         </h1>
                     </div>
 
-                    <?php if (isset($success_msg)): ?>
+                    <?php if (isset($success_msg)) : ?>
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             <i class="bi bi-check-circle me-2"></i><?php echo $success_msg; ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -177,7 +177,7 @@ $reported_ideas = $conn->query($reported_ideas_query);
                             <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Reported Ideas</h5>
                         </div>
                         <div class="card-body">
-                            <?php if ($reported_ideas && $reported_ideas->num_rows > 0): ?>
+                            <?php if ($reported_ideas && $reported_ideas->num_rows > 0) : ?>
                                 <div class="table-responsive">
                                     <table class="table table-hover">
                                         <thead class="table-dark">
@@ -190,7 +190,7 @@ $reported_ideas = $conn->query($reported_ideas_query);
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php while ($row = $reported_ideas->fetch_assoc()): ?>
+                                            <?php while ($row = $reported_ideas->fetch_assoc()) : ?>
                                                 <tr>
                                                     <td>
                                                         <strong><?php echo htmlspecialchars($row['project_name']); ?></strong><br>
@@ -243,7 +243,7 @@ $reported_ideas = $conn->query($reported_ideas_query);
                                         </tbody>
                                     </table>
                                 </div>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <div class="text-center py-5">
                                     <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
                                     <h4 class="mt-3">No Reported Ideas</h4>

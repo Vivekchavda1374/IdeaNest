@@ -69,8 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error_message = 'Please enter a valid email address.';
         }
         // Validate URLs if provided
-        elseif ((!empty($github_repo) && !filter_var($github_repo, FILTER_VALIDATE_URL)) ||
-                (!empty($live_demo_url) && !filter_var($live_demo_url, FILTER_VALIDATE_URL))) {
+        elseif (
+            (!empty($github_repo) && !filter_var($github_repo, FILTER_VALIDATE_URL)) ||
+                (!empty($live_demo_url) && !filter_var($live_demo_url, FILTER_VALIDATE_URL))
+        ) {
             $error_message = 'Please enter valid URLs for GitHub repository and live demo.';
         } else {
             // Update project with all fields
@@ -97,11 +99,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                            WHERE id = ?";
 
             $update_stmt = $conn->prepare($update_sql);
-            $update_stmt->bind_param("sssssssssssssssssssi",
-                    $project_name, $description, $classification, $project_type, $project_category,
-                    $difficulty_level, $development_time, $team_size, $target_audience, $project_goals,
-                    $challenges_faced, $future_enhancements, $github_repo, $live_demo_url, $project_license,
-                    $keywords, $contact_email, $social_links, $language, $project_id
+            $update_stmt->bind_param(
+                "sssssssssssssssssssi",
+                $project_name,
+                $description,
+                $classification,
+                $project_type,
+                $project_category,
+                $difficulty_level,
+                $development_time,
+                $team_size,
+                $target_audience,
+                $project_goals,
+                $challenges_faced,
+                $future_enhancements,
+                $github_repo,
+                $live_demo_url,
+                $project_license,
+                $keywords,
+                $contact_email,
+                $social_links,
+                $language,
+                $project_id
             );
 
             if ($update_stmt->execute()) {
@@ -460,13 +479,13 @@ $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
     </div>
 
     <!-- Alert Messages -->
-    <?php if (!empty($success_message)): ?>
+    <?php if (!empty($success_message)) : ?>
         <div class="alert alert-success">
             <i class="fas fa-check-circle me-2"></i><?php echo htmlspecialchars($success_message); ?>
         </div>
     <?php endif; ?>
 
-    <?php if (!empty($error_message)): ?>
+    <?php if (!empty($error_message)) : ?>
         <div class="alert alert-danger">
             <i class="fas fa-exclamation-triangle me-2"></i><?php echo htmlspecialchars($error_message); ?>
         </div>

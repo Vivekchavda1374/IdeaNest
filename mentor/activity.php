@@ -30,7 +30,7 @@ try {
         WHERE msp.mentor_id = ?
         ORDER BY ms.session_date DESC
         LIMIT 20";
-    
+
     $stmt = $conn->prepare($sessions_query);
     $stmt->bind_param("i", $mentor_id);
     $stmt->execute();
@@ -52,7 +52,7 @@ try {
         WHERE mr.mentor_id = ?
         ORDER BY mr.created_at DESC
         LIMIT 20";
-    
+
     $stmt = $conn->prepare($requests_query);
     $stmt->bind_param("i", $mentor_id);
     $stmt->execute();
@@ -60,10 +60,9 @@ try {
     $activities = array_merge($activities, $requests);
 
     // Sort by date
-    usort($activities, function($a, $b) {
+    usort($activities, function ($a, $b) {
         return strtotime($b['date']) - strtotime($a['date']);
     });
-
 } catch (Exception $e) {
     error_log("Activity error: " . $e->getMessage());
 }
@@ -118,15 +117,15 @@ ob_start();
                 <h5><i class="fas fa-timeline me-2"></i>Activity Timeline</h5>
             </div>
             <div class="card-body p-4">
-                <?php if (empty($activities)): ?>
+                <?php if (empty($activities)) : ?>
                     <div class="text-center py-5">
                         <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
                         <h5 class="text-muted">No Activities Yet</h5>
                         <p class="text-muted">Your mentoring activities will appear here</p>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="timeline">
-                        <?php foreach ($activities as $activity): ?>
+                        <?php foreach ($activities as $activity) : ?>
                             <div class="timeline-item mb-4">
                                 <div class="row">
                                     <div class="col-auto">
@@ -144,11 +143,11 @@ ob_start();
                                                         <?= htmlspecialchars($activity['student_name']) ?>
                                                     </p>
                                                 </div>
-                                                <span class="badge bg-<?= 
-                                                    $activity['status'] === 'completed' ? 'success' : 
-                                                    ($activity['status'] === 'scheduled' ? 'warning' : 
-                                                    ($activity['status'] === 'accepted' ? 'info' : 'secondary')) 
-                                                ?>">
+                                                <span class="badge bg-<?=
+                                                    $activity['status'] === 'completed' ? 'success' :
+                                                    ($activity['status'] === 'scheduled' ? 'warning' :
+                                                    ($activity['status'] === 'accepted' ? 'info' : 'secondary'))
+                                                                        ?>">
                                                     <?= ucfirst($activity['status']) ?>
                                                 </span>
                                             </div>
@@ -160,7 +159,7 @@ ob_start();
                                                         <?= date('M j, Y g:i A', strtotime($activity['date'])) ?>
                                                     </small>
                                                 </div>
-                                                <?php if ($activity['duration_minutes']): ?>
+                                                <?php if ($activity['duration_minutes']) : ?>
                                                 <div class="col-md-6">
                                                     <small class="text-muted">
                                                         <i class="fas fa-clock me-1"></i>
@@ -170,7 +169,7 @@ ob_start();
                                                 <?php endif; ?>
                                             </div>
 
-                                            <?php if ($activity['notes']): ?>
+                                            <?php if ($activity['notes']) : ?>
                                             <div class="mb-2">
                                                 <small class="text-muted">
                                                     <strong>Notes:</strong> <?= htmlspecialchars($activity['notes']) ?>
@@ -178,7 +177,7 @@ ob_start();
                                             </div>
                                             <?php endif; ?>
 
-                                            <?php if ($activity['meeting_link']): ?>
+                                            <?php if ($activity['meeting_link']) : ?>
                                             <div class="mb-2">
                                                 <a href="<?= htmlspecialchars($activity['meeting_link']) ?>" target="_blank" class="btn btn-sm btn-outline-primary">
                                                     <i class="fas fa-external-link-alt me-1"></i>Join Meeting
@@ -186,7 +185,7 @@ ob_start();
                                             </div>
                                             <?php endif; ?>
 
-                                            <?php if ($activity['type'] === 'session' && $activity['status'] === 'scheduled'): ?>
+                                            <?php if ($activity['type'] === 'session' && $activity['status'] === 'scheduled') : ?>
                                             <div class="mt-2">
                                                 <button class="btn btn-sm btn-success me-2" onclick="markCompleted(<?= $activity['id'] ?? 0 ?>)">
                                                     <i class="fas fa-check me-1"></i>Mark Complete

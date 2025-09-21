@@ -1,17 +1,18 @@
 <?php
+
 /**
  * Enhanced Input Sanitization
  */
-
-function sanitizeInput($input, $type = "string") {
+function sanitizeInput($input, $type = "string")
+{
     if (is_array($input)) {
-        return array_map(function($item) use ($type) {
+        return array_map(function ($item) use ($type) {
             return sanitizeInput($item, $type);
         }, $input);
     }
-    
+
     $input = trim($input);
-    
+
     switch ($type) {
         case "email":
             return filter_var($input, FILTER_SANITIZE_EMAIL);
@@ -28,15 +29,16 @@ function sanitizeInput($input, $type = "string") {
     }
 }
 
-function validateInput($input, $type, $required = false) {
+function validateInput($input, $type, $required = false)
+{
     if ($required && empty($input)) {
         return ["valid" => false, "message" => "Field is required"];
     }
-    
+
     if (empty($input) && !$required) {
         return ["valid" => true, "value" => ""];
     }
-    
+
     switch ($type) {
         case "email":
             $valid = filter_var($input, FILTER_VALIDATE_EMAIL);
@@ -52,18 +54,18 @@ function validateInput($input, $type, $required = false) {
     }
 }
 
-function logSecurityEvent($event, $details = "", $severity = "INFO") {
+function logSecurityEvent($event, $details = "", $severity = "INFO")
+{
     $logDir = __DIR__ . "/../logs";
     if (!is_dir($logDir)) {
         mkdir($logDir, 0755, true);
     }
-    
+
     $logEntry = date("Y-m-d H:i:s") . " [$severity] $event";
     if ($details) {
         $logEntry .= " - $details";
     }
     $logEntry .= "\n";
-    
+
     file_put_contents("$logDir/security.log", $logEntry, FILE_APPEND | LOCK_EX);
 }
-?>

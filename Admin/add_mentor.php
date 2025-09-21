@@ -17,26 +17,26 @@ if ($_POST) {
     $specialization = $_POST['specialization'];
     $experience = $_POST['experience'];
     $max_students = $_POST['max_students'];
-    
+
     // Generate random password
     $password = bin2hex(random_bytes(4)); // 8 character password
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-    
+
     // Generate enrollment number for mentor
     $enrollment = 'MEN' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
-    
+
     try {
         // Insert into register table
         $stmt = $conn->prepare("INSERT INTO register (name, email, enrollment_number, gr_number, password, about, department, passout_year, role, expertise) VALUES (?, ?, ?, ?, ?, ?, 'Mentor', 2024, 'mentor', ?)");
         $stmt->bind_param("sssssss", $name, $email, $enrollment, $enrollment, $hashed_password, $specialization, $specialization);
         $stmt->execute();
         $user_id = $conn->insert_id;
-        
+
         // Insert into mentors table
         $stmt = $conn->prepare("INSERT INTO mentors (user_id, specialization, experience_years, max_students, bio) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("isiss", $user_id, $specialization, $experience, $max_students, $specialization);
         $stmt->execute();
-        
+
         // Send email with credentials
         $mail = new PHPMailer(true);
         $mail->isSMTP();
@@ -46,10 +46,10 @@ if ($_POST) {
         $mail->Password = 'luou xlhs ojuw auvx';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
-        
+
         $mail->setFrom('ideanest.ict@gmail.com', 'IdeaNest');
         $mail->addAddress($email, $name);
-        
+
         $mail->isHTML(true);
         $mail->Subject = 'Welcome to IdeaNest - Mentor Account Created';
         $mail->Body = "
@@ -62,10 +62,9 @@ if ($_POST) {
         <p>Login URL: <a href='http://localhost/IdeaNest/mentor/login.php'>Mentor Dashboard</a></p>
         <p>Please change your password after first login.</p>
         ";
-        
+
         $mail->send();
         $success = "Mentor added successfully! Credentials sent to email.";
-        
     } catch (Exception $e) {
         $error = "Error: " . $e->getMessage();
     }
@@ -99,11 +98,11 @@ if ($_POST) {
             </div>
             <div class="card-body">
     
-    <?php if (isset($success)): ?>
+    <?php if (isset($success)) : ?>
         <div class="alert alert-success"><?= $success ?></div>
     <?php endif; ?>
     
-    <?php if (isset($error)): ?>
+    <?php if (isset($error)) : ?>
         <div class="alert alert-danger"><?= $error ?></div>
     <?php endif; ?>
     

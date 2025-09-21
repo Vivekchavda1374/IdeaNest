@@ -17,13 +17,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $duration = $_POST['duration'] ?? 60;
     $notes = $_POST['notes'] ?? '';
     $meeting_link = $_POST['meeting_link'] ?? null;
-    
+
     if ($pair_id && $session_date) {
         try {
             $stmt = $conn->prepare("INSERT INTO mentoring_sessions (pair_id, session_date, duration_minutes, notes, meeting_link, status) VALUES (?, ?, ?, ?, ?, 'scheduled')");
             $stmt->bind_param("isiss", $pair_id, $session_date, $duration, $notes, $meeting_link);
             $stmt->execute();
-            
+
             header('Location: sessions.php?success=1');
             exit;
         } catch (Exception $e) {
@@ -43,7 +43,7 @@ try {
     $stmt->bind_param("i", $mentor_id);
     $stmt->execute();
     $is_mentor = $stmt->get_result()->num_rows > 0;
-    
+
     if ($is_mentor) {
         $students_query = "SELECT msp.id, r.name FROM mentor_student_pairs msp 
                          JOIN register r ON msp.student_id = r.id 
@@ -66,11 +66,11 @@ ob_start();
             <h2><i class="fas fa-calendar-plus text-primary me-2"></i>Create Session</h2>
             <p class="text-muted mb-4">Schedule a new mentoring session with your students</p>
             
-            <?php if (isset($error)): ?>
+            <?php if (isset($error)) : ?>
                 <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
             
-            <?php if (empty($students)): ?>
+            <?php if (empty($students)) : ?>
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-1"></i>
                     No students assigned yet. Please contact admin to assign students to your mentorship.
@@ -82,7 +82,7 @@ ob_start();
                     <label class="form-label">Student *</label>
                     <select class="form-select" name="pair_id" required>
                         <option value="">Select Student</option>
-                        <?php foreach ($students as $student): ?>
+                        <?php foreach ($students as $student) : ?>
                             <option value="<?= $student['id'] ?>"><?= htmlspecialchars($student['name']) ?></option>
                         <?php endforeach; ?>
                     </select>
