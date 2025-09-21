@@ -148,14 +148,14 @@ ob_start();
                 <h5 class="mb-0">Recent Activity</h5>
             </div>
             <div class="card-body p-4">
-                <?php if (empty($activities)): ?>
+                <?php if (empty($activities)) : ?>
                     <div class="text-center py-3">
                         <i class="fas fa-history fa-2x text-muted mb-2"></i>
                         <p class="text-muted">No recent activity</p>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="timeline">
-                        <?php foreach ($activities as $activity): ?>
+                        <?php foreach ($activities as $activity) : ?>
                             <div class="d-flex align-items-center mb-3">
                                 <div class="bg-<?= $activity['type'] == 'pairing' ? 'success' : 'info' ?> rounded-circle p-2 me-3">
                                     <i class="fas fa-<?= $activity['type'] == 'pairing' ? 'handshake' : 'video' ?> text-white"></i>
