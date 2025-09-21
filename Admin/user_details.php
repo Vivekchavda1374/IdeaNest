@@ -42,7 +42,7 @@ if ($user['role'] === 'mentor') {
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $mentor_stats['sessions'] = $stmt->get_result()->fetch_assoc()['total_sessions'];
-    
+
     // Get paired students
     $students_query = "SELECT COUNT(*) as total_students FROM mentor_student_pairs WHERE mentor_id = ?";
     $stmt = $conn->prepare($students_query);
@@ -52,7 +52,7 @@ if ($user['role'] === 'mentor') {
 }
 
 // Handle status update
-if ($_POST['action'] ?? '' === 'update_status') {
+if ($_POST['action'] ?? '' == 'update_status') {
     $new_status = $_POST['status'];
     $update_query = "UPDATE users SET status = ? WHERE id = ?";
     $stmt = $conn->prepare($update_query);
@@ -93,7 +93,7 @@ if ($_POST['action'] ?? '' === 'update_status') {
                 </a>
                 <h1><i class="bi bi-person"></i> User Details</h1>
             </div>
-            <?php if (isset($_GET['updated'])): ?>
+            <?php if (isset($_GET['updated'])) : ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 User status updated successfully!
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -110,11 +110,11 @@ if ($_POST['action'] ?? '' === 'update_status') {
                             <?php echo strtoupper(substr($user['name'], 0, 1)); ?>
                         </div>
                         <h4><?php echo htmlspecialchars($user['name']); ?></h4>
-                        <span class="badge bg-<?php 
-                            echo $user['role'] === 'admin' ? 'danger' : 
-                                ($user['role'] === 'mentor' ? 'success' : 
-                                ($user['role'] === 'subadmin' ? 'warning' : 'primary')); 
-                        ?> fs-6">
+                        <span class="badge bg-<?php
+                            echo $user['role'] === 'admin' ? 'danger' :
+                                ($user['role'] === 'mentor' ? 'success' :
+                                ($user['role'] === 'subadmin' ? 'warning' : 'primary'));
+                            ?> fs-6">
                             <?php echo ucfirst($user['role']); ?>
                         </span>
                     </div>
@@ -138,7 +138,7 @@ if ($_POST['action'] ?? '' === 'update_status') {
                                         <option value="suspended" <?php echo ($user['status'] ?? '') === 'suspended' ? 'selected' : ''; ?>>Suspended</option>
                                     </select>
                                 </form>
-                                <?php if ($user['github_username']): ?>
+                                <?php if ($user['github_username']) : ?>
                                 <p><i class="bi bi-github"></i> GitHub: 
                                     <a href="https://github.com/<?php echo htmlspecialchars($user['github_username']); ?>" target="_blank">
                                         <?php echo htmlspecialchars($user['github_username']); ?>
@@ -153,7 +153,7 @@ if ($_POST['action'] ?? '' === 'update_status') {
         </div>
 
         <!-- Statistics Cards -->
-        <?php if ($user['role'] === 'mentor'): ?>
+        <?php if ($user['role'] === 'mentor') : ?>
         <div class="row mb-4">
             <div class="col-md-4">
                 <div class="card stat-card">
@@ -194,7 +194,7 @@ if ($_POST['action'] ?? '' === 'update_status') {
                 </a>
             </div>
             <div class="card-body">
-                <?php if ($projects->num_rows > 0): ?>
+                <?php if ($projects->num_rows > 0) : ?>
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
@@ -207,7 +207,7 @@ if ($_POST['action'] ?? '' === 'update_status') {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while ($project = $projects->fetch_assoc()): ?>
+                            <?php while ($project = $projects->fetch_assoc()) : ?>
                             <tr>
                                 <td>
                                     <div class="fw-bold"><?php echo htmlspecialchars($project['title']); ?></div>
@@ -219,9 +219,9 @@ if ($_POST['action'] ?? '' === 'update_status') {
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-<?php 
-                                        echo $project['status'] === 'approved' ? 'success' : 
-                                            ($project['status'] === 'rejected' ? 'danger' : 'warning'); 
+                                    <span class="badge bg-<?php
+                                        echo $project['status'] === 'approved' ? 'success' :
+                                            ($project['status'] === 'rejected' ? 'danger' : 'warning');
                                     ?>">
                                         <?php echo ucfirst($project['status']); ?>
                                     </span>
@@ -237,7 +237,7 @@ if ($_POST['action'] ?? '' === 'update_status') {
                         </tbody>
                     </table>
                 </div>
-                <?php else: ?>
+                <?php else : ?>
                 <div class="text-center py-4">
                     <i class="bi bi-kanban fs-1 text-muted"></i>
                     <p class="text-muted mt-2">No projects found for this user.</p>
@@ -258,7 +258,7 @@ if ($_POST['action'] ?? '' === 'update_status') {
                             <i class="bi bi-envelope"></i> Send Email
                         </a>
                     </div>
-                    <?php if ($user['role'] === 'mentor'): ?>
+                    <?php if ($user['role'] === 'mentor') : ?>
                     <div class="col-md-3 mb-2">
                         <a href="mentor_details.php?id=<?php echo $user_id; ?>" class="btn btn-outline-success w-100">
                             <i class="bi bi-person-workspace"></i> Mentor Details
