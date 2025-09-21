@@ -21,18 +21,18 @@ if ($_POST) {
     $bio = $_POST['bio'] ?? '';
     $linkedin_url = $_POST['linkedin_url'] ?? '';
     $github_url = $_POST['github_url'] ?? '';
-    
+
     try {
         // Update register table
         $stmt = $conn->prepare("UPDATE register SET name = ?, email = ?, about = ? WHERE id = ?");
         $stmt->bind_param("sssi", $name, $email, $bio, $mentor_id);
         $stmt->execute();
-        
+
         // Update or insert mentor record
         $check_mentor = $conn->prepare("SELECT id FROM mentors WHERE user_id = ?");
         $check_mentor->bind_param("i", $mentor_id);
         $check_mentor->execute();
-        
+
         if ($check_mentor->get_result()->num_rows > 0) {
             $stmt = $conn->prepare("UPDATE mentors SET specialization = ?, max_students = ?, bio = ?, linkedin_url = ?, github_url = ? WHERE user_id = ?");
             $stmt->bind_param("sisssi", $specialization, $max_students, $bio, $linkedin_url, $github_url, $mentor_id);
@@ -41,7 +41,7 @@ if ($_POST) {
             $stmt->bind_param("isisss", $mentor_id, $specialization, $max_students, $bio, $linkedin_url, $github_url);
         }
         $stmt->execute();
-        
+
         $success = 'Profile updated successfully!';
     } catch (Exception $e) {
         $error = 'Failed to update profile: ' . $e->getMessage();
@@ -70,14 +70,14 @@ ob_start();
     </div>
 </div>
 
-<?php if ($success): ?>
+<?php if ($success) : ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="fas fa-check-circle me-2"></i><?= $success ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endif; ?>
 
-<?php if ($error): ?>
+<?php if ($error) : ?>
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
         <i class="fas fa-exclamation-circle me-2"></i><?= $error ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
