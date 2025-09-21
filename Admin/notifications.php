@@ -59,7 +59,7 @@ GROUP BY type, status";
 $stats_result = $conn->query($stats_query);
 
 $stats = [];
-while($row = $stats_result->fetch_assoc()) {
+while ($row = $stats_result->fetch_assoc()) {
     $stats[$row['type']][$row['status']] = $row['count'];
 }
 
@@ -122,7 +122,7 @@ FROM notification_logs
 GROUP BY type, status";
 $stats_result = $conn->query($stats_sql);
 $stats = [];
-while($row = $stats_result->fetch_assoc()) {
+while ($row = $stats_result->fetch_assoc()) {
     $stats[$row['type']][$row['status']] = $row['count'];
 }
 
@@ -130,7 +130,7 @@ while($row = $stats_result->fetch_assoc()) {
 $types_sql = "SELECT DISTINCT type FROM notification_logs ORDER BY type";
 $types_result = $conn->query($types_sql);
 $type_options = [];
-while($row = $types_result->fetch_assoc()) {
+while ($row = $types_result->fetch_assoc()) {
     $type_options[] = $row['type'];
 }
 
@@ -138,7 +138,7 @@ while($row = $types_result->fetch_assoc()) {
 $status_sql = "SELECT DISTINCT status FROM notification_logs ORDER BY status";
 $status_result = $conn->query($status_sql);
 $status_options = [];
-while($row = $status_result->fetch_assoc()) {
+while ($row = $status_result->fetch_assoc()) {
     $status_options[] = $row['status'];
 }
 
@@ -146,7 +146,7 @@ while($row = $status_result->fetch_assoc()) {
 $date_sql = "SELECT DISTINCT DATE(created_at) as date FROM notification_logs ORDER BY date DESC LIMIT 30";
 $date_result = $conn->query($date_sql);
 $date_options = [];
-while($row = $date_result->fetch_assoc()) {
+while ($row = $date_result->fetch_assoc()) {
     $date_options[] = $row['date'];
 }
 
@@ -156,7 +156,9 @@ LEFT JOIN register r ON nl.user_id = r.id
 LEFT JOIN admin_approved_projects p ON nl.project_id = p.id
 $where_sql";
 $count_stmt = $conn->prepare($count_sql);
-if ($types) $count_stmt->bind_param($types, ...$params);
+if ($types) {
+    $count_stmt->bind_param($types, ...$params);
+}
 $count_stmt->execute();
 $count_result = $count_stmt->get_result();
 $total = $count_result->fetch_assoc()['total'];
@@ -170,7 +172,9 @@ $where_sql
 ORDER BY nl.created_at DESC
 LIMIT $per_page OFFSET $offset";
 $log_stmt = $conn->prepare($log_sql);
-if ($types) $log_stmt->bind_param($types, ...$params);
+if ($types) {
+    $log_stmt->bind_param($types, ...$params);
+}
 $log_stmt->execute();
 $log_result = $log_stmt->get_result();
 
@@ -220,14 +224,14 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         </div>
 
         <!-- Alert Messages -->
-        <?php if($message): ?>
+        <?php if ($message) : ?>
             <div class="alert alert-success alert-banner alert-dismissible fade show" role="alert">
                 <?php echo $message; ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
 
-        <?php if($error): ?>
+        <?php if ($error) : ?>
             <div class="alert alert-danger alert-banner alert-dismissible fade show" role="alert">
                 <?php echo $error; ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -299,24 +303,30 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             <div class="col-auto">
                 <select class="form-select" name="type">
                     <option value="">All Types</option>
-                    <?php foreach($type_options as $type): ?>
-                        <option value="<?php echo htmlspecialchars($type); ?>" <?php if($type_filter == $type) echo 'selected'; ?>><?php echo ucwords(str_replace('_', ' ', $type)); ?></option>
+                    <?php foreach ($type_options as $type) : ?>
+                        <option value="<?php echo htmlspecialchars($type); ?>" <?php if ($type_filter == $type) {
+                            echo 'selected';
+                                       } ?>><?php echo ucwords(str_replace('_', ' ', $type)); ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div class="col-auto">
                 <select class="form-select" name="status">
                     <option value="">All Status</option>
-                    <?php foreach($status_options as $status): ?>
-                        <option value="<?php echo htmlspecialchars($status); ?>" <?php if($status_filter == $status) echo 'selected'; ?>><?php echo ucfirst($status); ?></option>
+                    <?php foreach ($status_options as $status) : ?>
+                        <option value="<?php echo htmlspecialchars($status); ?>" <?php if ($status_filter == $status) {
+                            echo 'selected';
+                                       } ?>><?php echo ucfirst($status); ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
             <div class="col-auto">
                 <select class="form-select" name="date">
                     <option value="">All Dates</option>
-                    <?php foreach($date_options as $date): ?>
-                        <option value="<?php echo htmlspecialchars($date); ?>" <?php if($date_filter == $date) echo 'selected'; ?>><?php echo htmlspecialchars($date); ?></option>
+                    <?php foreach ($date_options as $date) : ?>
+                        <option value="<?php echo htmlspecialchars($date); ?>" <?php if ($date_filter == $date) {
+                            echo 'selected';
+                                       } ?>><?php echo htmlspecialchars($date); ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -344,8 +354,8 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if($log_result && $log_result->num_rows > 0): ?>
-                        <?php while($n = $log_result->fetch_assoc()): ?>
+                    <?php if ($log_result && $log_result->num_rows > 0) : ?>
+                        <?php while ($n = $log_result->fetch_assoc()) : ?>
                             <tr>
                                 <td><?php echo date('M j, Y g:i A', strtotime($n['created_at'])); ?></td>
                                 <td><span class="badge bg-secondary"><?php echo ucwords(str_replace('_', ' ', $n['type'])); ?></span></td>
@@ -356,7 +366,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                 </td>
                                 <td>
                                     <?php echo $n['user_name'] ? htmlspecialchars($n['user_name']) : 'N/A'; ?>
-                                    <?php if($n['user_email']): ?>
+                                    <?php if ($n['user_email']) : ?>
                                         <br><small class="text-muted"><?php echo htmlspecialchars($n['user_email']); ?></small>
                                     <?php endif; ?>
                                 </td>
@@ -366,7 +376,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                 <td style="max-width:200px; white-space:pre-wrap; word-break:break-all;"><span class="text-danger"><?php echo htmlspecialchars($n['error_message'] ?? ''); ?></span></td>
                             </tr>
                         <?php endwhile; ?>
-                    <?php else: ?>
+                    <?php else : ?>
                         <tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-bell-slash" style="font-size: 2rem;"></i><br>No notifications found.</td></tr>
                     <?php endif; ?>
                 </tbody>
@@ -374,13 +384,17 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         </div>
 
         <!-- Pagination -->
-        <?php if($total_pages > 1): ?>
+        <?php if ($total_pages > 1) : ?>
         <nav>
             <ul class="pagination">
-                <?php for($i=1; $i<=$total_pages; $i++): ?>
-                    <li class="page-item <?php if($i == $page) echo 'active'; ?>">
-                        <a class="page-link" href="?<?php 
-                            $q = $_GET; $q['page'] = $i; echo http_build_query($q); 
+                <?php for ($i = 1; $i <= $total_pages; $i++) : ?>
+                    <li class="page-item <?php if ($i == $page) {
+                        echo 'active';
+                                         } ?>">
+                        <a class="page-link" href="?<?php
+                            $q = $_GET;
+                        $q['page'] = $i;
+                        echo http_build_query($q);
                         ?>"><?php echo $i; ?></a>
                     </li>
                 <?php endfor; ?>
