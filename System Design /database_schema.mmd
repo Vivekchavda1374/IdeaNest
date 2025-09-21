@@ -1,0 +1,121 @@
+%%{init: {
+  'theme': 'dark',
+  'themeVariables': {
+    'primaryColor': '#4CAF50',
+    'primaryTextColor': '#FFFFFF',
+    'primaryBorderColor': '#81C784'
+  }
+}}%%
+
+erDiagram
+    USERS {
+        int user_id PK
+        string email UK
+        string password
+        string full_name
+        string role
+        string github_username
+        datetime created_at
+        datetime updated_at
+    }
+    
+    PROJECTS {
+        int project_id PK
+        int user_id FK
+        string title
+        text description
+        string category
+        string difficulty
+        int team_size
+        string status
+        datetime submitted_at
+        datetime reviewed_at
+    }
+    
+    PROJECT_FILES {
+        int file_id PK
+        int project_id FK
+        string file_name
+        string file_path
+        string file_type
+        int file_size
+        datetime uploaded_at
+    }
+    
+    REVIEWS {
+        int review_id PK
+        int project_id FK
+        int reviewer_id FK
+        string review_type
+        text comments
+        string decision
+        datetime reviewed_at
+    }
+    
+    MENTORS {
+        int mentor_id PK
+        int user_id FK
+        text specialization
+        text bio
+        string status
+        datetime assigned_at
+    }
+    
+    MENTOR_SESSIONS {
+        int session_id PK
+        int mentor_id FK
+        int student_id FK
+        datetime session_date
+        int duration
+        text notes
+        string status
+    }
+    
+    LIKES {
+        int like_id PK
+        int user_id FK
+        int project_id FK
+        datetime liked_at
+    }
+    
+    COMMENTS {
+        int comment_id PK
+        int user_id FK
+        int project_id FK
+        text comment_text
+        datetime created_at
+    }
+    
+    BOOKMARKS {
+        int bookmark_id PK
+        int user_id FK
+        int project_id FK
+        datetime bookmarked_at
+    }
+    
+    EMAIL_NOTIFICATIONS {
+        int notification_id PK
+        int user_id FK
+        string notification_type
+        text content
+        boolean sent
+        datetime created_at
+        datetime sent_at
+    }
+
+    USERS ||--o{ PROJECTS : submits
+    USERS ||--o{ REVIEWS : reviews
+    USERS ||--o{ MENTORS : becomes
+    USERS ||--o{ LIKES : gives
+    USERS ||--o{ COMMENTS : writes
+    USERS ||--o{ BOOKMARKS : creates
+    USERS ||--o{ EMAIL_NOTIFICATIONS : receives
+    
+    PROJECTS ||--o{ PROJECT_FILES : contains
+    PROJECTS ||--o{ REVIEWS : receives
+    PROJECTS ||--o{ LIKES : gets
+    PROJECTS ||--o{ COMMENTS : has
+    PROJECTS ||--o{ BOOKMARKS : bookmarked
+    
+    MENTORS ||--o{ MENTOR_SESSIONS : conducts
+    USERS ||--o{ MENTOR_SESSIONS : attends
