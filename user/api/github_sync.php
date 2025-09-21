@@ -1,4 +1,5 @@
 <?php
+
 /**
  * GitHub API Endpoint
  * Handles GitHub integration requests
@@ -21,27 +22,27 @@ $method = $_SERVER["REQUEST_METHOD"];
 switch ($method) {
     case "POST":
         $input = json_decode(file_get_contents("php://input"), true);
-        
+
         if (isset($input["action"]) && $input["action"] === "sync") {
             $username = $input["username"] ?? "";
-            
+
             if (empty($username)) {
                 echo json_encode(["success" => false, "message" => "Username is required"]);
                 exit;
             }
-            
+
             $result = syncGitHubData($conn, $_SESSION["user_id"], $username);
             echo json_encode($result);
         } else {
             echo json_encode(["success" => false, "message" => "Invalid action"]);
         }
         break;
-        
+
     case "GET":
         if (isset($_GET["test"])) {
             $isConnected = testGitHubConnectivity();
             echo json_encode([
-                "success" => true, 
+                "success" => true,
                 "connected" => $isConnected,
                 "message" => $isConnected ? "GitHub API is accessible" : "GitHub API is not accessible"
             ]);
@@ -49,9 +50,8 @@ switch ($method) {
             echo json_encode(["success" => false, "message" => "Invalid request"]);
         }
         break;
-        
+
     default:
         http_response_code(405);
         echo json_encode(["success" => false, "message" => "Method not allowed"]);
 }
-?>
