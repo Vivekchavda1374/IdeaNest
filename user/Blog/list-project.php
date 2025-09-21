@@ -529,6 +529,11 @@ function handleAjaxRequest() {
                             <i class="fas fa-lock me-1"></i>Edit
                         </button>
                     <?php endif; ?>
+                    <?php if ($current_user_id && !$can_edit): ?>
+                        <button class="btn btn-outline-danger btn-sm report-btn" data-idea-id="<?php echo $project['id']; ?>" title="Report this idea">
+                            <i class="fas fa-flag me-1"></i>Report
+                        </button>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endforeach;
@@ -1668,6 +1673,45 @@ function truncateText($text, $length = 150) {
             box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
         }
 
+        /* Report Button Styling */
+        .btn-outline-danger {
+            border: 2px solid #dc3545;
+            color: #dc3545;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-danger:hover {
+            background: #dc3545;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+        
+        /* Report Modal Styling */
+        .report-options .form-check {
+            margin-bottom: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .report-options .form-check:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        .report-options .form-check-label {
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        
+        .report-options .form-check-input:checked + .form-check-label {
+            color: #dc3545;
+            font-weight: 600;
+        }
+        
         /* Print Styles */
         @media print {
             .modal-backdrop,
@@ -2081,6 +2125,11 @@ function truncateText($text, $length = 150) {
                                     <i class="fas fa-lock me-1"></i>Edit
                                 </button>
                             <?php endif; ?>
+                            <?php if ($current_user_id && !$can_edit): ?>
+                                <button class="btn btn-outline-danger btn-sm report-btn" data-idea-id="<?php echo $project['id']; ?>" title="Report this idea">
+                                    <i class="fas fa-flag me-1"></i>Report
+                                </button>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -2135,6 +2184,84 @@ function truncateText($text, $length = 150) {
                         <i class="fas fa-edit me-1"></i> Edit Idea
                     </button>
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="reportModalLabel">
+                        <i class="fas fa-flag me-2"></i>Report Idea
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reportForm">
+                        <input type="hidden" id="reportIdeaId" name="idea_id">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Why are you reporting this idea?</label>
+                            <div class="report-options">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="report_type" value="inappropriate_content" id="inappropriate">
+                                    <label class="form-check-label" for="inappropriate">
+                                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>Inappropriate Content
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="report_type" value="spam" id="spam">
+                                    <label class="form-check-label" for="spam">
+                                        <i class="fas fa-ban text-danger me-2"></i>Spam or Repetitive
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="report_type" value="copyright" id="copyright">
+                                    <label class="form-check-label" for="copyright">
+                                        <i class="fas fa-copyright text-info me-2"></i>Copyright Violation
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="report_type" value="misleading" id="misleading">
+                                    <label class="form-check-label" for="misleading">
+                                        <i class="fas fa-question-circle text-secondary me-2"></i>Misleading Information
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="report_type" value="other" id="other">
+                                    <label class="form-check-label" for="other">
+                                        <i class="fas fa-ellipsis-h text-muted me-2"></i>Other
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="reportDescription" class="form-label fw-bold">Additional Details (Optional)</label>
+                            <textarea class="form-control" id="reportDescription" name="description" rows="3" 
+                                    placeholder="Please provide more details about why you're reporting this idea..."
+                                    maxlength="500"></textarea>
+                            <div class="form-text">
+                                <span id="reportCharCount">0</span>/500 characters
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <small>Reports are reviewed by our moderation team. False reports may result in account restrictions.</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-danger" id="submitReportBtn">
+                        <i class="fas fa-flag me-1"></i>Submit Report
+                    </button>
                 </div>
             </div>
         </div>
@@ -2933,6 +3060,7 @@ function truncateText($text, $length = 150) {
                                 setupViewDetailsButtons();
                                 setupLikeButtons();
                                 setupCommentButtons();
+                                setupReportButtons();
 
                                 if (data.hasMore) {
                                     loadMoreBtn.setAttribute('data-page', data.nextPage);
@@ -3031,16 +3159,106 @@ function truncateText($text, $length = 150) {
                 });
             }
 
+            // Setup report buttons
+            function setupReportButtons() {
+                const reportButtons = document.querySelectorAll('.report-btn');
+                reportButtons.forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const ideaId = this.getAttribute('data-idea-id');
+                        showReportModal(ideaId);
+                    });
+                });
+            }
+            
+            // Show report modal
+            function showReportModal(ideaId) {
+                const modal = new bootstrap.Modal(document.getElementById('reportModal'));
+                const reportIdeaId = document.getElementById('reportIdeaId');
+                const reportForm = document.getElementById('reportForm');
+                
+                reportIdeaId.value = ideaId;
+                reportForm.reset();
+                
+                // Reset character count
+                document.getElementById('reportCharCount').textContent = '0';
+                
+                modal.show();
+            }
+            
+            // Setup report form
+            function setupReportForm() {
+                const reportDescription = document.getElementById('reportDescription');
+                const reportCharCount = document.getElementById('reportCharCount');
+                const submitReportBtn = document.getElementById('submitReportBtn');
+                
+                // Character count
+                reportDescription.addEventListener('input', function() {
+                    reportCharCount.textContent = this.value.length;
+                    
+                    if (this.value.length > 450) {
+                        reportCharCount.style.color = '#dc3545';
+                    } else if (this.value.length > 400) {
+                        reportCharCount.style.color = '#ffc107';
+                    } else {
+                        reportCharCount.style.color = '#6c757d';
+                    }
+                });
+                
+                // Submit report
+                submitReportBtn.addEventListener('click', function() {
+                    const form = document.getElementById('reportForm');
+                    const formData = new FormData(form);
+                    formData.append('action', 'submit_report');
+                    
+                    const reportType = formData.get('report_type');
+                    if (!reportType) {
+                        showToast('Please select a reason for reporting', 'warning');
+                        return;
+                    }
+                    
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Submitting...';
+                    
+                    fetch('report_handler.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Report submitted successfully. Thank you for helping keep our community safe.', 'success');
+                            bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
+                        } else {
+                            showToast(data.message || 'Failed to submit report', 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Report error:', error);
+                        showToast('Network error. Please try again.', 'danger');
+                    })
+                    .finally(() => {
+                        this.disabled = false;
+                        this.innerHTML = '<i class="fas fa-flag me-1"></i>Submit Report';
+                    });
+                });
+            }
+
             // Initialize all functionality
             setupViewDetailsButtons();
             setupLikeButtons();
             setupCommentButtons();
+            setupReportButtons();
+            setupReportForm();
 
             // Make functions globally available
             window.showProjectDetails = showProjectDetails;
             window.setupViewDetailsButtons = setupViewDetailsButtons;
             window.setupLikeButtons = setupLikeButtons;
             window.setupCommentButtons = setupCommentButtons;
+            window.setupReportButtons = setupReportButtons;
 
             // Remove existing alerts
             document.querySelectorAll('.alert').forEach(alert => alert.remove());
