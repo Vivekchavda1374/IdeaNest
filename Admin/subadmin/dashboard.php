@@ -126,7 +126,7 @@ ob_start();
             </h5>
         </div>
 
-        <?php if ($result->num_rows > 0): ?>
+        <?php if ($result->num_rows > 0) : ?>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead>
@@ -139,7 +139,7 @@ ob_start();
                     </tr>
                     </thead>
                     <tbody>
-                    <?php while($row = $result->fetch_assoc()): ?>
+                    <?php while ($row = $result->fetch_assoc()) : ?>
                         <tr>
                             <td>
                                 <div class="fw-bold text-primary"><?php echo htmlspecialchars($row['project_name']); ?></div>
@@ -166,7 +166,7 @@ ob_start();
                     </tbody>
                 </table>
             </div>
-        <?php else: ?>
+        <?php else : ?>
             <div class="empty-state">
                 <i class="bi bi-inbox"></i>
                 <h5>No Projects Found</h5>
