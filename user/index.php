@@ -374,6 +374,9 @@ if (empty($weekly_performance)) {
             </div>
         </section>
 
+        <!-- GitHub Profile Section -->
+        <?php include 'github_profile.php'; ?>
+
         <!-- Dashboard Section -->
         <section class="dashboard-section">
             <div class="dashboard-header">
