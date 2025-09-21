@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 require_once '../../Login/Login/db.php';
 
@@ -13,7 +14,7 @@ header('Content-Type: application/json');
 
 try {
     $activities = [];
-    
+
     // Get mentor sessions
     $sessions_query = "
         SELECT 
@@ -31,13 +32,13 @@ try {
         ORDER BY ms.session_date DESC
         LIMIT 10
     ";
-    
+
     $stmt = $conn->prepare($sessions_query);
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $sessions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $activities = array_merge($activities, $sessions);
-    
+
     // Get mentor requests
     $requests_query = "
         SELECT 
@@ -54,26 +55,24 @@ try {
         ORDER BY mr.updated_at DESC
         LIMIT 10
     ";
-    
+
     $stmt = $conn->prepare($requests_query);
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $requests = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $activities = array_merge($activities, $requests);
-    
+
     // Sort all activities by date
-    usort($activities, function($a, $b) {
+    usort($activities, function ($a, $b) {
         return strtotime($b['activity_date']) - strtotime($a['activity_date']);
     });
-    
+
     echo json_encode([
         'success' => true,
         'activities' => $activities,
         'count' => count($activities)
     ]);
-    
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['error' => $e->getMessage()]);
 }
-?>
