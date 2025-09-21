@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['is_admin'] = true;
             $_SESSION['admin_logged_in'] = true;
 
-            header("Location: ../../Admin/admin_dashboard.php");
+            header("Location: ../../Admin/admin.php");
             exit();
         }
 
@@ -155,10 +155,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
         <?php endif; ?>
 
+        <?php if (isset($_GET['logout']) && $_GET['logout'] === 'success'): ?>
+        <div class="alert alert-success" id="success-alert">
+            <i class="fas fa-check-circle"></i>
+            <span>You have been successfully logged out!</span>
+        </div>
+        <?php else: ?>
         <div class="alert alert-success" style="display: none;" id="success-alert">
             <i class="fas fa-check-circle"></i>
             <span>You have been successfully logged out!</span>
         </div>
+        <?php endif; ?>
 
         <div class="input-group">
             <input type="text" id="email" name="email" placeholder="Enter your ER number or Email" required autofocus>

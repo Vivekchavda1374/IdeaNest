@@ -15,12 +15,7 @@ $menu_items = [
                 'url' => $web_base_path . 'admin.php',
                 'page' => 'admin.php'
         ],
-        [
-                'icon' => 'bi-speedometer2',
-                'title' => 'Overview',
-                'url' => $web_base_path . 'overview.php',
-                'page' => 'overview.php'
-        ],
+
         [
                 'icon' => 'bi-graph-up',
                 'title' => 'System Analytics',
@@ -33,6 +28,7 @@ $menu_items = [
                 'url' => $web_base_path . 'export_overview.php',
                 'page' => 'export_overview.php'
         ],
+
         [
                 'icon' => 'bi-kanban',
                 'title' => 'Projects',
@@ -62,6 +58,12 @@ $menu_items = [
                 'title' => 'Add Subadmin',
                 'url' => $web_base_path . 'subadmin/add_subadmin.php',
                 'page' => 'add_subadmin.php'
+        ],
+        [
+                'icon' => 'bi-flag',
+                'title' => 'Reported Ideas',
+                'url' => $web_base_path . 'manage_reported_ideas.php',
+                'page' => 'manage_reported_ideas.php'
         ],
         [
                 'icon' => 'bi-bell',

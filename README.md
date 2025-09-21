@@ -1,55 +1,24 @@
-# IdeaNest - Collaborative Academic Project Platform
+# IdeaNest - Academic Project Management Platform
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![PHP Version](https://img.shields.io/badge/PHP-8.2.4-blue.svg)](https://www.php.net/)
 [![MySQL Version](https://img.shields.io/badge/MySQL-10.4.28--MariaDB-blue.svg)](https://www.mysql.com/)
-[![GitHub Integration](https://img.shields.io/badge/GitHub-Integrated-green.svg)](https://github.com)
-[![Test Coverage](https://img.shields.io/badge/Test%20Coverage-100%25-brightgreen.svg)](#testing)
 
-IdeaNest is a comprehensive web-based platform designed to facilitate the management, sharing, and review of academic projects. It provides a complete suite of features for students, sub-admins, and administrators, streamlining the project lifecycle from submission to approval with integrated GitHub profile showcasing.
+IdeaNest is a web-based platform designed to facilitate the management, sharing, and review of academic projects. It provides features for students, sub-admins, administrators, and mentors, streamlining the project lifecycle from submission to approval.
 
-**Latest Update (v3.1)**: Major project cleanup removing 40+ unused files, eliminating WebSocket dependencies, and adding comprehensive documentation for improved maintainability and production readiness.
-
-## ✨ Latest Updates
-
-### 🎓 Mentor System (January 2025)
-- **Complete Mentor Dashboard**: Comprehensive mentor management interface
-- **Student-Mentor Pairing**: Automated and manual pairing system
-- **Session Management**: Schedule, create, and track mentoring sessions
-- **Progress Tracking**: Monitor student development and achievements
-- **Analytics Dashboard**: Performance metrics and engagement statistics
-- **Profile Management**: Dedicated mentor profiles with expertise areas
-- **Admin Mentor Control**: Full mentor lifecycle management with removal capabilities
-
-### 🚀 GitHub Integration (December 2024)
-- **Complete GitHub Profile Integration**: Connect and showcase GitHub profiles
-- **Repository Display**: Automatic sync of repositories with stats
-- **Real-time Statistics**: Followers, following, and repository counts
-- **Professional Profile Pages**: Dedicated GitHub profile showcase
-- **Seamless User Experience**: One-click GitHub connection
-
-### 📧 Weekly Email Notification System
-- **Database-Driven SMTP Configuration**: Uses admin_settings table for email configuration
-- **30-Minute Testing Intervals**: Configurable cron job for rapid testing
-- **User Notification Preferences**: Toggle switch in profile settings
-- **Beautiful HTML Email Templates**: Responsive design with project and idea updates
-- **Comprehensive Logging**: Tracks sent/failed notifications in database
+**Latest Update**: Project cleanup removing unused files and optimizing structure for better maintainability.
 
 ## 🚀 Core Features
 
-### 🔗 GitHub Integration
-- **Profile Connection**: Link GitHub accounts in profile settings
-- **Repository Showcase**: Display repositories with languages, stars, and forks
-- **Statistics Dashboard**: Real-time GitHub stats integration
-- **Professional Presentation**: Dedicated GitHub profile pages
-- **Automatic Sync**: Manual and automatic data synchronization
+### 🔗 Basic GitHub Integration
+- **Profile Connection**: Link GitHub usernames in profile settings
+- **Repository Data**: Fetch basic GitHub profile and repository information
+- **API Integration**: Simple GitHub API connectivity for user profiles
 
 ### 📧 Email Notification System
-- **Weekly Digest Emails**: Automated emails every 7 days (configurable to 30 minutes for testing)
-- **User Preferences**: Students can enable/disable notifications in profile settings
-- **Database Integration**: Uses existing admin_settings for SMTP configuration
-- **Content Filtering**: Shows new projects and ideas from last 7-30 days
-- **Logging & Analytics**: Comprehensive tracking of notification delivery
+- **Weekly Digest Emails**: Automated email notifications
+- **SMTP Configuration**: Email settings management
+- **Cron Job Support**: Automated background email processing
 
 ### 📋 Project Management
 - **Secure Project Submission**: Multi-file upload with validation
@@ -84,15 +53,14 @@ IdeaNest is a comprehensive web-based platform designed to facilitate the manage
 - **Notification Dashboard**: Monitor email delivery and user preferences
 - **GitHub Analytics**: Track GitHub integration usage
 
-### 🎓 Mentor Features
-- **Student Management**: View and manage assigned students
-- **Session Scheduling**: Create and manage mentoring sessions
-- **Progress Tracking**: Monitor student development and milestones
-- **Project Guidance**: Review and provide feedback on student projects
-- **Analytics Dashboard**: Track mentoring effectiveness and engagement
-- **Profile Management**: Maintain professional mentor profiles
-- **Communication Tools**: Direct messaging and notification system
-- **Data Export**: Export student progress and session reports
+### 🎓 Mentor System
+- **Mentor Dashboard**: Basic mentor interface
+- **Student Management**: View assigned students
+- **Session Management**: Schedule and track mentoring sessions
+- **Project Review**: Review student projects
+- **Profile Management**: Mentor profile settings
+- **Email System**: Send emails to students
+- **Activity Tracking**: Monitor mentor activities
 
 ### 👥 SubAdmin Features
 - **Project Assignment**: Automatic assignment based on classification expertise
@@ -230,88 +198,51 @@ php cron/weekly_notifications.php
 
 ## 🏗 Project Structure
 
-> 📝 **Complete Documentation**: See [FILE_DOCUMENTATION.md](FILE_DOCUMENTATION.md) for detailed descriptions of all 200+ files
-
 ```
 IdeaNest/
 ├── Admin/
 │   ├── subadmin/                    # SubAdmin management panel
-│   ├── admin_dashboard.php          # Enhanced admin dashboard
-│   ├── overview.php                 # System overview and statistics
-│   ├── system_analytics.php         # System analytics and metrics
-│   ├── manage_mentors.php           # Mentor management interface
-│   ├── remove_mentor.php            # Mentor removal backend
-│   ├── user_details.php             # Detailed user management
-│   ├── mentor_details.php           # Mentor profile details
-│   ├── subadmin_overview.php        # SubAdmin overview dashboard
+│   ├── admin.php                    # Main admin dashboard
+│   ├── admin_view_project.php       # Project review interface
+│   ├── manage_mentors.php           # Mentor management
+│   ├── user_manage_by_admin.php     # User management
+│   ├── system_analytics.php         # System analytics
 │   ├── export_data.php              # Data export functionality
-│   ├── export_overview.php          # Export overview interface
-│   ├── notification_dashboard.php   # Email notification monitoring
-│   └── project_notification.php     # Project notification management
+│   └── notification_dashboard.php   # Email notification monitoring
 ├── mentor/
-│   ├── dashboard.php               # Mentor dashboard with analytics
-│   ├── students.php                # Student management interface
-│   ├── sessions.php                # Session management system
-│   ├── projects.php                # Project review and guidance
-│   ├── profile.php                 # Mentor profile management
-│   ├── analytics.php               # Performance analytics
-│   └── schedule_session.php        # Session scheduling interface
+│   ├── dashboard.php               # Mentor dashboard
+│   ├── students.php                # Student management
+│   ├── sessions.php                # Session management
+│   ├── projects.php                # Project review
+│   ├── profile.php                 # Mentor profile
+│   ├── analytics.php               # Basic analytics
+│   └── send_email.php              # Email functionality
 ├── user/
-│   ├── uploads/                     # Secure file storage
-│   ├── Blog/                        # Blog/Ideas functionality
-│   ├── forms/                       # Project submission forms
-│   ├── github_profile_simple.php   # GitHub profile display
+│   ├── forms/uploads/              # File upload storage
+│   ├── Blog/                       # Ideas/Blog functionality
+│   ├── forms/                      # Project submission forms
+│   ├── index.php                   # User dashboard
+│   ├── all_projects.php            # Project listing
 │   ├── github_service.php          # GitHub API integration
-│   ├── user_profile_setting.php    # Enhanced profile settings
-│   └── api/
-│       └── github_sync.php         # GitHub API endpoints
+│   └── user_profile_setting.php    # User profile settings
 ├── cron/
 │   ├── weekly_notifications.php    # Email notification system
-│   ├── setup_cron.sh              # Automated cron setup
-│   └── notification.log           # Notification logs
-├── tests/
-│   ├── GitHubServiceTest.php       # GitHub integration tests
-│   ├── DatabaseTest.php           # Database schema tests
-│   ├── SecurityTest.php           # Security vulnerability tests
-│   ├── TestRunner.php             # Comprehensive test suite
-│   └── run_tests.php              # Simple test runner
+│   └── setup_cron.sh              # Cron job setup
 ├── Login/Login/                    # Authentication system
 ├── config/                         # Security configuration
-├── includes/                       # Error handlers
+├── includes/                       # Validation and error handling
 ├── assets/                         # CSS/JS/Images
-├── db/                            # Database schemas
-└── TEST_REPORT.md                 # Comprehensive test report
+└── db/                            # Database schema
 ```
 
 ## 🧪 Testing
 
-### Comprehensive Test Suite
-- **Unit Tests**: GitHub API functions, database operations
-- **Integration Tests**: Component interactions, data flow
-- **Security Tests**: XSS, SQL injection, CSRF protection
-- **Performance Tests**: Response times, memory usage
-- **Functional Tests**: User workflows, feature functionality
-- **E2E Tests**: Complete user journeys
-
-### Running Tests
-```bash
-# Run comprehensive test suite
-http://localhost/IdeaNest/run_tests.php
-
-# View detailed test report
-http://localhost/IdeaNest/TEST_REPORT.md
-
-# Run specific test categories
-php tests/GitHubServiceTest.php
-php tests/SecurityTest.php
-```
-
-### Test Results
-- **Total Tests**: 23 test cases
-- **Pass Rate**: 100%
-- **Security Score**: A+
-- **Performance**: All metrics within thresholds
-- **Coverage**: 100% feature coverage
+The application should be tested manually by:
+- Testing user registration and login
+- Verifying project submission and approval workflow
+- Testing mentor-student pairing functionality
+- Checking email notification system
+- Validating GitHub integration features
 
 ## 🔧 Troubleshooting
 
@@ -329,9 +260,6 @@ curl -I https://api.github.com/users/octocat
 
 # Check GitHub integration
 php user/github_service.php
-
-# View GitHub sync logs
-tail -f logs/github_sync.log
 ```
 
 ### Email Notification Troubleshooting
@@ -341,12 +269,6 @@ php /opt/lampp/htdocs/IdeaNest/cron/weekly_notifications.php
 
 # Check cron job status
 crontab -l
-
-# View notification logs
-tail -f /opt/lampp/htdocs/IdeaNest/cron/notification.log
-
-# Check database logs
-SELECT * FROM notification_logs ORDER BY created_at DESC LIMIT 10;
 ```
 
 ### File Permissions
@@ -360,58 +282,32 @@ chmod 755 tests/
 
 ## 🚀 Recent Improvements
 
-### Project Cleanup & Optimization (v3.1) - Latest ✨
-- **Removed 40+ unused files** including WebSocket directory, test artifacts, and development tools
-- **Eliminated Node.js dependencies** - Complete WebSocket implementation removal
-- **Cleaned up development artifacts** (.phpunit.result.cache, composer.phar, shell scripts)
-- **Added comprehensive file documentation** (FILE_DOCUMENTATION.md) with 200+ file descriptions
-- **Streamlined project structure** - 30% size reduction for better deployment
-- **Enhanced code maintainability** with detailed inline documentation
-- **Production-optimized** file structure with improved developer experience
+### Project Cleanup & Optimization - Latest ✨
+- **Removed unused files** - Cleaned up test data and duplicate files
+- **Streamlined project structure** - Better organization for maintainability
+- **Optimized file storage** - Removed ~95MB of unused test data
+- **Enhanced code organization** - Cleaner directory structure
 
-### Mentor System (v3.0)
-- Complete mentor management system with dashboard
-- Student-mentor pairing and session management
-- Progress tracking and analytics dashboard
-- Professional mentor profiles and communication tools
+### Core System Features
+- Basic mentor management system with dashboard
+- Student-mentor pairing functionality
+- Session scheduling and management
+- Project submission and approval workflow
+- Email notification system
+- GitHub profile integration
+- User authentication with Google OAuth support
 
-### GitHub Integration (v2.0)
-- Complete GitHub profile integration with repository showcase
-- Real-time statistics and professional profile pages
-- Seamless user experience with one-click connection
-- Comprehensive testing with 100% pass rate
+## 📊 System Specifications
 
-### Email Notification System (v1.5)
-- Database-driven SMTP configuration
-- User preference management
-- Automated weekly digest emails
-- Comprehensive logging and monitoring
+### File Upload Limits
+- **Maximum File Size**: 10MB per file (configurable in .htaccess)
+- **Supported File Types**: Images, videos, PDFs, ZIP files
+- **Upload Security**: File type validation and secure storage
 
-### Security Enhancements (v1.4)
-- Production-ready security headers
-- CSRF protection on all forms
-- Enhanced input validation
-- XSS prevention measures
-
-### Database Optimizations (v1.3)
-- Improved query performance
-- Enhanced indexing strategy
-- Foreign key constraints
-- Data integrity measures
-
-## 📊 Performance Metrics
-
-### GitHub Integration Performance
-- **API Response Time**: 850ms average
-- **Database Sync**: 12ms per operation
-- **Memory Usage**: 245KB per sync
-- **Rate Limit Handling**: 60 requests/hour
-
-### System Performance
-- **Page Load Time**: < 2 seconds
-- **Database Queries**: < 100ms average
-- **File Upload**: Up to 5MB per file
-- **Concurrent Users**: Supports 100+ users
+### Database Performance
+- **MySQL/MariaDB**: Optimized queries with prepared statements
+- **Session Management**: Secure PHP session handling
+- **Data Integrity**: Foreign key constraints where applicable
 
 ## 🔒 Security Features
 
@@ -423,10 +319,9 @@ chmod 755 tests/
 - **Session Management**: Secure session handling
 
 ### GitHub Integration Security
-- **No Token Storage**: Uses public API only
-- **Input Validation**: Username pattern validation
-- **Rate Limit Handling**: Graceful API limit management
-- **Error Handling**: Secure error messages
+- **Public API Only**: No authentication tokens required
+- **Input Validation**: Username sanitization
+- **Error Handling**: Graceful failure handling
 
 ## 📝 Contributing
 
@@ -461,8 +356,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 For support and questions:
 - **Email**: ideanest.ict@gmail.com
 - **GitHub Issues**: Create an issue for bug reports
-- **Documentation**: Check GITHUB_INTEGRATION.md for GitHub features
-- **Test Reports**: View TEST_REPORT.md for testing details
+- **Documentation**: Check FILE_DOCUMENTATION.md for file details
 
 ## 🙏 Acknowledgments
 
@@ -475,24 +369,15 @@ For support and questions:
 - **Apache Foundation** for web server technology
 - **All Contributors** who helped test and improve the platform
 
-## 🔮 Roadmap
+## 🔮 Future Enhancements
 
-### Upcoming Features
-- **Advanced Mentor Analytics**: Detailed mentoring effectiveness metrics
-- **AI-Powered Matching**: Intelligent student-mentor pairing
-- **Video Conferencing**: Integrated video sessions
-- **Advanced GitHub Analytics**: Contribution graphs and activity timelines
-- **Repository Integration**: Direct project-repository linking
-- **GitHub Actions Integration**: CI/CD status display
-- **Enhanced Collaboration**: Team project management
-- **Mobile Application**: Native mobile app development
-- **API Development**: RESTful API for third-party integrations
-
-### Performance Improvements
-- **Caching Layer**: Redis implementation for faster responses
-- **CDN Integration**: Static asset delivery optimization
-- **Database Optimization**: Query performance enhancements
-- **Load Balancing**: Multi-server deployment support
+### Potential Improvements
+- **Enhanced GitHub Integration**: More detailed repository analytics
+- **Advanced Mentor Features**: Better session management and tracking
+- **Mobile Responsiveness**: Improved mobile user experience
+- **API Development**: RESTful API for external integrations
+- **Performance Optimization**: Caching and query optimization
+- **Enhanced Security**: Additional security measures and monitoring
 
 ---
 
