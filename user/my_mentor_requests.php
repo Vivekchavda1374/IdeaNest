@@ -60,8 +60,8 @@ include 'layout.php';
 
             <div class="row">
                 <div class="col-12">
-                    <?php if ($requests_result->num_rows > 0): ?>
-                        <?php while ($request = $requests_result->fetch_assoc()): ?>
+                    <?php if ($requests_result->num_rows > 0) : ?>
+                        <?php while ($request = $requests_result->fetch_assoc()) : ?>
                             <div class="request-card p-4 mb-4">
                                 <div class="row align-items-center">
                                     <div class="col-md-2 text-center mb-3 mb-md-0">
@@ -78,7 +78,7 @@ include 'layout.php';
                                                 <i class="fas fa-clock me-1"></i><?= $request['experience_years'] ?> years exp.
                                             </span>
                                         </small>
-                                        <?php if ($request['project_name']): ?>
+                                        <?php if ($request['project_name']) : ?>
                                             <div class="mt-2">
                                                 <span class="badge bg-info">Project: <?= htmlspecialchars($request['project_name']) ?></span>
                                             </div>
@@ -101,7 +101,7 @@ include 'layout.php';
                                     <div class="col-md-2 text-end">
                                         <small class="text-muted d-block">Sent:</small>
                                         <small class="text-muted"><?= date('M j, Y', strtotime($request['created_at'])) ?></small>
-                                        <?php if ($request['status'] !== 'pending'): ?>
+                                        <?php if ($request['status'] !== 'pending') : ?>
                                             <small class="text-muted d-block mt-1">Updated:</small>
                                             <small class="text-muted"><?= date('M j, Y', strtotime($request['updated_at'])) ?></small>
                                         <?php endif; ?>
@@ -117,7 +117,7 @@ include 'layout.php';
                                     </div>
                                 </div>
                                 
-                                <?php if ($request['status'] === 'accepted'): ?>
+                                <?php if ($request['status'] === 'accepted') : ?>
                                     <div class="row mt-3">
                                         <div class="col-12">
                                             <div class="alert alert-success mb-0">
@@ -126,7 +126,7 @@ include 'layout.php';
                                             </div>
                                         </div>
                                     </div>
-                                <?php elseif ($request['status'] === 'rejected'): ?>
+                                <?php elseif ($request['status'] === 'rejected') : ?>
                                     <div class="row mt-3">
                                         <div class="col-12">
                                             <div class="alert alert-warning mb-0">
@@ -138,7 +138,7 @@ include 'layout.php';
                                 <?php endif; ?>
                             </div>
                         <?php endwhile; ?>
-                    <?php else: ?>
+                    <?php else : ?>
                         <div class="request-card p-5 text-center">
                             <i class="fas fa-paper-plane fa-3x text-muted mb-3"></i>
                             <h4 class="text-muted">No Mentor Requests Yet</h4>
