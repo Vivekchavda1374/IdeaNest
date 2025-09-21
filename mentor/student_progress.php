@@ -92,7 +92,7 @@ ob_start();
                 </div>
             </div>
             <p><strong>Paired Since:</strong> <?= date('M j, Y', strtotime($pair['paired_at'])) ?></p>
-            <?php if ($pair['project_name']): ?>
+            <?php if ($pair['project_name']) : ?>
                 <p><strong>Current Project:</strong> <?= htmlspecialchars($pair['project_name']) ?></p>
             <?php endif; ?>
         </div>
@@ -147,12 +147,12 @@ ob_start();
                 <h5 class="mb-0"><i class="fas fa-history me-2"></i>Sessions History (<?= count($sessions) ?>)</h5>
             </div>
             <div class="card-body p-4">
-                <?php if (empty($sessions)): ?>
+                <?php if (empty($sessions)) : ?>
                     <div class="text-center py-3">
                         <i class="fas fa-calendar-times fa-2x text-muted mb-2"></i>
                         <p class="text-muted">No sessions recorded yet</p>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -165,7 +165,7 @@ ob_start();
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($sessions as $session): ?>
+                                <?php foreach ($sessions as $session) : ?>
                                     <tr>
                                         <td><?= date('M j, Y g:i A', strtotime($session['session_date'])) ?></td>
                                         <td><?= $session['duration_minutes'] ?> min</td>
@@ -176,11 +176,11 @@ ob_start();
                                         </td>
                                         <td><?= htmlspecialchars(substr($session['notes'] ?? '', 0, 50)) ?><?= strlen($session['notes'] ?? '') > 50 ? '...' : '' ?></td>
                                         <td>
-                                            <?php if ($session['meeting_link']): ?>
+                                            <?php if ($session['meeting_link']) : ?>
                                                 <a href="<?= htmlspecialchars($session['meeting_link']) ?>" target="_blank" class="btn btn-sm btn-outline-primary">
                                                     <i class="fas fa-video"></i>
                                                 </a>
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <span class="text-muted">-</span>
                                             <?php endif; ?>
                                         </td>
@@ -203,14 +203,14 @@ ob_start();
                 <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Projects Progress (<?= count($projects) ?>)</h5>
             </div>
             <div class="card-body p-4">
-                <?php if (empty($projects)): ?>
+                <?php if (empty($projects)) : ?>
                     <div class="text-center py-3">
                         <i class="fas fa-folder-open fa-2x text-muted mb-2"></i>
                         <p class="text-muted">No projects submitted yet</p>
                     </div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="row">
-                        <?php foreach ($projects as $project): ?>
+                        <?php foreach ($projects as $project) : ?>
                             <div class="col-md-6 mb-3">
                                 <div class="glass-card p-3">
                                     <div class="d-flex justify-content-between align-items-start mb-2">
