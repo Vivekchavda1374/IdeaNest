@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 require_once '../../Login/Login/db.php';
 
@@ -19,4 +20,3 @@ $count_stmt->execute();
 $result = $count_stmt->get_result()->fetch_assoc();
 
 echo json_encode(['count' => $result['count']]);
-?>
