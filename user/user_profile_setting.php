@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Skip validation if only updating GitHub username
     $github_only = !empty($github_username) && empty($name) && empty($email);
-    
+
     if (!$github_only) {
         // Basic validation
         if (empty($name)) {
@@ -116,15 +116,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $update_fields[] = "github_username = ?";
                     $types .= "s";
                     $params[] = $github_username;
-                    
+
                     $update_fields[] = "github_profile_url = ?";
                     $types .= "s";
                     $params[] = $github_profile['html_url'];
-                    
+
                     $update_fields[] = "github_repos_count = ?";
                     $types .= "i";
                     $params[] = $github_profile['public_repos'];
-                    
+
                     $update_fields[] = "github_last_sync = NOW()";
                 } else {
                     $errors[] = "GitHub username not found or invalid";
@@ -202,7 +202,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $upload_dir = rtrim($upload_dir, '/') . '/';
 
                     // Skip if directory path is empty
-                    if (empty(trim($upload_dir, '/'))) continue;
+                    if (empty(trim($upload_dir, '/'))) {
+                        continue;
+                    }
 
                     // Try to create directory
                     if (!is_dir($upload_dir)) {
@@ -267,7 +269,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Update database
-        if (!empty($update_fields) && empty($errors)) {
+        if (!!$update_fields && empty($errors)) {
             $params[] = $user_id;
             $types .= "i";
 
@@ -277,14 +279,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($stmt->bind_param($types, ...$params)) {
                 if ($stmt->execute()) {
                     $success = "Profile updated successfully";
-                    
+
                     // Mark profile as complete for Google users
                     if (isset($_GET['google_setup'])) {
                         $complete_stmt = $conn->prepare("UPDATE register SET profile_complete = 1 WHERE id = ?");
                         $complete_stmt->bind_param("i", $user_id);
                         $complete_stmt->execute();
                         unset($_SESSION['google_new_user']);
-                        
+
                         echo "<script>setTimeout(function(){ window.location.href = 'index.php'; }, 2000);</script>";
                     }
 
@@ -402,7 +404,7 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
         <div class="settings-header">
             <h1><i class="fas fa-user-cog"></i> Profile Settings</h1>
             <p>Manage your account information and preferences</p>
-            <?php if (isset($_GET['google_setup'])): ?>
+            <?php if (isset($_GET['google_setup'])) : ?>
                 <div class="alert alert-info">
                     <i class="fas fa-google"></i>
                     Welcome! Please complete your profile to access all features.
@@ -410,18 +412,18 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
             <?php endif; ?>
         </div>
 
-        <?php if (!empty($errors)): ?>
+        <?php if (!empty($errors)) : ?>
             <div class="alert alert-error">
                 <i class="fas fa-exclamation-circle"></i>
                 <ul style="margin: 0; padding-left: 1rem;">
-                    <?php foreach ($errors as $error): ?>
+                    <?php foreach ($errors as $error) : ?>
                         <li><?php echo htmlspecialchars($error); ?></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
         <?php endif; ?>
 
-        <?php if (isset($success)): ?>
+        <?php if (isset($success)) : ?>
             <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
                 <?php echo htmlspecialchars($success); ?>
@@ -631,7 +633,7 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
                                placeholder="Enter your GitHub username">
                     </div>
                     <small class="form-text">Connect your GitHub profile to showcase your repositories and contributions</small>
-                    <?php if (!empty($user['github_username'])): ?>
+                    <?php if (!empty($user['github_username'])) : ?>
                         <div class="github-info" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <i class="fab fa-github" style="color: #333;"></i>
@@ -643,7 +645,7 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
                                     <br>
                                     <small style="color: #666;">
                                         <?php echo $user['github_repos_count'] ?? 0; ?> public repositories
-                                        <?php if (!empty($user['github_last_sync'])): ?>
+                                        <?php if (!empty($user['github_last_sync'])) : ?>
                                             • Last synced: <?php echo date('M j, Y', strtotime($user['github_last_sync'])); ?>
                                         <?php endif; ?>
                                     </small>
