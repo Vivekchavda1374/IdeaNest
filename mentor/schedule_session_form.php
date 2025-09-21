@@ -39,7 +39,7 @@ ob_start();
                             <label class="form-label">Student <span class="text-danger">*</span></label>
                             <select class="form-select" name="student_id" required>
                                 <option value="">Select Student</option>
-                                <?php foreach ($students as $student): ?>
+                                <?php foreach ($students as $student) : ?>
                                     <option value="<?= $student['id'] ?>"><?= htmlspecialchars($student['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
