@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 require_once '../Login/Login/db.php';
 
@@ -34,11 +35,11 @@ try {
     $student_stmt->bind_param("i", $pair_id);
     $student_stmt->execute();
     $student_info = $student_stmt->get_result()->fetch_assoc();
-    
+
     $stmt = $conn->prepare("INSERT INTO mentoring_sessions (pair_id, session_date, duration_minutes, notes, meeting_link, status) VALUES (?, ?, ?, ?, ?, 'scheduled')");
     $stmt->bind_param("isiss", $pair_id, $session_date, $duration, $notes, $meeting_link);
     $stmt->execute();
-    
+
     // Log activity
     if ($student_info) {
         $activity_desc = "Scheduled session with " . $student_info['student_name'] . " for " . date('M j, Y g:i A', strtotime($session_date));
@@ -46,9 +47,8 @@ try {
         $log_stmt->bind_param("isi", $_SESSION['mentor_id'], $activity_desc, $student_info['student_id']);
         $log_stmt->execute();
     }
-    
+
     echo json_encode(['success' => true]);
 } catch (Exception $e) {
     echo json_encode(['error' => 'Failed to schedule session']);
 }
-?>
