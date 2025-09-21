@@ -1,9 +1,10 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * Mentor Email Cron Job
  * Runs automated mentor email tasks
- * 
+ *
  * Schedule:
  * - Every hour: Session reminders
  * - Every day at 9 AM: Welcome emails for new pairs
@@ -16,7 +17,8 @@ require_once dirname(__DIR__) . '/mentor/automated_emails.php';
 // Log file for cron activities
 $log_file = dirname(__DIR__) . '/logs/mentor_email_cron.log';
 
-function logMessage($message) {
+function logMessage($message)
+{
     global $log_file;
     $timestamp = date('Y-m-d H:i:s');
     file_put_contents($log_file, "[$timestamp] $message\n", FILE_APPEND | LOCK_EX);
@@ -25,45 +27,45 @@ function logMessage($message) {
 
 try {
     logMessage("Starting mentor email cron job");
-    
+
     $automated_emails = new AutomatedMentorEmails($conn);
-    
+
     // Always check for session reminders (runs every hour)
     logMessage("Checking for session reminders...");
     $automated_emails->sendSessionReminders();
-    
+
     // Check for welcome emails (runs daily)
     $current_hour = (int)date('H');
     if ($current_hour == 9) { // 9 AM
         logMessage("Sending welcome emails to new pairs...");
         $automated_emails->sendWelcomeToNewPairs();
     }
-    
+
     // Weekly progress updates (Sundays at 9 AM)
     $current_day = (int)date('w'); // 0 = Sunday
     if ($current_day == 0 && $current_hour == 9) {
         logMessage("Sending weekly progress updates...");
         $automated_emails->sendWeeklyProgressUpdates();
     }
-    
+
     // Process email queue
     logMessage("Processing email queue...");
     processEmailQueue();
-    
+
     // Update email statistics
     logMessage("Updating email statistics...");
     updateEmailStats();
-    
+
     logMessage("Mentor email cron job completed successfully");
-    
 } catch (Exception $e) {
     logMessage("Error in mentor email cron job: " . $e->getMessage());
     exit(1);
 }
 
-function processEmailQueue() {
+function processEmailQueue()
+{
     global $conn;
-    
+
     // Get pending emails from queue
     $query = "SELECT * FROM mentor_email_queue 
               WHERE status = 'pending' 
@@ -71,9 +73,9 @@ function processEmailQueue() {
               AND attempts < max_attempts 
               ORDER BY priority ASC, scheduled_at ASC 
               LIMIT 50";
-    
+
     $result = $conn->query($query);
-    
+
     while ($email = $result->fetch_assoc()) {
         try {
             // Mark as processing
@@ -81,11 +83,11 @@ function processEmailQueue() {
             $stmt = $conn->prepare($update_query);
             $stmt->bind_param("i", $email['id']);
             $stmt->execute();
-            
+
             // Process the email
             $email_system = new MentorEmailSystem($conn, $email['mentor_id']);
             $email_data = json_decode($email['email_data'], true);
-            
+
             $success = false;
             switch ($email['email_type']) {
                 case 'welcome_message':
@@ -104,7 +106,7 @@ function processEmailQueue() {
                     $success = $email_system->sendProgressUpdate($email['recipient_id'], $email_data);
                     break;
             }
-            
+
             // Update queue status
             if ($success) {
                 $update_query = "UPDATE mentor_email_queue SET status = 'sent', processed_at = NOW() WHERE id = ?";
@@ -122,7 +124,6 @@ function processEmailQueue() {
                 $stmt->bind_param("i", $email['id']);
                 $stmt->execute();
             }
-            
         } catch (Exception $e) {
             // Mark as failed
             $update_query = "UPDATE mentor_email_queue SET status = 'failed', processed_at = NOW(), error_message = ? WHERE id = ?";
@@ -134,11 +135,12 @@ function processEmailQueue() {
     }
 }
 
-function updateEmailStats() {
+function updateEmailStats()
+{
     global $conn;
-    
+
     $today = date('Y-m-d');
-    
+
     // Get today's email statistics for each mentor
     $stats_query = "SELECT 
                         mentor_id,
@@ -152,12 +154,12 @@ function updateEmailStats() {
                     FROM mentor_email_logs 
                     WHERE DATE(sent_at) = ? 
                     GROUP BY mentor_id";
-    
+
     $stmt = $conn->prepare($stats_query);
     $stmt->bind_param("s", $today);
     $stmt->execute();
     $stats = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    
+
     foreach ($stats as $stat) {
         $insert_query = "INSERT INTO mentor_email_stats 
                         (mentor_id, date, emails_sent, emails_failed, welcome_emails, session_invitations, session_reminders, project_feedback, progress_updates)
@@ -171,12 +173,13 @@ function updateEmailStats() {
                         project_feedback = VALUES(project_feedback),
                         progress_updates = VALUES(progress_updates),
                         updated_at = CURRENT_TIMESTAMP";
-        
+
         $stmt = $conn->prepare($insert_query);
-        $stmt->bind_param("isiiiiiiii", 
-            $stat['mentor_id'], 
-            $today, 
-            $stat['emails_sent'], 
+        $stmt->bind_param(
+            "isiiiiiiii",
+            $stat['mentor_id'],
+            $today,
+            $stat['emails_sent'],
             $stat['emails_failed'],
             $stat['welcome_emails'],
             $stat['session_invitations'],
@@ -186,7 +189,7 @@ function updateEmailStats() {
         );
         $stmt->execute();
     }
-    
+
     logMessage("Updated email statistics for " . count($stats) . " mentors");
 }
 ?>
