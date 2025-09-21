@@ -28,12 +28,12 @@ if (!isset($_SESSION['admin_id'])) {
 $user_name = "Admin";
 
 // Handle project actions
-if(isset($_GET['action']) && isset($_GET['id'])) {
+if (isset($_GET['action']) && isset($_GET['id'])) {
     $project_id = $_GET['id'];
     $action = $_GET['action'];
 
     // View project - Updated to include all columns
-    if($action == 'view') {
+    if ($action == 'view') {
         // Get project details with all columns
         $query = "SELECT * FROM projects WHERE id = ?";
         $stmt = $conn->prepare($query);
@@ -44,12 +44,12 @@ if(isset($_GET['action']) && isset($_GET['id'])) {
     }
 
     // Approve project
-    if($action == 'approve') {
+    if ($action == 'approve') {
         approveProject($project_id, $conn);
     }
 
     // Reject project
-    if($action == 'reject') {
+    if ($action == 'reject') {
         // Show rejection form
         $show_rejection_form = true;
         $reject_project_id = $project_id;
@@ -57,14 +57,15 @@ if(isset($_GET['action']) && isset($_GET['id'])) {
 }
 
 // Handle rejection form submission
-if(isset($_POST['reject_submit'])) {
+if (isset($_POST['reject_submit'])) {
     $project_id = $_POST['project_id'];
     $rejection_reason = $_POST['rejection_reason'];
     rejectProject($project_id, $rejection_reason, $conn);
 }
 
 // Enhanced function to approve a project with all columns
-function approveProject($project_id, $conn) {
+function approveProject($project_id, $conn)
+{
     // Get project details with all columns
     $query = "SELECT * FROM projects WHERE id = ?";
     $stmt = $conn->prepare($query);
@@ -72,7 +73,7 @@ function approveProject($project_id, $conn) {
     $stmt->execute();
     $result = $stmt->get_result();
 
-    if($result->num_rows > 0) {
+    if ($result->num_rows > 0) {
         $project = $result->fetch_assoc();
 
         // Insert into approved projects table with all columns
@@ -87,34 +88,34 @@ function approveProject($project_id, $conn) {
 
         $approve_stmt = $conn->prepare($approve_query);
         $approve_stmt->bind_param(
-                "ssssssssssssssssssssssssss",
-                $project['user_id'],
-                $project['project_name'],
-                $project['project_type'],
-                $project['classification'],
-                $project['project_category'],
-                $project['difficulty_level'],
-                $project['development_time'],
-                $project['team_size'],
-                $project['target_audience'],
-                $project['project_goals'],
-                $project['challenges_faced'],
-                $project['future_enhancements'],
-                $project['github_repo'],
-                $project['live_demo_url'],
-                $project['project_license'],
-                $project['keywords'],
-                $project['contact_email'],
-                $project['social_links'],
-                $project['description'],
-                $project['language'],
-                $project['image_path'],
-                $project['video_path'],
-                $project['code_file_path'],
-                $project['instruction_file_path'],
-                $project['presentation_file_path'],
-                $project['additional_files_path'],
-                $project['submission_date']
+            "ssssssssssssssssssssssssss",
+            $project['user_id'],
+            $project['project_name'],
+            $project['project_type'],
+            $project['classification'],
+            $project['project_category'],
+            $project['difficulty_level'],
+            $project['development_time'],
+            $project['team_size'],
+            $project['target_audience'],
+            $project['project_goals'],
+            $project['challenges_faced'],
+            $project['future_enhancements'],
+            $project['github_repo'],
+            $project['live_demo_url'],
+            $project['project_license'],
+            $project['keywords'],
+            $project['contact_email'],
+            $project['social_links'],
+            $project['description'],
+            $project['language'],
+            $project['image_path'],
+            $project['video_path'],
+            $project['code_file_path'],
+            $project['instruction_file_path'],
+            $project['presentation_file_path'],
+            $project['additional_files_path'],
+            $project['submission_date']
         );
 
         $approve_stmt->execute();
@@ -144,7 +145,8 @@ function approveProject($project_id, $conn) {
 }
 
 // Enhanced function to reject a project with all columns
-function rejectProject($project_id, $rejection_reason, $conn) {
+function rejectProject($project_id, $rejection_reason, $conn)
+{
     // Get project details with all columns
     $query = "SELECT * FROM projects WHERE id = ?";
     $stmt = $conn->prepare($query);
@@ -152,7 +154,7 @@ function rejectProject($project_id, $rejection_reason, $conn) {
     $stmt->execute();
     $result = $stmt->get_result();
 
-    if($result->num_rows > 0) {
+    if ($result->num_rows > 0) {
         $project = $result->fetch_assoc();
 
         // Insert into rejection table with all columns
@@ -168,35 +170,35 @@ function rejectProject($project_id, $rejection_reason, $conn) {
 
         $reject_stmt = $conn->prepare($reject_query);
         $reject_stmt->bind_param(
-                "ssssssssssssssssssssssssss",
-                $project['user_id'],
-                $project['project_name'],
-                $project['project_type'],
-                $project['classification'],
-                $project['project_category'],
-                $project['difficulty_level'],
-                $project['development_time'],
-                $project['team_size'],
-                $project['target_audience'],
-                $project['project_goals'],
-                $project['challenges_faced'],
-                $project['future_enhancements'],
-                $project['github_repo'],
-                $project['live_demo_url'],
-                $project['project_license'],
-                $project['keywords'],
-                $project['contact_email'],
-                $project['social_links'],
-                $project['description'],
-                $project['language'],
-                $project['image_path'],
-                $project['video_path'],
-                $project['code_file_path'],
-                $project['instruction_file_path'],
-                $project['presentation_file_path'],
-                $project['additional_files_path'],
-                $project['submission_date'],
-                $rejection_reason
+            "ssssssssssssssssssssssssss",
+            $project['user_id'],
+            $project['project_name'],
+            $project['project_type'],
+            $project['classification'],
+            $project['project_category'],
+            $project['difficulty_level'],
+            $project['development_time'],
+            $project['team_size'],
+            $project['target_audience'],
+            $project['project_goals'],
+            $project['challenges_faced'],
+            $project['future_enhancements'],
+            $project['github_repo'],
+            $project['live_demo_url'],
+            $project['project_license'],
+            $project['keywords'],
+            $project['contact_email'],
+            $project['social_links'],
+            $project['description'],
+            $project['language'],
+            $project['image_path'],
+            $project['video_path'],
+            $project['code_file_path'],
+            $project['instruction_file_path'],
+            $project['presentation_file_path'],
+            $project['additional_files_path'],
+            $project['submission_date'],
+            $rejection_reason
         );
 
         $reject_stmt->execute();
@@ -237,7 +239,7 @@ $category_ranges = ["All Time", "This Month", "This Year"];
 $start_date = null;
 $end_date = date('Y-m-d');
 
-switch($selected_time_range) {
+switch ($selected_time_range) {
     case "Last 7 Days":
         $start_date = date('Y-m-d', strtotime('-7 days'));
         $project_chart_labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -271,7 +273,7 @@ switch($selected_time_range) {
 
 // Process category range filter
 $category_where_clause = "";
-switch($selected_category_range) {
+switch ($selected_category_range) {
     case "This Month":
         $category_where_clause = " WHERE DATE_FORMAT(submission_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')";
         break;
@@ -591,11 +593,11 @@ if ($all_rejections_result) {
 }
 
 // Sort activities by time
-usort($recent_activities, function($a, $b) {
+usort($recent_activities, function ($a, $b) {
     return strtotime($b['date']) - strtotime($a['date']);
 });
 
-usort($all_activities, function($a, $b) {
+usort($all_activities, function ($a, $b) {
     return strtotime($b['date']) - strtotime($a['date']);
 });
 
@@ -665,8 +667,9 @@ $show_rejection_form = false;
 $reject_project_id = null;
 
 // Helper function to convert MySQL datetime to "time ago" format
-function time_elapsed_string($datetime, $full = false) {
-    $now = new DateTime;
+function time_elapsed_string($datetime, $full = false)
+{
+    $now = new DateTime();
     $ago = new DateTime($datetime);
     $diff = $now->diff($ago);
 
@@ -692,7 +695,9 @@ function time_elapsed_string($datetime, $full = false) {
         }
     }
 
-    if (!$full) $result = array_slice($result, 0, 1);
+    if (!$full) {
+        $result = array_slice($result, 0, 1);
+    }
     return $result ? implode(', ', $result) . ' ago' : 'just now';
 }
 
@@ -1134,21 +1139,21 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
     </div>
 
     <!-- Alert Messages -->
-    <?php if($message): ?>
+    <?php if ($message) : ?>
         <div class="alert alert-success alert-banner alert-dismissible fade show" role="alert">
             <?php echo htmlspecialchars($message); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
 
-    <?php if($error): ?>
+    <?php if ($error) : ?>
         <div class="alert alert-danger alert-banner alert-dismissible fade show" role="alert">
             <?php echo htmlspecialchars($error); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
 
-    <?php if(isset($action) && $action == 'view' && isset($project)): ?>
+    <?php if (isset($action) && $action == 'view' && isset($project)) : ?>
         <!-- Enhanced Project View Section -->
         <div class="card mb-4 project-card">
             <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
@@ -1176,12 +1181,12 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                         <div class="project-detail-label">Classification:</div>
                         <div class="project-detail-value"><?php echo htmlspecialchars($project['classification']); ?></div>
 
-                        <?php if(!empty($project['project_category'])): ?>
+                        <?php if (!empty($project['project_category'])) : ?>
                             <div class="project-detail-label">Project Category:</div>
                             <div class="project-detail-value"><?php echo htmlspecialchars($project['project_category']); ?></div>
                         <?php endif; ?>
 
-                        <?php if(!empty($project['difficulty_level'])): ?>
+                        <?php if (!empty($project['difficulty_level'])) : ?>
                             <div class="project-detail-label">Difficulty Level:</div>
                             <div class="project-detail-value">
                                 <span class="difficulty-badge difficulty-<?php echo htmlspecialchars($project['difficulty_level']); ?>">
@@ -1193,12 +1198,12 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                         <div class="project-detail-label">Language/Technology:</div>
                         <div class="project-detail-value"><?php echo htmlspecialchars($project['language']); ?></div>
 
-                        <?php if(!empty($project['development_time'])): ?>
+                        <?php if (!empty($project['development_time'])) : ?>
                             <div class="project-detail-label">Development Time:</div>
                             <div class="project-detail-value"><?php echo htmlspecialchars($project['development_time']); ?></div>
                         <?php endif; ?>
 
-                        <?php if(!empty($project['team_size'])): ?>
+                        <?php if (!empty($project['team_size'])) : ?>
                             <div class="project-detail-label">Team Size:</div>
                             <div class="project-detail-value"><?php echo htmlspecialchars($project['team_size']); ?></div>
                         <?php endif; ?>
@@ -1221,7 +1226,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                 </span>
                         </div>
 
-                        <?php if(!empty($project['contact_email'])): ?>
+                        <?php if (!empty($project['contact_email'])) : ?>
                             <div class="project-detail-label">Contact Email:</div>
                             <div class="project-detail-value">
                                 <a href="mailto:<?php echo htmlspecialchars($project['contact_email']); ?>" class="text-primary">
@@ -1230,23 +1235,24 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                             </div>
                         <?php endif; ?>
 
-                        <?php if(!empty($project['project_license'])): ?>
+                        <?php if (!empty($project['project_license'])) : ?>
                             <div class="project-detail-label">License:</div>
                             <div class="project-detail-value"><?php echo htmlspecialchars($project['project_license']); ?></div>
                         <?php endif; ?>
 
-                        <?php if(!empty($project['keywords'])): ?>
+                        <?php if (!empty($project['keywords'])) : ?>
                             <div class="project-detail-label">Keywords:</div>
                             <div class="project-detail-value">
                                 <div class="project-tags">
                                     <?php
                                     $keywords = explode(',', $project['keywords']);
-                                    foreach($keywords as $keyword):
+                                    foreach ($keywords as $keyword) :
                                         $keyword = trim($keyword);
-                                        if(!empty($keyword)):
+                                        if (!empty($keyword)) :
                                             ?>
                                             <span class="project-tag"><?php echo htmlspecialchars($keyword); ?></span>
-                                        <?php endif; endforeach; ?>
+                                        <?php endif;
+                                    endforeach; ?>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -1261,22 +1267,22 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                         <div class="project-detail-label">Description:</div>
                         <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['description'])); ?></div>
 
-                        <?php if(!empty($project['target_audience'])): ?>
+                        <?php if (!empty($project['target_audience'])) : ?>
                             <div class="project-detail-label">Target Audience:</div>
                             <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['target_audience'])); ?></div>
                         <?php endif; ?>
 
-                        <?php if(!empty($project['project_goals'])): ?>
+                        <?php if (!empty($project['project_goals'])) : ?>
                             <div class="project-detail-label">Project Goals:</div>
                             <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['project_goals'])); ?></div>
                         <?php endif; ?>
 
-                        <?php if(!empty($project['challenges_faced'])): ?>
+                        <?php if (!empty($project['challenges_faced'])) : ?>
                             <div class="project-detail-label">Challenges Faced:</div>
                             <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['challenges_faced'])); ?></div>
                         <?php endif; ?>
 
-                        <?php if(!empty($project['future_enhancements'])): ?>
+                        <?php if (!empty($project['future_enhancements'])) : ?>
                             <div class="project-detail-label">Future Enhancements:</div>
                             <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['future_enhancements'])); ?></div>
                         <?php endif; ?>
@@ -1288,7 +1294,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                     <div class="col-12">
                         <h6 class="text-warning mb-3"><i class="bi bi-folder me-2"></i>Files & Resources</h6>
 
-                        <?php if(!empty($project['image_path'])): ?>
+                        <?php if (!empty($project['image_path'])) : ?>
                             <div class="project-detail-label">Project Image:</div>
                             <div class="project-detail-value">
                                 <img src="<?php echo htmlspecialchars($project['image_path']); ?>" alt="Project Image" class="img-fluid mb-3" style="max-height: 300px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
@@ -1296,50 +1302,50 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                         <?php endif; ?>
 
                         <div class="project-files">
-                            <?php if(!empty($project['video_path'])): ?>
+                            <?php if (!empty($project['video_path'])) : ?>
                                 <a href="<?php echo htmlspecialchars($project['video_path']); ?>" class="file-link btn btn-outline-primary" target="_blank">
                                     <i class="bi bi-play-circle"></i> View Video
                                 </a>
                             <?php endif; ?>
 
-                            <?php if(!empty($project['code_file_path'])): ?>
+                            <?php if (!empty($project['code_file_path'])) : ?>
                                 <a href="<?php echo htmlspecialchars($project['code_file_path']); ?>" class="file-link btn btn-outline-success" target="_blank">
                                     <i class="bi bi-code-slash"></i> Download Code
                                 </a>
                             <?php endif; ?>
 
-                            <?php if(!empty($project['instruction_file_path'])): ?>
+                            <?php if (!empty($project['instruction_file_path'])) : ?>
                                 <a href="<?php echo htmlspecialchars($project['instruction_file_path']); ?>" class="file-link btn btn-outline-info" target="_blank">
                                     <i class="bi bi-file-text"></i> View Instructions
                                 </a>
                             <?php endif; ?>
 
-                            <?php if(!empty($project['presentation_file_path'])): ?>
+                            <?php if (!empty($project['presentation_file_path'])) : ?>
                                 <a href="<?php echo htmlspecialchars($project['presentation_file_path']); ?>" class="file-link btn btn-outline-warning" target="_blank">
                                     <i class="bi bi-file-earmark-slides"></i> View Presentation
                                 </a>
                             <?php endif; ?>
 
-                            <?php if(!empty($project['additional_files_path'])): ?>
+                            <?php if (!empty($project['additional_files_path'])) : ?>
                                 <a href="<?php echo htmlspecialchars($project['additional_files_path']); ?>" class="file-link btn btn-outline-secondary" target="_blank">
                                     <i class="bi bi-file-earmark-zip"></i> Additional Files
                                 </a>
                             <?php endif; ?>
 
-                            <?php if(!empty($project['github_repo'])): ?>
+                            <?php if (!empty($project['github_repo'])) : ?>
                                 <a href="<?php echo htmlspecialchars($project['github_repo']); ?>" class="file-link btn btn-outline-dark" target="_blank">
                                     <i class="bi bi-github"></i> GitHub Repository
                                 </a>
                             <?php endif; ?>
 
-                            <?php if(!empty($project['live_demo_url'])): ?>
+                            <?php if (!empty($project['live_demo_url'])) : ?>
                                 <a href="<?php echo htmlspecialchars($project['live_demo_url']); ?>" class="file-link btn btn-outline-primary" target="_blank">
                                     <i class="bi bi-globe"></i> Live Demo
                                 </a>
                             <?php endif; ?>
                         </div>
 
-                        <?php if(!empty($project['social_links'])): ?>
+                        <?php if (!empty($project['social_links'])) : ?>
                             <div class="project-detail-label mt-3">Social Links:</div>
                             <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['social_links'])); ?></div>
                         <?php endif; ?>
@@ -1381,7 +1387,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                 </div>
             </div>
         </div>
-    <?php else: ?>
+    <?php else : ?>
         <!-- Enhanced Dashboard Content -->
         <div class="dashboard-content">
             <!-- Enhanced Statistics Cards -->
@@ -1481,7 +1487,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             </div>
 
             <!-- Additional Statistics Row -->
-            <?php if (!empty($difficulty_stats)): ?>
+            <?php if (!empty($difficulty_stats)) : ?>
                 <div class="row g-3 mb-4">
                     <div class="col-12">
                         <div class="card">
@@ -1490,7 +1496,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <?php foreach ($difficulty_stats as $level => $count): ?>
+                                    <?php foreach ($difficulty_stats as $level => $count) : ?>
                                         <div class="col-md-3 col-sm-6 mb-3">
                                             <div class="text-center">
                                                 <div class="difficulty-badge difficulty-<?php echo $level; ?> d-inline-block mb-2 px-3 py-2">
@@ -1520,7 +1526,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                     <?php echo htmlspecialchars($selected_time_range); ?>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <?php foreach ($time_ranges as $range): ?>
+                                    <?php foreach ($time_ranges as $range) : ?>
                                         <li><a class="dropdown-item <?php echo $range == $selected_time_range ? 'active' : ''; ?>" href="?time_range=<?php echo urlencode($range); ?>"><?php echo htmlspecialchars($range); ?></a></li>
                                     <?php endforeach; ?>
                                 </ul>
@@ -1542,7 +1548,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                     <?php echo htmlspecialchars($selected_category_range); ?>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <?php foreach ($category_ranges as $range): ?>
+                                    <?php foreach ($category_ranges as $range) : ?>
                                         <li><a class="dropdown-item <?php echo $range == $selected_category_range ? 'active' : ''; ?>" href="?category_range=<?php echo urlencode($range); ?>"><?php echo htmlspecialchars($range); ?></a></li>
                                     <?php endforeach; ?>
                                 </ul>
@@ -1561,15 +1567,15 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0"><i class="bi bi-activity me-2"></i>Recent Activity</h5>
-                            <?php if (!$show_all_activities): ?>
+                            <?php if (!$show_all_activities) : ?>
                                 <a href="?show_all_activities=1" class="btn btn-sm btn-outline-primary">Show More</a>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <a href="admin.php" class="btn btn-sm btn-outline-secondary">Show Less</a>
                             <?php endif; ?>
                         </div>
                         <div class="card-body p-0">
                             <div class="activity-timeline">
-                                <?php foreach ($activities_to_show as $activity): ?>
+                                <?php foreach ($activities_to_show as $activity) : ?>
                                     <div class="activity-item">
                                         <div class="activity-icon bg-<?php echo $activity['type']; ?>-light text-<?php echo $activity['type']; ?>">
                                             <i class="bi bi-<?php echo $activity['type'] == 'primary' ? 'plus-circle' : ($activity['type'] == 'success' ? 'check-circle' : 'x-circle'); ?>"></i>
@@ -1582,7 +1588,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                     </div>
                                 <?php endforeach; ?>
                             </div>
-                            <?php if (empty($activities_to_show)): ?>
+                            <?php if (empty($activities_to_show)) : ?>
                                 <div class="text-center py-4">
                                     <i class="bi bi-activity" style="font-size: 2rem; color: #dee2e6;"></i>
                                     <p class="text-muted mt-2">No recent activity</p>
@@ -1600,12 +1606,12 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                             <a href="admin_view_project.php" class="btn btn-sm btn-outline-primary">View All</a>
                         </div>
                         <div class="card-body">
-                            <?php if (empty($pending_projects_list)): ?>
+                            <?php if (empty($pending_projects_list)) : ?>
                                 <div class="text-center py-4">
                                     <i class="bi bi-inbox" style="font-size: 3rem; color: #dee2e6;"></i>
                                     <p class="text-muted mt-2">No pending projects at the moment</p>
                                 </div>
-                            <?php else: ?>
+                            <?php else : ?>
                                 <div class="table-responsive">
                                     <table class="table table-hover enhanced-table">
                                         <thead>
@@ -1619,7 +1625,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <?php foreach ($pending_projects_list as $project): ?>
+                                        <?php foreach ($pending_projects_list as $project) : ?>
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center">
@@ -1637,24 +1643,24 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                                 </td>
                                                 <td>
                                                     <div class="project-meta">
-                                                        <?php if ($project['category']): ?>
+                                                        <?php if ($project['category']) : ?>
                                                             <div><strong>Category:</strong> <?php echo htmlspecialchars($project['category']); ?></div>
                                                         <?php endif; ?>
-                                                        <?php if ($project['dev_time']): ?>
+                                                        <?php if ($project['dev_time']) : ?>
                                                             <div><strong>Dev Time:</strong> <?php echo htmlspecialchars($project['dev_time']); ?></div>
                                                         <?php endif; ?>
-                                                        <?php if ($project['team_size']): ?>
+                                                        <?php if ($project['team_size']) : ?>
                                                             <div><strong>Team:</strong> <?php echo htmlspecialchars($project['team_size']); ?></div>
                                                         <?php endif; ?>
                                                         <div><strong>Tech:</strong> <?php echo htmlspecialchars($project['technologies']); ?></div>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <?php if ($project['difficulty']): ?>
+                                                    <?php if ($project['difficulty']) : ?>
                                                         <span class="difficulty-badge difficulty-<?php echo $project['difficulty']; ?>">
                                                                     <?php echo ucfirst($project['difficulty']); ?>
                                                                 </span>
-                                                    <?php else: ?>
+                                                    <?php else : ?>
                                                         <span class="text-muted">N/A</span>
                                                     <?php endif; ?>
                                                 </td>
@@ -1702,11 +1708,11 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         var projectsChart = new Chart(projectCtx, {
             type: 'line',
             data: {
-                labels: <?php echo json_encode($project_chart_labels ?? []); ?>,
+                labels: <?php echo json_encode($project_chart_labels); ?>,
                 datasets: [
                     {
                         label: 'Submitted',
-                        data: <?php echo json_encode($submitted_projects_data ?? []); ?>,
+                        data: <?php echo json_encode($submitted_projects_data); ?>,
                         borderColor: '#4361ee',
                         backgroundColor: 'rgba(67, 97, 238, 0.1)',
                         tension: 0.4,
@@ -1718,7 +1724,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                     },
                     {
                         label: 'Approved',
-                        data: <?php echo json_encode($approved_projects_data ?? []); ?>,
+                        data: <?php echo json_encode($approved_projects_data); ?>,
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         tension: 0.4,
@@ -1730,7 +1736,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                     },
                     {
                         label: 'Rejected',
-                        data: <?php echo json_encode($rejected_projects_data ?? []); ?>,
+                        data: <?php echo json_encode($rejected_projects_data); ?>,
                         borderColor: '#ef4444',
                         backgroundColor: 'rgba(239, 68, 68, 0.1)',
                         tension: 0.4,
@@ -1793,10 +1799,10 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         var categoriesChart = new Chart(categoryCtx, {
             type: 'doughnut',
             data: {
-                labels: <?php echo json_encode($category_labels ?? []); ?>,
+                labels: <?php echo json_encode($category_labels); ?>,
                 datasets: [{
-                    data: <?php echo json_encode($category_data ?? []); ?>,
-                    backgroundColor: <?php echo json_encode(array_slice($category_colors, 0, count($category_labels ?? []))); ?>,
+                    data: <?php echo json_encode($category_data); ?>,
+                    backgroundColor: <?php echo json_encode(array_slice($category_colors, 0, count($category_labels))); ?>,
                     borderWidth: 0,
                     hoverBorderWidth: 3,
                     hoverBorderColor: '#fff'
