@@ -1,4 +1,5 @@
 <?php
+
 require_once '../vendor/autoload.php';
 require_once '../Login/Login/db.php';
 
@@ -6,16 +7,19 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-class MentorEmailSystem {
+class MentorEmailSystem
+{
     private $conn;
     private $mentor_id;
-    
-    public function __construct($db_connection, $mentor_id) {
+
+    public function __construct($db_connection, $mentor_id)
+    {
         $this->conn = $db_connection;
         $this->mentor_id = $mentor_id;
     }
-    
-    private function setupMailer() {
+
+    private function setupMailer()
+    {
         $mail = new PHPMailer(true);
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
@@ -27,18 +31,19 @@ class MentorEmailSystem {
         $mail->setFrom('ideanest.ict@gmail.com', 'IdeaNest Mentor System');
         return $mail;
     }
-    
-    public function sendWelcomeMessage($student_id) {
+
+    public function sendWelcomeMessage($student_id)
+    {
         try {
             $student = $this->getStudentInfo($student_id);
             $mentor = $this->getMentorInfo();
-            
+
             $mail = $this->setupMailer();
             $mail->addAddress($student['email'], $student['name']);
             $mail->Subject = "Welcome to Your Mentoring Journey - IdeaNest";
             $mail->Body = $this->getWelcomeTemplate($student, $mentor);
             $mail->isHTML(true);
-            
+
             $result = $mail->send();
             $this->logEmail('welcome_message', $student_id, $result ? 'sent' : 'failed');
             return $result;
@@ -47,18 +52,19 @@ class MentorEmailSystem {
             return false;
         }
     }
-    
-    public function sendSessionInvitation($student_id, $session_data) {
+
+    public function sendSessionInvitation($student_id, $session_data)
+    {
         try {
             $student = $this->getStudentInfo($student_id);
             $mentor = $this->getMentorInfo();
-            
+
             $mail = $this->setupMailer();
             $mail->addAddress($student['email'], $student['name']);
             $mail->Subject = "New Mentoring Session Scheduled - IdeaNest";
             $mail->Body = $this->getSessionInvitationTemplate($student, $mentor, $session_data);
             $mail->isHTML(true);
-            
+
             $result = $mail->send();
             $this->logEmail('session_invitation', $student_id, $result ? 'sent' : 'failed');
             return $result;
@@ -67,28 +73,32 @@ class MentorEmailSystem {
             return false;
         }
     }
-    
-    private function getStudentInfo($student_id) {
+
+    private function getStudentInfo($student_id)
+    {
         $stmt = $this->conn->prepare("SELECT * FROM register WHERE id = ?");
         $stmt->bind_param("i", $student_id);
         $stmt->execute();
         return $stmt->get_result()->fetch_assoc();
     }
-    
-    private function getMentorInfo() {
+
+    private function getMentorInfo()
+    {
         $stmt = $this->conn->prepare("SELECT * FROM register WHERE id = ?");
         $stmt->bind_param("i", $this->mentor_id);
         $stmt->execute();
         return $stmt->get_result()->fetch_assoc();
     }
-    
-    private function logEmail($type, $recipient_id, $status, $error = null) {
+
+    private function logEmail($type, $recipient_id, $status, $error = null)
+    {
         $stmt = $this->conn->prepare("INSERT INTO mentor_email_logs (mentor_id, recipient_id, email_type, status, error_message, sent_at) VALUES (?, ?, ?, ?, ?, NOW())");
         $stmt->bind_param("iisss", $this->mentor_id, $recipient_id, $type, $status, $error);
         $stmt->execute();
     }
-    
-    private function getWelcomeTemplate($student, $mentor) {
+
+    private function getWelcomeTemplate($student, $mentor)
+    {
         return "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
             <div style='background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;'>
@@ -114,8 +124,9 @@ class MentorEmailSystem {
             </div>
         </div>";
     }
-    
-    private function getSessionInvitationTemplate($student, $mentor, $session_data) {
+
+    private function getSessionInvitationTemplate($student, $mentor, $session_data)
+    {
         return "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
             <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;'>
@@ -139,4 +150,3 @@ class MentorEmailSystem {
         </div>";
     }
 }
-?>
