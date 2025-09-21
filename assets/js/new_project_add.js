@@ -1,5 +1,6 @@
 // Project type toggle function
-function toggleProjectType() {
+function toggleProjectType()
+{
     const projectType = document.getElementById("projectType").value;
     const softwareOptions = document.getElementById("softwareOptions");
     const hardwareOptions = document.getElementById("hardwareOptions");
@@ -35,7 +36,7 @@ function toggleProjectType() {
 }
 
 // Form validation and enhancement
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('form');
     const inputs = form.querySelectorAll('input, select, textarea');
     const fileInputs = form.querySelectorAll('input[type="file"]');
@@ -47,15 +48,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const counter = document.createElement('div');
         counter.className = 'character-counter';
         counter.style.cssText = `
-            font-size: 0.875rem;
-            color: #64748b;
-            text-align: right;
-            margin-top: 0.25rem;
+            font - size: 0.875rem;
+        color: #64748b;
+            text - align: right;
+            margin - top: 0.25rem;
         `;
 
         const updateCounter = () => {
             const remaining = maxLength - textarea.value.length;
-            counter.textContent = `${textarea.value.length}/${maxLength} characters`;
+            counter.textContent = `${textarea.value.length} / ${maxLength} characters`;
             counter.style.color = remaining < 50 ? '#ef4444' : '#64748b';
         };
 
@@ -66,18 +67,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Basic field validation (without required field checks)
     inputs.forEach(input => {
-        input.addEventListener('blur', function() {
+        input.addEventListener('blur', function () {
             validateField(this);
         });
 
-        input.addEventListener('input', function() {
+        input.addEventListener('input', function () {
             if (this.classList.contains('is-invalid')) {
                 validateField(this);
             }
         });
     });
 
-    function validateField(field) {
+    function validateField(field)
+    {
         const value = field.value.trim();
         const fieldType = field.type;
         let isValid = true;
@@ -115,22 +117,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function showErrorMessage(field, message) {
+    function showErrorMessage(field, message)
+    {
         removeErrorMessage(field);
         const errorDiv = document.createElement('div');
         errorDiv.className = 'error-message';
         errorDiv.style.cssText = `
             color: #ef4444;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
+            font - size: 0.875rem;
+            margin - top: 0.25rem;
             display: flex;
-            align-items: center;
+            align - items: center;
         `;
-        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-1"></i>${message}`;
+        errorDiv.innerHTML = ` < i class = "fas fa-exclamation-circle me-1" > < / i > ${message}`;
         field.parentNode.appendChild(errorDiv);
     }
 
-    function removeErrorMessage(field) {
+    function removeErrorMessage(field)
+    {
         const existingError = field.parentNode.querySelector('.error-message');
         if (existingError) {
             existingError.remove();
@@ -139,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // File upload enhancements
     fileInputs.forEach(input => {
-        input.addEventListener('change', function() {
+        input.addEventListener('change', function () {
             const file = this.files[0];
             const container = this.closest('.file-upload-container');
             const info = container.querySelector('.file-upload-info');
@@ -154,25 +158,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     fileInfo = document.createElement('div');
                     fileInfo.className = 'file-selected-info';
                     fileInfo.style.cssText = `
-                        background: #f0f9ff;
-                        border: 1px solid #0ea5e9;
-                        border-radius: 8px;
-                        padding: 0.75rem;
-                        margin-top: 0.5rem;
-                        color: #0369a1;
-                        font-size: 0.875rem;
+                    background: #f0f9ff;
+                    border: 1px solid #0ea5e9;
+                        border - radius: 8px;
+                    padding: 0.75rem;
+                        margin - top: 0.5rem;
+                    color: #0369a1;
+                        font - size: 0.875rem;
                     `;
                     container.appendChild(fileInfo);
                 }
 
                 fileInfo.innerHTML = `
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <i class="fas fa-file me-2"></i>
-                            <span class="fw-medium">${fileName}</span>
-                        </div>
-                        <div class="text-muted">${fileSize} MB</div>
-                    </div>
+                    < div class = "d-flex align-items-center justify-content-between" >
+                        < div >
+                            < i class = "fas fa-file me-2" > < / i >
+                            < span class = "fw-medium" > ${fileName} < / span >
+                        <  / div >
+                        < div class = "text-muted" > ${fileSize} MB < / div >
+                    <  / div >
                 `;
 
                 // Validate file size (basic client-side check)
@@ -199,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Form submission without required field validation
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function (e) {
         const submitButton = this.querySelector('button[type="submit"]');
 
         // Show loading state
@@ -217,7 +221,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Auto-save draft functionality (using sessionStorage)
     const draftKey = 'project_form_draft';
 
-    function saveDraft() {
+    function saveDraft()
+    {
         const formData = {};
 
         // Save input values
@@ -235,14 +240,15 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.setItem(draftKey, JSON.stringify(formData));
     }
 
-    function loadDraft() {
+    function loadDraft()
+    {
         const savedDraft = sessionStorage.getItem(draftKey);
         if (savedDraft) {
             try {
                 const formData = JSON.parse(savedDraft);
 
                 Object.keys(formData).forEach(key => {
-                    const field = form.querySelector(`[name="${key}"]`);
+                    const field = form.querySelector(`[name = "${key}"]`);
                     if (field) {
                         field.value = formData[key];
                         if (key === 'project_type') {
@@ -269,27 +275,28 @@ document.addEventListener('DOMContentLoaded', function() {
     loadDraft();
 
     // Clear draft on successful submission
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function (e) {
         if (!e.defaultPrevented) {
             sessionStorage.removeItem(draftKey);
         }
     });
 
     // Notification system (kept for informational messages only)
-    function showNotification(message, type = 'info') {
+    function showNotification(message, type = 'info')
+    {
         const notification = document.createElement('div');
-        notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+        notification.className = `alert alert - ${type === 'error' ? 'danger' : type} alert - dismissible fade show position - fixed`;
         notification.style.cssText = `
             top: 20px;
             right: 20px;
-            z-index: 9999;
-            min-width: 300px;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            z - index: 9999;
+            min - width: 300px;
+            box - shadow: 0 10px 15px - 3px rgb(0 0 0 / 0.1);
         `;
 
         notification.innerHTML = `
             ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            < button type = "button" class = "btn-close" data - bs - dismiss = "alert" > < / button >
         `;
 
         document.body.appendChild(notification);
@@ -306,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const sectionHeaders = document.querySelectorAll('.form-section h3');
     sectionHeaders.forEach(header => {
         header.style.cursor = 'pointer';
-        header.addEventListener('click', function() {
+        header.addEventListener('click', function () {
             this.parentElement.scrollIntoView({
                 behavior: 'smooth',
                 block: 'start'
@@ -319,98 +326,101 @@ document.addEventListener('DOMContentLoaded', function() {
 const style = document.createElement('style');
 style.textContent = `
     @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
+        0 % , 100 % { transform: translateX(0); }
+        25 % { transform: translateX(-5px); }
+        75 % { transform: translateX(5px); }
     }
-`;
-document.head.appendChild(style);
+    `;
+    document.head.appendChild(style);
 
 // Form progress tracking (optional enhancement) - removed required field dependency
-function updateFormProgress() {
-    const allFields = document.querySelectorAll('input, select, textarea');
-    let filledFields = 0;
+    function updateFormProgress()
+    {
+        const allFields = document.querySelectorAll('input, select, textarea');
+        let filledFields = 0;
 
-    allFields.forEach(field => {
-        if (field.type !== 'file' && field.value.trim() !== '') {
-            filledFields++;
-        } else if (field.type === 'file' && field.files.length > 0) {
-            filledFields++;
-        }
-    });
-
-    const progress = Math.round((filledFields / allFields.length) * 100);
-
-    // Create or update progress bar
-    let progressBar = document.querySelector('.form-progress-bar');
-    if (!progressBar) {
-        progressBar = document.createElement('div');
-        progressBar.className = 'form-progress-bar';
-        progressBar.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: rgba(99, 102, 241, 0.2);
-            z-index: 9999;
-            transition: all 0.3s ease;
-        `;
-
-        const progressFill = document.createElement('div');
-        progressFill.className = 'progress-fill';
-        progressFill.style.cssText = `
-            height: 100%;
-            background: linear-gradient(90deg, #6366f1, #8b5cf6);
-            width: 0%;
-            transition: width 0.5s ease;
-        `;
-
-        progressBar.appendChild(progressFill);
-        document.body.appendChild(progressBar);
-    }
-
-    const progressFill = progressBar.querySelector('.progress-fill');
-    progressFill.style.width = `${progress}%`;
-}
-
-// URL validation helper
-function isValidURL(string) {
-    try {
-        const url = new URL(string);
-        return url.protocol === "http:" || url.protocol === "https:";
-    } catch (_) {
-        return false;
-    }
-}
-
-// GitHub repository validation
-function validateGitHubRepo(url) {
-    const githubPattern = /^https:\/\/github\.com\/[\w\-\.]+\/[\w\-\.]+\/?$/;
-    return githubPattern.test(url);
-}
-
-// Enhanced form field interactions
-document.addEventListener('DOMContentLoaded', function() {
-    // Add enhanced interactions after DOM is loaded
-    const form = document.querySelector('form');
-
-    // GitHub repo field validation (format only, not required)
-    const githubField = form.querySelector('input[name="github_repo"]');
-    if (githubField) {
-        githubField.addEventListener('blur', function() {
-            const url = this.value.trim();
-            if (url && !validateGitHubRepo(url)) {
-                this.classList.add('is-invalid');
-                showErrorMessage(this, 'Please enter a valid GitHub repository URL');
+        allFields.forEach(field => {
+            if (field.type !== 'file' && field.value.trim() !== '') {
+                filledFields++;
+            } else if (field.type === 'file' && field.files.length > 0) {
+                filledFields++;
             }
         });
+
+        const progress = Math.round((filledFields / allFields.length) * 100);
+
+        // Create or update progress bar
+        let progressBar = document.querySelector('.form-progress-bar');
+        if (!progressBar) {
+            progressBar = document.createElement('div');
+            progressBar.className = 'form-progress-bar';
+            progressBar.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100 % ;
+                height: 4px;
+                background: rgba(99, 102, 241, 0.2);
+                z - index: 9999;
+                transition: all 0.3s ease;
+            `;
+
+            const progressFill = document.createElement('div');
+            progressFill.className = 'progress-fill';
+            progressFill.style.cssText = `
+                height: 100 % ;
+                background: linear - gradient(90deg, #6366f1, #8b5cf6);
+                width: 0 % ;
+                transition: width 0.5s ease;
+            `;
+
+            progressBar.appendChild(progressFill);
+            document.body.appendChild(progressBar);
+        }
+
+        const progressFill = progressBar.querySelector('.progress-fill');
+        progressFill.style.width = `${progress} % `;
     }
 
-    // Technology stack suggestions
-    const languageField = form.querySelector('input[name="language"]');
-    if (languageField) {
-        const suggestions = [
+// URL validation helper
+    function isValidURL(string)
+    {
+        try {
+            const url = new URL(string);
+            return url.protocol === "http:" || url.protocol === "https:";
+        } catch (_) {
+            return false;
+        }
+    }
+
+// GitHub repository validation
+    function validateGitHubRepo(url)
+    {
+        const githubPattern = /^https:\/\/github\.com\/[\w\-\.]+\/[\w\-\.]+\/?$/;
+        return githubPattern.test(url);
+    }
+
+// Enhanced form field interactions
+    document.addEventListener('DOMContentLoaded', function () {
+        // Add enhanced interactions after DOM is loaded
+        const form = document.querySelector('form');
+
+        // GitHub repo field validation (format only, not required)
+        const githubField = form.querySelector('input[name="github_repo"]');
+        if (githubField) {
+            githubField.addEventListener('blur', function () {
+                const url = this.value.trim();
+                if (url && !validateGitHubRepo(url)) {
+                    this.classList.add('is-invalid');
+                    showErrorMessage(this, 'Please enter a valid GitHub repository URL');
+                }
+            });
+        }
+
+        // Technology stack suggestions
+        const languageField = form.querySelector('input[name="language"]');
+        if (languageField) {
+            const suggestions = [
             'JavaScript, React, Node.js',
             'Python, Django, PostgreSQL',
             'Java, Spring Boot, MySQL',
@@ -419,205 +429,208 @@ document.addEventListener('DOMContentLoaded', function() {
             'Arduino, C++, IoT',
             'React Native, Firebase',
             'Vue.js, Express.js, MongoDB'
-        ];
+            ];
 
-        languageField.addEventListener('focus', function() {
-            if (!this.value) {
-                const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
-                this.placeholder = `e.g., ${randomSuggestion}`;
-            }
-        });
-    }
-
-    // Auto-capitalize project name
-    const projectNameField = form.querySelector('input[name="project_name"]');
-    if (projectNameField) {
-        projectNameField.addEventListener('input', function() {
-            // Capitalize first letter of each word
-            this.value = this.value.replace(/\b\w+/g, function(word) {
-                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+            languageField.addEventListener('focus', function () {
+                if (!this.value) {
+                    const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+                    this.placeholder = `e.g., ${randomSuggestion}`;
+                }
             });
-        });
-    }
+        }
 
-    // Team size and development time correlation (informational only)
-    const teamSizeField = form.querySelector('select[name="team_size"]');
-    const devTimeField = form.querySelector('select[name="development_time"]');
+        // Auto-capitalize project name
+        const projectNameField = form.querySelector('input[name="project_name"]');
+        if (projectNameField) {
+            projectNameField.addEventListener('input', function () {
+                // Capitalize first letter of each word
+                this.value = this.value.replace(/\b\w+/g, function (word) {
+                    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                });
+            });
+        }
 
-    if (teamSizeField && devTimeField) {
-        teamSizeField.addEventListener('change', function() {
-            const teamSize = parseInt(this.value);
-            if (teamSize >= 5 && devTimeField.value === '1-2 weeks') {
-                showNotification('Consider if 1-2 weeks is realistic for a team of ' + teamSize + ' people', 'info');
-            }
-        });
-    }
+        // Team size and development time correlation (informational only)
+        const teamSizeField = form.querySelector('select[name="team_size"]');
+        const devTimeField = form.querySelector('select[name="development_time"]');
 
-    // Keywords auto-formatting
-    const keywordsField = form.querySelector('input[name="keywords"]');
-    if (keywordsField) {
-        keywordsField.addEventListener('blur', function() {
-            // Format keywords: lowercase, remove extra spaces, ensure comma separation
-            let keywords = this.value.toLowerCase()
+        if (teamSizeField && devTimeField) {
+            teamSizeField.addEventListener('change', function () {
+                const teamSize = parseInt(this.value);
+                if (teamSize >= 5 && devTimeField.value === '1-2 weeks') {
+                    showNotification('Consider if 1-2 weeks is realistic for a team of ' + teamSize + ' people', 'info');
+                }
+            });
+        }
+
+        // Keywords auto-formatting
+        const keywordsField = form.querySelector('input[name="keywords"]');
+        if (keywordsField) {
+            keywordsField.addEventListener('blur', function () {
+                // Format keywords: lowercase, remove extra spaces, ensure comma separation
+                let keywords = this.value.toLowerCase()
                 .split(',')
                 .map(keyword => keyword.trim())
                 .filter(keyword => keyword.length > 0)
                 .join(', ');
-            this.value = keywords;
-        });
-    }
+                this.value = keywords;
+            });
+        }
 
-    // Social links validation (format only)
-    const socialLinksField = form.querySelector('input[name="social_links"]');
-    if (socialLinksField) {
-        socialLinksField.addEventListener('blur', function() {
-            const links = this.value.split(',').map(link => link.trim());
-            const validLinks = links.filter(link => {
-                return link === '' || isValidURL(link) ||
+        // Social links validation (format only)
+        const socialLinksField = form.querySelector('input[name="social_links"]');
+        if (socialLinksField) {
+            socialLinksField.addEventListener('blur', function () {
+                const links = this.value.split(',').map(link => link.trim());
+                const validLinks = links.filter(link => {
+                    return link === '' || isValidURL(link) ||
                     link.includes('linkedin.com') ||
                     link.includes('twitter.com') ||
                     link.includes('portfolio') ||
                     link.startsWith('www.');
-            });
+                });
 
-            if (links.length !== validLinks.length && this.value.trim() !== '') {
-                showNotification('Some social links may not be valid URLs', 'info');
-            }
-        });
-    }
-
-    // Dynamic form sections collapse/expand
-    const sectionHeaders = document.querySelectorAll('.form-section h3');
-    sectionHeaders.forEach(header => {
-        header.innerHTML += ' <i class="fas fa-chevron-down float-end" style="font-size: 0.8em; margin-top: 0.2em;"></i>';
-
-        header.addEventListener('click', function() {
-            const section = this.parentElement;
-            const content = section.querySelector('.form-section > *:not(h3)') ||
-                Array.from(section.children).filter(child => child.tagName !== 'H3');
-            const icon = this.querySelector('.fa-chevron-down, .fa-chevron-up');
-
-            if (section.classList.contains('collapsed')) {
-                section.classList.remove('collapsed');
-                if (Array.isArray(content)) {
-                    content.forEach(el => el.style.display = '');
-                } else if (content) {
-                    content.style.display = '';
+                if (links.length !== validLinks.length && this.value.trim() !== '') {
+                    showNotification('Some social links may not be valid URLs', 'info');
                 }
-                icon.className = icon.className.replace('fa-chevron-up', 'fa-chevron-down');
-            } else {
-                section.classList.add('collapsed');
-                if (Array.isArray(content)) {
-                    content.forEach(el => el.style.display = 'none');
-                } else if (content) {
-                    content.style.display = 'none';
-                }
-                icon.className = icon.className.replace('fa-chevron-down', 'fa-chevron-up');
-            }
-        });
-    });
-
-    // Update form progress on any change
-    form.addEventListener('input', updateFormProgress);
-    form.addEventListener('change', updateFormProgress);
-
-    // Initial progress calculation
-    setTimeout(updateFormProgress, 500);
-
-    // Form reset with confirmation
-    const resetButton = document.createElement('button');
-    resetButton.type = 'button';
-    resetButton.className = 'btn btn-outline-secondary me-3';
-    resetButton.innerHTML = '<i class="fas fa-undo me-2"></i>Reset Form';
-
-    resetButton.addEventListener('click', function() {
-        if (confirm('Are you sure you want to reset the form? All entered data will be lost.')) {
-            form.reset();
-            // Clear all validation classes
-            form.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
-                el.classList.remove('is-valid', 'is-invalid');
             });
-            // Clear error messages
-            form.querySelectorAll('.error-message').forEach(el => el.remove());
-            // Clear file info displays
-            form.querySelectorAll('.file-selected-info').forEach(el => el.remove());
-            // Clear draft
-            sessionStorage.removeItem('project_form_draft');
-            // Reset progress
-            updateFormProgress();
-            // Hide classification sections
-            toggleProjectType();
-
-            showNotification('Form has been reset', 'info');
         }
+
+        // Dynamic form sections collapse/expand
+        const sectionHeaders = document.querySelectorAll('.form-section h3');
+        sectionHeaders.forEach(header => {
+            header.innerHTML += ' <i class="fas fa-chevron-down float-end" style="font-size: 0.8em; margin-top: 0.2em;"></i>';
+
+            header.addEventListener('click', function () {
+                const section = this.parentElement;
+                const content = section.querySelector('.form-section > *:not(h3)') ||
+                Array.from(section.children).filter(child => child.tagName !== 'H3');
+                const icon = this.querySelector('.fa-chevron-down, .fa-chevron-up');
+
+                if (section.classList.contains('collapsed')) {
+                    section.classList.remove('collapsed');
+                    if (Array.isArray(content)) {
+                        content.forEach(el => el.style.display = '');
+                    } else if (content) {
+                        content.style.display = '';
+                    }
+                    icon.className = icon.className.replace('fa-chevron-up', 'fa-chevron-down');
+                } else {
+                    section.classList.add('collapsed');
+                    if (Array.isArray(content)) {
+                        content.forEach(el => el.style.display = 'none');
+                    } else if (content) {
+                        content.style.display = 'none';
+                    }
+                    icon.className = icon.className.replace('fa-chevron-down', 'fa-chevron-up');
+                }
+            });
+        });
+
+        // Update form progress on any change
+        form.addEventListener('input', updateFormProgress);
+        form.addEventListener('change', updateFormProgress);
+
+        // Initial progress calculation
+        setTimeout(updateFormProgress, 500);
+
+        // Form reset with confirmation
+        const resetButton = document.createElement('button');
+        resetButton.type = 'button';
+        resetButton.className = 'btn btn-outline-secondary me-3';
+        resetButton.innerHTML = '<i class="fas fa-undo me-2"></i>Reset Form';
+
+        resetButton.addEventListener('click', function () {
+            if (confirm('Are you sure you want to reset the form? All entered data will be lost.')) {
+                form.reset();
+                // Clear all validation classes
+                form.querySelectorAll('.is-valid, .is-invalid').forEach(el => {
+                    el.classList.remove('is-valid', 'is-invalid');
+                });
+                // Clear error messages
+                form.querySelectorAll('.error-message').forEach(el => el.remove());
+                // Clear file info displays
+                form.querySelectorAll('.file-selected-info').forEach(el => el.remove());
+                // Clear draft
+                sessionStorage.removeItem('project_form_draft');
+                // Reset progress
+                updateFormProgress();
+                // Hide classification sections
+                toggleProjectType();
+
+                showNotification('Form has been reset', 'info');
+            }
+        });
+
+        // Add reset button before submit button
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.parentNode.insertBefore(resetButton, submitButton);
+
+        // Make submit button container flex
+        const buttonContainer = submitButton.parentNode;
+        buttonContainer.style.display = 'flex';
+        buttonContainer.style.justifyContent = 'flex-end';
+        buttonContainer.style.alignItems = 'center';
     });
-
-    // Add reset button before submit button
-    const submitButton = form.querySelector('button[type="submit"]');
-    submitButton.parentNode.insertBefore(resetButton, submitButton);
-
-    // Make submit button container flex
-    const buttonContainer = submitButton.parentNode;
-    buttonContainer.style.display = 'flex';
-    buttonContainer.style.justifyContent = 'flex-end';
-    buttonContainer.style.alignItems = 'center';
-});
 
 // Utility function for error messages (defined globally to avoid duplication)
-function showErrorMessage(field, message) {
-    removeErrorMessage(field);
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.style.cssText = `
+    function showErrorMessage(field, message)
+    {
+        removeErrorMessage(field);
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.style.cssText = `
         color: #ef4444;
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
+        font - size: 0.875rem;
+        margin - top: 0.25rem;
         display: flex;
-        align-items: center;
-    `;
-    errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-1"></i>${message}`;
-    field.parentNode.appendChild(errorDiv);
-}
-
-function removeErrorMessage(field) {
-    const existingError = field.parentNode.querySelector('.error-message');
-    if (existingError) {
-        existingError.remove();
+        align - items: center;
+        `;
+        errorDiv.innerHTML = ` < i class = "fas fa-exclamation-circle me-1" > < / i > ${message}`;
+        field.parentNode.appendChild(errorDiv);
     }
-}
+
+    function removeErrorMessage(field)
+    {
+        const existingError = field.parentNode.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+    }
 
 // Notification system (defined globally) - simplified for informational messages only
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
-    notification.style.cssText = `
+    function showNotification(message, type = 'info')
+    {
+        const notification = document.createElement('div');
+        notification.className = `alert alert - ${type === 'error' ? 'danger' : type} alert - dismissible fade show position - fixed`;
+        notification.style.cssText = `
         top: 20px;
         right: 20px;
-        z-index: 9999;
-        min-width: 300px;
-        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-        border-radius: 12px;
-    `;
+        z - index: 9999;
+        min - width: 300px;
+        box - shadow: 0 10px 15px - 3px rgb(0 0 0 / 0.1);
+        border - radius: 12px;
+        `;
 
-    const icons = {
-        success: 'fa-check-circle',
-        error: 'fa-exclamation-circle',
-        warning: 'fa-exclamation-triangle',
-        info: 'fa-info-circle'
-    };
+        const icons = {
+            success: 'fa-check-circle',
+            error: 'fa-exclamation-circle',
+            warning: 'fa-exclamation-triangle',
+            info: 'fa-info-circle'
+        };
 
-    notification.innerHTML = `
-        <i class="fas ${icons[type] || icons.info} me-2"></i>
+        notification.innerHTML = `
+        < i class = "fas ${icons[type] || icons.info} me-2" > < / i >
         ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
+        < button type = "button" class = "btn-close" data - bs - dismiss = "alert" > < / button >
+        `;
 
-    document.body.appendChild(notification);
+        document.body.appendChild(notification);
 
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.remove();
-        }
-    }, 5000);
-}
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
