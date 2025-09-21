@@ -1,6 +1,10 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
-if (!isset($basePath)) { $basePath = './'; }
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (!isset($basePath)) {
+    $basePath = './';
+}
 
 // Get user info from session
 $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "vivek";
