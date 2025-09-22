@@ -50,7 +50,13 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
 
     // Reject project
     if ($action == 'reject') {
-        // Show rejection form
+        // Get project details for rejection modal
+        $query = "SELECT * FROM projects WHERE id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("i", $project_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $project = $result->fetch_assoc();
         $show_rejection_form = true;
         $reject_project_id = $project_id;
     }
@@ -76,15 +82,27 @@ function approveProject($project_id, $conn)
     if ($result->num_rows > 0) {
         $project = $result->fetch_assoc();
 
-        // Insert into approved projects table with all columns
-        $approve_query = "INSERT INTO admin_approved_projects (
-            user_id, project_name, project_type, classification, project_category,
-            difficulty_level, development_time, team_size, target_audience, project_goals,
-            challenges_faced, future_enhancements, github_repo, live_demo_url, project_license,
-            keywords, contact_email, social_links, description, language, 
-            image_path, video_path, code_file_path, instruction_file_path,
-            presentation_file_path, additional_files_path, submission_date, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        // Check if approval_date column exists and insert accordingly
+        $check_column = $conn->query("SHOW COLUMNS FROM admin_approved_projects LIKE 'approval_date'");
+        if ($check_column->num_rows > 0) {
+            $approve_query = "INSERT INTO admin_approved_projects (
+                user_id, project_name, project_type, classification, project_category,
+                difficulty_level, development_time, team_size, target_audience, project_goals,
+                challenges_faced, future_enhancements, github_repo, live_demo_url, project_license,
+                keywords, contact_email, social_links, description, language, 
+                image_path, video_path, code_file_path, instruction_file_path,
+                presentation_file_path, additional_files_path, submission_date, status, approval_date
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+        } else {
+            $approve_query = "INSERT INTO admin_approved_projects (
+                user_id, project_name, project_type, classification, project_category,
+                difficulty_level, development_time, team_size, target_audience, project_goals,
+                challenges_faced, future_enhancements, github_repo, live_demo_url, project_license,
+                keywords, contact_email, social_links, description, language, 
+                image_path, video_path, code_file_path, instruction_file_path,
+                presentation_file_path, additional_files_path, submission_date, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        }
 
         $approve_stmt = $conn->prepare($approve_query);
         $status = 'approved';
@@ -322,6 +340,7 @@ $rejected_projects_growth = "3%";
 $submitted_projects_data = [];
 $approved_projects_data = [];
 $rejected_projects_data = [];
+$total_projects_data = [];
 
 // Get data for the selected time range
 if ($selected_time_range == "Last 7 Days") {
@@ -329,29 +348,37 @@ if ($selected_time_range == "Last 7 Days") {
     for ($i = 6; $i >= 0; $i--) {
         $date = date('Y-m-d', strtotime("-$i days"));
 
-        // Submitted projects
-        $submitted_query = "SELECT COUNT(*) as count FROM projects WHERE DATE(submission_date) = ?";
+        // Submitted projects (cumulative up to this date)
+        $submitted_query = "SELECT COUNT(*) as count FROM projects WHERE DATE(submission_date) <= ?";
         $submitted_stmt = $conn->prepare($submitted_query);
         $submitted_stmt->bind_param("s", $date);
         $submitted_stmt->execute();
         $submitted_result = $submitted_stmt->get_result();
         $submitted_projects_data[] = $submitted_result->fetch_assoc()['count'];
 
-        // Approved projects
-        $approved_query = "SELECT COUNT(*) as count FROM admin_approved_projects WHERE DATE(submission_date) = ?";
+        // Approved projects from admin_approved_projects table (cumulative)
+        $approved_query = "SELECT COUNT(*) as count FROM admin_approved_projects WHERE DATE(submission_date) <= ?";
         $approved_stmt = $conn->prepare($approved_query);
         $approved_stmt->bind_param("s", $date);
         $approved_stmt->execute();
         $approved_result = $approved_stmt->get_result();
         $approved_projects_data[] = $approved_result->fetch_assoc()['count'];
 
-        // Rejected projects
-        $rejected_query = "SELECT COUNT(*) as count FROM denial_projects WHERE DATE(rejection_date) = ?";
+        // Rejected projects (cumulative)
+        $rejected_query = "SELECT COUNT(*) as count FROM denial_projects WHERE DATE(COALESCE(rejection_date, submission_date)) <= ?";
         $rejected_stmt = $conn->prepare($rejected_query);
         $rejected_stmt->bind_param("s", $date);
         $rejected_stmt->execute();
         $rejected_result = $rejected_stmt->get_result();
         $rejected_projects_data[] = $rejected_result->fetch_assoc()['count'];
+        
+        // Total projects from projects table (cumulative)
+        $total_query = "SELECT COUNT(*) as count FROM projects WHERE DATE(submission_date) <= ?";
+        $total_stmt = $conn->prepare($total_query);
+        $total_stmt->bind_param("s", $date);
+        $total_stmt->execute();
+        $total_result = $total_stmt->get_result();
+        $total_projects_data[] = $total_result->fetch_assoc()['count'];
     }
 } elseif ($selected_time_range == "Last 30 Days") {
     // Weekly data for last 30 days
@@ -367,7 +394,7 @@ if ($selected_time_range == "Last 7 Days") {
         $submitted_result = $submitted_stmt->get_result();
         $submitted_projects_data[] = $submitted_result->fetch_assoc()['count'];
 
-        // Approved projects
+        // Approved projects from admin_approved_projects table
         $approved_query = "SELECT COUNT(*) as count FROM admin_approved_projects WHERE DATE(submission_date) BETWEEN ? AND ?";
         $approved_stmt = $conn->prepare($approved_query);
         $approved_stmt->bind_param("ss", $start, $end);
@@ -376,12 +403,20 @@ if ($selected_time_range == "Last 7 Days") {
         $approved_projects_data[] = $approved_result->fetch_assoc()['count'];
 
         // Rejected projects
-        $rejected_query = "SELECT COUNT(*) as count FROM denial_projects WHERE DATE(rejection_date) BETWEEN ? AND ?";
+        $rejected_query = "SELECT COUNT(*) as count FROM denial_projects WHERE DATE(COALESCE(rejection_date, submission_date)) BETWEEN ? AND ?";
         $rejected_stmt = $conn->prepare($rejected_query);
         $rejected_stmt->bind_param("ss", $start, $end);
         $rejected_stmt->execute();
         $rejected_result = $rejected_stmt->get_result();
         $rejected_projects_data[] = $rejected_result->fetch_assoc()['count'];
+        
+        // Total projects from projects table
+        $total_query = "SELECT COUNT(*) as count FROM projects WHERE DATE(submission_date) BETWEEN ? AND ?";
+        $total_stmt = $conn->prepare($total_query);
+        $total_stmt->bind_param("ss", $start, $end);
+        $total_stmt->execute();
+        $total_result = $total_stmt->get_result();
+        $total_projects_data[] = $total_result->fetch_assoc()['count'];
     }
 } elseif ($selected_time_range == "Last 3 Months") {
     // Monthly data for last 3 months
@@ -397,8 +432,13 @@ if ($selected_time_range == "Last 7 Days") {
         $submitted_result = $submitted_stmt->get_result();
         $submitted_projects_data[] = $submitted_result->fetch_assoc()['count'];
 
-        // Approved projects
-        $approved_query = "SELECT COUNT(*) as count FROM admin_approved_projects WHERE DATE(submission_date) BETWEEN ? AND ?";
+        // Approved projects - check if approval_date column exists
+        $check_column = $conn->query("SHOW COLUMNS FROM admin_approved_projects LIKE 'approval_date'");
+        if ($check_column->num_rows > 0) {
+            $approved_query = "SELECT COUNT(*) as count FROM admin_approved_projects WHERE DATE(COALESCE(approval_date, submission_date)) BETWEEN ? AND ?";
+        } else {
+            $approved_query = "SELECT COUNT(*) as count FROM admin_approved_projects WHERE DATE(submission_date) BETWEEN ? AND ?";
+        }
         $approved_stmt = $conn->prepare($approved_query);
         $approved_stmt->bind_param("ss", $month_start, $month_end);
         $approved_stmt->execute();
@@ -412,6 +452,9 @@ if ($selected_time_range == "Last 7 Days") {
         $rejected_stmt->execute();
         $rejected_result = $rejected_stmt->get_result();
         $rejected_projects_data[] = $rejected_result->fetch_assoc()['count'];
+        
+        // Calculate total projects for this month
+        $total_projects_data[] = end($submitted_projects_data) + end($approved_projects_data) + end($rejected_projects_data);
     }
 } else { // Last Year
     // Monthly data for last year
@@ -427,7 +470,7 @@ if ($selected_time_range == "Last 7 Days") {
         $submitted_result = $submitted_stmt->get_result();
         $submitted_projects_data[] = $submitted_result->fetch_assoc()['count'];
 
-        // Approved projects
+        // Approved projects from admin_approved_projects table
         $approved_query = "SELECT COUNT(*) as count FROM admin_approved_projects WHERE DATE(submission_date) BETWEEN ? AND ?";
         $approved_stmt = $conn->prepare($approved_query);
         $approved_stmt->bind_param("ss", $month_start, $month_end);
@@ -442,6 +485,14 @@ if ($selected_time_range == "Last 7 Days") {
         $rejected_stmt->execute();
         $rejected_result = $rejected_stmt->get_result();
         $rejected_projects_data[] = $rejected_result->fetch_assoc()['count'];
+        
+        // Total projects from projects table
+        $total_query = "SELECT COUNT(*) as count FROM projects WHERE DATE(submission_date) BETWEEN ? AND ?";
+        $total_stmt = $conn->prepare($total_query);
+        $total_stmt->bind_param("ss", $month_start, $month_end);
+        $total_stmt->execute();
+        $total_result = $total_stmt->get_result();
+        $total_projects_data[] = $total_result->fetch_assoc()['count'];
     }
 }
 
@@ -1360,7 +1411,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                     <a href="admin.php?action=approve&id=<?php echo $project['id']; ?>" class="btn btn-success btn-lg" onclick="return confirm('Are you sure you want to approve this project?')">
                         <i class="bi bi-check-circle me-2"></i> Approve Project
                     </a>
-                    <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#rejectProjectModal">
+                    <button type="button" class="btn btn-danger btn-lg" id="rejectBtn" onclick="openRejectModal()">
                         <i class="bi bi-x-circle me-2"></i> Reject Project
                     </button>
                 </div>
@@ -1368,24 +1419,24 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         </div>
 
         <!-- Reject Project Modal -->
-        <div class="modal fade" id="rejectProjectModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
+        <div class="modal fade" id="rejectProjectModal" tabindex="-1" aria-labelledby="rejectProjectModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Reject Project</h5>
+                        <h5 class="modal-title" id="rejectProjectModalLabel">Reject Project</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="admin.php" method="post">
+                    <form action="admin.php" method="post" id="rejectForm">
                         <div class="modal-body">
                             <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
                             <div class="mb-3">
                                 <label for="rejection_reason" class="form-label">Rejection Reason</label>
-                                <textarea class="form-control" name="rejection_reason" rows="3" required placeholder="Please provide a detailed reason for rejection..."></textarea>
+                                <textarea class="form-control" id="rejection_reason" name="rejection_reason" rows="3" required placeholder="Please provide a detailed reason for rejection..."></textarea>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" name="reject_submit" class="btn btn-danger">Reject Project</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelReject">Cancel</button>
+                            <button type="submit" name="reject_submit" class="btn btn-danger" id="confirmReject">Reject Project</button>
                         </div>
                     </form>
                 </div>
@@ -1582,7 +1633,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                 <?php foreach ($activities_to_show as $activity) : ?>
                                     <div class="activity-item">
                                         <div class="activity-icon bg-<?php echo $activity['type']; ?>-light text-<?php echo $activity['type']; ?>">
-                                            <i class="bi bi-<?php echo $activity['type'] == 'primary' ? 'plus-circle' : ($activity['type'] == 'success' ? 'check-circle' : 'x-circle'); ?>"></i>
+                                            <i class="bi bi-<?php echo $activity['type'] == 'primary' ? 'plus-circle' : ($activity['type'] == 'success' ? 'check-circle' : 'x-circle-fill'); ?>"></i>
                                         </div>
                                         <div class="activity-content">
                                             <h6 class="activity-title"><?php echo htmlspecialchars($activity['title']); ?></h6>
@@ -1681,9 +1732,9 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                                         <a href="admin.php?action=approve&id=<?php echo $project['id']; ?>" class="btn btn-outline-success btn-sm" onclick="return confirm('Are you sure you want to approve this project?')" title="Approve">
                                                             <i class="bi bi-check"></i>
                                                         </a>
-                                                        <a href="admin.php?action=reject&id=<?php echo $project['id']; ?>" class="btn btn-outline-danger btn-sm" title="Reject">
+                                                        <button type="button" class="btn btn-outline-danger btn-sm reject-btn" data-project-id="<?php echo $project['id']; ?>" title="Reject">
                                                             <i class="bi bi-x"></i>
-                                                        </a>
+                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1694,6 +1745,31 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                             <?php endif; ?>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reject Project Modal for Dashboard -->
+        <div class="modal fade" id="dashboardRejectModal" tabindex="-1" aria-labelledby="dashboardRejectModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="dashboardRejectModalLabel">Reject Project</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="admin.php" method="post" id="dashboardRejectForm">
+                        <div class="modal-body">
+                            <input type="hidden" name="project_id" id="dashboardProjectId" value="">
+                            <div class="mb-3">
+                                <label for="dashboard_rejection_reason" class="form-label">Rejection Reason</label>
+                                <textarea class="form-control" id="dashboard_rejection_reason" name="rejection_reason" rows="3" required placeholder="Please provide a detailed reason for rejection..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" name="reject_submit" class="btn btn-danger">Reject Project</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -1749,6 +1825,19 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2,
                         pointRadius: 5
+                    },
+                    {
+                        label: 'Total Projects',
+                        data: <?php echo json_encode($total_projects_data); ?>,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        tension: 0.4,
+                        fill: false,
+                        pointBackgroundColor: '#6366f1',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        borderWidth: 3
                     }
                 ]
             },
@@ -1886,6 +1975,77 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                 bsAlert.close();
             }, 5000);
         });
+
+        // Handle rejection modal
+        const rejectModal = document.getElementById('rejectProjectModal');
+        const rejectForm = document.getElementById('rejectForm');
+        const cancelRejectBtn = document.getElementById('cancelReject');
+        
+        if (rejectModal && rejectForm) {
+            // Reset form when modal is hidden
+            rejectModal.addEventListener('hidden.bs.modal', function () {
+                rejectForm.reset();
+            });
+            
+            // Handle cancel button click
+            if (cancelRejectBtn) {
+                cancelRejectBtn.addEventListener('click', function() {
+                    const modal = bootstrap.Modal.getInstance(rejectModal);
+                    if (modal) {
+                        modal.hide();
+                    }
+                });
+            }
+            
+            // Handle form submission confirmation
+            rejectForm.addEventListener('submit', function(e) {
+                const reason = document.getElementById('rejection_reason').value.trim();
+                if (!reason) {
+                    e.preventDefault();
+                    alert('Please provide a rejection reason.');
+                    return false;
+                }
+                
+                if (!confirm('Are you sure you want to reject this project?')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        }
+        
+        // Function to open reject modal
+        window.openRejectModal = function() {
+            const modal = new bootstrap.Modal(document.getElementById('rejectProjectModal'));
+            modal.show();
+        };
+        
+        // Handle dashboard reject buttons
+        document.querySelectorAll('.reject-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const projectId = this.getAttribute('data-project-id');
+                document.getElementById('dashboardProjectId').value = projectId;
+                const modal = new bootstrap.Modal(document.getElementById('dashboardRejectModal'));
+                modal.show();
+            });
+        });
+        
+        // Handle dashboard rejection form
+        const dashboardRejectForm = document.getElementById('dashboardRejectForm');
+        if (dashboardRejectForm) {
+            dashboardRejectForm.addEventListener('submit', function(e) {
+                const reason = document.getElementById('dashboard_rejection_reason').value.trim();
+                if (!reason) {
+                    e.preventDefault();
+                    alert('Please provide a rejection reason.');
+                    return false;
+                }
+                
+                if (!confirm('Are you sure you want to reject this project?')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        }
     });
 </script>
 </body>

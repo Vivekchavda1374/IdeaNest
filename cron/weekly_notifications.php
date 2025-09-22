@@ -7,92 +7,134 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
+// Check database connection
+if (!isset($conn) || $conn->connect_error) {
+    die("Database connection failed: " . ($conn->connect_error ?? 'Connection not established'));
+}
+
+// Get users who want weekly notifications and haven't received one in the last 6 days
 $query = "SELECT * FROM register 
           WHERE email_notifications = 1 
-          AND (last_notification_sent IS NULL OR last_notification_sent < DATE_SUB(NOW(), INTERVAL 30 MINUTE))";
+          AND (last_notification_sent IS NULL OR last_notification_sent < DATE_SUB(NOW(), INTERVAL 6 DAY))";
 $result = $conn->query($query);
 
+if (!$result) {
+    die("Query failed: " . $conn->error);
+}
+
 if ($result->num_rows > 0) {
+    echo "Found " . $result->num_rows . " users for weekly notifications\n";
     while ($user = $result->fetch_assoc()) {
         sendWeeklyNotification($user, $conn);
     }
+    echo "Weekly notifications completed\n";
+} else {
+    echo "No users found for weekly notifications\n";
 }
+
+$conn->close();
 
 function sendWeeklyNotification($user, $conn)
 {
+    // Get projects from the last 7 days
     $projects_query = "SELECT p.*, r.name as author_name 
                       FROM admin_approved_projects p 
                       JOIN register r ON p.user_id = r.id 
-                      WHERE p.submission_date >= DATE_SUB(NOW(), INTERVAL 30 DAY) 
+                      WHERE p.submission_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) 
                       AND p.user_id != ? 
                       ORDER BY p.submission_date DESC 
                       LIMIT 10";
     $projects_stmt = $conn->prepare($projects_query);
+    if (!$projects_stmt) {
+        echo "Failed to prepare projects query: " . $conn->error . "\n";
+        return;
+    }
     $projects_stmt->bind_param("i", $user['id']);
     $projects_stmt->execute();
     $projects = $projects_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $projects_stmt->close();
 
+    // Get ideas from the last 7 days
     $ideas_query = "SELECT b.*, r.name as author_name 
                    FROM blog b 
                    JOIN register r ON b.er_number = r.enrollment_number 
-                   WHERE b.submission_datetime >= DATE_SUB(NOW(), INTERVAL 30 DAY) 
+                   WHERE b.submission_datetime >= DATE_SUB(NOW(), INTERVAL 7 DAY) 
                    AND r.id != ? 
                    ORDER BY b.submission_datetime DESC 
                    LIMIT 10";
     $ideas_stmt = $conn->prepare($ideas_query);
+    if (!$ideas_stmt) {
+        echo "Failed to prepare ideas query: " . $conn->error . "\n";
+        return;
+    }
     $ideas_stmt->bind_param("i", $user['id']);
     $ideas_stmt->execute();
     $ideas = $ideas_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $ideas_stmt->close();
 
-    if (count($projects) > 0 || count($ideas) > 0) {
-        $mail = new PHPMailer(true);
+    // Send email even if no new content to maintain weekly contact
+    $mail = new PHPMailer(true);
 
-        try {
-            // Get SMTP settings from database
-            $smtp_query = "SELECT setting_key, setting_value FROM admin_settings WHERE setting_key IN ('smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'smtp_secure', 'from_email')";
-            $smtp_result = $conn->query($smtp_query);
-            $smtp_settings = [];
+    try {
+        // Get SMTP settings from database
+        $smtp_query = "SELECT setting_key, setting_value FROM admin_settings WHERE setting_key IN ('smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'smtp_secure', 'from_email')";
+        $smtp_result = $conn->query($smtp_query);
+        $smtp_settings = [];
+        if ($smtp_result) {
             while ($row = $smtp_result->fetch_assoc()) {
                 $smtp_settings[$row['setting_key']] = $row['setting_value'];
             }
+        }
 
-            $mail->isSMTP();
-            $mail->Host = $smtp_settings['smtp_host'] ?? 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = $smtp_settings['smtp_username'] ?? 'ideanest.ict@gmail.com';
-            $mail->Password = $smtp_settings['smtp_password'] ?? 'luou xlhs ojuw auvx';
-            $mail->SMTPSecure = ($smtp_settings['smtp_secure'] ?? 'tls') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
-            $mail->Port = $smtp_settings['smtp_port'] ?? 587;
+        $mail->isSMTP();
+        $mail->Host = $smtp_settings['smtp_host'] ?? 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = $smtp_settings['smtp_username'] ?? 'ideanest.ict@gmail.com';
+        $mail->Password = $smtp_settings['smtp_password'] ?? 'luou xlhs ojuw auvx';
+        $mail->SMTPSecure = ($smtp_settings['smtp_secure'] ?? 'tls') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port = $smtp_settings['smtp_port'] ?? 587;
 
-            $mail->setFrom($smtp_settings['from_email'] ?? 'ideanest.ict@gmail.com', 'IdeaNest');
-            $mail->addAddress($user['email'], $user['name']);
+        $mail->setFrom($smtp_settings['from_email'] ?? 'ideanest.ict@gmail.com', 'IdeaNest');
+        $mail->addAddress($user['email'], $user['name']);
 
-            $mail->isHTML(true);
-            $mail->Subject = '[TEST] 30min Update - New Projects & Ideas on IdeaNest';
-            $mail->Body = generateEmailTemplate($user, $projects, $ideas);
+        $mail->isHTML(true);
+        $mail->Subject = 'Weekly Digest - New Projects & Ideas on IdeaNest';
+        $mail->Body = generateEmailTemplate($user, $projects, $ideas);
 
-            $mail->send();
+        $mail->send();
 
-            $update_query = "UPDATE register SET last_notification_sent = NOW() WHERE id = ?";
-            $update_stmt = $conn->prepare($update_query);
+        // Update last notification sent
+        $update_query = "UPDATE register SET last_notification_sent = NOW() WHERE id = ?";
+        $update_stmt = $conn->prepare($update_query);
+        if ($update_stmt) {
             $update_stmt->bind_param("i", $user['id']);
             $update_stmt->execute();
+            $update_stmt->close();
+        }
 
-            $log_query = "INSERT INTO notification_logs (type, user_id, status, email_to, email_subject) VALUES ('weekly_notification', ?, 'sent', ?, ?)";
-            $log_stmt = $conn->prepare($log_query);
+        // Log successful send
+        $log_query = "INSERT INTO notification_logs (type, user_id, status, email_to, email_subject, created_at) VALUES ('weekly_notification', ?, 'sent', ?, ?, NOW())";
+        $log_stmt = $conn->prepare($log_query);
+        if ($log_stmt) {
             $log_stmt->bind_param("iss", $user['id'], $user['email'], $mail->Subject);
             $log_stmt->execute();
+            $log_stmt->close();
+        }
 
-            echo "Notification sent to: " . $user['email'] . "\n";
-        } catch (Exception $e) {
-            $log_query = "INSERT INTO notification_logs (type, user_id, status, email_to, error_message) VALUES ('weekly_notification', ?, 'failed', ?, ?)";
-            $log_stmt = $conn->prepare($log_query);
+        echo "Notification sent to: " . $user['email'] . "\n";
+    } catch (Exception $e) {
+        // Log failed send
+        $log_query = "INSERT INTO notification_logs (type, user_id, status, email_to, error_message, created_at) VALUES ('weekly_notification', ?, 'failed', ?, ?, NOW())";
+        $log_stmt = $conn->prepare($log_query);
+        if ($log_stmt) {
             $log_stmt->bind_param("iss", $user['id'], $user['email'], $e->getMessage());
             $log_stmt->execute();
-
-            echo "Failed to send notification to: " . $user['email'] . "\n";
+            $log_stmt->close();
         }
+
+        echo "Failed to send notification to: " . $user['email'] . " - Error: " . $e->getMessage() . "\n";
     }
+
 }
 
 function generateEmailTemplate($user, $projects, $ideas)
@@ -120,14 +162,14 @@ function generateEmailTemplate($user, $projects, $ideas)
     <body>
         <div class="container">
             <div class="header">
-                <h1>🧪 Test Update from IdeaNest</h1>
-                <p>Hello ' . htmlspecialchars($user['name']) . '! This is a test notification (30min interval).</p>
+                <h1>📬 Weekly Digest from IdeaNest</h1>
+                <p>Hello ' . htmlspecialchars($user['name']) . '! Here\'s what happened this week.</p>
             </div>
             <div class="content">';
 
     if (count($projects) > 0) {
         $html .= '<div class="section">
-                    <h2>📁 New Projects (' . count($projects) . ')</h2>';
+                    <h2>📁 New Projects This Week (' . count($projects) . ')</h2>';
 
         foreach ($projects as $project) {
             $html .= '<div class="item">
@@ -142,7 +184,7 @@ function generateEmailTemplate($user, $projects, $ideas)
 
     if (count($ideas) > 0) {
         $html .= '<div class="section">
-                    <h2>💡 New Ideas (' . count($ideas) . ')</h2>';
+                    <h2>💡 New Ideas This Week (' . count($ideas) . ')</h2>';
 
         foreach ($ideas as $idea) {
             $html .= '<div class="item">
@@ -152,6 +194,17 @@ function generateEmailTemplate($user, $projects, $ideas)
                     </div>';
         }
         $html .= '</div>';
+    }
+
+    // Show message if no new content
+    if (count($projects) == 0 && count($ideas) == 0) {
+        $html .= '<div class="section">
+                    <h2>📭 No New Content This Week</h2>
+                    <div class="item">
+                        <p>There were no new projects or ideas shared this week, but stay tuned for exciting updates!</p>
+                        <p>Why not be the first to share something new?</p>
+                    </div>
+                </div>';
     }
 
     $html .= '<div style="text-align: center; margin-top: 30px;">
