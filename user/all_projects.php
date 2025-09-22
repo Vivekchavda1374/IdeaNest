@@ -865,27 +865,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
         }
 
-        .project-status-badge {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            background: linear-gradient(135deg, var(--success-color), #34d399);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 1.5rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
 
-        .project-status-badge i {
-            font-size: 0.7rem;
-        }
+
 
         .empty-state {
             text-align: center;
@@ -1536,12 +1517,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 font-size: 1.3rem;
             }
 
-            .project-status-badge {
-                top: 1rem;
-                right: 1rem;
-                padding: 0.4rem 0.8rem;
-                font-size: 0.75rem;
-            }
+
 
             .social-stats {
                 flex-direction: column;
@@ -1730,10 +1706,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <?php foreach ($projects as $index => $project) : ?>
                 <div class="project-card fade-in-up" style="animation-delay: <?php echo $index * 0.1; ?>s;">
                     <!-- Status Badge -->
-                    <div class="project-status-badge">
-                        <i class="fas fa-check-circle"></i>
-                        Approved
-                    </div>
+
 
                     <div class="project-card-content">
                         <div class="project-card-header">

@@ -735,49 +735,6 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             </div>
 
             <!-- System Settings -->
-            <div class="settings-card">
-                <div class="settings-card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-cpu me-2"></i>
-                        System Settings
-                    </h5>
-                </div>
-                <div class="settings-card-body">
-                    <div class="settings-section">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="max_file_size" class="form-label">Maximum File Upload Size (MB)</label>
-                                    <input type="number" class="form-control" id="max_file_size" name="max_file_size" value="<?php echo htmlspecialchars(getSetting($conn, 'max_file_size', '10')); ?>" min="1" max="100">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="allowed_file_types" class="form-label">Allowed File Types</label>
-                                    <input type="text" class="form-control" id="allowed_file_types" name="allowed_file_types" value="<?php echo htmlspecialchars(getSetting($conn, 'allowed_file_types', 'jpg,jpeg,png,gif,pdf,zip,rar')); ?>" placeholder="jpg,jpeg,png,gif,pdf,zip,rar">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="session_timeout" class="form-label">Session Timeout (minutes)</label>
-                                    <input type="number" class="form-control" id="session_timeout" name="session_timeout" value="<?php echo htmlspecialchars(getSetting($conn, 'session_timeout', '30')); ?>" min="5" max="1440">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="maintenance_mode" class="form-label">Maintenance Mode</label>
-                                    <select class="form-select" id="maintenance_mode" name="maintenance_mode">
-                                        <option value="0" <?php echo (getSetting($conn, 'maintenance_mode', '0') == '0') ? 'selected' : ''; ?>>Disabled</option>
-                                        <option value="1" <?php echo (getSetting($conn, 'maintenance_mode', '0') == '1') ? 'selected' : ''; ?>>Enabled</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Save Button -->
             <div class="d-flex justify-content-end">

@@ -268,6 +268,7 @@ if (isset($conn)) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/layout_user.css">
+    <link rel="stylesheet" href="../../assets/css/loading.css">
 
     <style>
         :root {
@@ -1058,8 +1059,24 @@ if (isset($conn)) {
     </script>
 <?php } ?>
 
+<script src="../../assets/js/loading.js"></script>
 <script src="../../assets/js/layout_user.js"></script>
 <script src="../../assets/js/new_project_add.js"></script>
+<script>
+// Custom form submission handling for project form
+document.addEventListener('DOMContentLoaded', function() {
+    const projectForm = document.querySelector('form[method="POST"]');
+    if (projectForm) {
+        projectForm.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                showFormLoading(this, 'Submitting your project...');
+                setButtonLoading(submitBtn, true, 'Submitting...');
+            }
+        });
+    }
+});
+</script>
 </body>
 
 </html>

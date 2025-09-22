@@ -264,13 +264,19 @@ ob_start();
 $content = ob_get_clean();
 
 $additionalCSS = '
+    <link rel="stylesheet" href="../assets/css/loading.css">
     .email-card { border-left: 4px solid #007bff; }
     .email-success { border-left-color: #28a745; }
     .email-failed { border-left-color: #dc3545; }
     .email-form { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .alert { padding: 1rem; margin-bottom: 1rem; border-radius: 0.5rem; border: 1px solid; }
+    .alert-success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+    .alert-danger { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
 ';
 
 $additionalJS = '
+    <script src="../assets/js/loading.js"></script>
+    <script>
     // Progress slider update
     document.querySelector("input[name=\"completion_percentage\"]").addEventListener("input", function() {
         document.getElementById("progressValue").textContent = this.value + "%";
@@ -303,29 +309,72 @@ $additionalJS = '
         
         const button = form.querySelector("button[type=\"submit\"]");
         const originalText = button.textContent;
-        button.disabled = true;
-        button.textContent = "Sending...";
+        
+        // Show loading with email-specific styling
+        showEmailLoading('Sending email...');
+        setButtonLoading(button, true, 'Sending...');
         
         fetch("send_email.php", {
             method: "POST",
-            body: formData
+            body: formData,
+            noLoading: true // Prevent double loading
         })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            hideEmailLoading();
+            
+            // Show success/error message
+            const alertClass = data.success ? 'alert-success' : 'alert-danger';
+            const alertIcon = data.success ? 'fa-check-circle' : 'fa-exclamation-triangle';
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert ${alertClass} mt-3`;
+            alertDiv.innerHTML = `
+                <i class="fas ${alertIcon} me-2"></i>
+                ${data.message}
+            `;
+            
+            form.insertBefore(alertDiv, form.firstChild);
+            
+            // Auto-remove alert after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+            
             if (data.success) {
                 form.reset();
+                // Reload page to show updated email history
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
             }
         })
         .catch(error => {
-            alert("Error: " + error.message);
+            hideEmailLoading();
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger mt-3';
+            alertDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Error: ${error.message}
+            `;
+            
+            form.insertBefore(alertDiv, form.firstChild);
+            
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
         })
         .finally(() => {
-            button.disabled = false;
-            button.textContent = originalText;
+            setButtonLoading(button, false);
         });
     }
+    </script>
 ';
 
-renderLayout($content, $title);
+renderLayout($content, 'Email Management', $additionalCSS, $additionalJS);
 ?>

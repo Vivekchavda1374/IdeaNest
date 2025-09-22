@@ -106,6 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/login.css">
+    <link rel="stylesheet" href="../../assets/css/loading.css">
     <style>
     .google-login {
         margin: 1rem 0;
@@ -221,6 +222,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </div>
 
+<script src="../../assets/js/loading.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 function handleCredentialResponse(response) {
@@ -229,6 +231,9 @@ function handleCredentialResponse(response) {
         return;
     }
     
+    // Show loading for Google authentication
+    window.loadingManager.show('Authenticating with Google...');
+    
     fetch('google_auth.php', {
         method: 'POST',
         headers: {
@@ -236,24 +241,42 @@ function handleCredentialResponse(response) {
         },
         body: JSON.stringify({
             credential: response.credential
-        })
+        }),
+        noLoading: true // Prevent double loading
     })
     .then(response => {
         if (!response.ok) throw new Error('Network error');
         return response.json();
     })
     .then(data => {
+        window.loadingManager.hide();
         if (data.success) {
+            window.loadingManager.show('Redirecting...');
             window.location.href = data.redirect;
         } else {
             alert('Login failed: ' + (data.message || 'Unknown error'));
         }
     })
     .catch(error => {
+        window.loadingManager.hide();
         console.error('Error:', error);
         alert('Login failed. Please try again.');
     });
 }
+
+// Add loading to regular login form
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.querySelector('.form-section');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('.login-btn');
+            if (submitBtn) {
+                window.loadingManager.show('Signing in...');
+                setButtonLoading(submitBtn, true, 'Signing in...');
+            }
+        });
+    }
+});
 </script>
 <script src="../../assets/js/login.js"></script>
 
