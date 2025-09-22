@@ -6,10 +6,8 @@ ini_set('display_errors', 1);
 
 include_once dirname(__DIR__) . "/Login/Login/db.php";
 
-// Direct inclusion of PHPMailer files
-require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/Exception.php';
-require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/SMTP.php';
+// Use Composer autoloader
+require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
