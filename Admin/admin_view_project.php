@@ -4,9 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Include PHPMailer directly
-require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/Exception.php';
-require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/SMTP.php';
+require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;

@@ -55,6 +55,7 @@ try {
     $mentor['avg_rating'] = $result['avg_rating'] ?? 0;
 
     $mentor['upcoming_sessions'] = 0; // Default value
+
 } catch (Exception $e) {
     error_log("Dashboard error: " . $e->getMessage());
     die("Database error occurred");
@@ -262,7 +263,7 @@ ob_start();
                         <h3 class="animate-counter mb-1"><?= number_format($mentor['avg_rating'] ?? 0, 1) ?></h3>
                         <p class="mb-0">Rating</p>
                         <div>
-                            <?php for ($i = 1; $i <= 5; $i++) : ?>
+                            <?php for($i = 1; $i <= 5; $i++): ?>
                                 <i class="fas fa-star <?= $i <= ($mentor['avg_rating'] ?? 0) ? 'text-warning' : 'opacity-25' ?>"></i>
                             <?php endfor; ?>
                         </div>
@@ -303,15 +304,15 @@ ob_start();
                     </div>
                 </div>
                 <div class="card-body p-4">
-                    <?php if (empty($active_pairs)) : ?>
+                    <?php if (empty($active_pairs)): ?>
                         <div class="text-center py-5">
                             <i class="fas fa-user-plus fa-3x text-muted mb-3"></i>
                             <h6 class="text-muted">No active students yet</h6>
                             <p class="text-muted">Start by accepting pairing suggestions below!</p>
                         </div>
-                    <?php else : ?>
+                    <?php else: ?>
                         <div class="row">
-                            <?php foreach ($active_pairs as $pair) : ?>
+                            <?php foreach ($active_pairs as $pair): ?>
                                 <div class="col-md-6 mb-3">
                                     <div class="student-card glass-card p-3">
                                         <div class="d-flex align-items-start">
@@ -326,14 +327,14 @@ ob_start();
                                                     <?= htmlspecialchars($pair['student_email']) ?>
                                                 </small>
 
-                                                <?php if ($pair['project_name']) : ?>
+                                                <?php if ($pair['project_name']): ?>
                                                     <div class="mt-2">
                                             <span class="badge bg-light text-dark">
                                                 <i class="fas fa-project-diagram me-1"></i>
-                                                    <?= htmlspecialchars($pair['project_name']) ?>
+                                                <?= htmlspecialchars($pair['project_name']) ?>
                                             </span>
                                                         <span class="badge bg-info">
-                                                    <?= htmlspecialchars($pair['classification']) ?>
+                                                <?= htmlspecialchars($pair['classification']) ?>
                                             </span>
                                                     </div>
                                                 <?php endif; ?>
@@ -342,7 +343,7 @@ ob_start();
                                                     <small class="text-muted">
                                                         <i class="fas fa-calendar me-1"></i>
                                                         Sessions: <?= $pair['total_sessions'] ?>
-                                                        <?php if ($pair['next_session']) : ?>
+                                                        <?php if ($pair['next_session']): ?>
                                                             | Next: <?= date('M j, g:i A', strtotime($pair['next_session'])) ?>
                                                         <?php endif; ?>
                                                     </small>
@@ -381,13 +382,13 @@ ob_start();
                     </h6>
                 </div>
                 <div class="card-body p-3">
-                    <?php if (empty($upcoming_sessions)) : ?>
+                    <?php if (empty($upcoming_sessions)): ?>
                         <div class="text-center py-3">
                             <i class="fas fa-calendar text-muted mb-2"></i>
                             <p class="small text-muted mb-0">No upcoming sessions</p>
                         </div>
-                    <?php else : ?>
-                        <?php foreach (array_slice($upcoming_sessions, 0, 3) as $session) : ?>
+                    <?php else: ?>
+                        <?php foreach (array_slice($upcoming_sessions, 0, 3) as $session): ?>
                             <div class="glass-card p-3 mb-3">
                                 <div class="d-flex align-items-start">
                                     <div class="bg-warning rounded-circle p-2 me-3">
@@ -409,23 +410,23 @@ ob_start();
                                                 <?= $session['duration_minutes'] ?? 60 ?> minutes
                                             </small>
                                         </div>
-                                        <?php if (!empty($session['notes'])) : ?>
-                                        <div class="mb-2">
-                                            <small class="text-muted">
-                                                <i class="fas fa-sticky-note me-1"></i>
-                                                <strong>Notes:</strong><br>
-                                                <?= htmlspecialchars(substr($session['notes'], 0, 50)) ?>...
-                                            </small>
-                                        </div>
+                                        <?php if (!empty($session['notes'])): ?>
+                                            <div class="mb-2">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-sticky-note me-1"></i>
+                                                    <strong>Notes:</strong><br>
+                                                    <?= htmlspecialchars(substr($session['notes'], 0, 50)) ?>...
+                                                </small>
+                                            </div>
                                         <?php endif; ?>
-                                        <?php if (!empty($session['meeting_link'])) : ?>
-                                        <div class="mb-2">
-                                            <small class="text-muted">
-                                                <i class="fas fa-link me-1"></i>
-                                                <strong>Meeting Link:</strong><br>
-                                                <a href="<?= htmlspecialchars($session['meeting_link']) ?>" target="_blank" class="text-primary">Join Meeting</a>
-                                            </small>
-                                        </div>
+                                        <?php if (!empty($session['meeting_link'])): ?>
+                                            <div class="mb-2">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-link me-1"></i>
+                                                    <strong>Meeting Link:</strong><br>
+                                                    <a href="<?= htmlspecialchars($session['meeting_link']) ?>" target="_blank" class="text-primary">Join Meeting</a>
+                                                </small>
+                                            </div>
                                         <?php endif; ?>
                                         <span class="badge bg-warning text-dark">
                                             <?= abs($session['hours_until']) ?>h <?= $session['hours_until'] < 0 ? 'overdue' : 'remaining' ?>
@@ -463,7 +464,7 @@ ob_start();
                     $stmt->execute();
                     $email_stats = $stmt->get_result()->fetch_assoc();
                     ?>
-                    
+
                     <div class="row text-center mb-3">
                         <div class="col-6">
                             <h5 class="text-primary mb-0"><?= $email_stats['total_emails'] ?></h5>
@@ -474,7 +475,7 @@ ob_start();
                             <small class="text-muted">Delivered</small>
                         </div>
                     </div>
-                    
+
                     <div class="d-grid gap-2">
                         <a href="send_email.php" class="btn btn-primary btn-sm">
                             <i class="fas fa-envelope me-1"></i>Send Email
@@ -518,13 +519,13 @@ ob_start();
                     </h6>
                 </div>
                 <div class="card-body p-3">
-                    <?php if (empty($notifications)) : ?>
+                    <?php if (empty($notifications)): ?>
                         <div class="text-center py-3">
                             <i class="fas fa-bell-slash text-muted mb-2"></i>
                             <p class="small text-muted mb-0">No new notifications</p>
                         </div>
-                    <?php else : ?>
-                        <?php foreach (array_slice($notifications, 0, 3) as $notification) : ?>
+                    <?php else: ?>
+                        <?php foreach (array_slice($notifications, 0, 3) as $notification): ?>
                             <div class="d-flex align-items-start mb-3">
                                 <div class="bg-info rounded-circle p-1 me-2 mt-1">
                                     <i class="fas fa-dot-circle text-white small"></i>
@@ -557,15 +558,15 @@ ob_start();
                     </div>
                 </div>
                 <div class="card-body p-4">
-                    <?php if (empty($suggested_students)) : ?>
+                    <?php if (empty($suggested_students)): ?>
                         <div class="text-center py-4">
                             <i class="fas fa-search fa-2x text-muted mb-3"></i>
                             <h6 class="text-muted">No suggestions available</h6>
                             <p class="text-muted">All available students have been paired or none match your expertise.</p>
                         </div>
-                    <?php else : ?>
+                    <?php else: ?>
                         <div class="row">
-                            <?php foreach ($suggested_students as $student) : ?>
+                            <?php foreach ($suggested_students as $student): ?>
                                 <div class="col-lg-6 mb-3">
                                     <div class="glass-card p-3 h-100">
                                         <div class="d-flex justify-content-between align-items-start mb-2">
@@ -591,7 +592,7 @@ ob_start();
                                                 <?= htmlspecialchars($student['project_name']) ?>
                                             </h6>
                                             <span class="badge bg-info me-2"><?= htmlspecialchars($student['classification']) ?></span>
-                                            <?php if ($student['expected_duration']) : ?>
+                                            <?php if ($student['expected_duration']): ?>
                                                 <span class="badge bg-light text-dark">
                                         <i class="fas fa-clock me-1"></i><?= $student['expected_duration'] ?> weeks
                                     </span>
@@ -1148,5 +1149,5 @@ $additionalJS = '
     }
 ';
 
-renderLayout($content, $title);
+renderLayout('Dashboard', $content, $additionalCSS, $additionalJS);
 ?>
