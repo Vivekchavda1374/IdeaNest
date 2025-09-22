@@ -356,7 +356,7 @@ if (empty($weekly_performance)) {
                 </div>
                 <div class="stat-value"><?php echo $total_projects; ?></div>
             </div>
-            
+
             <div class="stat-card ideas">
                 <div class="stat-header">
                     <div class="stat-icon">
@@ -366,7 +366,7 @@ if (empty($weekly_performance)) {
                 </div>
                 <div class="stat-value"><?php echo $total_ideas; ?></div>
             </div>
-            
+
             <div class="stat-card bookmarks">
                 <div class="stat-header">
                     <div class="stat-icon">
@@ -417,8 +417,8 @@ if (empty($weekly_performance)) {
                                 <?php foreach ($classification_stats as $index => $classification) : ?>
                                     <div class="chart-stat-item">
                                         <div class="chart-stat-icon" style="background: <?php
-                                            $colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#06b6d4'];
-                                            echo $colors[$index % count($colors)];
+                                        $colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#06b6d4'];
+                                        echo $colors[$index % count($colors)];
                                         ?>;">
                                             <i class="fas fa-circle"></i>
                                         </div>
@@ -448,7 +448,7 @@ if (empty($weekly_performance)) {
                                 <?php foreach ($status_distribution as $status) : ?>
                                     <div class="status-item">
                                         <span class="status-dot" style="background: <?php
-                                            echo $status['status_name'] === 'Approved' ? '#10b981' :
+                                        echo $status['status_name'] === 'Approved' ? '#10b981' :
                                                 ($status['status_name'] === 'Pending' ? '#f59e0b' : '#ef4444');
                                         ?>;"></span>
                                         <span class="status-label"><?php echo $status['status_name']; ?></span>
@@ -561,8 +561,8 @@ if (empty($weekly_performance)) {
                                 <?php foreach ($type_distribution as $index => $type) : ?>
                                     <div class="type-item">
                                         <span class="type-dot" style="background: <?php
-                                            $colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b'];
-                                            echo $colors[$index % count($colors)];
+                                        $colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b'];
+                                        echo $colors[$index % count($colors)];
                                         ?>;"></span>
                                         <span class="type-label"><?php echo htmlspecialchars($type['project_type']); ?></span>
                                         <span class="type-count"><?php echo $type['count']; ?></span>
@@ -704,737 +704,736 @@ if (empty($weekly_performance)) {
     </main>
 </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        // Search functionality
-        const searchInput = document.querySelector('.search-input');
-        if (searchInput) {
-            searchInput.addEventListener('focus', function() {
-                this.parentElement.style.transform = 'scale(1.02)';
-            });
-
-            searchInput.addEventListener('blur', function() {
-                this.parentElement.style.transform = 'scale(1)';
-            });
-        }
-
-        // Animate progress bars on scroll
-        const progressBars = document.querySelectorAll('.progress-fill');
-
-        function animateProgressBars() {
-            progressBars.forEach(bar => {
-                const rect = bar.getBoundingClientRect();
-                if (rect.top < window.innerHeight && rect.bottom > 0) {
-                    const width = bar.style.width;
-                    bar.style.width = '0%';
-                    setTimeout(() => {
-                        bar.style.width = width;
-                    }, 200);
-                }
-            });
-        }
-
-        // Initial animation
-        setTimeout(animateProgressBars, 1000);
-
-        // Animate on scroll
-        window.addEventListener('scroll', animateProgressBars);
-
-        // Add click handlers for stat cards
-        document.querySelectorAll('.stat-card').forEach(card => {
-            card.addEventListener('click', function() {
-                this.style.transform = 'scale(0.98)';
-                setTimeout(() => {
-                    this.style.transform = '';
-                }, 150);
-            });
+<script>
+    // Search functionality
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput) {
+        searchInput.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
         });
 
-        // Classification items hover effect
-        document.querySelectorAll('.classification-item').forEach(item => {
-            item.addEventListener('mouseenter', function() {
-                const progressBar = this.querySelector('.progress-fill');
-                const currentWidth = progressBar.style.width;
-                progressBar.style.width = '100%';
-                setTimeout(() => {
-                    progressBar.style.width = currentWidth;
-                }, 300);
-            });
+        searchInput.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
         });
+    }
 
-        // Search functionality placeholder
-        function fetchResults() {
-            const query = document.getElementById('search').value;
-            const resultsDiv = document.getElementById('searchResults');
+    // Animate progress bars on scroll
+    const progressBars = document.querySelectorAll('.progress-fill');
 
-            if (query.length > 2) {
-                // Show search results div
-                resultsDiv.classList.remove('d-none');
+    function animateProgressBars() {
+        progressBars.forEach(bar => {
+            const rect = bar.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 200);
+            }
+        });
+    }
 
-                // This is where you would implement actual search functionality
-                // For now, it's just a placeholder
-                resultsDiv.innerHTML = `
+    // Initial animation
+    setTimeout(animateProgressBars, 1000);
+
+    // Animate on scroll
+    window.addEventListener('scroll', animateProgressBars);
+
+    // Add click handlers for stat cards
+    document.querySelectorAll('.stat-card').forEach(card => {
+        card.addEventListener('click', function() {
+            this.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+    });
+
+    // Classification items hover effect
+    document.querySelectorAll('.classification-item').forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            const progressBar = this.querySelector('.progress-fill');
+            const currentWidth = progressBar.style.width;
+            progressBar.style.width = '100%';
+            setTimeout(() => {
+                progressBar.style.width = currentWidth;
+            }, 300);
+        });
+    });
+
+    // Search functionality placeholder
+    function fetchResults() {
+        const query = document.getElementById('search').value;
+        const resultsDiv = document.getElementById('searchResults');
+
+        if (query.length > 2) {
+            // Show search results div
+            resultsDiv.classList.remove('d-none');
+
+            // This is where you would implement actual search functionality
+            // For now, it's just a placeholder
+            resultsDiv.innerHTML = `
                     <div class="p-2">
                         <p class="text-muted small mb-0">Search results for "${query}" would appear here...</p>
                     </div>
                 `;
-            } else {
-                // Hide search results div
-                resultsDiv.classList.add('d-none');
-            }
+        } else {
+            // Hide search results div
+            resultsDiv.classList.add('d-none');
         }
+    }
 
-        // Hide search results when clicking outside
+    // Hide search results when clicking outside
+    document.addEventListener('click', function(event) {
+        const searchContainer = document.querySelector('.search-container');
+        const resultsDiv = document.getElementById('searchResults');
+
+        if (searchContainer && !searchContainer.contains(event.target)) {
+            resultsDiv.classList.add('d-none');
+        }
+    });
+
+    // User Profile Dropdown Functionality
+    const userProfileDropdown = document.getElementById('userProfileDropdown');
+    const userDropdownMenu = document.getElementById('userDropdownMenu');
+
+    if (userProfileDropdown && userDropdownMenu) {
+        // Toggle dropdown on click
+        userProfileDropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdownMenu.classList.toggle('show');
+            userProfileDropdown.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
-            const searchContainer = document.querySelector('.search-container');
-            const resultsDiv = document.getElementById('searchResults');
-
-            if (searchContainer && !searchContainer.contains(event.target)) {
-                resultsDiv.classList.add('d-none');
+            if (!userProfileDropdown.contains(event.target)) {
+                userDropdownMenu.classList.remove('show');
+                userProfileDropdown.classList.remove('active');
             }
         });
 
-        // User Profile Dropdown Functionality
-        const userProfileDropdown = document.getElementById('userProfileDropdown');
-        const userDropdownMenu = document.getElementById('userDropdownMenu');
+        // Close dropdown on escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                userDropdownMenu.classList.remove('show');
+                userProfileDropdown.classList.remove('active');
+            }
+        });
+    }
 
-        if (userProfileDropdown && userDropdownMenu) {
-            // Toggle dropdown on click
-            userProfileDropdown.addEventListener('click', function(e) {
-                e.stopPropagation();
-                userDropdownMenu.classList.toggle('show');
-                userProfileDropdown.classList.toggle('active');
-            });
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // Any initialization code can go here
+        console.log('IdeaNest Dashboard Loaded');
 
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!userProfileDropdown.contains(event.target)) {
-                    userDropdownMenu.classList.remove('show');
-                    userProfileDropdown.classList.remove('active');
-                }
-            });
+        // Load More Button Functionality
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const additionalDetails = document.getElementById('additionalDetails');
 
-            // Close dropdown on escape key
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Escape') {
-                    userDropdownMenu.classList.remove('show');
-                    userProfileDropdown.classList.remove('active');
+        if (loadMoreBtn && additionalDetails) {
+            loadMoreBtn.addEventListener('click', function() {
+                const isExpanded = additionalDetails.style.display !== 'none';
+
+                if (isExpanded) {
+                    // Collapse
+                    additionalDetails.style.display = 'none';
+                    loadMoreBtn.innerHTML = '<i class="fas fa-chevron-down me-2"></i><span>Load More Details</span>';
+                    loadMoreBtn.classList.remove('expanded');
+                } else {
+                    // Expand
+                    loadMoreBtn.classList.add('loading');
+                    loadMoreBtn.innerHTML = '<i class="fas fa-spinner me-2"></i><span>Loading...</span>';
+
+                    // Simulate loading delay
+                    setTimeout(() => {
+                        additionalDetails.style.display = 'block';
+                        loadMoreBtn.classList.remove('loading');
+                        loadMoreBtn.classList.add('expanded');
+                        loadMoreBtn.innerHTML = '<i class="fas fa-chevron-up me-2"></i><span>Show Less</span>';
+
+                        // Smooth scroll to additional details
+                        additionalDetails.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }, 800);
                 }
             });
         }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            // Any initialization code can go here
-            console.log('IdeaNest Dashboard Loaded');
+        // Initialize Charts
+        if (typeof Chart !== 'undefined') {
+            initializeCharts();
+        } else {
+            console.error('Chart.js library not loaded');
+        }
+    });
 
-            // Load More Button Functionality
-            const loadMoreBtn = document.getElementById('loadMoreBtn');
-            const additionalDetails = document.getElementById('additionalDetails');
+    // Chart Configuration and Initialization
+    function initializeCharts() {
+        // Chart.js global configuration
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b';
+        Chart.defaults.plugins.legend.labels.usePointStyle = true;
+        Chart.defaults.plugins.legend.labels.padding = 20;
 
-            if (loadMoreBtn && additionalDetails) {
-                loadMoreBtn.addEventListener('click', function() {
-                    const isExpanded = additionalDetails.style.display !== 'none';
+        // Project Classifications Pie Chart
+        const classificationsCtx = document.getElementById('classificationsChart');
+        if (classificationsCtx) {
+            const classificationData = <?php echo json_encode($classification_stats); ?>;
+            const labels = classificationData.map(item => item.classification);
+            const data = classificationData.map(item => item.count);
+            const colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#06b6d4'];
 
-                    if (isExpanded) {
-                        // Collapse
-                        additionalDetails.style.display = 'none';
-                        loadMoreBtn.innerHTML = '<i class="fas fa-chevron-down me-2"></i><span>Load More Details</span>';
-                        loadMoreBtn.classList.remove('expanded');
-                    } else {
-                        // Expand
-                        loadMoreBtn.classList.add('loading');
-                        loadMoreBtn.innerHTML = '<i class="fas fa-spinner me-2"></i><span>Loading...</span>';
-
-                        // Simulate loading delay
-                        setTimeout(() => {
-                            additionalDetails.style.display = 'block';
-                            loadMoreBtn.classList.remove('loading');
-                            loadMoreBtn.classList.add('expanded');
-                            loadMoreBtn.innerHTML = '<i class="fas fa-chevron-up me-2"></i><span>Show Less</span>';
-
-                            // Smooth scroll to additional details
-                            additionalDetails.scrollIntoView({
-                                behavior: 'smooth',
-                                block: 'start'
-                            });
-                        }, 800);
-                    }
-                });
-            }
-
-            // Initialize Charts
-            if (typeof Chart !== 'undefined') {
-                initializeCharts();
-            } else {
-                console.error('Chart.js library not loaded');
-            }
-        });
-
-        // Chart Configuration and Initialization
-        function initializeCharts() {
-            // Chart.js global configuration
-            Chart.defaults.font.family = "'Inter', sans-serif";
-            Chart.defaults.color = '#64748b';
-            Chart.defaults.plugins.legend.labels.usePointStyle = true;
-            Chart.defaults.plugins.legend.labels.padding = 20;
-
-            // Project Classifications Pie Chart
-            const classificationsCtx = document.getElementById('classificationsChart');
-            if (classificationsCtx) {
-                const classificationData = <?php echo json_encode($classification_stats); ?>;
-                const labels = classificationData.map(item => item.classification);
-                const data = classificationData.map(item => item.count);
-                const colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899', '#06b6d4'];
-
-                new Chart(classificationsCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: data,
-                            backgroundColor: colors.slice(0, labels.length),
-                            borderWidth: 0,
-                            hoverOffset: 4
-                        }]
+            new Chart(classificationsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        }
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    padding: 20,
-                                    usePointStyle: true,
-                                    pointStyle: 'circle'
-                                }
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true
+                    }
+                }
+            });
+        }
+
+        // Monthly Submissions Bar Chart with Real Data
+        const monthlyCtx = document.getElementById('monthlyChart');
+        if (monthlyCtx) {
+            const monthlyData = <?php echo json_encode($monthly_trends); ?>;
+            const months = monthlyData.map(item => {
+                const date = new Date(item.month + '-01');
+                return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+            }).reverse();
+            const submissions = monthlyData.map(item => item.count).reverse();
+
+            new Chart(monthlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Project Submissions',
+                        data: submissions,
+                        backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
                             }
                         },
-                        animation: {
-                            animateRotate: true,
-                            animateScale: true
-                        }
-                    }
-                });
-            }
-
-            // Monthly Submissions Bar Chart with Real Data
-            const monthlyCtx = document.getElementById('monthlyChart');
-            if (monthlyCtx) {
-                const monthlyData = <?php echo json_encode($monthly_trends); ?>;
-                const months = monthlyData.map(item => {
-                    const date = new Date(item.month + '-01');
-                    return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
-                }).reverse();
-                const submissions = monthlyData.map(item => item.count).reverse();
-
-                new Chart(monthlyCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: months,
-                        datasets: [{
-                            label: 'Project Submissions',
-                            data: submissions,
-                            backgroundColor: 'rgba(99, 102, 241, 0.8)',
-                            borderColor: 'rgba(99, 102, 241, 1)',
-                            borderWidth: 2,
-                            borderRadius: 8,
-                            borderSkipped: false,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
+                        x: {
+                            grid: {
                                 display: false
                             }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false
-                                }
-                            }
-                        },
-                        animation: {
-                            duration: 2000,
-                            easing: 'easeInOutQuart'
                         }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuart'
                     }
-                });
-            }
+                }
+            });
+        }
 
-            // Status Distribution Chart with Real Data
-            const statusCtx = document.getElementById('statusChart');
-            if (statusCtx) {
-                const statusData = <?php echo json_encode($status_distribution); ?>;
-                const statusLabels = statusData.map(item => item.status_name);
-                const statusCounts = statusData.map(item => item.count);
-                const statusColors = statusData.map(item =>
-                    item.status_name === 'Approved' ? '#10b981' :
+        // Status Distribution Chart with Real Data
+        const statusCtx = document.getElementById('statusChart');
+        if (statusCtx) {
+            const statusData = <?php echo json_encode($status_distribution); ?>;
+            const statusLabels = statusData.map(item => item.status_name);
+            const statusCounts = statusData.map(item => item.count);
+            const statusColors = statusData.map(item =>
+                item.status_name === 'Approved' ? '#10b981' :
                     (item.status_name === 'Pending' ? '#f59e0b' : '#ef4444')
-                );
+            );
 
-                new Chart(statusCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: statusLabels,
-                        datasets: [{
-                            data: statusCounts,
-                            backgroundColor: statusColors,
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        cutout: '70%',
-                        animation: {
-                            animateRotate: true,
-                            animateScale: true
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: statusLabels,
+                    datasets: [{
+                        data: statusCounts,
+                        backgroundColor: statusColors,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
                         }
-                    }
-                });
-            }
-
-            // Technology Stack Chart with Real Data
-            const techCtx = document.getElementById('techChart');
-            if (techCtx) {
-                const techData = <?php echo json_encode($tech_analysis); ?>;
-                const techLabels = techData.map(item => item.language);
-                const techCounts = techData.map(item => item.count);
-                const techColors = [
-                    'rgba(99, 102, 241, 0.8)',
-                    'rgba(139, 92, 246, 0.8)',
-                    'rgba(16, 185, 129, 0.8)',
-                    'rgba(245, 158, 11, 0.8)',
-                    'rgba(239, 68, 68, 0.8)',
-                    'rgba(59, 130, 246, 0.8)',
-                    'rgba(236, 72, 153, 0.8)',
-                    'rgba(6, 182, 212, 0.8)'
-                ];
-
-                new Chart(techCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: techLabels,
-                        datasets: [{
-                            label: 'Number of Projects',
-                            data: techCounts,
-                            backgroundColor: techColors.slice(0, techLabels.length),
-                            borderRadius: 4,
-                            borderWidth: 1,
-                            borderColor: techColors.map(color => color.replace('0.8', '1')),
-                            hoverBackgroundColor: techColors.map(color => color.replace('0.8', '0.9')),
-                            barPercentage: 0.7,
-                            categoryPercentage: 0.8
-                        }]
                     },
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const value = context.raw;
-                                        const total = context.dataset.data.reduce((a, b) => parseInt(a) + parseInt(b), 0);
-                                        const percentage = ((value / total) * 100).toFixed(1);
-                                        return `${value} projects (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        },
-                        animation: {
-                            duration: 2000,
-                            easing: 'easeInOutQuart',
-                            onProgress: function(animation) {
-                                const chart = animation.chart;
-                                const ctx = chart.ctx;
-                                const dataset = chart.data.datasets[0];
-                                const meta = chart.getDatasetMeta(0);
-
-                                ctx.save();
-                                ctx.fillStyle = '#1f2937';
-                                ctx.font = '600 12px Inter';
-                                ctx.textAlign = 'left';
-                                ctx.textBaseline = 'middle';
-
-                                const total = dataset.data.reduce((a, b) => parseInt(a) + parseInt(b), 0);
-
-                                meta.data.forEach((bar, index) => {
-                                    const value = parseInt(dataset.data[index]);
-                                    const percentage = ((value / total) * 100).toFixed(1);
-                                    const position = bar.getCenterPoint();
-
-                                    // Format text and ensure it's visible
-                                    ctx.fillText(`${value} (${percentage}%)`, position.x + 15, position.y);
-                                });
-                                ctx.restore();
-                            }
-                        },
-                        onClick: (event, elements) => {
-                            if (elements.length > 0) {
-                                const index = elements[0].index;
-                                const label = techLabels[index];
-                                const count = techCounts[index];
-                                // You can add click interaction here
-                                console.log(`Clicked on ${label}: ${count} projects`);
-                            }
-                        }
+                    cutout: '70%',
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true
                     }
-                });
-            }
-
-            // Project Types Chart with Real Data
-            const typeCtx = document.getElementById('typeChart');
-            if (typeCtx) {
-                const typeData = <?php echo json_encode($type_distribution); ?>;
-                const typeLabels = typeData.map(item => item.project_type);
-                const typeCounts = typeData.map(item => item.count);
-                const typeColors = [
-                    'rgba(99, 102, 241, 0.8)',
-                    'rgba(139, 92, 246, 0.8)',
-                    'rgba(16, 185, 129, 0.8)',
-                    'rgba(245, 158, 11, 0.8)'
-                ];
-
-                new Chart(typeCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: typeLabels,
-                        datasets: [{
-                            data: typeCounts,
-                            backgroundColor: typeColors.slice(0, typeLabels.length),
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        cutout: '60%',
-                        animation: {
-                            animateRotate: true,
-                            animateScale: true
-                        }
-                    }
-                });
-            }
-
-            // User Engagement Chart
-            const engagementCtx = document.getElementById('engagementChart');
-            if (engagementCtx) {
-                const engagementData = <?php echo json_encode($engagement_metrics); ?>;
-                const dates = engagementData.map(item => {
-                    const date = new Date(item.date);
-                    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                }).reverse();
-                const submissions = engagementData.map(item => item.submissions).reverse();
-                const uniqueUsers = engagementData.map(item => item.unique_users).reverse();
-
-                new Chart(engagementCtx, {
-                    type: 'line',
-                    data: {
-                        labels: dates,
-                        datasets: [{
-                            label: 'Submissions',
-                            data: submissions,
-                            borderColor: 'rgba(99, 102, 241, 1)',
-                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4,
-                            pointBackgroundColor: 'rgba(99, 102, 241, 1)',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 5
-                        }, {
-                            label: 'Active Users',
-                            data: uniqueUsers,
-                            borderColor: 'rgba(16, 185, 129, 1)',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4,
-                            pointBackgroundColor: 'rgba(16, 185, 129, 1)',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 5
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            intersect: false,
-                            mode: 'index'
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                align: 'end'
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Project Complexity Chart
-            const complexityCtx = document.getElementById('complexityChart');
-            if (complexityCtx) {
-                const complexityData = <?php echo json_encode($complexity_analysis); ?>;
-                const complexityLabels = complexityData.map(item => item.complexity);
-                const complexityCounts = complexityData.map(item => item.count);
-                const complexityColors = ['#10b981', '#f59e0b', '#ef4444'];
-
-                new Chart(complexityCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: complexityLabels,
-                        datasets: [{
-                            data: complexityCounts,
-                            backgroundColor: complexityColors.slice(0, complexityLabels.length),
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        cutout: '65%'
-                    }
-                });
-            }
-
-            // Weekly Performance Chart
-            const weeklyCtx = document.getElementById('weeklyChart');
-            if (weeklyCtx) {
-                const weeklyData = <?php echo json_encode($weekly_performance); ?>;
-                const weekLabels = weeklyData.map(item => `W${item.week_num}`).reverse();
-                const weeklySubmissions = weeklyData.map(item => item.submissions).reverse();
-                const weeklyApprovalRates = weeklyData.map(item => parseFloat(item.approval_rate)).reverse();
-
-                new Chart(weeklyCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: weekLabels,
-                        datasets: [{
-                            label: 'Submissions',
-                            data: weeklySubmissions,
-                            backgroundColor: 'rgba(99, 102, 241, 0.8)',
-                            borderColor: 'rgba(99, 102, 241, 1)',
-                            borderWidth: 1,
-                            yAxisID: 'y'
-                        }, {
-                            label: 'Approval Rate (%)',
-                            data: weeklyApprovalRates,
-                            type: 'line',
-                            borderColor: 'rgba(16, 185, 129, 1)',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            borderWidth: 3,
-                            fill: false,
-                            tension: 0.4,
-                            yAxisID: 'y1'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false
-                        },
-                        scales: {
-                            y: {
-                                type: 'linear',
-                                display: true,
-                                position: 'left',
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Submissions'
-                                }
-                            },
-                            y1: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                min: 0,
-                                max: 100,
-                                title: {
-                                    display: true,
-                                    text: 'Approval Rate (%)'
-                                },
-                                grid: {
-                                    drawOnChartArea: false
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Project Timeline Chart
-            const timelineCtx = document.getElementById('timelineChart');
-            if (timelineCtx) {
-                const timelineData = <?php echo json_encode($completion_timeline); ?>;
-                
-                // Process timeline data for stacked chart
-                const timelineMap = {};
-                timelineData.forEach(item => {
-                    const day = item.days_since_submission;
-                    if (!timelineMap[day]) {
-                        timelineMap[day] = { approved: 0, pending: 0, rejected: 0 };
-                    }
-                    timelineMap[day][item.status] = item.count;
-                });
-
-                const sortedDays = Object.keys(timelineMap).sort((a, b) => b - a).slice(0, 30);
-                const approvedData = sortedDays.map(day => timelineMap[day].approved || 0);
-                const pendingData = sortedDays.map(day => timelineMap[day].pending || 0);
-                const rejectedData = sortedDays.map(day => timelineMap[day].rejected || 0);
-                const dayLabels = sortedDays.map(day => `${day}d ago`);
-
-                new Chart(timelineCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: dayLabels.reverse(),
-                        datasets: [{
-                            label: 'Approved',
-                            data: approvedData.reverse(),
-                            backgroundColor: 'rgba(16, 185, 129, 0.8)',
-                            borderColor: 'rgba(16, 185, 129, 1)',
-                            borderWidth: 1
-                        }, {
-                            label: 'Pending',
-                            data: pendingData.reverse(),
-                            backgroundColor: 'rgba(245, 158, 11, 0.8)',
-                            borderColor: 'rgba(245, 158, 11, 1)',
-                            borderWidth: 1
-                        }, {
-                            label: 'Rejected',
-                            data: rejectedData.reverse(),
-                            backgroundColor: 'rgba(239, 68, 68, 0.8)',
-                            borderColor: 'rgba(239, 68, 68, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'top'
-                            }
-                        },
-                        scales: {
-                            x: {
-                                stacked: true,
-                                grid: {
-                                    display: false
-                                }
-                            },
-                            y: {
-                                stacked: true,
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        }
-
-        // Refresh chart function
-        function refreshChart(chartId) {
-            // This would typically make an AJAX call to refresh data
-            // For now, we'll just show a loading state
-            const button = event.target.closest('button');
-            const originalText = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
-            button.disabled = true;
-
-            setTimeout(() => {
-                button.innerHTML = originalText;
-                button.disabled = false;
-                // Here you would typically reload the chart with fresh data
-            }, 1000);
-        }
-
-        // Toggle engagement view
-        function toggleEngagementView(view) {
-            const buttons = document.querySelectorAll('.btn-group .btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // Here you would switch between daily and weekly views
-            console.log(`Switching to ${view} view`);
-        }
-
-        // Export chart function
-        function exportChart(chartId) {
-            const button = event.target.closest('button');
-            const originalText = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
-            button.disabled = true;
-
-            setTimeout(() => {
-                const canvas = document.getElementById(chartId);
-                if (canvas) {
-                    const url = canvas.toDataURL('image/png');
-                    const link = document.createElement('a');
-                    link.download = `${chartId}_export.png`;
-                    link.href = url;
-                    link.click();
                 }
-                button.innerHTML = originalText;
-                button.disabled = false;
-            }, 1500);
+            });
         }
-    </script>
+
+        // Technology Stack Chart with Real Data
+        const techCtx = document.getElementById('techChart');
+        if (techCtx) {
+            const techData = <?php echo json_encode($tech_analysis); ?>;
+            const techLabels = techData.map(item => item.language);
+            const techCounts = techData.map(item => item.count);
+            const techColors = [
+                'rgba(99, 102, 241, 0.8)',
+                'rgba(139, 92, 246, 0.8)',
+                'rgba(16, 185, 129, 0.8)',
+                'rgba(245, 158, 11, 0.8)',
+                'rgba(239, 68, 68, 0.8)',
+                'rgba(59, 130, 246, 0.8)',
+                'rgba(236, 72, 153, 0.8)',
+                'rgba(6, 182, 212, 0.8)'
+            ];
+
+            new Chart(techCtx, {
+                type: 'bar',
+                data: {
+                    labels: techLabels,
+                    datasets: [{
+                        label: 'Number of Projects',
+                        data: techCounts,
+                        backgroundColor: techColors.slice(0, techLabels.length),
+                        borderRadius: 4,
+                        borderWidth: 1,
+                        borderColor: techColors.map(color => color.replace('0.8', '1')),
+                        hoverBackgroundColor: techColors.map(color => color.replace('0.8', '0.9')),
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.8
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => parseInt(a) + parseInt(b), 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${value} projects (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuart',
+                        onProgress: function(animation) {
+                            const chart = animation.chart;
+                            const ctx = chart.ctx;
+                            const dataset = chart.data.datasets[0];
+                            const meta = chart.getDatasetMeta(0);
+
+                            ctx.save();
+                            ctx.fillStyle = '#1f2937';
+                            ctx.font = '600 12px Inter';
+                            ctx.textAlign = 'left';
+                            ctx.textBaseline = 'middle';
+
+                            const total = dataset.data.reduce((a, b) => parseInt(a) + parseInt(b), 0);
+
+                            meta.data.forEach((bar, index) => {
+                                const value = parseInt(dataset.data[index]);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                const position = bar.getCenterPoint();
+
+                                // Format text and ensure it's visible
+                                ctx.fillText(`${value} (${percentage}%)`, position.x + 15, position.y);
+                            });
+                            ctx.restore();
+                        }
+                    },
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const label = techLabels[index];
+                            const count = techCounts[index];
+                            // You can add click interaction here
+                            console.log(`Clicked on ${label}: ${count} projects`);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Project Types Chart with Real Data
+        const typeCtx = document.getElementById('typeChart');
+        if (typeCtx) {
+            const typeData = <?php echo json_encode($type_distribution); ?>;
+            const typeLabels = typeData.map(item => item.project_type);
+            const typeCounts = typeData.map(item => item.count);
+            const typeColors = [
+                'rgba(99, 102, 241, 0.8)',
+                'rgba(139, 92, 246, 0.8)',
+                'rgba(16, 185, 129, 0.8)',
+                'rgba(245, 158, 11, 0.8)'
+            ];
+
+            new Chart(typeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: typeLabels,
+                    datasets: [{
+                        data: typeCounts,
+                        backgroundColor: typeColors.slice(0, typeLabels.length),
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    cutout: '60%',
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true
+                    }
+                }
+            });
+        }
+
+        // User Engagement Chart
+        const engagementCtx = document.getElementById('engagementChart');
+        if (engagementCtx) {
+            const engagementData = <?php echo json_encode($engagement_metrics); ?>;
+            const dates = engagementData.map(item => {
+                const date = new Date(item.date);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }).reverse();
+            const submissions = engagementData.map(item => item.submissions).reverse();
+            const uniqueUsers = engagementData.map(item => item.unique_users).reverse();
+
+            new Chart(engagementCtx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Submissions',
+                        data: submissions,
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    }, {
+                        label: 'Active Users',
+                        data: uniqueUsers,
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Project Complexity Chart
+        const complexityCtx = document.getElementById('complexityChart');
+        if (complexityCtx) {
+            const complexityData = <?php echo json_encode($complexity_analysis); ?>;
+            const complexityLabels = complexityData.map(item => item.complexity);
+            const complexityCounts = complexityData.map(item => item.count);
+            const complexityColors = ['#10b981', '#f59e0b', '#ef4444'];
+
+            new Chart(complexityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: complexityLabels,
+                    datasets: [{
+                        data: complexityCounts,
+                        backgroundColor: complexityColors.slice(0, complexityLabels.length),
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        // Weekly Performance Chart
+        const weeklyCtx = document.getElementById('weeklyChart');
+        if (weeklyCtx) {
+            const weeklyData = <?php echo json_encode($weekly_performance); ?>;
+            const weekLabels = weeklyData.map(item => `W${item.week_num}`).reverse();
+            const weeklySubmissions = weeklyData.map(item => item.submissions).reverse();
+            const weeklyApprovalRates = weeklyData.map(item => parseFloat(item.approval_rate)).reverse();
+
+            new Chart(weeklyCtx, {
+                type: 'bar',
+                data: {
+                    labels: weekLabels,
+                    datasets: [{
+                        label: 'Submissions',
+                        data: weeklySubmissions,
+                        backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Approval Rate (%)',
+                        data: weeklyApprovalRates,
+                        type: 'line',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        fill: false,
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Submissions'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            min: 0,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Approval Rate (%)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Project Timeline Chart
+        const timelineCtx = document.getElementById('timelineChart');
+        if (timelineCtx) {
+            const timelineData = <?php echo json_encode($completion_timeline); ?>;
+
+            // Process timeline data for stacked chart
+            const timelineMap = {};
+            timelineData.forEach(item => {
+                const day = item.days_since_submission;
+                if (!timelineMap[day]) {
+                    timelineMap[day] = { approved: 0, pending: 0, rejected: 0 };
+                }
+                timelineMap[day][item.status] = item.count;
+            });
+
+            const sortedDays = Object.keys(timelineMap).sort((a, b) => b - a).slice(0, 30);
+            const approvedData = sortedDays.map(day => timelineMap[day].approved || 0);
+            const pendingData = sortedDays.map(day => timelineMap[day].pending || 0);
+            const rejectedData = sortedDays.map(day => timelineMap[day].rejected || 0);
+            const dayLabels = sortedDays.map(day => `${day}d ago`);
+
+            new Chart(timelineCtx, {
+                type: 'bar',
+                data: {
+                    labels: dayLabels.reverse(),
+                    datasets: [{
+                        label: 'Approved',
+                        data: approvedData.reverse(),
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Pending',
+                        data: pendingData.reverse(),
+                        backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                        borderColor: 'rgba(245, 158, 11, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Rejected',
+                        data: rejectedData.reverse(),
+                        backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    // Refresh chart function
+    function refreshChart(chartId) {
+        // This would typically make an AJAX call to refresh data
+        // For now, we'll just show a loading state
+        const button = event.target.closest('button');
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+        button.disabled = true;
+
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+            // Here you would typically reload the chart with fresh data
+        }, 1000);
+    }
+
+    // Toggle engagement view
+    function toggleEngagementView(view) {
+        const buttons = document.querySelectorAll('.btn-group .btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        // Here you would switch between daily and weekly views
+        console.log(`Switching to ${view} view`);
+    }
+
+    // Export chart function
+    function exportChart(chartId) {
+        const button = event.target.closest('button');
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+        button.disabled = true;
+
+        setTimeout(() => {
+            const canvas = document.getElementById(chartId);
+            if (canvas) {
+                const url = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = `${chartId}_export.png`;
+                link.href = url;
+                link.click();
+            }
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }, 1500);
+    }
+</script>
 </body>
 </html>
-
