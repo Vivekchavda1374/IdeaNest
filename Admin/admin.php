@@ -84,11 +84,12 @@ function approveProject($project_id, $conn)
             keywords, contact_email, social_links, description, language, 
             image_path, video_path, code_file_path, instruction_file_path,
             presentation_file_path, additional_files_path, submission_date, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $approve_stmt = $conn->prepare($approve_query);
+        $status = 'approved';
         $approve_stmt->bind_param(
-            "ssssssssssssssssssssssssss",
+            "ssssssssssssssssssssssssssss",
             $project['user_id'],
             $project['project_name'],
             $project['project_type'],
@@ -115,7 +116,8 @@ function approveProject($project_id, $conn)
             $project['instruction_file_path'],
             $project['presentation_file_path'],
             $project['additional_files_path'],
-            $project['submission_date']
+            $project['submission_date'],
+            $status
         );
 
         $approve_stmt->execute();
@@ -166,11 +168,12 @@ function rejectProject($project_id, $rejection_reason, $conn)
             image_path, video_path, code_file_path, instruction_file_path,
             presentation_file_path, additional_files_path, submission_date, 
             status, rejection_date, rejection_reason
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'rejected', NOW(), ?)";
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
 
         $reject_stmt = $conn->prepare($reject_query);
+        $status = 'rejected';
         $reject_stmt->bind_param(
-            "ssssssssssssssssssssssssss",
+            "sssssssssssssssssssssssssssss",
             $project['user_id'],
             $project['project_name'],
             $project['project_type'],
@@ -198,6 +201,7 @@ function rejectProject($project_id, $rejection_reason, $conn)
             $project['presentation_file_path'],
             $project['additional_files_path'],
             $project['submission_date'],
+            $status,
             $rejection_reason
         );
 
