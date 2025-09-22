@@ -7,9 +7,7 @@ ini_set('display_errors', 1);
 include "../Login/Login/db.php";
 
 // Include PHPMailer for email functionality
-require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/Exception.php';
-require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/SMTP.php';
+require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;

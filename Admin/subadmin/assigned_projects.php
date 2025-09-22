@@ -24,9 +24,7 @@ $stmt->bind_param("ss", $software_classification, $hardware_classification);
 $stmt->execute();
 $result = $stmt->get_result();
 
-require_once dirname(__FILE__) . '/../../vendor/phpmailer/phpmailer/src/Exception.php';
-require_once dirname(__FILE__) . '/../../vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require_once dirname(__FILE__) . '/../../vendor/phpmailer/phpmailer/src/SMTP.php';
+require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 

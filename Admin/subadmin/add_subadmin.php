@@ -9,9 +9,7 @@ ini_set('display_errors', 1);
 include_once "../../Login/Login/db.php";
 
 // PHPMailer dependencies
-require_once '../../vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require_once '../../vendor/phpmailer/phpmailer/src/SMTP.php';
-require_once '../../vendor/phpmailer/phpmailer/src/Exception.php';
+require_once '../../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
