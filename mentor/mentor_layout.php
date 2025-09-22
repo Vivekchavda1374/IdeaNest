@@ -13,8 +13,12 @@ function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '')
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- Loading CSS -->
+        <link rel="stylesheet" href="../assets/css/loading.css">
         <!-- Chart.js -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <!-- Loading JS -->
+        <script src="../assets/js/loading.js"></script>
 
         <style>
             :root {
@@ -227,7 +231,7 @@ function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '')
                     Profile Settings
                 </a>
                 <hr class="my-3">
-                <a class="nav-link text-danger" href="logout.php">
+                <a class="nav-link text-danger" href="logout.php" onclick="showPageLoading()">
                     <i class="fas fa-sign-out-alt"></i>
                     Logout
                 </a>
