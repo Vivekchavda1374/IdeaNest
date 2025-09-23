@@ -379,7 +379,7 @@ $message = $_GET['message'] ?? '';
                                                             <h6><i class="fas fa-file text-secondary me-2"></i>Project Files</h6>
                                                             <?php if($project['image_path']): ?>
                                                                 <a href="../user/<?php echo htmlspecialchars($project['image_path']); ?>" target="_blank" class="file-link">
-                                                                    <i class="fas fa-image me-2"></i>Images
+                                                                    <i class="fas fa-file-archive me-2"></i>Project Files (ZIP)
                                                                 </a>
                                                             <?php endif; ?>
                                                             <?php if($project['video_path']): ?>
