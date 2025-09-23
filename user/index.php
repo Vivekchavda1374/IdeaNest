@@ -1434,6 +1434,33 @@ if (empty($weekly_performance)) {
             button.disabled = false;
         }, 1500);
     }
+
+    // Show notification function for GitHub AJAX operations
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'error' ? 'exclamation-circle' : (type === 'success' ? 'check-circle' : 'info-circle')}"></i>
+            <span>${message}</span>
+            <button onclick="this.parentElement.remove()" class="notification-close">&times;</button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 5000);
+    }
 </script>
+
+<!-- GitHub Profile AJAX Integration -->
+<script>
+// Make showNotification globally available for GitHub profile operations
+window.showNotification = showNotification;
+</script>
+
 </body>
 </html>
