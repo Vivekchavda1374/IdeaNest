@@ -17,6 +17,7 @@ function renderLayout($title, $content, $activePage = '')
         <!-- Google Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="../../assets/css/sidebar_subadmin.css">
+        <link rel="stylesheet" href="../../assets/css/loading.css">
 
     </head>
     <body>
@@ -32,26 +33,27 @@ function renderLayout($title, $content, $activePage = '')
         <div class="sidebar-content">
             <ul class="sidebar-menu">
                 <li class="sidebar-item">
-                    <a href="dashboard.php" class="sidebar-link <?php echo $activePage === 'dashboard' ? 'active' : ''; ?>">
+                    <a href="dashboard.php" class="sidebar-link <?php echo $activePage === 'dashboard' ? 'active' : ''; ?>" onclick="showPageLoading()">
                         <i class="bi bi-grid-1x2-fill"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="profile.php" class="sidebar-link <?php echo $activePage === 'profile' ? 'active' : ''; ?>">
+                    <a href="profile.php" class="sidebar-link <?php echo $activePage === 'profile' ? 'active' : ''; ?>" onclick="showPageLoading()">
                         <i class="bi bi-person-circle"></i>
                         <span>Profile</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="assigned_projects.php" class="sidebar-link <?php echo $activePage === 'projects' ? 'active' : ''; ?>">
+                    <a href="assigned_projects.php" class="sidebar-link <?php echo $activePage === 'projects' ? 'active' : ''; ?>" onclick="showPageLoading()">
                         <i class="bi bi-kanban-fill"></i>
                         <span>Assigned Projects</span>
                     </a>
                 </li>
 
+
                 <li class="sidebar-item">
-                    <a href="support.php" class="sidebar-link <?php echo $activePage === 'support' ? 'active' : ''; ?>">
+                    <a href="support.php" class="sidebar-link <?php echo $activePage === 'support' ? 'active' : ''; ?>" onclick="showPageLoading()">
                         <i class="bi bi-envelope-fill"></i>
                         <span>Support</span>
                     </a>
@@ -121,6 +123,8 @@ function renderLayout($title, $content, $activePage = '')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="../../assets/js/sidebar_subadmin.js"></script>
+    <script src="../../assets/js/loading.js"></script>
+    <script src="loading_init.js"></script>
     </body>
     </html>
     <?php
