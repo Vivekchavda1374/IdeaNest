@@ -331,7 +331,7 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
                                         <?php if (!empty($row["image_path"])) : ?>
                                         <a href="<?php echo htmlspecialchars($row["image_path"]); ?>" target="_blank"
                                             class="file-link">
-                                            <i class="bi bi-file-earmark-image"></i> View Image
+                                            <i class="bi bi-file-earmark-zip"></i> Download ZIP
                                         </a>
                                         <?php endif; ?>
 
@@ -444,7 +444,7 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
                                         <?php if (!empty($row["image_path"])) : ?>
                                         <a href="<?php echo htmlspecialchars($row["image_path"]); ?>" target="_blank"
                                             class="file-link">
-                                            <i class="bi bi-file-earmark-image"></i> View Image
+                                            <i class="bi bi-file-earmark-zip"></i> Download ZIP
                                         </a>
                                         <?php endif; ?>
 
