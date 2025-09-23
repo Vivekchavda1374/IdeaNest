@@ -13,7 +13,7 @@ $active_subadmins = $conn->query("SELECT COUNT(*) as count FROM subadmins WHERE 
 $pending_requests = $conn->query("SELECT COUNT(*) as count FROM subadmin_classification_requests WHERE status = 'pending'")->fetch_assoc()['count'];
 $open_tickets = $conn->query("SELECT COUNT(*) as count FROM support_tickets WHERE status IN ('open', 'in_progress')")->fetch_assoc()['count'];
 
-// Get subadmin list
+// Get subadmin list with domain information
 $subadmins = $conn->query("
     SELECT s.*, 
            COUNT(scr.id) as pending_requests,
@@ -116,7 +116,16 @@ $subadmins = $conn->query("
                                         <tr>
                                             <td><?php echo htmlspecialchars($subadmin['name'] ?? 'Not Set'); ?></td>
                                             <td><?php echo htmlspecialchars($subadmin['email']); ?></td>
-                                            <td><?php echo htmlspecialchars($subadmin['domain'] ?? 'Not Set'); ?></td>
+                                            <td>
+                                                <?php 
+                                                $domains_display = $subadmin['domains'] ?? $subadmin['domain'] ?? 'Not Set';
+                                                if (strlen($domains_display) > 30) {
+                                                    echo '<span title="' . htmlspecialchars($domains_display) . '">' . htmlspecialchars(substr($domains_display, 0, 30)) . '...</span>';
+                                                } else {
+                                                    echo htmlspecialchars($domains_display);
+                                                }
+                                                ?>
+                                            </td>
                                             <td><?php echo htmlspecialchars($subadmin['software_classification'] ?? 'Not Set'); ?></td>
                                             <td><?php echo htmlspecialchars($subadmin['hardware_classification'] ?? 'Not Set'); ?></td>
                                             <td>
