@@ -1,4 +1,4 @@
-# Basic Security
+ # Basic Security
 <Files ~ "^\.">
     Require all denied
 </Files>
@@ -13,9 +13,9 @@ php_flag log_errors On
 php_flag expose_php Off
 
 # File Upload Limits
-php_value upload_max_filesize 10M
-php_value post_max_size 10M
-php_value max_execution_time 30
+php_value upload_max_filesize 50M
+php_value post_max_size 50M
+php_value max_execution_time 60
 
 RewriteEngine On
 
