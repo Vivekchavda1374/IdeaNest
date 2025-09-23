@@ -19,41 +19,84 @@ $stmt->bind_result($email, $name);
 $stmt->fetch();
 $stmt->close();
 
-// Fetch subadmin's classification
-$stmt = $conn->prepare("SELECT software_classification, hardware_classification FROM subadmins WHERE id = ?");
+// Fetch subadmin's domains
+$stmt = $conn->prepare("SELECT domains FROM subadmins WHERE id = ?");
 $stmt->bind_param("i", $subadmin_id);
 $stmt->execute();
-$stmt->bind_result($software_classification, $hardware_classification);
+$stmt->bind_result($domains);
 $stmt->fetch();
 $stmt->close();
 
-// Assigned Projects count
-$stmt = $conn->prepare("SELECT COUNT(*) FROM projects WHERE classification = ? OR classification = ?");
-$stmt->bind_param("ss", $software_classification, $hardware_classification);
-$stmt->execute();
-$stmt->bind_result($assigned_projects_count);
-$stmt->fetch();
-$stmt->close();
+// Build domain array and map to classifications
+$domain_list = [];
+$classifications = [];
+if (!empty($domains)) {
+    $domain_list = array_map('trim', explode(',', $domains));
+    
+    // Map domain names to classification values
+    $domain_mapping = [
+        'Web Development' => 'web',
+        'Web Application' => 'web', 
+        'Mobile Development' => 'mobile',
+        'AI/ML' => 'ai_ml',
+        'Data Science' => 'ai_ml',
+        'Cybersecurity' => 'system',
+        'IoT' => 'iot',
+        'Internet of Things (IoT)' => 'iot',
+        'Blockchain' => 'system',
+        'Game Development' => 'system',
+        'Desktop Application' => 'system',
+        'Embedded' => 'embedded',
+        'Wearable' => 'wearable'
+    ];
+    
+    foreach ($domain_list as $domain) {
+        if (isset($domain_mapping[$domain])) {
+            $classifications[] = $domain_mapping[$domain];
+        }
+    }
+    $classifications = array_unique($classifications);
+}
 
-// Pending Tasks count
-$stmt = $conn->prepare("SELECT COUNT(*) FROM projects WHERE (classification = ? OR classification = ?) AND status = 'pending'");
-$stmt->bind_param("ss", $software_classification, $hardware_classification);
-$stmt->execute();
-$stmt->bind_result($pending_tasks_count);
-$stmt->fetch();
-$stmt->close();
-
-// Approved Projects count
-$stmt = $conn->prepare("SELECT COUNT(*) FROM projects WHERE (classification = ? OR classification = ?) AND status = 'approved'");
-$stmt->bind_param("ss", $software_classification, $hardware_classification);
-$stmt->execute();
-$stmt->bind_result($approved_projects_count);
-$stmt->fetch();
-$stmt->close();
-
-// Fetch recent projects
-$stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE classification = ? OR classification = ? ORDER BY id DESC LIMIT 5");
-$stmt->bind_param("ss", $software_classification, $hardware_classification);
+if (!empty($classifications)) {
+    $placeholders = str_repeat('?,', count($classifications) - 1) . '?';
+    
+    // Assigned Projects count
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM admin_approved_projects WHERE classification IN ($placeholders)");
+    $stmt->bind_param(str_repeat('s', count($classifications)), ...$classifications);
+    $stmt->execute();
+    $stmt->bind_result($assigned_projects_count);
+    $stmt->fetch();
+    $stmt->close();
+    
+    // Pending Tasks count
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM admin_approved_projects WHERE classification IN ($placeholders) AND status = 'pending'");
+    $stmt->bind_param(str_repeat('s', count($classifications)), ...$classifications);
+    $stmt->execute();
+    $stmt->bind_result($pending_tasks_count);
+    $stmt->fetch();
+    $stmt->close();
+    
+    // Approved Projects count
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM admin_approved_projects WHERE classification IN ($placeholders) AND status = 'approved'");
+    $stmt->bind_param(str_repeat('s', count($classifications)), ...$classifications);
+    $stmt->execute();
+    $stmt->bind_result($approved_projects_count);
+    $stmt->fetch();
+    $stmt->close();
+    
+    // Fetch recent projects
+    $stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM admin_approved_projects WHERE classification IN ($placeholders) ORDER BY id DESC LIMIT 5");
+    $stmt->bind_param(str_repeat('s', count($classifications)), ...$classifications);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    // No domains assigned
+    $assigned_projects_count = 0;
+    $pending_tasks_count = 0;
+    $approved_projects_count = 0;
+    $result = $conn->query("SELECT id, project_name, project_type, classification, description, status FROM admin_approved_projects WHERE 1=0 LIMIT 5");
+}
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -170,7 +213,10 @@ ob_start();
             <div class="empty-state">
                 <i class="bi bi-inbox"></i>
                 <h5>No Projects Found</h5>
-                <p class="mb-0">You don't have any projects assigned yet for your classification.</p>
+                <p class="mb-0">You don't have any projects assigned yet for your domains: <?php echo htmlspecialchars($domains ?: 'No domains assigned'); ?></p>
+                <?php if (!empty($classifications)): ?>
+                <small class="text-muted">Mapped classifications: <?php echo htmlspecialchars(implode(', ', $classifications)); ?></small>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
     </div>
