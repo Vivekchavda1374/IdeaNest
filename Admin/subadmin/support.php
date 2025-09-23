@@ -14,12 +14,11 @@ $message_type = '';
 // Initialize variables to prevent undefined variable errors
 $subadmin_name = '';
 $subadmin_email = '';
-$software_classification = '';
-$hardware_classification = '';
+$domains = '';
 
 // Fetch subadmin details with error handling
 try {
-    $stmt = $conn->prepare("SELECT name, email, software_classification, hardware_classification FROM subadmins WHERE id = ?");
+    $stmt = $conn->prepare("SELECT name, email, domains FROM subadmins WHERE id = ?");
     if (!$stmt) {
         throw new Exception("Prepare failed: " . $conn->error);
     }
@@ -29,7 +28,7 @@ try {
         throw new Exception("Execute failed: " . $stmt->error);
     }
 
-    $stmt->bind_result($subadmin_name, $subadmin_email, $software_classification, $hardware_classification);
+    $stmt->bind_result($subadmin_name, $subadmin_email, $domains);
     $stmt->fetch();
     $stmt->close();
 } catch (Exception $e) {
@@ -189,7 +188,7 @@ ob_start();
         </div>
 
         <div class="p-4">
-            <form method="post" id="supportForm">
+            <form method="post" id="supportForm" data-loading-message="Submitting support ticket...">
                 <!-- Support Category Selection -->
                 <div class="mb-4">
                     <label class="form-label fw-bold mb-3">
@@ -274,7 +273,7 @@ ob_start();
                     <strong>Your Information:</strong><br>
                     Name: <?php echo htmlspecialchars($subadmin_name ?: 'N/A'); ?><br>
                     Email: <?php echo htmlspecialchars($subadmin_email ?: 'N/A'); ?><br>
-                    Classifications: <?php echo htmlspecialchars(($software_classification ?: 'N/A') . ', ' . ($hardware_classification ?: 'N/A')); ?>
+                    Domains: <?php echo htmlspecialchars($domains ?: 'No domains assigned'); ?>
                 </div>
 
                 <div class="d-flex gap-3">

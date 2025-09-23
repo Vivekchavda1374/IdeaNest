@@ -2054,7 +2054,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                         ['path' => $project['instruction_file_path'], 'name' => 'Instructions', 'icon' => 'fas fa-book'],
                                         ['path' => $project['presentation_file_path'], 'name' => 'Presentation', 'icon' => 'fas fa-presentation'],
                                         ['path' => $project['additional_files_path'], 'name' => 'Additional Files', 'icon' => 'fas fa-folder'],
-                                        ['path' => $project['image_path'], 'name' => 'Project Images', 'icon' => 'fas fa-image'],
+                                        ['path' => $project['image_path'], 'name' => 'Project Files (ZIP)', 'icon' => 'fas fa-file-archive'],
                                         ['path' => $project['video_path'], 'name' => 'Project Video', 'icon' => 'fas fa-video']
                                 ];
 
