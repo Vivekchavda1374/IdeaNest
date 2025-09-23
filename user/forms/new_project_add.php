@@ -75,20 +75,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $classification = null;
         if ($project_type == 'software') {
             $valid_software_types = [
-                'web', 'mobile', 'ai_ml', 'desktop', 'system',
-                'embedded_iot', 'cybersecurity', 'game', 'data_science', 'cloud'
+                    'web', 'mobile', 'ai_ml', 'desktop', 'system',
+                    'embedded_iot', 'cybersecurity', 'game', 'data_science', 'cloud'
             ];
             $classification = in_array($_POST['software_classification'] ?? '', $valid_software_types)
-                ? $_POST['software_classification']
-                : null;
+                    ? $_POST['software_classification']
+                    : null;
         } elseif ($project_type == 'hardware') {
             $valid_hardware_types = [
-                'embedded', 'iot', 'robotics', 'automation', 'sensor',
-                'communication', 'power', 'wearable', 'mechatronics', 'renewable'
+                    'embedded', 'iot', 'robotics', 'automation', 'sensor',
+                    'communication', 'power', 'wearable', 'mechatronics', 'renewable'
             ];
             $classification = in_array($_POST['hardware_classification'] ?? '', $valid_hardware_types)
-                ? $_POST['hardware_classification']
-                : null;
+                    ? $_POST['hardware_classification']
+                    : null;
         }
 
         // File upload function with improved validation and error handling
@@ -148,7 +148,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Handle file uploads safely
         if (isset($_FILES['images']) && $_FILES['images']['error'] !== UPLOAD_ERR_NO_FILE) {
-            $image_path = uploadFile($_FILES['images'], "images", ['jpg', 'jpeg', 'png', 'gif'], 2 * 1024 * 1024);
+            $image_path = uploadFile($_FILES['images'], "images", ['zip'], 10 * 1024 * 1024);
         }
         if (isset($_FILES['videos']) && $_FILES['videos']['error'] !== UPLOAD_ERR_NO_FILE) {
             $video_path = uploadFile($_FILES['videos'], "videos", ['mp4', 'avi', 'mov'], 50 * 1024 * 1024);
@@ -192,35 +192,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Bind parameters - all as strings for consistency
         $stmt->bind_param(
-            "ssssssssssssssssssssssssssss", // 28 string parameters
-            $user_id,
-            $title,
-            $project_type,
-            $classification,
-            $description,
-            $language,
-            $project_category,
-            $difficulty_level,
-            $development_time,
-            $team_size,
-            $target_audience,
-            $project_goals,
-            $challenges_faced,
-            $future_enhancements,
-            $github_repo,
-            $live_demo_url,
-            $project_license,
-            $keywords,
-            $contact_email,
-            $social_links,
-            $image_path,
-            $video_path,
-            $code_file_path,
-            $instruction_file_path,
-            $presentation_file_path,
-            $additional_files_path,
-            $submission_date,
-            $status
+                "ssssssssssssssssssssssssssss", // 28 string parameters
+                $user_id,
+                $title,
+                $project_type,
+                $classification,
+                $description,
+                $language,
+                $project_category,
+                $difficulty_level,
+                $development_time,
+                $team_size,
+                $target_audience,
+                $project_goals,
+                $challenges_faced,
+                $future_enhancements,
+                $github_repo,
+                $live_demo_url,
+                $project_license,
+                $keywords,
+                $contact_email,
+                $social_links,
+                $image_path,
+                $video_path,
+                $code_file_path,
+                $instruction_file_path,
+                $presentation_file_path,
+                $additional_files_path,
+                $submission_date,
+                $status
         );
 
         // Execute statement
@@ -268,7 +268,6 @@ if (isset($conn)) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/layout_user.css">
-    <link rel="stylesheet" href="../../assets/css/loading.css">
 
     <style>
         :root {
@@ -933,8 +932,8 @@ if (isset($conn)) {
                                 <label class="form-label">
                                     <i class="fas fa-image me-2"></i>Project Image
                                 </label>
-                                <input type="file" class="form-control" name="images" accept="image/jpeg,image/png,image/gif">
-                                <div class="file-upload-info">Max size: 2MB | Formats: JPG, PNG, GIF</div>
+                                <input type="file" class="form-control" name="images" accept=".zip">
+                                <div class="file-upload-info">Max size: 10MB | Format: ZIP only</div>
                             </div>
                         </div>
 
@@ -1059,24 +1058,8 @@ if (isset($conn)) {
     </script>
 <?php } ?>
 
-<script src="../../assets/js/loading.js"></script>
 <script src="../../assets/js/layout_user.js"></script>
 <script src="../../assets/js/new_project_add.js"></script>
-<script>
-// Custom form submission handling for project form
-document.addEventListener('DOMContentLoaded', function() {
-    const projectForm = document.querySelector('form[method="POST"]');
-    if (projectForm) {
-        projectForm.addEventListener('submit', function(e) {
-            const submitBtn = this.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                showFormLoading(this, 'Submitting your project...');
-                setButtonLoading(submitBtn, true, 'Submitting...');
-            }
-        });
-    }
-});
-</script>
 </body>
 
 </html>
