@@ -13,7 +13,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 
-function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $email_options = [])
+function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $subadmin_details = null, $email_options = [])
 {
     global $conn;
 
@@ -75,7 +75,7 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $e
 
         // Use custom subject if provided, otherwise randomly select one
         $subject = isset($email_options['subject']) ? $email_options['subject'] : $subject_options[array_rand($subject_options)];
-        $message = createApprovedEmailContent($user_name, $project, $options);
+        $message = createApprovedEmailContent($user_name, $project, $options, $subadmin_details);
     } elseif ($status == 'rejected') {
         // Dynamic subject line options
         $subject_options = [
@@ -87,7 +87,7 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $e
 
         // Use custom subject if provided, otherwise randomly select one
         $subject = isset($email_options['subject']) ? $email_options['subject'] : $subject_options[array_rand($subject_options)];
-        $message = createRejectedEmailContent($user_name, $project, $rejection_reason, $options);
+        $message = createRejectedEmailContent($user_name, $project, $rejection_reason, $options, $subadmin_details);
     } else {
         return ['success' => false, 'message' => 'Invalid status provided'];
     }
@@ -139,7 +139,7 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $e
     }
 }
 
-function createApprovedEmailContent($user_name, $project, $options)
+function createApprovedEmailContent($user_name, $project, $options, $subadmin_details = null)
 {
     // Extract project details
     $project_name = $project['project_name'];
@@ -226,6 +226,7 @@ function createApprovedEmailContent($user_name, $project, $options)
                     <a href="' . $options['dashboard_url'] . '" class="button">View Your Projects</a>
                 </p>
                 <p>Keep creating amazing things!</p>
+                ' . ($subadmin_details ? '<p>Reviewed by: <strong>' . $subadmin_details['name'] . '</strong><br>Contact: ' . $subadmin_details['email'] . '</p>' : '') . '
                 <p>Best regards,<br>The ' . $options['company_name'] . ' Team</p>
             </div>
             <div class="footer">
@@ -240,7 +241,7 @@ function createApprovedEmailContent($user_name, $project, $options)
     return $html;
 }
 
-function createRejectedEmailContent($user_name, $project, $rejection_reason, $options)
+function createRejectedEmailContent($user_name, $project, $rejection_reason, $options, $subadmin_details = null)
 {
     // Extract project details
     $project_name = $project['project_name'];
@@ -332,6 +333,7 @@ function createRejectedEmailContent($user_name, $project, $rejection_reason, $op
                     <a href="' . $options['submission_url'] . '" class="button">Submit Another Project</a>
                 </p>
                 <p>If you have any questions about the review process or need clarification on the feedback, please don\'t hesitate to contact us.</p>
+                ' . ($subadmin_details ? '<p>Reviewed by: <strong>' . $subadmin_details['name'] . '</strong><br>Contact: ' . $subadmin_details['email'] . '</p>' : '') . '
                 <p>Best regards,<br>The ' . $options['company_name'] . ' Team</p>
             </div>
             <div class="footer">
