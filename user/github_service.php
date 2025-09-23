@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Enhanced GitHub Service with cURL support
- * Provides robust GitHub API integration
- */
 function fetchGitHubProfile($username)
 {
     if (empty($username)) {

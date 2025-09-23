@@ -10,10 +10,9 @@ IdeaNest is a comprehensive web-based platform designed to facilitate academic p
 
 ### 🔐 Authentication & User Management
 - **Multi-Role Authentication**: Student/Sub-Admin/Admin/Mentor role-based access
-- **Google OAuth Integration**: JWT-based Google sign-in with profile completion
+- **Google OAuth Integration**: Social sign-in with profile completion
 - **Traditional Login**: Email/password authentication with secure sessions
-- **Password Recovery**: OTP verification system with 10-minute expiry
-- **Profile Management**: Comprehensive user profiles with image upload
+- **Profile Management**: User profiles with image upload and GitHub integration
 
 ### 📋 Project Management System
 - **Project Submission**: Multi-file upload with validation (images, videos, code, presentations)
@@ -29,13 +28,13 @@ IdeaNest is a comprehensive web-based platform designed to facilitate academic p
 - **Idea Management**: Edit, delete, and report inappropriate content
 - **Real-time Engagement**: AJAX-powered interactions
 
-### 👨‍🏫 Mentor System
+### 👨🏫 Mentor System
 - **Mentor Dashboard**: Comprehensive mentor interface with analytics
 - **Student-Mentor Pairing**: Request-based pairing system
 - **Session Management**: Schedule and track mentoring sessions
-- **Project Review**: Mentors can review and provide feedback on student projects
 - **Email System**: Built-in email functionality for mentor-student communication
 - **Activity Tracking**: Monitor mentor activities and student progress
+- **Smart Pairing**: AI-powered mentor-student matching
 
 ### 👥 SubAdmin Features
 - **Project Assignment**: Automatic assignment based on classification expertise
@@ -44,12 +43,12 @@ IdeaNest is a comprehensive web-based platform designed to facilitate academic p
 - **Support System**: Ticket-based support with admin communication
 - **Performance Tracking**: Review statistics and workload monitoring
 
-### 👨‍💼 Admin Features
+### 👨💼 Admin Features
 - **Enhanced Dashboard**: System analytics with charts and statistics
 - **User Management**: Complete user lifecycle management
 - **Mentor Management**: Add, remove, and manage mentor accounts
 - **SubAdmin Management**: Full subadmin oversight and performance tracking
-- **Data Export**: Export system data in multiple formats (CSV, PDF, Excel)
+- **Data Export**: Export system data in multiple formats
 - **Email Configuration**: SMTP settings management
 - **Notification Dashboard**: Monitor email delivery and system notifications
 - **Support Ticket Management**: Handle subadmin support requests
@@ -58,7 +57,7 @@ IdeaNest is a comprehensive web-based platform designed to facilitate academic p
 - **Profile Connection**: Link GitHub usernames in profile settings
 - **Repository Sync**: Fetch and display GitHub profile and repository data
 - **API Integration**: GitHub API connectivity for user profiles
-- **Analytics**: Track GitHub integration usage
+- **Real-time Sync**: Automatic GitHub data synchronization
 
 ### 📧 Email Notification System
 - **Weekly Digest Emails**: Automated email notifications for new projects/ideas
@@ -72,8 +71,8 @@ IdeaNest is a comprehensive web-based platform designed to facilitate academic p
 - **Bookmark System**: Save favorite projects for later viewing
 - **Comment System**: Project discussions with nested comments
 - **Real-time Feedback**: Interactive elements with instant updates
-- **Modal Views**: Enhanced project viewing experience
 - **Search Functionality**: Search projects and ideas
+- **Advanced Analytics**: Comprehensive dashboard with charts and statistics
 
 ## 🛠 Technical Stack
 
@@ -90,6 +89,7 @@ IdeaNest is a comprehensive web-based platform designed to facilitate academic p
 - **Bootstrap 5**: Responsive design framework
 - **Font Awesome 6**: Comprehensive icon library
 - **AJAX**: Seamless user interactions
+- **Chart.js**: Interactive data visualization
 
 ### Integrations
 - **GitHub API v3**: Repository and profile data
@@ -212,24 +212,28 @@ IdeaNest/
 │   ├── sessions.php                # Session management
 │   ├── projects.php                # Project review
 │   ├── profile.php                 # Mentor profile
-│   ├── analytics.php               # Basic analytics
-│   └── send_email.php              # Email functionality
+│   ├── analytics.php               # Analytics dashboard
+│   ├── send_email.php              # Email functionality
+│   └── email_dashboard.php         # Email analytics
 ├── user/
 │   ├── forms/uploads/              # File upload storage
 │   ├── Blog/                       # Ideas/Blog functionality
 │   ├── forms/                      # Project submission forms
-│   ├── index.php                   # User dashboard
+│   ├── index.php                   # User dashboard with analytics
 │   ├── all_projects.php            # Project listing
 │   ├── github_service.php          # GitHub API integration
+│   ├── github_profile.php          # GitHub profile display
 │   └── user_profile_setting.php    # User profile settings
 ├── cron/
 │   ├── weekly_notifications.php    # Email notification system
+│   ├── mentor_email_cron.php       # Mentor email automation
 │   └── setup_cron.sh              # Cron job setup
 ├── Login/Login/                    # Authentication system
 ├── config/                         # Security configuration
 ├── includes/                       # Validation and error handling
 ├── assets/                         # CSS/JS/Images
 ├── vendor/                         # Composer dependencies
+├── tests/                          # Test suite
 └── db/                            # Database schema
 ```
 
@@ -237,17 +241,20 @@ IdeaNest/
 
 The system uses a comprehensive database schema with the following key tables:
 
-- **register**: User accounts and profiles
+- **register**: User accounts and profiles with GitHub integration
 - **projects**: Project submissions and details
 - **admin_approved_projects**: Approved projects
 - **blog**: Ideas and blog posts
-- **mentors**: Mentor information
+- **mentors**: Mentor information and specializations
 - **mentor_student_pairs**: Mentor-student relationships
-- **mentoring_sessions**: Session scheduling
-- **subadmins**: SubAdmin accounts
+- **mentoring_sessions**: Session scheduling and management
+- **mentor_requests**: Mentor pairing requests
+- **subadmins**: SubAdmin accounts with classifications
 - **notification_logs**: Email notification tracking
 - **bookmark**: User bookmarks
 - **project_likes/idea_likes**: Engagement tracking
+- **support_tickets**: Support ticket system
+- **mentor_email_logs**: Email tracking for mentors
 
 ## 🧪 Testing
 
@@ -332,6 +339,7 @@ For support and questions:
 - **PHPMailer Team** for email delivery solutions
 - **Bootstrap Team** for responsive design framework
 - **Font Awesome** for comprehensive iconography
+- **Chart.js** for data visualization capabilities
 
 ---
 
