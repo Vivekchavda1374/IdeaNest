@@ -205,26 +205,26 @@ if (isset($_POST['request_action']) && isset($_POST['request_id']) && !isset($_P
 
     // Fetch request details
     $stmt = $conn->prepare("
-        SELECT subadmin_id, requested_software_classification, requested_hardware_classification 
+        SELECT subadmin_id, requested_domains 
         FROM subadmin_classification_requests 
         WHERE id = ?
     ");
 
     $stmt->bind_param("i", $request_id);
     $stmt->execute();
-    $stmt->bind_result($subadmin_id, $req_software, $req_hardware);
+    $stmt->bind_result($subadmin_id, $req_domains);
 
     if ($stmt->fetch()) {
         $stmt->close();
 
         if ($action === 'approve') {
-            // Update subadmin classification
+            // Update subadmin domains
             $stmt2 = $conn->prepare("
                 UPDATE subadmins 
-                SET software_classification = ?, hardware_classification = ? 
+                SET domains = ? 
                 WHERE id = ?
             ");
-            $stmt2->bind_param("ssi", $req_software, $req_hardware, $subadmin_id);
+            $stmt2->bind_param("si", $req_domains, $subadmin_id);
             $stmt2->execute();
             $stmt2->close();
 
@@ -339,12 +339,9 @@ $result = $conn->query("
     SELECT 
         r.id, 
         r.subadmin_id, 
-        r.requested_software_classification, 
-        r.requested_hardware_classification, 
+        r.requested_domains, 
         r.request_date,
-        s.email, 
-        s.software_classification AS current_software, 
-        s.hardware_classification AS current_hardware 
+        s.email
     FROM subadmin_classification_requests r 
     JOIN subadmins s ON r.subadmin_id = s.id 
     WHERE r.status = 'pending' 
@@ -474,7 +471,7 @@ if ($status !== '') {
     }
 }
 
-$sql = "SELECT id, name, email, domain, software_classification, hardware_classification, status, created_at, last_login FROM subadmins";
+$sql = "SELECT id, name, email, domain, domains, status, created_at, last_login FROM subadmins";
 if ($where) {
     $sql .= " WHERE " . implode(" AND ", $where);
 }
@@ -943,8 +940,7 @@ $active_tab = $_GET['tab'] ?? 'overview';
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Department</th>
-                                <th>Software</th>
-                                <th>Hardware</th>
+                                <th>Domains</th>
                                 <th>Status</th>
                                 <th>Created</th>
                                 <th>Last Login</th>
@@ -953,11 +949,10 @@ $active_tab = $_GET['tab'] ?? 'overview';
                             <tbody>
                             <?php foreach ($subadmin_list as $sub) : ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($sub['name'] ?? 'Not Set'); ?></td>
-                                    <td><?php echo htmlspecialchars($sub['email'] ?? ''); ?></td>
-                                    <td><?php echo htmlspecialchars($sub['domain'] ?? 'Not Set'); ?></td>
-                                    <td><?php echo htmlspecialchars($sub['software_classification'] ?? 'Not Set'); ?></td>
-                                    <td><?php echo htmlspecialchars($sub['hardware_classification'] ?? 'Not Set'); ?></td>
+                                    <td><?php echo htmlspecialchars($sub['name'] ?: 'Not Set'); ?></td>
+                                    <td><?php echo htmlspecialchars($sub['email'] ?: ''); ?></td>
+                                    <td><?php echo htmlspecialchars($sub['domain'] ?: 'Not Set'); ?></td>
+                                    <td><?php echo htmlspecialchars($sub['domains'] ?: 'No domains'); ?></td>
                                     <td>
                                                 <span class="badge <?php echo ($sub['status'] ?? 'active') === 'active' ? 'status-active' : 'status-inactive'; ?>">
                                                     <?php echo ucfirst($sub['status'] ?? 'active'); ?>
@@ -1024,9 +1019,9 @@ $active_tab = $_GET['tab'] ?? 'overview';
                                         <?php foreach ($subadmin_list as $sub) : ?>
                                             <tr>
                                                 <td><?php echo $sub['id']; ?></td>
-                                                <td><?php echo htmlspecialchars($sub['name'] ?? 'Not Set'); ?></td>
-                                                <td><?php echo htmlspecialchars($sub['email'] ?? ''); ?></td>
-                                                <td><?php echo htmlspecialchars($sub['domain'] ?? 'Not Set'); ?></td>
+                                                <td><?php echo htmlspecialchars($sub['name'] ?: 'Not Set'); ?></td>
+                                                <td><?php echo htmlspecialchars($sub['email'] ?: ''); ?></td>
+                                                <td><?php echo htmlspecialchars($sub['domain'] ?: 'Not Set'); ?></td>
                                                 <td>
                                                             <span class="badge <?php echo ($sub['status'] ?? 'active') === 'active' ? 'status-active' : 'status-inactive'; ?>">
                                                                 <?php echo ucfirst($sub['status'] ?? 'active'); ?>
@@ -1164,10 +1159,7 @@ $active_tab = $_GET['tab'] ?? 'overview';
                                             <tr>
                                                 <th>Subadmin Email</th>
                                                 <th>Request Date</th>
-                                                <th>Current Software</th>
-                                                <th>Current Hardware</th>
-                                                <th>Requested Software</th>
-                                                <th>Requested Hardware</th>
+                                                <th>Requested Domains</th>
                                                 <th>Action</th>
                                             </tr>
                                             </thead>
@@ -1183,24 +1175,9 @@ $active_tab = $_GET['tab'] ?? 'overview';
                                                         </small>
                                                     </td>
                                                     <td>
-                                                                <span class="badge bg-light text-dark">
-                                                                    <?php echo htmlspecialchars($req['current_software'] ?: 'None'); ?>
-                                                                </span>
-                                                    </td>
-                                                    <td>
-                                                                <span class="badge bg-light text-dark">
-                                                                    <?php echo htmlspecialchars($req['current_hardware'] ?: 'None'); ?>
-                                                                </span>
-                                                    </td>
-                                                    <td>
-                                                                <span class="badge bg-primary">
-                                                                    <?php echo htmlspecialchars($req['requested_software_classification']); ?>
-                                                                </span>
-                                                    </td>
-                                                    <td>
-                                                                <span class="badge bg-secondary">
-                                                                    <?php echo htmlspecialchars($req['requested_hardware_classification']); ?>
-                                                                </span>
+                                                        <span class="badge bg-primary">
+                                                            <?php echo htmlspecialchars($req['requested_domains'] ?: 'No domains requested'); ?>
+                                                        </span>
                                                     </td>
                                                     <td>
                                                         <div class="btn-group" role="group">
@@ -1240,11 +1217,7 @@ $active_tab = $_GET['tab'] ?? 'overview';
                                                                             <input type="hidden" name="request_id" value="<?php echo $req['id']; ?>">
                                                                             <div class="mb-3">
                                                                                 <p><strong>Subadmin:</strong> <?php echo htmlspecialchars($req['email']); ?></p>
-                                                                                <p><strong>Requested Changes:</strong></p>
-                                                                                <ul>
-                                                                                    <li>Software: <?php echo htmlspecialchars($req['requested_software_classification']); ?></li>
-                                                                                    <li>Hardware: <?php echo htmlspecialchars($req['requested_hardware_classification']); ?></li>
-                                                                                </ul>
+                                                                                <p><strong>Requested Domains:</strong> <?php echo htmlspecialchars($req['requested_domains'] ?: 'No domains'); ?></p>
                                                                             </div>
                                                                             <div class="mb-3">
                                                                                 <label for="admin_comment<?php echo $req['id']; ?>" class="form-label">
