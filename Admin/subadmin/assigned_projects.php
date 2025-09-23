@@ -10,19 +10,54 @@ require_once "sidebar_subadmin.php"; // Include the layout file
 
 $subadmin_id = $_SESSION['subadmin_id'];
 
-// Fetch subadmin's classification
-$stmt = $conn->prepare("SELECT software_classification, hardware_classification FROM subadmins WHERE id = ?");
+// Fetch subadmin's classifications
+$stmt = $conn->prepare("SELECT domains FROM subadmins WHERE id = ?");
 $stmt->bind_param("i", $subadmin_id);
 $stmt->execute();
-$stmt->bind_result($software_classification, $hardware_classification);
+$stmt->bind_result($domains);
 $stmt->fetch();
 $stmt->close();
 
-// Fetch projects matching either classification
-$stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM admin_approved_projects WHERE classification = ? OR classification = ?");
-$stmt->bind_param("ss", $software_classification, $hardware_classification);
-$stmt->execute();
-$result = $stmt->get_result();
+// Build classification array from domains with proper mapping
+$classifications = [];
+if (!empty($domains)) {
+    $domain_list = array_map('trim', explode(',', $domains));
+    
+    // Map domain names to classification values
+    $domain_mapping = [
+        'Web Development' => 'web',
+        'Web Application' => 'web', 
+        'Mobile Development' => 'mobile',
+        'AI/ML' => 'ai_ml',
+        'Data Science' => 'ai_ml',
+        'Cybersecurity' => 'system',
+        'IoT' => 'iot',
+        'Internet of Things (IoT)' => 'iot',
+        'Blockchain' => 'system',
+        'Game Development' => 'system',
+        'Desktop Application' => 'system',
+        'Embedded' => 'embedded',
+        'Wearable' => 'wearable'
+    ];
+    
+    foreach ($domain_list as $domain) {
+        if (isset($domain_mapping[$domain])) {
+            $classifications[] = $domain_mapping[$domain];
+        }
+    }
+    $classifications = array_unique($classifications);
+}
+
+// Build dynamic query for multiple classifications
+if (!empty($classifications)) {
+    $placeholders = str_repeat('?,', count($classifications) - 1) . '?';
+    $stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM admin_approved_projects WHERE classification IN ($placeholders)");
+    $stmt->bind_param(str_repeat('s', count($classifications)), ...$classifications);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $result = $conn->query("SELECT id, project_name, project_type, classification, description, status FROM admin_approved_projects WHERE 1=0");
+}
 
 require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
 use PHPMailer\PHPMailer\PHPMailer;
@@ -34,26 +69,84 @@ require_once dirname(__FILE__) . '/../../Admin/project_notification.php';
 $action_message = '';
 if (isset($_POST['action']) && isset($_POST['project_id'])) {
     $project_id = intval($_POST['project_id']);
-    $status = $_POST['action'] === 'approve' ? 'approved' : 'rejected';
-    $rejection_reason = $_POST['action'] === 'reject' ? trim($_POST['rejection_reason'] ?? '') : '';
+    $action = $_POST['action'];
+    $rejection_reason = $action === 'reject' ? trim($_POST['rejection_reason'] ?? '') : '';
 
-    // Update project status
-    $stmt = $conn->prepare("UPDATE projects SET status=? WHERE id=?");
-    $stmt->bind_param("si", $status, $project_id);
-    if ($stmt->execute()) {
-        // Use the shared notification function for email
-        $result_email = sendProjectStatusEmail($project_id, $status, $rejection_reason);
-        if ($result_email['success']) {
-            $action_message = "Project status updated and email sent to user.";
-        } else {
-            $action_message = "Project status updated, but email could not be sent. " . $result_email['message'];
+    try {
+        $conn->begin_transaction();
+        
+        // Get project data first
+        $stmt = $conn->prepare("SELECT * FROM admin_approved_projects WHERE id=?");
+        $stmt->bind_param("i", $project_id);
+        $stmt->execute();
+        $project_data = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        
+        if (!$project_data) {
+            throw new Exception("Project not found");
         }
-    } else {
-        $action_message = "Failed to update project status.";
+        
+        if ($action === 'approve') {
+            // Keep in admin_approved_projects but update status
+            $stmt = $conn->prepare("UPDATE admin_approved_projects SET status='approved' WHERE id=?");
+            $stmt->bind_param("i", $project_id);
+            $stmt->execute();
+            $stmt->close();
+            
+            $status = 'approved';
+            $action_message = "Project approved successfully";
+        } else {
+            // Move to denial_projects table
+            $stmt = $conn->prepare("INSERT INTO denial_projects (user_id, project_name, project_type, classification, project_category, difficulty_level, development_time, team_size, target_audience, project_goals, challenges_faced, future_enhancements, github_repo, live_demo_url, project_license, keywords, contact_email, social_links, description, language, image_path, video_path, code_file_path, instruction_file_path, presentation_file_path, additional_files_path, submission_date, status, rejection_reason) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            
+            $stmt->bind_param("sssssssssssssssssssssssssssss", 
+                $project_data['user_id'], $project_data['project_name'], $project_data['project_type'], 
+                $project_data['classification'], $project_data['project_category'], $project_data['difficulty_level'],
+                $project_data['development_time'], $project_data['team_size'], $project_data['target_audience'],
+                $project_data['project_goals'], $project_data['challenges_faced'], $project_data['future_enhancements'],
+                $project_data['github_repo'], $project_data['live_demo_url'], $project_data['project_license'],
+                $project_data['keywords'], $project_data['contact_email'], $project_data['social_links'],
+                $project_data['description'], $project_data['language'], $project_data['image_path'],
+                $project_data['video_path'], $project_data['code_file_path'], $project_data['instruction_file_path'],
+                $project_data['presentation_file_path'], $project_data['additional_files_path'], 
+                $project_data['submission_date'], 'rejected', $rejection_reason
+            );
+            $stmt->execute();
+            $stmt->close();
+            
+            // Remove from admin_approved_projects
+            $stmt = $conn->prepare("DELETE FROM admin_approved_projects WHERE id=?");
+            $stmt->bind_param("i", $project_id);
+            $stmt->execute();
+            $stmt->close();
+            
+            $status = 'rejected';
+            $action_message = "Project rejected and moved to denial table";
+        }
+        
+        $conn->commit();
+        
+        // Get subadmin details for email
+        $stmt = $conn->prepare("SELECT name, email FROM subadmins WHERE id=?");
+        $stmt->bind_param("i", $subadmin_id);
+        $stmt->execute();
+        $subadmin_result = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        
+        // Send email notification with subadmin details
+        $result_email = sendProjectStatusEmail($project_id, $status, $rejection_reason, $subadmin_result);
+        if (!$result_email['success']) {
+            $action_message .= ", but email could not be sent: " . $result_email['message'];
+        } else {
+            $action_message .= " and email sent to user";
+        }
+        
+    } catch (Exception $e) {
+        $conn->rollback();
+        $action_message = "Error processing request: " . $e->getMessage();
+        error_log("Error in assigned_projects.php: " . $e->getMessage());
     }
-    $stmt->close();
 
-    // Refresh project list after action
     header("Location: assigned_projects.php?msg=" . urlencode($action_message));
     exit();
 }
@@ -63,10 +156,15 @@ if (isset($_GET['msg'])) {
 }
 
 // Re-fetch projects after potential updates
-$stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM admin_approved_projects WHERE classification = ? OR classification = ?");
-$stmt->bind_param("ss", $software_classification, $hardware_classification);
-$stmt->execute();
-$result = $stmt->get_result();
+if (!empty($classifications)) {
+    $placeholders = str_repeat('?,', count($classifications) - 1) . '?';
+    $stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM admin_approved_projects WHERE classification IN ($placeholders)");
+    $stmt->bind_param(str_repeat('s', count($classifications)), ...$classifications);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $result = $conn->query("SELECT id, project_name, project_type, classification, description, status FROM admin_approved_projects WHERE 1=0");
+}
 
 // Start output buffering to capture the content
 ob_start();
@@ -74,6 +172,16 @@ ob_start();
 
     <!-- Page specific styles -->
     <link rel="stylesheet" href="../../assets/css/assigned_projects.css">
+    <style>
+        /* Fix modal backdrop issues */
+        .modal-backdrop {
+            display: none !important;
+        }
+        
+        .modal.show {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+    </style>
 
     <!-- Action Message Alert -->
 <?php if ($action_message) : ?>
@@ -150,7 +258,7 @@ while ($row = $result->fetch_assoc()) {
                 <div class="d-flex align-items-center gap-2 text-muted">
                     <small>
                         <i class="bi bi-tags-fill me-1"></i>
-                        Classifications: <?php echo htmlspecialchars($software_classification . ', ' . $hardware_classification); ?>
+                        Classifications: <?php echo htmlspecialchars(implode(', ', array_filter($classifications))); ?>
                     </small>
                 </div>
             </div>
@@ -200,9 +308,9 @@ while ($row = $result->fetch_assoc()) {
                             <td>
                                 <?php if ($row['status'] == 'pending') : ?>
                                     <div class="action-buttons">
-                                        <form method="post" style="display: inline-block;">
+                                        <form method="post" style="display: inline-block;" data-loading-message="Approving project...">
                                             <input type="hidden" name="project_id" value="<?php echo $row['id']; ?>">
-                                            <button type="submit" name="action" value="approve" class="btn btn-action btn-approve" onclick="return confirm('Are you sure you want to approve this project?')">
+                                            <button type="submit" name="action" value="approve" class="btn btn-action btn-approve">
                                                 <i class="bi bi-check-lg"></i>
                                                 Approve
                                             </button>
@@ -225,7 +333,7 @@ while ($row = $result->fetch_assoc()) {
                                                     </h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
-                                                <form method="post">
+                                                <form method="post" data-loading-message="Rejecting project...">
                                                     <div class="modal-body">
                                                         <div class="alert alert-warning">
                                                             <i class="bi bi-info-circle me-2"></i>
@@ -274,12 +382,53 @@ while ($row = $result->fetch_assoc()) {
                 </div>
                 <h3 class="empty-state-title">No Projects Found</h3>
                 <p class="empty-state-desc">
-                    There are currently no projects assigned to your classification (<?php echo htmlspecialchars($software_classification . ', ' . $hardware_classification); ?>).
+                    There are currently no projects assigned to your domains.<br>
+                    <small class="text-muted">Your domains: <?php echo htmlspecialchars($domains ?: 'None assigned'); ?></small><br>
+                    <small class="text-muted">Mapped classifications: <?php echo htmlspecialchars(implode(', ', array_filter($classifications)) ?: 'None'); ?></small>
                     New projects will appear here when they are submitted.
                 </p>
             </div>
         <?php endif; ?>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remove any existing modal backdrops
+            document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
+                backdrop.remove();
+            });
+            
+            // Handle approve buttons with loading
+            document.querySelectorAll('button[value="approve"]').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    if (!confirm('Are you sure you want to approve this project?')) {
+                        e.preventDefault();
+                    } else {
+                        setButtonLoading(this, true, 'Approving...');
+                    }
+                });
+            });
+            
+            // Handle form submissions with custom loading messages
+            document.querySelectorAll('form[data-loading-message]').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    const message = this.getAttribute('data-loading-message');
+                    window.loadingManager.show(message);
+                });
+            });
+            
+            // Handle modal cleanup on hide
+            document.querySelectorAll('.modal').forEach(function(modal) {
+                modal.addEventListener('hidden.bs.modal', function() {
+                    document.querySelectorAll('.modal-backdrop').forEach(function(backdrop) {
+                        backdrop.remove();
+                    });
+                    document.body.classList.remove('modal-open');
+                    document.body.style.removeProperty('padding-right');
+                });
+            });
+        });
+    </script>
 
 <?php
 // Capture the content
