@@ -160,113 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Profile picture update
-        if (isset($_FILES['user_image']) && $_FILES['user_image']['error'] === 0) {
-            $allowed = ['jpg', 'jpeg', 'png', 'gif'];
-            $filename = $_FILES['user_image']['name'];
-            $filetype = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
-            // Check file size (5MB max)
-            $max_size = 5 * 1024 * 1024;
-            if ($_FILES['user_image']['size'] > $max_size) {
-                $errors[] = "File size must be less than 5MB";
-            } elseif (in_array($filetype, $allowed)) {
-                $temp_name = $_FILES['user_image']['tmp_name'];
-                $new_filename = uniqid('profile_') . '.' . $filetype;
-
-                // Get current directory and try different paths
-                $current_dir = getcwd();
-                $document_root = $_SERVER['DOCUMENT_ROOT'] ?? '';
-                $script_dir = dirname(__FILE__);
-
-                $upload_dirs = [
-                        $current_dir . '/uploads/',
-                        $current_dir . '/images/',
-                        $current_dir . '/',
-                        $script_dir . '/uploads/',
-                        $script_dir . '/images/',
-                        $script_dir . '/',
-                        sys_get_temp_dir() . '/profile_uploads/',
-                        '/tmp/profile_uploads/',
-                        $document_root . '/uploads/',
-                        $document_root . '/images/',
-                        dirname($current_dir) . '/uploads/',
-                        dirname($current_dir) . '/images/'
-                ];
-
-                $upload_success = false;
-                $final_upload_path = '';
-
-                foreach ($upload_dirs as $upload_dir) {
-                    // Normalize path
-                    $upload_dir = rtrim($upload_dir, '/') . '/';
-
-                    // Skip if directory path is empty
-                    if (empty(trim($upload_dir, '/'))) {
-                        continue;
-                    }
-
-                    // Try to create directory
-                    if (!is_dir($upload_dir)) {
-                        @mkdir($upload_dir, 0755, true);
-                        @chmod($upload_dir, 0755);
-                    }
-
-                    // Check if we can write to this directory
-                    $test_file = $upload_dir . 'test_write_' . uniqid() . '.tmp';
-                    if (@file_put_contents($test_file, 'test') !== false) {
-                        @unlink($test_file); // Clean up test file
-
-                        $upload_path = $upload_dir . $new_filename;
-
-                        if (@move_uploaded_file($temp_name, $upload_path)) {
-                            @chmod($upload_path, 0644);
-
-                            // Store relative path for database
-                            $relative_path = str_replace($current_dir . '/', '', $upload_dir);
-                            $final_upload_path = $relative_path;
-
-                            // Delete old image if exists
-                            if (!empty($user['user_image'])) {
-                                $old_file_found = false;
-                                foreach ($upload_dirs as $old_dir) {
-                                    $old_dir = rtrim($old_dir, '/') . '/';
-                                    if (file_exists($old_dir . $user['user_image'])) {
-                                        @unlink($old_dir . $user['user_image']);
-                                        $old_file_found = true;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            $update_fields[] = "user_image = ?";
-                            $types .= "s";
-                            $params[] = $new_filename;
-                            $upload_success = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!$upload_success) {
-                    // As a last resort, try to save as base64 in database
-                    $image_data = file_get_contents($temp_name);
-                    if ($image_data !== false) {
-                        $base64_image = 'data:image/' . $filetype . ';base64,' . base64_encode($image_data);
-                        $update_fields[] = "user_image = ?";
-                        $types .= "s";
-                        $params[] = $base64_image;
-                        $upload_success = true;
-                    }
-                }
-
-                if (!$upload_success) {
-                    $errors[] = "Upload failed. Please contact administrator.";
-                }
-            } else {
-                $errors[] = "Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed";
-            }
-        }
 
         // Update database
         if (!!$update_fields && empty($errors)) {
@@ -310,17 +204,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get user statistics
-$project_count_query = "SELECT COUNT(*) as count FROM projects WHERE user_id = ?";
+$project_count_query = "SELECT COUNT(*) as count FROM admin_approved_projects WHERE user_id = ?";
 $project_stmt = $conn->prepare($project_count_query);
 $project_stmt->bind_param("i", $user_id);
 $project_stmt->execute();
 $project_count = $project_stmt->get_result()->fetch_assoc()['count'];
 
-$idea_count_query = "SELECT COUNT(*) as count FROM blog WHERE er_number = ?";
+$idea_count_query = "SELECT COUNT(*) as count FROM blog WHERE user_id = ?";
 $idea_stmt = $conn->prepare($idea_count_query);
-$idea_stmt->bind_param("s", $user['enrollment_number']);
+$idea_stmt->bind_param("i", $user_id);
 $idea_stmt->execute();
 $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
+
+// Calculate current academic year
+$current_year = date('Y');
+$current_month = date('n');
+$academic_year = ($current_month >= 6) ? $current_year + 1 : $current_year;
+$year_in_college = $user['passout_year'] ? ($academic_year - $user['passout_year'] + 4) : 'N/A';
 
 
 ?>
@@ -433,44 +333,7 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
         <div class="profile-section">
             <div class="profile-header">
                 <div class="profile-picture-wrapper">
-                    <?php
-                    $image_path = '';
-                    if (!empty($user['user_image']) && $user['user_image'] !== '') {
-                        // Check if it's base64 data
-                        if (strpos($user['user_image'], 'data:image/') === 0) {
-                            $image_path = $user['user_image'];
-                        } else {
-                            // Check multiple possible image locations
-                            $current_dir = getcwd();
-                            $script_dir = dirname(__FILE__);
-                            $possible_paths = [
-                                    $current_dir . '/uploads/' . htmlspecialchars($user['user_image']),
-                                    $current_dir . '/images/' . htmlspecialchars($user['user_image']),
-                                    $current_dir . '/' . htmlspecialchars($user['user_image']),
-                                    $script_dir . '/uploads/' . htmlspecialchars($user['user_image']),
-                                    $script_dir . '/images/' . htmlspecialchars($user['user_image']),
-                                    $script_dir . '/' . htmlspecialchars($user['user_image']),
-                                    'uploads/' . htmlspecialchars($user['user_image']),
-                                    'images/' . htmlspecialchars($user['user_image']),
-                                    htmlspecialchars($user['user_image'])
-                            ];
-
-                            foreach ($possible_paths as $path) {
-                                if (file_exists($path)) {
-                                    $image_path = $path;
-                                    break;
-                                }
-                            }
-
-                            if (empty($image_path)) {
-                                $image_path = 'https://ui-avatars.com/api/?name=' . urlencode($user['name']) . '&background=6366f1&color=fff&size=240';
-                            }
-                        }
-                    } else {
-                        $image_path = 'https://ui-avatars.com/api/?name=' . urlencode($user['name']) . '&background=6366f1&color=fff&size=240';
-                    }
-                    ?>
-                    <img src="<?php echo $image_path; ?>" alt="Profile Picture" class="profile-picture" id="profilePreview">
+                    <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($user['name']); ?>&background=6366f1&color=fff&size=240" alt="Profile Picture" class="profile-picture">
                 </div>
                 <div class="profile-info">
                     <h2><?php echo htmlspecialchars($user['name']); ?></h2>
@@ -490,35 +353,13 @@ $idea_count = $idea_stmt->get_result()->fetch_assoc()['count'];
                     <div class="stat-label">Ideas</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number"><?php echo !empty($user['passout_year']) ? date('Y') - $user['passout_year'] + 4 : 'N/A'; ?></div>
-                    <div class="stat-label">Year</div>
+                    <div class="stat-number"><?php echo $year_in_college; ?></div>
+                    <div class="stat-label">Month</div>
                 </div>
             </div>
         </div>
 
-        <form action="" method="POST" enctype="multipart/form-data" class="settings-form">
-            <!-- Profile Picture Upload -->
-            <div class="form-section">
-                <h3 class="section-title">
-                    <i class="fas fa-camera"></i>
-                    Profile Picture
-                </h3>
-                <div class="upload-section" onclick="document.getElementById('user_image').click()">
-                    <div class="upload-icon">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                    </div>
-                    <div class="upload-text">
-                        Click to upload a new profile picture
-                    </div>
-                    <label class="upload-btn">
-                        <i class="fas fa-upload"></i> Choose Image
-                        <input type="file" name="user_image" id="user_image" accept="image/*">
-                    </label>
-                    <div style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--gray-500);">
-                        Maximum file size: 5MB. Supported formats: JPG, PNG, GIF
-                    </div>
-                </div>
-            </div>
+        <form action="" method="POST" class="settings-form">
 
             <!-- Personal Information -->
             <div class="form-section">
