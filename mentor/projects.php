@@ -145,8 +145,10 @@ ob_start();
                                     
                                     <?php if ($project['image_path']) : ?>
                                         <div class="mt-3">
-                                            <img src="../user/<?= htmlspecialchars($project['image_path']) ?>" 
-                                                 class="img-fluid rounded" style="max-height: 200px; width: 100%; object-fit: cover;">
+                                            <a href="../user/<?= htmlspecialchars($project['image_path']) ?>" 
+                                               class="btn btn-outline-primary btn-sm" target="_blank">
+                                                <i class="fas fa-file-archive me-1"></i>Download Project Files (ZIP)
+                                            </a>
                                         </div>
                                     <?php endif; ?>
                                 </div>
