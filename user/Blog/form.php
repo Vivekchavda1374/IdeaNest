@@ -43,11 +43,6 @@ $conn = new mysqli($host, $user, $pass, $dbname);
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
-}
-
-
-        if ($conn->connect_error) {
-            $error_message = "Connection failed: " . $conn->connect_error;
         } else {
             // ✅ Insert with user_id (foreign key to register table)
             $stmt = $conn->prepare("INSERT INTO blog 
