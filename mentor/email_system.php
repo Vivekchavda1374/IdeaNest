@@ -1,6 +1,14 @@
 <?php
 
-require_once '../vendor/autoload.php';
+// Try different autoload paths
+if (file_exists('../vendor/autoload.php')) {
+    require_once '../vendor/autoload.php';
+} elseif (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+} else {
+    throw new Exception('Composer autoload not found. Run: composer install');
+}
+
 require_once '../Login/Login/db.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -20,16 +28,41 @@ class MentorEmailSystem
 
     private function setupMailer()
     {
-        $mail = new PHPMailer(true);
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'ideanest.ict@gmail.com';
-        $mail->Password = 'luou xlhs ojuw auvx';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
-        $mail->setFrom('ideanest.ict@gmail.com', 'IdeaNest Mentor System');
-        return $mail;
+        try {
+            // Get SMTP settings from database
+            $smtp_query = "SELECT setting_key, setting_value FROM admin_settings WHERE setting_key IN ('smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'smtp_secure', 'from_email')";
+            $smtp_result = $this->conn->query($smtp_query);
+            $smtp_settings = [];
+            if ($smtp_result) {
+                while ($row = $smtp_result->fetch_assoc()) {
+                    $smtp_settings[$row['setting_key']] = $row['setting_value'];
+                }
+            }
+
+            $mail = new PHPMailer(true);
+            $mail->isSMTP();
+            $mail->Host = $smtp_settings['smtp_host'] ?? 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = $smtp_settings['smtp_username'] ?? 'ideanest.ict@gmail.com';
+            $mail->Password = $smtp_settings['smtp_password'] ?? 'luou xlhs ojuw auvx';
+            $mail->SMTPSecure = ($smtp_settings['smtp_secure'] ?? 'tls') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+            $mail->Port = $smtp_settings['smtp_port'] ?? 587;
+            $mail->setFrom($smtp_settings['from_email'] ?? 'ideanest.ict@gmail.com', 'IdeaNest Mentor System');
+            
+            // Disable SSL verification for development (remove in production)
+            $mail->SMTPOptions = array(
+                'ssl' => array(
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true
+                )
+            );
+            
+            return $mail;
+        } catch (Exception $e) {
+            error_log('PHPMailer setup error: ' . $e->getMessage());
+            throw new Exception('Email configuration error');
+        }
     }
 
     public function sendWelcomeMessage($student_id)
@@ -74,6 +107,48 @@ class MentorEmailSystem
         }
     }
 
+    public function sendProjectFeedback($student_id, $feedback_data)
+    {
+        try {
+            $student = $this->getStudentInfo($student_id);
+            $mentor = $this->getMentorInfo();
+
+            $mail = $this->setupMailer();
+            $mail->addAddress($student['email'], $student['name']);
+            $mail->Subject = "Project Feedback from Your Mentor - IdeaNest";
+            $mail->Body = $this->getProjectFeedbackTemplate($student, $mentor, $feedback_data);
+            $mail->isHTML(true);
+
+            $result = $mail->send();
+            $this->logEmail('project_feedback', $student_id, $result ? 'sent' : 'failed');
+            return $result;
+        } catch (Exception $e) {
+            $this->logEmail('project_feedback', $student_id, 'failed', $e->getMessage());
+            return false;
+        }
+    }
+
+    public function sendProgressUpdate($student_id, $progress_data)
+    {
+        try {
+            $student = $this->getStudentInfo($student_id);
+            $mentor = $this->getMentorInfo();
+
+            $mail = $this->setupMailer();
+            $mail->addAddress($student['email'], $student['name']);
+            $mail->Subject = "Progress Update from Your Mentor - IdeaNest";
+            $mail->Body = $this->getProgressUpdateTemplate($student, $mentor, $progress_data);
+            $mail->isHTML(true);
+
+            $result = $mail->send();
+            $this->logEmail('progress_update', $student_id, $result ? 'sent' : 'failed');
+            return $result;
+        } catch (Exception $e) {
+            $this->logEmail('progress_update', $student_id, 'failed', $e->getMessage());
+            return false;
+        }
+    }
+
     private function getStudentInfo($student_id)
     {
         $stmt = $this->conn->prepare("SELECT * FROM register WHERE id = ?");
@@ -92,9 +167,17 @@ class MentorEmailSystem
 
     private function logEmail($type, $recipient_id, $status, $error = null)
     {
-        $stmt = $this->conn->prepare("INSERT INTO mentor_email_logs (mentor_id, recipient_id, email_type, status, error_message, sent_at) VALUES (?, ?, ?, ?, ?, NOW())");
-        $stmt->bind_param("iisss", $this->mentor_id, $recipient_id, $type, $status, $error);
-        $stmt->execute();
+        try {
+            // Check if table exists first
+            $table_check = $this->conn->query("SHOW TABLES LIKE 'mentor_email_logs'");
+            if ($table_check && $table_check->num_rows > 0) {
+                $stmt = $this->conn->prepare("INSERT INTO mentor_email_logs (mentor_id, recipient_id, email_type, status, error_message, sent_at) VALUES (?, ?, ?, ?, ?, NOW())");
+                $stmt->bind_param("iisss", $this->mentor_id, $recipient_id, $type, $status, $error);
+                $stmt->execute();
+            }
+        } catch (Exception $e) {
+            error_log('Email logging error: ' . $e->getMessage());
+        }
     }
 
     private function getWelcomeTemplate($student, $mentor)
@@ -127,6 +210,9 @@ class MentorEmailSystem
 
     private function getSessionInvitationTemplate($student, $mentor, $session_data)
     {
+        $meeting_link = !empty($session_data['meeting_link']) ? 
+            "<p><strong>Meeting Link:</strong> <a href='" . htmlspecialchars($session_data['meeting_link']) . "'>" . htmlspecialchars($session_data['meeting_link']) . "</a></p>" : '';
+        
         return "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
             <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;'>
@@ -142,9 +228,73 @@ class MentorEmailSystem
                     <p><strong>Date:</strong> " . date('F j, Y', strtotime($session_data['session_date'])) . "</p>
                     <p><strong>Time:</strong> " . date('g:i A', strtotime($session_data['session_date'])) . "</p>
                     <p><strong>Topic:</strong> " . htmlspecialchars($session_data['topic'] ?? 'General Mentoring') . "</p>
+                    " . $meeting_link . "
                 </div>
                 
                 <p>See you soon!<br>
+                <strong>" . htmlspecialchars($mentor['name']) . "</strong></p>
+            </div>
+        </div>";
+    }
+
+    private function getProjectFeedbackTemplate($student, $mentor, $feedback_data)
+    {
+        $rating_stars = '';
+        if ($feedback_data['rating'] > 0) {
+            $rating_stars = str_repeat('⭐', $feedback_data['rating']) . ' (' . $feedback_data['rating'] . '/5)';
+        }
+        
+        return "
+        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+            <div style='background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;'>
+                <h1>📝 Project Feedback</h1>
+                <p>Your mentor has provided feedback on your project</p>
+            </div>
+            <div style='background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;'>
+                <h2>Hello " . htmlspecialchars($student['name']) . "!</h2>
+                <p>Your mentor <strong>" . htmlspecialchars($mentor['name']) . "</strong> has reviewed your project and provided feedback.</p>
+                
+                <div style='background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;'>
+                    <h3>💬 Feedback</h3>
+                    <p>" . nl2br(htmlspecialchars($feedback_data['feedback_message'])) . "</p>
+                    " . ($rating_stars ? "<p><strong>Rating:</strong> " . $rating_stars . "</p>" : '') . "
+                </div>
+                
+                <p>Keep up the great work!<br>
+                <strong>" . htmlspecialchars($mentor['name']) . "</strong></p>
+            </div>
+        </div>";
+    }
+
+    private function getProgressUpdateTemplate($student, $mentor, $progress_data)
+    {
+        $achievements = !empty($progress_data['achievements']) ? 
+            "<h4>🎯 Achievements:</h4><ul><li>" . implode('</li><li>', array_map('htmlspecialchars', explode("\n", $progress_data['achievements']))) . "</li></ul>" : '';
+        
+        $next_steps = !empty($progress_data['next_steps']) ? 
+            "<h4>📋 Next Steps:</h4><ul><li>" . implode('</li><li>', array_map('htmlspecialchars', explode("\n", $progress_data['next_steps']))) . "</li></ul>" : '';
+        
+        return "
+        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+            <div style='background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;'>
+                <h1>📊 Progress Update</h1>
+                <p>Your mentor has shared a progress update</p>
+            </div>
+            <div style='background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;'>
+                <h2>Hello " . htmlspecialchars($student['name']) . "!</h2>
+                <p>Your mentor <strong>" . htmlspecialchars($mentor['name']) . "</strong> has provided an update on your progress.</p>
+                
+                <div style='background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;'>
+                    <h3>📈 Progress Report</h3>
+                    <p><strong>Completion:</strong> " . $progress_data['completion_percentage'] . "%</p>
+                    <div style='background: #e9ecef; border-radius: 10px; height: 20px; margin: 10px 0;'>
+                        <div style='background: #ffc107; height: 20px; width: " . $progress_data['completion_percentage'] . "%; border-radius: 10px;'></div>
+                    </div>
+                    " . $achievements . "
+                    " . $next_steps . "
+                </div>
+                
+                <p>Keep up the excellent work!<br>
                 <strong>" . htmlspecialchars($mentor['name']) . "</strong></p>
             </div>
         </div>";

@@ -1,7 +1,15 @@
 <?php
 
 require_once __DIR__ . '/../Login/Login/db.php';
-require_once __DIR__ . '/../vendor/autoload.php';
+
+// Try different autoload paths
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+} elseif (file_exists(__DIR__ . '/../../vendor/autoload.php')) {
+    require_once __DIR__ . '/../../vendor/autoload.php';
+} else {
+    die("Composer autoload not found. Run: composer install\n");
+}
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -93,6 +101,15 @@ function sendWeeklyNotification($user, $conn)
         $mail->Password = $smtp_settings['smtp_password'] ?? 'luou xlhs ojuw auvx';
         $mail->SMTPSecure = ($smtp_settings['smtp_secure'] ?? 'tls') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
         $mail->Port = $smtp_settings['smtp_port'] ?? 587;
+        
+        // Disable SSL verification for development (remove in production)
+        $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            )
+        );
 
         $mail->setFrom($smtp_settings['from_email'] ?? 'ideanest.ict@gmail.com', 'IdeaNest');
         $mail->addAddress($user['email'], $user['name']);
@@ -113,23 +130,31 @@ function sendWeeklyNotification($user, $conn)
         }
 
         // Log successful send
-        $log_query = "INSERT INTO notification_logs (type, user_id, status, email_to, email_subject, created_at) VALUES ('weekly_notification', ?, 'sent', ?, ?, NOW())";
-        $log_stmt = $conn->prepare($log_query);
-        if ($log_stmt) {
-            $log_stmt->bind_param("iss", $user['id'], $user['email'], $mail->Subject);
-            $log_stmt->execute();
-            $log_stmt->close();
+        try {
+            $log_query = "INSERT INTO notification_logs (type, user_id, status, email_to, email_subject, created_at) VALUES ('weekly_notification', ?, 'sent', ?, ?, NOW())";
+            $log_stmt = $conn->prepare($log_query);
+            if ($log_stmt) {
+                $log_stmt->bind_param("iss", $user['id'], $user['email'], $mail->Subject);
+                $log_stmt->execute();
+                $log_stmt->close();
+            }
+        } catch (Exception $log_error) {
+            error_log('Notification logging error: ' . $log_error->getMessage());
         }
 
         echo "Notification sent to: " . $user['email'] . "\n";
     } catch (Exception $e) {
         // Log failed send
-        $log_query = "INSERT INTO notification_logs (type, user_id, status, email_to, error_message, created_at) VALUES ('weekly_notification', ?, 'failed', ?, ?, NOW())";
-        $log_stmt = $conn->prepare($log_query);
-        if ($log_stmt) {
-            $log_stmt->bind_param("iss", $user['id'], $user['email'], $e->getMessage());
-            $log_stmt->execute();
-            $log_stmt->close();
+        try {
+            $log_query = "INSERT INTO notification_logs (type, user_id, status, email_to, error_message, created_at) VALUES ('weekly_notification', ?, 'failed', ?, ?, NOW())";
+            $log_stmt = $conn->prepare($log_query);
+            if ($log_stmt) {
+                $log_stmt->bind_param("iss", $user['id'], $user['email'], $e->getMessage());
+                $log_stmt->execute();
+                $log_stmt->close();
+            }
+        } catch (Exception $log_error) {
+            error_log('Error logging failed notification: ' . $log_error->getMessage());
         }
 
         echo "Failed to send notification to: " . $user['email'] . " - Error: " . $e->getMessage() . "\n";

@@ -106,7 +106,19 @@ IdeaNest is a comprehensive web-based platform designed to facilitate academic p
 - Composer for dependency management
 - Internet connection for GitHub API and Google OAuth
 
-### Installation
+### Quick Installation (Fedora)
+
+**Automated Setup:**
+```bash
+git clone https://github.com/yourusername/IdeaNest.git
+cd IdeaNest
+chmod +x install_fedora.sh
+./install_fedora.sh
+```
+
+### Manual Installation
+
+#### Ubuntu/Pop!_OS/Debian:
 
 1. **Clone the repository:**
 ```bash
@@ -160,6 +172,10 @@ cd cron && chmod +x setup_cron.sh && ./setup_cron.sh
 php cron/weekly_notifications.php
 ```
 
+#### Fedora/RHEL/CentOS:
+
+See [FEDORA_SETUP.md](FEDORA_SETUP.md) for detailed Fedora-specific instructions.
+
 ## 🔧 Configuration
 
 ### GitHub Integration Setup
@@ -178,9 +194,13 @@ php cron/weekly_notifications.php
 
 2. **Cron Job Setup**:
    ```bash
-   # For testing (every 30 minutes)
+   # Ubuntu/Pop!_OS/Debian
    cd /opt/lampp/htdocs/IdeaNest/cron
    ./setup_cron.sh
+   
+   # Fedora/RHEL/CentOS
+   cd /opt/lampp/htdocs/IdeaNest/cron
+   ./setup_cron_fedora.sh
    
    # For production (weekly)
    # Edit setup_cron.sh and change to: 0 9 * * 0

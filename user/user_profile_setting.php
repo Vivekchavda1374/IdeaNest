@@ -29,6 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $passout_year = trim($_POST['passout_year']);
     $email_notifications = isset($_POST['email_notifications']) ? 1 : 0;
     $github_username = trim($_POST['github_username'] ?? '');
+    $enrollment_number = trim($_POST['enrollment_number'] ?? '');
+    $gr_number = trim($_POST['gr_number'] ?? '');
 
     $current_password = $_POST['current_password'] ?? '';
     $new_password = $_POST['new_password'] ?? '';
@@ -100,6 +102,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $update_fields[] = "passout_year = ?";
             $types .= "s";
             $params[] = $passout_year;
+        }
+
+        if (!empty($enrollment_number)) {
+            $update_fields[] = "enrollment_number = ?";
+            $types .= "s";
+            $params[] = $enrollment_number;
+        }
+
+        if (!empty($gr_number)) {
+            $update_fields[] = "gr_number = ?";
+            $types .= "s";
+            $params[] = $gr_number;
         }
 
         $update_fields[] = "email_notifications = ?";
@@ -436,14 +450,14 @@ $year_in_college = $user['passout_year'] ? ($academic_year - $user['passout_year
             <div class="form-section">
                 <h3 class="section-title">
                     <i class="fas fa-id-card"></i>
-                    Academic Information (Read Only)
+                    Academic Information
                 </h3>
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="enrollment_number" class="form-label">Enrollment Number</label>
                         <div class="input-group">
                             <i class="fas fa-id-badge input-group-icon"></i>
-                            <input type="text" id="enrollment_number" class="form-control" value="<?php echo htmlspecialchars($user['enrollment_number']); ?>" readonly>
+                            <input type="text" id="enrollment_number" name="enrollment_number" class="form-control" value="<?php echo htmlspecialchars($user['enrollment_number']); ?>">
                         </div>
                     </div>
 
@@ -451,7 +465,7 @@ $year_in_college = $user['passout_year'] ? ($academic_year - $user['passout_year
                         <label for="gr_number" class="form-label">GR Number</label>
                         <div class="input-group">
                             <i class="fas fa-hashtag input-group-icon"></i>
-                            <input type="text" id="gr_number" class="form-control" value="<?php echo htmlspecialchars($user['gr_number']); ?>" readonly>
+                            <input type="text" id="gr_number" name="gr_number" class="form-control" value="<?php echo htmlspecialchars($user['gr_number']); ?>">
                         </div>
                     </div>
                 </div>
