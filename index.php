@@ -1888,50 +1888,6 @@
     </div>
 </footer>
 
-<!-- Modals -->
-<div class="modal" id="modal-login" aria-hidden="true">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('login')">&times;</button>
-        <h3 class="modal-title">Login</h3>
-        <p class="modal-text">Sign in to your IdeaNest account</p>
-        <form class="modal-form" onsubmit="event.preventDefault(); alert('Login submitted');">
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" required />
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" required />
-            </div>
-            <button class="form-submit" type="submit">Login</button>
-        </form>
-    </div>
-</div>
-
-<div class="modal" id="modal-register" aria-hidden="true">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('register')">&times;</button>
-        <h3 class="modal-title">Register</h3>
-        <p class="modal-text">Create an account to start submitting projects</p>
-        <form class="modal-form" onsubmit="event.preventDefault(); alert('Registration submitted');">
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" required />
-            </div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" required />
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" required />
-            </div>
-            <button class="form-submit" type="submit">Register</button>
-            <div class="form-footer">Already have an account? <a href="#" onclick="closeModal('register'); openModal('login')">Login</a></div>
-        </form>
-    </div>
-</div>
-
 <!-- JavaScript: place just before </body> -->
 <script>
     // small helpers for modals and mobile menu
