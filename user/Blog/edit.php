@@ -111,17 +111,20 @@ $projectData = null;
 
 if ($id > 0) {
     // Database connection parameters
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "ideanest";
+    
 
-    // Create database connection
-    $conn = new mysqli($servername, $username, $password, $dbname);
+$host = "localhost";
+$user = "ictmu6ya_ideanest";
+$pass = "ictmu6ya_ideanest";
+$dbname = "ictmu6ya_ideanest";
 
-    // Check connection
-    if ($conn->connect_error) {
-        $error_message = "Connection failed: " . $conn->connect_error;
+$conn = new mysqli($host, $user, $pass, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
     } else {
         // Prepare and bind the SQL statement - only get project if it belongs to current user
         $stmt = $conn->prepare("SELECT * FROM blog WHERE id = ? AND user_id = ?");
