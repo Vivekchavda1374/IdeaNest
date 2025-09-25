@@ -2,8 +2,8 @@
 
 // Database configuration - Update for your Fedora setup
 $host = "localhost";
-$user = "root";  // Change to 'ideanest_user' for production
-$pass = "";      // Add your database password
+$user = "root";
+$pass = "";
 $dbname = "ideanest";
 
 $conn = new mysqli($host, $user, $pass, $dbname);
@@ -12,3 +12,4 @@ $conn = new mysqli($host, $user, $pass, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+?>
