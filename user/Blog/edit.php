@@ -39,14 +39,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
     ) {
         $error_message = "Error: All required fields must be filled";
     } else {
-        // Database connection parameters
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "ideanest";
+        $host = "localhost";
+        $user = "ictmu6ya_ideanest";
+        $pass = "ictmu6ya_ideanest";
+        $dbname = "ictmu6ya_ideanest";
 
-        // Create database connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
+        $conn = new mysqli($host, $user, $pass, $dbname);
 
         // Check connection
         if ($conn->connect_error) {
@@ -110,21 +108,15 @@ $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $projectData = null;
 
 if ($id > 0) {
-    // Database connection parameters
-    
+    $host = "localhost";
+    $user = "ictmu6ya_ideanest";
+    $pass = "ictmu6ya_ideanest";
+    $dbname = "ictmu6ya_ideanest";
 
-$host = "localhost";
-$user = "ictmu6ya_ideanest";
-$pass = "ictmu6ya_ideanest";
-$dbname = "ictmu6ya_ideanest";
+    $conn = new mysqli($host, $user, $pass, $dbname);
 
-$conn = new mysqli($host, $user, $pass, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     } else {
         // Prepare and bind the SQL statement - only get project if it belongs to current user
         $stmt = $conn->prepare("SELECT * FROM blog WHERE id = ? AND user_id = ?");

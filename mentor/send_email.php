@@ -12,53 +12,108 @@ $mentor_id = $_SESSION['mentor_id'];
 
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    require_once 'email_system.php';
-    $email_system = new MentorEmailSystem($conn, $mentor_id);
+    try {
+        require_once 'email_system.php';
+        $email_system = new MentorEmailSystem($conn, $mentor_id);
 
-    $action = $_POST['action'] ?? '';
-    $student_id = $_POST['student_id'] ?? 0;
+        $action = $_POST['action'] ?? '';
+        $student_id = intval($_POST['student_id'] ?? 0);
 
-    $response = ['success' => false, 'message' => 'Invalid action'];
+        $response = ['success' => false, 'message' => 'Invalid action'];
 
-    switch ($action) {
-        case 'send_welcome':
-            if ($email_system->sendWelcomeMessage($student_id)) {
-                // Log activity
-                $student_query = "SELECT name FROM register WHERE id = ?";
-                $stmt = $conn->prepare($student_query);
-                $stmt->bind_param("i", $student_id);
-                $stmt->execute();
-                $student_name = $stmt->get_result()->fetch_assoc()['name'] ?? 'Student';
+        if ($student_id <= 0) {
+            $response = ['success' => false, 'message' => 'Please select a student'];
+        } else {
+            switch ($action) {
+                case 'send_welcome':
+                    if ($email_system->sendWelcomeMessage($student_id)) {
+                        // Log activity
+                        try {
+                            $student_query = "SELECT name FROM register WHERE id = ?";
+                            $stmt = $conn->prepare($student_query);
+                            $stmt->bind_param("i", $student_id);
+                            $stmt->execute();
+                            $student_name = $stmt->get_result()->fetch_assoc()['name'] ?? 'Student';
 
-                $log_stmt = $conn->prepare("INSERT INTO mentor_activity_logs (mentor_id, activity_type, description, student_id, created_at) VALUES (?, 'email_sent', ?, ?, NOW())");
-                $activity_desc = "Sent welcome email to " . $student_name;
-                $log_stmt->bind_param("isi", $mentor_id, $activity_desc, $student_id);
-                $log_stmt->execute();
+                            // Check if activity logs table exists
+                            $table_check = $conn->query("SHOW TABLES LIKE 'mentor_activity_logs'");
+                            if ($table_check && $table_check->num_rows > 0) {
+                                $log_stmt = $conn->prepare("INSERT INTO mentor_activity_logs (mentor_id, activity_type, description, student_id, created_at) VALUES (?, 'email_sent', ?, ?, NOW())");
+                                $activity_desc = "Sent welcome email to " . $student_name;
+                                $log_stmt->bind_param("isi", $mentor_id, $activity_desc, $student_id);
+                                $log_stmt->execute();
+                            }
+                        } catch (Exception $e) {
+                            error_log('Activity logging error: ' . $e->getMessage());
+                        }
 
-                $response = ['success' => true, 'message' => 'Welcome email sent successfully'];
-            } else {
-                $response = ['success' => false, 'message' => 'Failed to send welcome email'];
+                        $response = ['success' => true, 'message' => 'Welcome email sent successfully'];
+                    } else {
+                        $response = ['success' => false, 'message' => 'Failed to send welcome email'];
+                    }
+                    break;
+
+                case 'send_session_invitation':
+                    $session_data = [
+                        'session_date' => $_POST['session_date'] ?? '',
+                        'topic' => $_POST['topic'] ?? '',
+                        'meeting_link' => $_POST['meeting_link'] ?? ''
+                    ];
+
+                    if (empty($session_data['session_date'])) {
+                        $response = ['success' => false, 'message' => 'Please select a session date'];
+                    } elseif ($email_system->sendSessionInvitation($student_id, $session_data)) {
+                        $response = ['success' => true, 'message' => 'Session invitation sent successfully'];
+                    } else {
+                        $response = ['success' => false, 'message' => 'Failed to send session invitation'];
+                    }
+                    break;
+
+                case 'send_project_feedback':
+                    $feedback_data = [
+                        'project_id' => intval($_POST['project_id'] ?? 0),
+                        'feedback_message' => trim($_POST['feedback_message'] ?? ''),
+                        'rating' => intval($_POST['rating'] ?? 0)
+                    ];
+
+                    if (empty($feedback_data['feedback_message'])) {
+                        $response = ['success' => false, 'message' => 'Please enter feedback message'];
+                    } elseif ($email_system->sendProjectFeedback($student_id, $feedback_data)) {
+                        $response = ['success' => true, 'message' => 'Project feedback sent successfully'];
+                    } else {
+                        $response = ['success' => false, 'message' => 'Failed to send project feedback'];
+                    }
+                    break;
+
+                case 'send_progress_update':
+                    $progress_data = [
+                        'completion_percentage' => intval($_POST['completion_percentage'] ?? 0),
+                        'achievements' => trim($_POST['achievements'] ?? ''),
+                        'next_steps' => trim($_POST['next_steps'] ?? '')
+                    ];
+
+                    if ($email_system->sendProgressUpdate($student_id, $progress_data)) {
+                        $response = ['success' => true, 'message' => 'Progress update sent successfully'];
+                    } else {
+                        $response = ['success' => false, 'message' => 'Failed to send progress update'];
+                    }
+                    break;
+
+                default:
+                    $response = ['success' => false, 'message' => 'Unknown action: ' . $action];
+                    break;
             }
-            break;
-
-        case 'send_session_invitation':
-            $session_data = [
-                'session_date' => $_POST['session_date'] ?? '',
-                'topic' => $_POST['topic'] ?? ''
-            ];
-
-            if ($email_system->sendSessionInvitation($student_id, $session_data)) {
-                $response = ['success' => true, 'message' => 'Session invitation sent successfully'];
-            } else {
-                $response = ['success' => false, 'message' => 'Failed to send session invitation'];
-            }
-            break;
+        }
+    } catch (Exception $e) {
+        error_log('Send email error: ' . $e->getMessage());
+        $response = ['success' => false, 'message' => 'Email system error: ' . $e->getMessage()];
     }
 
     header('Content-Type: application/json');
     echo json_encode($response);
     exit;
 }
+
 
 // Get students for forms
 $students = [];
