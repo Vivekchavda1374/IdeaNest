@@ -1,368 +1,578 @@
-# IdeaNest - Academic Project Management Platform
+   # IdeaNest - Academic Project Management Platform
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![PHP Version](https://img.shields.io/badge/PHP-8.2.4-blue.svg)](https://www.php.net/)
-[![MySQL Version](https://img.shields.io/badge/MySQL-10.4.28--MariaDB-blue.svg)](https://www.mysql.com/)
+   [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+   [![PHP Version](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://www.php.net/)
+   [![MySQL Version](https://img.shields.io/badge/MySQL-10.4.28--MariaDB-blue.svg)](https://www.mysql.com/)
 
-IdeaNest is a comprehensive web-based platform designed to facilitate academic project management, collaboration, and mentorship. It provides a complete ecosystem for students, mentors, sub-admins, and administrators to manage the entire project lifecycle from idea conception to final approval.
+   IdeaNest is a comprehensive web-based platform designed to facilitate academic project management, collaboration, and mentorship. It provides a complete ecosystem for students, mentors, sub-admins, and administrators to manage the entire project lifecycle from idea conception to final approval.
 
-## 🚀 Core Features
+   ## 🚀 Core Features
 
-### 🔐 Authentication & User Management
-- **Multi-Role Authentication**: Student/Sub-Admin/Admin/Mentor role-based access
-- **Google OAuth Integration**: Social sign-in with profile completion
-- **Traditional Login**: Email/password authentication with secure sessions
-- **Profile Management**: User profiles with image upload and GitHub integration
+   ### 🔐 Authentication & User Management
+   - **Multi-Role Authentication**: Student/Sub-Admin/Admin/Mentor role-based access
+   - **Google OAuth Integration**: Social sign-in with profile completion
+   - **Traditional Login**: Email/password authentication with secure sessions
+   - **Profile Management**: User profiles with image upload and GitHub integration
+   - **Password Reset**: Forgot password functionality with email verification
 
-### 📋 Project Management System
-- **Project Submission**: Multi-file upload with validation (images, videos, code, presentations)
-- **Three-Tier Approval**: User → SubAdmin → Admin workflow
-- **Project Categories**: Software/Hardware classification with difficulty levels
-- **Enhanced Project Details**: Team size, development time, target audience, goals
-- **File Security**: Protected uploads with access control
-- **Project Status Tracking**: Real-time status updates (pending/approved/rejected)
+   ### 📋 Project Management System
+   - **Project Submission**: Multi-file upload with validation (images, videos, code, presentations)
+   - **Three-Tier Approval**: User → SubAdmin → Admin workflow
+   - **Project Categories**: Software/Hardware classification with difficulty levels
+   - **Enhanced Project Details**: Team size, development time, target audience, goals
+   - **File Security**: Protected uploads with access control and download tracking
+   - **Project Status Tracking**: Real-time status updates (pending/approved/rejected)
+   - **Project Editing**: Edit submitted projects before approval
+   - **Denial Management**: Track and manage rejected projects with reasons
 
-### 💡 Ideas & Blog System
-- **Idea Sharing**: Students can share project ideas and concepts
-- **Interactive Features**: Like and comment system for ideas
-- **Idea Management**: Edit, delete, and report inappropriate content
-- **Real-time Engagement**: AJAX-powered interactions
+   ### 💡 Ideas & Blog System
+   - **Idea Sharing**: Students can share project ideas and concepts
+   - **Interactive Features**: Like and comment system for ideas
+   - **Idea Management**: Edit, delete, and report inappropriate content
+   - **Real-time Engagement**: AJAX-powered interactions
+   - **Content Moderation**: Report system with admin review and warning system
+   - **Idea Deletion Tracking**: Maintain records of deleted ideas with reasons
 
-### 👨🏫 Mentor System
-- **Mentor Dashboard**: Comprehensive mentor interface with analytics
-- **Student-Mentor Pairing**: Request-based pairing system
-- **Session Management**: Schedule and track mentoring sessions
-- **Email System**: Built-in email functionality for mentor-student communication
-- **Activity Tracking**: Monitor mentor activities and student progress
-- **Smart Pairing**: AI-powered mentor-student matching
+   ### 👨🏫 Mentor System
+   - **Mentor Dashboard**: Comprehensive mentor interface with analytics
+   - **Student-Mentor Pairing**: Request-based pairing system with smart matching
+   - **Session Management**: Schedule and track mentoring sessions with meeting links
+   - **Email System**: Built-in email functionality with queue management
+   - **Activity Tracking**: Monitor mentor activities and student progress
+   - **Project Access**: Mentors can access their students' projects
+   - **Automated Emails**: Welcome messages, session reminders, and progress updates
+   - **Email Analytics**: Track email delivery and engagement statistics
 
-### 👥 SubAdmin Features
-- **Project Assignment**: Automatic assignment based on classification expertise
-- **Review Queue**: Organized project review with priority levels
-- **Classification Management**: Request system for changing expertise areas
-- **Support System**: Ticket-based support with admin communication
-- **Performance Tracking**: Review statistics and workload monitoring
+   ### 👥 SubAdmin Features
+   - **Project Assignment**: Automatic assignment based on classification expertise
+   - **Review Queue**: Organized project review with priority levels
+   - **Classification Management**: Request system for changing expertise areas
+   - **Support System**: Ticket-based support with admin communication
+   - **Performance Tracking**: Review statistics and workload monitoring
+   - **Profile Management**: Complete profile setup and domain expertise
 
-### 👨💼 Admin Features
-- **Enhanced Dashboard**: System analytics with charts and statistics
-- **User Management**: Complete user lifecycle management
-- **Mentor Management**: Add, remove, and manage mentor accounts
-- **SubAdmin Management**: Full subadmin oversight and performance tracking
-- **Data Export**: Export system data in multiple formats
-- **Email Configuration**: SMTP settings management
-- **Notification Dashboard**: Monitor email delivery and system notifications
-- **Support Ticket Management**: Handle subadmin support requests
+   ### 👨💼 Admin Features
+   - **Enhanced Dashboard**: System analytics with charts and statistics
+   - **User Management**: Complete user lifecycle management with activity logs
+   - **Mentor Management**: Add, remove, and manage mentor accounts
+   - **SubAdmin Management**: Full subadmin oversight and performance tracking
+   - **Data Export**: Export system data in multiple formats (comprehensive/overview)
+   - **Email Configuration**: SMTP settings management
+   - **Notification Dashboard**: Monitor email delivery and system notifications
+   - **Support Ticket Management**: Handle subadmin support requests with replies
+   - **Content Moderation**: Manage reported ideas and user warnings
+   - **System Settings**: Configure application-wide settings
 
-### 🔗 GitHub Integration
-- **Profile Connection**: Link GitHub usernames in profile settings
-- **Repository Sync**: Fetch and display GitHub profile and repository data
-- **API Integration**: GitHub API connectivity for user profiles
-- **Real-time Sync**: Automatic GitHub data synchronization
+   ### 🔗 GitHub Integration
+   - **Profile Connection**: Link GitHub usernames in profile settings
+   - **Repository Sync**: Fetch and display GitHub profile and repository data
+   - **API Integration**: GitHub API connectivity for user profiles
+   - **Real-time Sync**: AJAX-powered GitHub data synchronization
+   - **Profile Display**: Dedicated GitHub profile pages for users
 
-### 📧 Email Notification System
-- **Weekly Digest Emails**: Automated email notifications for new projects/ideas
-- **SMTP Configuration**: Configurable email settings
-- **Cron Job Support**: Automated background email processing
-- **Email Templates**: Customizable notification templates
-- **Delivery Tracking**: Monitor email delivery status and failures
+   ### 📧 Email Notification System
+   - **Weekly Digest Emails**: Automated email notifications for new projects/ideas
+   - **Mentor Email System**: Comprehensive email queue with priority management
+   - **SMTP Configuration**: Configurable email settings with multiple providers
+   - **Cron Job Support**: Automated background email processing
+   - **Email Templates**: Customizable notification templates
+   - **Delivery Tracking**: Monitor email delivery status and failures
+   - **Email Statistics**: Track email performance and engagement
 
-### 🎯 Interactive Features
-- **Project Engagement**: Like system with AJAX updates
-- **Bookmark System**: Save favorite projects for later viewing
-- **Comment System**: Project discussions with nested comments
-- **Real-time Feedback**: Interactive elements with instant updates
-- **Search Functionality**: Search projects and ideas
-- **Advanced Analytics**: Comprehensive dashboard with charts and statistics
+   ### 🎯 Interactive Features
+   - **Project Engagement**: Like system with AJAX updates
+   - **Bookmark System**: Save favorite projects for later viewing
+   - **Comment System**: Project and idea discussions with nested comments
+   - **Real-time Feedback**: Interactive elements with instant updates
+   - **Search Functionality**: Search projects and ideas
+   - **Advanced Analytics**: Comprehensive dashboard with charts and statistics
+   - **Activity Logging**: Track user activities and system events
 
-## 🛠 Technical Stack
+   ## 🛠 Technical Stack
 
-### Backend
-- **PHP 8.2.4**: Modern PHP with latest features
-- **MySQL 10.4.28-MariaDB**: Robust database with optimized queries
-- **Apache 2.4**: Web server with mod_rewrite enabled
-- **PHPMailer**: Reliable email delivery system
-- **Composer**: Dependency management
+   ### Backend
+   - **PHP 8.2+**: Modern PHP with latest features
+   - **MySQL 10.4.28-MariaDB**: Robust database with optimized queries and foreign keys
+   - **Apache 2.4**: Web server with mod_rewrite enabled
+   - **PHPMailer 6.10+**: Reliable email delivery system with queue management
+   - **Composer**: Dependency management and autoloading
 
-### Frontend
-- **HTML5/CSS3**: Modern web standards with responsive design
-- **JavaScript (ES6+)**: Interactive user interfaces
-- **Bootstrap 5**: Responsive design framework
-- **Font Awesome 6**: Comprehensive icon library
-- **AJAX**: Seamless user interactions
-- **Chart.js**: Interactive data visualization
+   ### Frontend
+   - **HTML5/CSS3**: Modern web standards with responsive design
+   - **JavaScript (ES6+)**: Interactive user interfaces with AJAX
+   - **Bootstrap**: Responsive design framework
+   - **Font Awesome**: Comprehensive icon library
+   - **Custom CSS**: Modular stylesheets for different components
+   - **Loading Components**: Enhanced user experience with loading states
 
-### Integrations
-- **GitHub API v3**: Repository and profile data
-- **Google OAuth 2.0**: Social authentication
-- **Cron Jobs**: Automated background tasks
-- **Session Management**: Secure user sessions
+   ### Development Tools
+   - **PHPUnit**: Unit and integration testing
+   - **PHP_CodeSniffer**: Code quality and PSR-12 compliance
+   - **PHPStan**: Static analysis for code quality
+   - **Guzzle HTTP**: HTTP client for API integrations
 
-## 🚀 Getting Started
+   ### Integrations
+   - **GitHub API v3**: Repository and profile data synchronization
+   - **Google OAuth 2.0**: Social authentication with profile completion
+   - **Cron Jobs**: Automated background tasks for emails and notifications
+   - **Session Management**: Secure user sessions with CSRF protection
 
-### Prerequisites
-- PHP 8.2.4 or higher
-- MySQL 10.4.28-MariaDB or higher
-- Apache Web Server with mod_rewrite enabled
-- Composer for dependency management
-- Internet connection for GitHub API and Google OAuth
+   ## 🚀 Getting Started
 
-### Quick Installation (Fedora)
+   ### Prerequisites
+   - PHP 8.2+ or higher
+   - MySQL 10.4.28-MariaDB or higher
+   - Apache Web Server with mod_rewrite enabled
+   - Composer for dependency management
+   - Internet connection for GitHub API and Google OAuth
 
-**Automated Setup:**
-```bash
-git clone https://github.com/yourusername/IdeaNest.git
-cd IdeaNest
-chmod +x install_fedora.sh
-./install_fedora.sh
-```
+   ### Installation
 
-### Manual Installation
-
-#### Ubuntu/Pop!_OS/Debian:
-
-1. **Clone the repository:**
-```bash
-git clone https://github.com/yourusername/IdeaNest.git
-cd IdeaNest
-```
-
-2. **Install dependencies:**
-```bash
-composer install
-```
-
-3. **Database setup:**
-```bash
-# Create MySQL database
-mysql -u root -p -e "CREATE DATABASE ideanest;"
-
-# Import database schema
-mysql -u root -p ideanest < db/ideanest.sql
-```
-
-4. **Configure database connection:**
-```php
-// Edit Login/Login/db.php
-$host = "localhost";
-$user = "root";
-$pass = "your_password";
-$dbname = "ideanest";
-```
-
-5. **Web server configuration:**
-```bash
-# Set proper permissions
-chmod 755 user/uploads/
-chmod 755 user/forms/uploads/
-chmod 755 logs/
-chmod +x cron/setup_cron.sh
-
-# Enable Apache mod_rewrite
-sudo a2enmod rewrite
-sudo systemctl restart apache2
-```
-
-6. **Email notifications setup:**
-```bash
-# Configure SMTP in Admin panel
-# Setup cron job for weekly notifications
-cd cron && chmod +x setup_cron.sh && ./setup_cron.sh
-
-# Test notifications
-php cron/weekly_notifications.php
-```
-
-#### Fedora/RHEL/CentOS:
-
-See [FEDORA_SETUP.md](FEDORA_SETUP.md) for detailed Fedora-specific instructions.
-
-## 🔧 Configuration
-
-### GitHub Integration Setup
-1. **User Configuration**:
-   - Login to your account
-   - Go to Profile Settings
-   - Enter GitHub username in GitHub Integration section
-   - Click "Sync Now" to automatically sync profile and repositories
-
-### Email Notification Setup
-1. **Admin Panel Configuration**:
-   - Login as admin
-   - Go to Settings → Email Configuration
-   - Configure SMTP settings (Gmail recommended)
-   - Set notification preferences
-
-2. **Cron Job Setup**:
+   1. **Clone the repository:**
    ```bash
-   # Ubuntu/Pop!_OS/Debian
-   cd /opt/lampp/htdocs/IdeaNest/cron
-   ./setup_cron.sh
-   
-   # Fedora/RHEL/CentOS
-   cd /opt/lampp/htdocs/IdeaNest/cron
-   ./setup_cron_fedora.sh
-   
-   # For production (weekly)
-   # Edit setup_cron.sh and change to: 0 9 * * 0
+   git clone https://github.com/yourusername/IdeaNest.git
+   cd IdeaNest
    ```
 
-### Google OAuth Setup
-1. Create Google Cloud Console project
-2. Enable Google+ API
-3. Create OAuth 2.0 credentials
-4. Add authorized JavaScript origins
-5. Update client ID in login.php
+   2. **Install dependencies:**
+   ```bash
+   composer install
+   ```
 
-## 🏗 Project Structure
+   3. **Environment setup:**
+   ```bash
+   # Copy environment file
+   cp .env.example .env
 
-```
-IdeaNest/
-├── Admin/
-│   ├── subadmin/                    # SubAdmin management panel
-│   ├── admin.php                    # Main admin dashboard
-│   ├── admin_view_project.php       # Project review interface
-│   ├── manage_mentors.php           # Mentor management
-│   ├── user_manage_by_admin.php     # User management
-│   ├── system_analytics.php         # System analytics
-│   ├── export_data.php              # Data export functionality
-│   └── notification_dashboard.php   # Email notification monitoring
-├── mentor/
-│   ├── dashboard.php               # Mentor dashboard
-│   ├── students.php                # Student management
-│   ├── sessions.php                # Session management
-│   ├── projects.php                # Project review
-│   ├── profile.php                 # Mentor profile
-│   ├── analytics.php               # Analytics dashboard
-│   ├── send_email.php              # Email functionality
-│   └── email_dashboard.php         # Email analytics
-├── user/
-│   ├── forms/uploads/              # File upload storage
-│   ├── Blog/                       # Ideas/Blog functionality
-│   ├── forms/                      # Project submission forms
-│   ├── index.php                   # User dashboard with analytics
-│   ├── all_projects.php            # Project listing
-│   ├── github_service.php          # GitHub API integration
-│   ├── github_profile.php          # GitHub profile display
-│   └── user_profile_setting.php    # User profile settings
-├── cron/
-│   ├── weekly_notifications.php    # Email notification system
-│   ├── mentor_email_cron.php       # Mentor email automation
-│   └── setup_cron.sh              # Cron job setup
-├── Login/Login/                    # Authentication system
-├── config/                         # Security configuration
-├── includes/                       # Validation and error handling
-├── assets/                         # CSS/JS/Images
-├── vendor/                         # Composer dependencies
-├── tests/                          # Test suite
-└── db/                            # Database schema
-```
+   # Edit .env with your configuration
+   nano .env
+   ```
 
-## 🔧 Database Schema
+   4. **Database setup:**
+   ```bash
+   # Create MySQL database
+   mysql -u root -p -e "CREATE DATABASE ideanest;"
 
-The system uses a comprehensive database schema with the following key tables:
+   # Import database schema
+   mysql -u root -p ideanest < db/ideanest.sql
+   ```
 
-- **register**: User accounts and profiles with GitHub integration
-- **projects**: Project submissions and details
-- **admin_approved_projects**: Approved projects
-- **blog**: Ideas and blog posts
-- **mentors**: Mentor information and specializations
-- **mentor_student_pairs**: Mentor-student relationships
-- **mentoring_sessions**: Session scheduling and management
-- **mentor_requests**: Mentor pairing requests
-- **subadmins**: SubAdmin accounts with classifications
-- **notification_logs**: Email notification tracking
-- **bookmark**: User bookmarks
-- **project_likes/idea_likes**: Engagement tracking
-- **support_tickets**: Support ticket system
-- **mentor_email_logs**: Email tracking for mentors
+   5. **Configure database connection:**
+   ```php
+   // Edit Login/Login/db.php
+   $host = "localhost";
+   $user = "root";
+   $pass = "your_password";
+   $dbname = "ideanest";
+   ```
 
-## 🧪 Testing
+   6. **Set file permissions:**
+   ```bash
+   chmod 755 user/uploads/
+   chmod 755 user/forms/uploads/
+   chmod 755 logs/
+   chmod 644 .env
+   chmod +x cron/setup_cron.sh
+   chmod +x cron/manage_cron.sh
+   ```
 
-The application includes comprehensive testing:
-- **Unit Tests**: Core functionality testing
-- **Integration Tests**: Database and API integration
-- **Functional Tests**: User workflow testing
-- **Performance Tests**: Load testing capabilities
+   7. **Web server configuration:**
+   ```bash
+   # Enable Apache mod_rewrite
+   sudo a2enmod rewrite
+   sudo systemctl restart apache2
+   ```
 
-Run tests using:
-```bash
-cd tests
-./run_tests.sh
-```
+   8. **Email system setup:**
+   ```bash
+   # Setup cron jobs
+   cd cron && ./setup_cron.sh
 
-## 🔧 Troubleshooting
+   # Test email system
+   php cron/weekly_notifications.php
+   php cron/mentor_email_cron.php
+   ```
 
-### Common Issues
-- **403/500 Errors**: Check .htaccess configuration and file permissions
-- **Google OAuth**: Verify client ID and authorized domains
-- **Email Issues**: Ensure SMTP credentials and app passwords are correct
-- **File Uploads**: Check upload directory permissions (755 recommended)
-- **GitHub Integration**: Verify internet connectivity and API limits
+   For production deployment, see [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md).
 
-### File Permissions
-```bash
-chmod 755 user/uploads/
-chmod 755 user/forms/uploads/
-chmod 755 logs/
-chmod +x cron/setup_cron.sh
-```
+   ## 🔧 Configuration
 
-## 📊 System Specifications
+   ### GitHub Integration Setup
+   1. **User Configuration**:
+      - Login to your account
+      - Go to Profile Settings
+      - Enter GitHub username in GitHub Integration section
+      - Click "Sync Now" to automatically sync profile and repositories
 
-### File Upload Limits
-- **Maximum File Size**: 10MB per file (configurable)
-- **Supported File Types**: Images, videos, PDFs, ZIP files, presentations
-- **Upload Security**: File type validation and secure storage
+   ### Email Notification Setup
+   1. **Admin Panel Configuration**:
+      - Login as admin
+      - Go to Settings → Email Configuration
+      - Configure SMTP settings (Gmail recommended)
+      - Set notification preferences
 
-### Database Performance
-- **MySQL/MariaDB**: Optimized queries with prepared statements
-- **Session Management**: Secure PHP session handling
-- **Data Integrity**: Foreign key constraints and data validation
+   2. **Cron Job Setup**:
+      ```bash
+      # Ubuntu/Pop!_OS/Debian
+      cd /opt/lampp/htdocs/IdeaNest/cron
+      ./setup_cron.sh
+      
+      # Fedora/RHEL/CentOS
+      cd /opt/lampp/htdocs/IdeaNest/cron
+      ./setup_cron_fedora.sh
+      
+      # For production (weekly)
+      # Edit setup_cron.sh and change to: 0 9 * * 0
+      ```
 
-## 🔒 Security Features
+   ### Google OAuth Setup
+   1. Create Google Cloud Console project
+   2. Enable Google+ API
+   3. Create OAuth 2.0 credentials
+   4. Add authorized JavaScript origins
+   5. Update client ID in login.php
 
-### Data Protection
-- **SQL Injection Prevention**: Prepared statements throughout
-- **XSS Protection**: Input sanitization and output encoding
-- **CSRF Protection**: Session-based token validation
-- **File Upload Security**: Type validation and secure storage
-- **Session Management**: Secure session handling with timeouts
+   ## 🏗 Project Structure
 
-## 📝 Contributing
+   ```
+   IdeaNest/
+   ├── Admin/                          # Admin panel
+   │   ├── subadmin/                   # SubAdmin management
+   │   │   ├── dashboard.php           # SubAdmin dashboard
+   │   │   ├── assigned_projects.php   # Project assignments
+   │   │   ├── profile.php             # SubAdmin profile
+   │   │   └── support.php             # Support ticket system
+   │   ├── admin.php                   # Main admin dashboard
+   │   ├── admin_view_project.php      # Project review interface
+   │   ├── manage_mentors.php          # Mentor management
+   │   ├── user_manage_by_admin.php    # User management
+   │   ├── system_analytics.php        # System analytics
+   │   ├── export_*.php                # Data export functionality
+   │   ├── notification_dashboard.php  # Email monitoring
+   │   ├── manage_reported_ideas.php   # Content moderation
+   │   └── settings.php                # System settings
+   ├── mentor/                         # Mentor system
+   │   ├── dashboard.php               # Mentor dashboard
+   │   ├── students.php                # Student management
+   │   ├── sessions.php                # Session management
+   │   ├── projects.php                # Project access
+   │   ├── profile.php                 # Mentor profile
+   │   ├── analytics.php               # Analytics dashboard
+   │   ├── email_system.php            # Email functionality
+   │   ├── email_dashboard.php         # Email analytics
+   │   ├── smart_pairing.php           # AI-powered pairing
+   │   └── api/                        # API endpoints
+   ├── user/                           # User interface
+   │   ├── forms/                      # Project submission
+   │   │   ├── uploads/                # File storage
+   │   │   └── new_project_add.php     # Project form
+   │   ├── Blog/                       # Ideas system
+   │   │   ├── form.php                # Idea submission
+   │   │   ├── list-project.php        # Ideas listing
+   │   │   ├── edit.php                # Edit ideas
+   │   │   └── report_handler.php      # Report system
+   │   ├── api/                        # User API endpoints
+   │   ├── index.php                   # User dashboard
+   │   ├── all_projects.php            # Project gallery
+   │   ├── github_*.php                # GitHub integration
+   │   ├── bookmark.php                # Bookmark system
+   │   ├── search.php                  # Search functionality
+   │   ├── select_mentor.php           # Mentor selection
+   │   └── user_profile_setting.php    # Profile settings
+   ├── Login/Login/                    # Authentication
+   │   ├── login.php                   # Login system
+   │   ├── register.php                # Registration
+   │   ├── google_*.php                # Google OAuth
+   │   ├── forgot_password.php         # Password reset
+   │   └── db.php                      # Database connection
+   ├── cron/                           # Background tasks
+   │   ├── weekly_notifications.php    # Weekly emails
+   │   ├── mentor_email_cron.php       # Mentor emails
+   │   ├── setup_cron.sh               # Cron setup
+   │   └── manage_cron.sh              # Cron management
+   ├── config/                         # Configuration
+   │   ├── email_config.php            # Email settings
+   │   └── security.php                # Security config
+   ├── includes/                       # Shared components
+   │   ├── validation.php              # Input validation
+   │   ├── csrf.php                    # CSRF protection
+   │   ├── error_handler.php           # Error handling
+   │   └── loading_component.php       # UI components
+   ├── assets/                         # Static assets
+   │   ├── css/                        # Stylesheets
+   │   └── js/                         # JavaScript files
+   ├── tests/                          # Test suite
+   │   ├── Unit/                       # Unit tests
+   │   ├── Integration/                # Integration tests
+   │   ├── Functional/                 # Functional tests
+   │   └── Performance/                # Performance tests
+   ├── System Design/                  # Documentation
+   │   └── *.mmd                       # Mermaid diagrams
+   ├── vendor/                         # Composer dependencies
+   ├── db/                             # Database
+   │   └── ideanest.sql                # Database schema
+   ├── .env.example                    # Environment template
+   ├── composer.json                   # Dependencies
+   ├── phpunit.xml                     # Test configuration
+   ├── PRODUCTION_SETUP.md             # Production guide
+   └── SECURITY.md                     # Security policy
+   ```
 
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/AmazingFeature`
-3. Commit your changes: `git commit -m 'Add some AmazingFeature'`
-4. Push to the branch: `git push origin feature/AmazingFeature`
-5. Open a Pull Request
+   ## 🔧 Database Schema
 
-### Development Guidelines
-- Follow PSR-12 coding standards
-- Write comprehensive tests for new features
-- Update documentation for any changes
-- Ensure backward compatibility
+   The system uses a comprehensive database schema with 30+ tables:
 
-## 📄 License
+   ### Core Tables
+   - **register**: User accounts with GitHub integration and role management
+   - **projects**: Project submissions with detailed metadata
+   - **admin_approved_projects**: Approved projects with enhanced details
+   - **denial_projects**: Rejected projects with reasons
+   - **blog**: Ideas and blog posts with engagement tracking
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+   ### Mentor System
+   - **mentors**: Mentor profiles and specializations
+   - **mentor_student_pairs**: Active mentor-student relationships
+   - **mentoring_sessions**: Session scheduling with meeting links
+   - **mentor_requests**: Pairing requests with status tracking
+   - **mentor_email_queue**: Email queue with priority management
+   - **mentor_email_logs**: Email delivery tracking
+   - **mentor_email_stats**: Email performance analytics
+   - **mentor_activity_logs**: Activity tracking
+   - **mentor_project_access**: Project access permissions
 
-## 📞 Support
+   ### Admin & SubAdmin
+   - **subadmins**: SubAdmin accounts with classifications
+   - **subadmin_classification_requests**: Classification change requests
+   - **support_tickets**: Support ticket system
+   - **support_ticket_replies**: Ticket conversation threads
+   - **admin_settings**: System configuration
+   - **admin_logs**: Administrative actions
 
-For support and questions:
-- **Email**: ideanest.ict@gmail.com
-- **GitHub Issues**: Create an issue for bug reports
+   ### Engagement & Interaction
+   - **project_likes**: Project engagement tracking
+   - **idea_likes**: Idea engagement tracking
+   - **project_comments**: Project discussions with nested comments
+   - **idea_comments**: Idea discussions
+   - **comment_likes**: Comment engagement
+   - **bookmark**: User bookmarks
 
-## 🙏 Acknowledgments
+   ### Content Moderation
+   - **idea_reports**: Content reporting system
+   - **idea_warnings**: User warnings
+   - **deleted_ideas**: Deleted content tracking
 
-- **PHP Community** for security best practices
-- **GitHub API** for developer data access
-- **PHPMailer Team** for email delivery solutions
-- **Bootstrap Team** for responsive design framework
-- **Font Awesome** for comprehensive iconography
-- **Chart.js** for data visualization capabilities
+   ### Notifications & Communication
+   - **notification_logs**: Email notification tracking
+   - **notification_counters**: Notification statistics
+   - **notification_templates**: Email templates
+   - **realtime_notifications**: In-app notifications
+   - **student_email_preferences**: Email preferences
 
----
+   ### System & Security
+   - **user_activity_log**: User activity tracking
+   - **temp_project_ownership**: Temporary project ownership
+   - **removed_user**: Deleted user records
 
-**Made with ❤️ by the IdeaNest Team**
+   ## 🧪 Testing
 
-*Empowering academic collaboration through innovative technology*
+   Comprehensive test suite with multiple testing levels:
+
+   ### Test Types
+   - **Unit Tests**: Core functionality and validation
+   - **Integration Tests**: Database operations and GitHub API
+   - **Functional Tests**: Complete user workflows
+   - **Performance Tests**: Load testing and optimization
+   - **UI Tests**: JavaScript functionality
+
+   ### Running Tests
+   ```bash
+   # Run all tests
+   ./tests/run_tests.sh
+
+   # Run specific test suites
+   composer test-unit
+   composer test-integration
+   composer test-functional
+
+   # Code quality checks
+   composer phpcs
+   composer phpstan
+   composer quality
+   ```
+
+   ### Test Configuration
+   - **PHPUnit**: Unit and integration testing framework
+   - **PHP_CodeSniffer**: PSR-12 coding standards
+   - **PHPStan**: Static analysis (Level 5)
+   - **Guzzle**: HTTP testing for API integrations
+
+   ## 🔧 Configuration
+
+   ### Environment Setup
+   1. **Copy environment file:**
+      ```bash
+      cp .env.example .env
+      ```
+
+   2. **Configure database and email settings in .env**
+
+   ### GitHub Integration
+   1. **User Configuration:**
+      - Login to your account
+      - Go to Profile Settings
+      - Enter GitHub username
+      - Click "Sync Now" for automatic synchronization
+
+   ### Email System
+   1. **Admin Panel Configuration:**
+      - Login as admin
+      - Go to Settings → Email Configuration
+      - Configure SMTP settings
+      - Test email delivery
+
+   2. **Cron Job Setup:**
+      ```bash
+      cd cron
+      ./setup_cron.sh
+      
+      # For production (weekly notifications)
+      # Edit crontab: 0 9 * * 0
+      ```
+
+   ### Google OAuth
+   1. Create Google Cloud Console project
+   2. Enable Google+ API
+   3. Create OAuth 2.0 credentials
+   4. Update client ID in google_config.php
+
+   ## 🔧 Troubleshooting
+
+   ### Common Issues
+   - **403/500 Errors**: Check .htaccess and file permissions
+   - **Google OAuth**: Verify client ID and authorized domains
+   - **Email Issues**: Check SMTP credentials and app passwords
+   - **File Uploads**: Verify upload directory permissions (755)
+   - **GitHub Integration**: Check API connectivity and rate limits
+   - **Cron Jobs**: Ensure proper permissions and paths
+
+   ### File Permissions
+   ```bash
+   chmod 755 user/uploads/
+   chmod 755 user/forms/uploads/
+   chmod 755 logs/
+   chmod 644 .env
+   chmod +x cron/*.sh
+   ```
+
+   ### Debug Mode
+   ```bash
+   # Enable error reporting for debugging
+   echo "error_reporting = E_ALL" >> .htaccess
+   echo "display_errors = On" >> .htaccess
+   ```
+
+   ## 📊 System Specifications
+
+   ### File Upload Limits
+   - **Maximum File Size**: 10MB per file (configurable)
+   - **Supported File Types**: Images, videos, PDFs, ZIP files, presentations
+   - **Upload Security**: File type validation and secure storage
+   - **Download Protection**: Secure file access with user verification
+
+   ### Database Performance
+   - **MySQL/MariaDB**: Optimized queries with prepared statements
+   - **Indexing**: Strategic indexes for performance optimization
+   - **Foreign Keys**: Data integrity with cascading operations
+   - **Session Management**: Secure PHP session handling
+   - **Connection Pooling**: Efficient database connections
+
+   ### Email System Performance
+   - **Queue Management**: Priority-based email processing
+   - **Batch Processing**: Efficient bulk email handling
+   - **Retry Logic**: Automatic retry for failed emails
+   - **Rate Limiting**: Prevent spam and server overload
+   - **Analytics**: Comprehensive email performance tracking
+
+   ## 🔒 Security Features
+
+   ### Data Protection
+   - **SQL Injection Prevention**: Prepared statements throughout
+   - **XSS Protection**: Input sanitization and output encoding
+   - **CSRF Protection**: Token-based validation
+   - **File Upload Security**: Type validation and secure storage
+   - **Session Management**: Secure sessions with timeout
+   - **Password Security**: Bcrypt hashing with salt
+   - **Access Control**: Role-based permissions
+   - **Activity Logging**: Comprehensive audit trails
+
+   ### Security Monitoring
+   - **Error Logging**: Comprehensive error tracking
+   - **Security Headers**: XSS and clickjacking protection
+   - **Input Validation**: Server-side validation for all inputs
+   - **File Access Control**: Protected file downloads
+   - **Rate Limiting**: Login attempt protection
+
+   ## 📝 Contributing
+
+   1. Fork the repository
+   2. Create your feature branch: `git checkout -b feature/AmazingFeature`
+   3. Commit your changes: `git commit -m 'Add some AmazingFeature'`
+   4. Push to the branch: `git push origin feature/AmazingFeature`
+   5. Open a Pull Request
+
+   ### Development Guidelines
+   - Follow PSR-12 coding standards
+   - Write comprehensive tests for new features
+   - Update documentation for any changes
+   - Ensure backward compatibility
+   - Use proper error handling and logging
+   - Implement security best practices
+
+   ### Code Quality
+   ```bash
+   # Run code quality checks
+   composer quality
+
+   # Fix coding standards
+   composer phpcs
+
+   # Run static analysis
+   composer phpstan
+   ```
+
+   ## 📄 License
+
+   This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+   ## 📞 Support
+
+   For support and questions:
+   - **Email**: ideanest.ict@gmail.com
+   - **GitHub Issues**: Create an issue for bug reports
+   - **Security Issues**: See [SECURITY.md](SECURITY.md) for reporting
+   - **Production Setup**: See [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md)
+
+   ## 📚 Documentation
+
+   - **[Production Setup Guide](PRODUCTION_SETUP.md)**: Deployment instructions
+   - **[Security Policy](SECURITY.md)**: Security guidelines and reporting
+   - **[System Design](System%20Design/)**: Architecture diagrams and documentation
+   - **[Test Documentation](tests/README.md)**: Testing guidelines and setup
+
+   ## 🙏 Acknowledgments
+
+   - **PHP Community** for security best practices and frameworks
+   - **GitHub API** for developer data access and integration
+   - **PHPMailer Team** for reliable email delivery solutions
+   - **Bootstrap Team** for responsive design framework
+   - **Font Awesome** for comprehensive iconography
+   - **MariaDB/MySQL** for robust database management
+   - **Apache Foundation** for web server technology
+   - **Composer** for dependency management
+   - **PHPUnit** for testing framework
+
+   ---
+
+   **Made with ❤️ by the IdeaNest Team**
+
+   *Empowering academic collaboration through innovative technology*
