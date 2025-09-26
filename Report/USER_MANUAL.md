@@ -4,8 +4,8 @@
 - [Getting Started](#getting-started)
 - [Student Guide](#student-guide)
 - [Mentor Guide](#mentor-guide)
-- [SubAdmin Guide](#subadmin-guide)
-- [Admin Guide](#admin-guide)
+- [Faculty Guide](#Faculty-guide)
+- [hod sir Guide](#hod sir-guide)
 - [Common Features](#common-features)
 - [Troubleshooting](#troubleshooting)
 
@@ -56,10 +56,10 @@
 #### Managing Your Projects
 - **View all projects**: Access "My Projects" to see submission history
 - **Edit pending projects**: Modify projects before approval
-- **Track status**: Monitor approval progress (Pending → SubAdmin → Admin)
+- **Track status**: Monitor approval progress (Pending → Faculty → hod sir)
 - **Handle rejections**: Review denial reasons and resubmit if needed
 
-### Ideas & Blog System
+### Ideas  System
 
 #### Sharing Ideas
 1. **Go to "Ideas" section**
@@ -171,7 +171,7 @@
 
 ---
 
-## 👥 SubAdmin Guide
+## 👥 Faculty Guide
 
 ### Dashboard Overview
 - **Assigned projects**: View projects awaiting your review
@@ -186,7 +186,7 @@
 2. **Open project details**: Review all submitted information
 3. **Download files**: Examine uploaded materials
 4. **Make decision**:
-   - **Approve**: Forward to admin for final approval
+   - **Approve**: Forward to hod sir for final approval
    - **Reject**: Provide detailed rejection reasons
    - **Request changes**: Ask for modifications
 
@@ -201,7 +201,7 @@
 1. **Go to "Profile Settings"**
 2. **Submit classification request**: Request new expertise areas
 3. **Provide justification**: Explain why you need the change
-4. **Wait for admin approval**: Admin will review your request
+4. **Wait for hod sir approval**: hod sir will review your request
 
 ### Support System
 
@@ -209,21 +209,21 @@
 1. **Access "Support" section**
 2. **Create new ticket**: Describe your issue or question
 3. **Set priority level**: Mark as low, medium, or high priority
-4. **Submit ticket**: Send to admin for resolution
+4. **Submit ticket**: Send to hod sir for resolution
 
 #### Managing Tickets
 - **Track ticket status**: Monitor progress of your requests
-- **Respond to admin**: Provide additional information when requested
+- **Respond to hod sir**: Provide additional information when requested
 - **Close resolved tickets**: Mark completed issues as resolved
 
 ### Performance Monitoring
 - **Review metrics**: Check your approval rates and processing times
-- **Quality feedback**: Receive admin feedback on your reviews
+- **Quality feedback**: Receive hod sir feedback on your reviews
 - **Improvement areas**: Identify areas for skill development
 
 ---
 
-## 👨‍💼 Admin Guide
+## 👨‍💼 Head of Department Guide
 
 ### Dashboard Overview
 - **System analytics**: View platform-wide statistics and charts
@@ -250,7 +250,7 @@
 ### Project Management
 
 #### Final Project Approval
-1. **Review SubAdmin approvals**: Check projects forwarded by SubAdmins
+1. **Review Faculty approvals**: Check projects forwarded by Facultys
 2. **Make final decisions**: Approve or reject projects
 3. **Provide feedback**: Give detailed reasons for rejections
 4. **Publish approved projects**: Make projects visible to all users
@@ -273,17 +273,17 @@
 - **Email analytics**: Monitor mentor email system usage
 - **Performance reviews**: Assess mentor effectiveness
 
-### SubAdmin Management
+### Faculty Management
 
-#### Managing SubAdmins
-- **View SubAdmin list**: See all SubAdmin accounts and their classifications
-- **Assign classifications**: Set SubAdmin expertise areas
-- **Monitor workload**: Balance project assignments across SubAdmins
-- **Performance tracking**: Review SubAdmin efficiency and quality
+#### Managing Facultys
+- **View Faculty list**: See all Faculty accounts and their classifications
+- **Assign classifications**: Set Faculty expertise areas
+- **Monitor workload**: Balance project assignments across Facultys
+- **Performance tracking**: Review Faculty efficiency and quality
 
 #### Support Ticket Management
 1. **Access "Support Tickets"**
-2. **Review tickets**: Read SubAdmin requests and issues
+2. **Review tickets**: Read Faculty requests and issues
 3. **Respond to tickets**: Provide solutions and guidance
 4. **Close resolved tickets**: Mark completed issues as resolved
 
@@ -358,7 +358,7 @@
 
 #### Login Problems
 - **Forgot password**: Use the password reset feature
-- **Account locked**: Contact admin for account unlock
+- **Account locked**: Contact hod sir for account unlock
 - **Google OAuth issues**: Clear browser cache and try again
 - **Email not verified**: Check spam folder for verification email
 
@@ -366,12 +366,12 @@
 - **File too large**: Ensure files are under 10MB
 - **Unsupported format**: Check supported file types
 - **Upload timeout**: Try uploading smaller files or check internet connection
-- **Permission errors**: Contact admin if uploads consistently fail
+- **Permission errors**: Contact hod sir if uploads consistently fail
 
 #### Email Problems
 - **Not receiving emails**: Check spam/junk folders
 - **Email delivery delays**: System processes emails in batches
-- **Unsubscribe issues**: Contact admin to modify email preferences
+- **Unsubscribe issues**: Contact hod sir to modify email preferences
 - **Broken email links**: Copy and paste links directly into browser
 
 #### Performance Issues
@@ -405,4 +405,4 @@ For additional help and support:
 
 ---
 
-*This manual covers the essential user interactions with IdeaNest. For technical setup and administration, refer to the main README.md file.*
+*This manual covers the essential user interactions with IdeaNest. For technical setup and hod siristration, refer to the main README.md file.*
