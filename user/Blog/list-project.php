@@ -579,21 +579,9 @@ function handleAjaxRequest()
 // Helper functions (existing ones remain the same)
 function createDBConnection()
 {
-    $servername = "localhost";
-    $username = "ictmu6ya_ideanest";
-    $password = "ictmu6ya_ideanest";
-    $dbname = "ictmu6ya_ideanest";
-
-    try {
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        if ($conn->connect_error) {
-            throw new Exception("Connection failed: " . $conn->connect_error);
-        }
-        return $conn;
-    } catch (Exception $e) {
-        error_log("Database connection error: " . $e->getMessage());
-        return false;
-    }
+    require_once '../../Login/Login/db.php';
+    global $conn;
+    return $conn;
 }
 
 function getStatusClass($status)
