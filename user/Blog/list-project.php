@@ -579,10 +579,14 @@ function handleAjaxRequest()
 // Helper functions (existing ones remain the same)
 function createDBConnection()
 {
-    $servername = "localhost";
-    $username = "ictmu6ya_ideanest";
-    $password = "ictmu6ya_ideanest";
+    $host = "localhost";
+    $user = "ictmu6ya_ideanest";
+    $pass = "ictmu6ya_ideanest";
     $dbname = "ictmu6ya_ideanest";
+
+
+    // Check connection
+    $servername = $host;
 
     try {
         $conn = new mysqli($servername, $username, $password, $dbname);
