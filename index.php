@@ -808,8 +808,8 @@
             </ul>
         </nav>
         <div class="auth-buttons">
-            <a href="./Login/Login/login.php" class="login-btn">Login</a>
-            <a href="./Login/Login/register.php" class="register-btn">Register</a>
+            <a href="Login/Login/login.php" class="login-btn">Login</a>
+            <a href="Login/Login/register.php" class="register-btn">Register</a>
         </div>
         <button class="mobile-menu-btn" onclick="openMobileMenu()">
             <i class="fas fa-bars"></i>
@@ -832,8 +832,8 @@
         <li><a href="#about" onclick="closeMobileMenu()">About</a></li>
     </ul>
     <div class="mobile-auth">
-        <a href="./Login/Login/login.php" class="login-btn">Login</a>
-        <a href="./Login/Login/register.php" class="register-btn">Register</a>
+        <a href="Login/Login/login.php" class="login-btn">Login</a>
+        <a href="Login/Login/register.php" class="register-btn">Register</a>
     </div>
 </div>
 
@@ -849,7 +849,7 @@
                 sub-admins, and administrators.
             </p>
             <div class="cta-buttons">
-                <a href="./Login/Login/login.php" class="btn-primary">
+                <a href="Login/Login/login.php" class="btn-primary">
                     <i class="fas fa-rocket"></i> Get Started
                 </a>
                 <a href="#features" class="btn-secondary">
@@ -1010,7 +1010,7 @@
         <h2 class="cta-title">Ready to bring your idea to life?</h2>
         <p class="cta-text">Join thousands of students and mentors using IdeaNest to collaborate, learn and ship better projects.</p>
         <div>
-            <a href="./Login/Login/register.php" class="btn-primary">
+            <a href="Login/Login/register.php" class="btn-primary">
                 <i class="fas fa-rocket"></i> Create Account
             </a>
             <a href="#features" class="btn-secondary">

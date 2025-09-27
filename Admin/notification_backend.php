@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Database connection
-include "../Login/db.php";
+include "../Login/Login/db.php";
 
 // Include PHPMailer
 require_once dirname(__DIR__) . '/vendor/autoload.php';
@@ -140,7 +140,7 @@ function sendProjectApprovalEmail($project_id, $conn)
 
     $site_name = getSetting($conn, 'site_name', 'IdeaNest');
     $support_email = getSetting($conn, 'from_email', 'ideanest.ict@gmail.com');
-    $dashboard_url = getSetting($conn, 'site_url', 'http://localhost/IdeaNest') . '/user/index.php';
+    $dashboard_url = getSetting($conn, 'site_url', 'https://ictmu.in/hcd/IdeaNest') . '/user/index.php';
 
     $subject = "Congratulations! Your Project \"{$project_name}\" Has Been Approved";
 
@@ -253,7 +253,7 @@ function sendProjectRejectionEmail($project_id, $rejection_reason, $conn)
 
     $site_name = getSetting($conn, 'site_name', 'IdeaNest');
     $support_email = getSetting($conn, 'from_email', 'ideanest.ict@gmail.com');
-    $submission_url = getSetting($conn, 'site_url', 'http://localhost/IdeaNest') . '/user/forms/new_project_add.php';
+    $submission_url = getSetting($conn, 'site_url', 'https://ictmu.in/hcd/IdeaNest') . '/user/forms/new_project_add.php';
 
     $subject = "Important Update About Your Project \"{$project_name}\"";
 
