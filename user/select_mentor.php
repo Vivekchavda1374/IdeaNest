@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor'])) {
             <p><strong>Student's Message:</strong></p>
             <p style='background: #f5f5f5; padding: 15px; border-radius: 5px;'>{$message}</p>
             <p>Please log in to your mentor dashboard to review and respond to this request.</p>
-            <p><a href='http://localhost/IdeaNest/mentor/student_requests.php' style='background: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>View Request</a></p>
+            <p><a href='https://ictmu.in/hcd/IdeaNest/mentor/student_requests.php' style='background: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>View Request</a></p>
             <p>Best regards,<br>The IdeaNest Team</p>
             ";
 
