@@ -233,13 +233,13 @@ function generateEmailTemplate($user, $projects, $ideas)
     }
 
     $html .= '<div style="text-align: center; margin-top: 30px;">
-                    <a href="http://localhost/IdeaNest/user/all_projects.php" class="btn">View All Projects</a>
-                    <a href="http://localhost/IdeaNest/user/Blog/list-project.php" class="btn">View All Ideas</a>
+                    <a href="https://ictmu.in/hcd/IdeaNest/user/all_projects.php" class="btn">View All Projects</a>
+                    <a href="https://ictmu.in/hcd/IdeaNest/user/Blog/list-project.php" class="btn">View All Ideas</a>
                 </div>
             </div>
             <div class="footer">
                 <p>Thank you for being part of the IdeaNest community!</p>
-                <p>Don\'t want these emails? <a href="http://localhost/IdeaNest/user/user_profile_setting.php" style="color: #6366f1;">Update your preferences</a></p>
+                <p>Don\'t want these emails? <a href="https://ictmu.in/hcd/IdeaNest/user/user_profile_setting.php" style="color: #6366f1;">Update your preferences</a></p>
             </div>
         </div>
     </body>
