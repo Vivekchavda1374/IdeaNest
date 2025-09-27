@@ -579,10 +579,10 @@ function handleAjaxRequest()
 // Helper functions (existing ones remain the same)
 function createDBConnection()
 {
-    $host = "localhost";
-    $user = "ictmu6ya_ideanest";
-    $pass = "ictmu6ya_ideanest";
-    $dbname = "ictmu6ya_ideanest";
+    require_once '../../Login/Login/db.php';
+    global $conn;
+    return $conn;
+
 
 
     // Check connection
@@ -598,6 +598,7 @@ function createDBConnection()
         error_log("Database connection error: " . $e->getMessage());
         return false;
     }
+
 }
 
 function getStatusClass($status)

@@ -28,14 +28,4 @@ define('GOOGLE_SCOPE', 'email profile');
 // Authorized redirect URIs:
 // - https://ictmu.in/hcd/IdeaNest/Login/Login/google_callback.php
 
-// Instructions for Production Setup:
-// 1. Go to https://console.cloud.google.com/
-// 2. Select your project
-// 3. Go to APIs & Services > Credentials
-// 4. Edit your OAuth 2.0 Client ID
-// 5. Add authorized JavaScript origins:
-//    - https://ictmu.in
-//    - https://ictmu.in/hcd/IdeaNest
-// 6. Add authorized redirect URIs:
-//    - https://ictmu.in/hcd/IdeaNest/Login/Login/google_callback.php
-// 7. Update .env file with your client secret
+

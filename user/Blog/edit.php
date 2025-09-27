@@ -39,12 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
     ) {
         $error_message = "Error: All required fields must be filled";
     } else {
-        $host = "localhost";
-        $user = "ictmu6ya_ideanest";
-        $pass = "ictmu6ya_ideanest";
-        $dbname = "ictmu6ya_ideanest";
-
-        $conn = new mysqli($host, $user, $pass, $dbname);
+        require_once '../../Login/Login/db.php';
 
         // Check connection
         if ($conn->connect_error) {
@@ -108,12 +103,7 @@ $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $projectData = null;
 
 if ($id > 0) {
-    $host = "localhost";
-    $user = "ictmu6ya_ideanest";
-    $pass = "ictmu6ya_ideanest";
-    $dbname = "ictmu6ya_ideanest";
-
-    $conn = new mysqli($host, $user, $pass, $dbname);
+    require_once '../../Login/Login/db.php';
 
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);

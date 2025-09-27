@@ -1,10 +1,5 @@
 <?php
 session_start();
-require_once '../Login/Login/db.php';
-require_once '../vendor/autoload.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../Login/Login/login.php");
@@ -12,24 +7,72 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
+$error_message = null;
+$mentors_result = null;
+$projects_result = null;
+$conn = null;
 
-// Get available mentors
-$mentors_query = "SELECT r.id, r.name, r.email, r.department, m.specialization, m.experience_years, m.bio, m.max_students, m.current_students 
-                  FROM register r 
-                  JOIN mentors m ON r.id = m.user_id 
-                  WHERE r.role = 'mentor' AND r.is_available = 1 AND m.current_students < m.max_students
-                  ORDER BY r.name";
-$mentors_result = $conn->query($mentors_query);
+// Try to connect to database
+try {
+    require_once '../Login/Login/db.php';
+} catch (Exception $e) {
+    $error_message = "Database connection failed. Please ensure MySQL is running.";
+}
 
-// Get user's projects for selection
-$projects_query = "SELECT id, project_name FROM projects WHERE user_id = ? AND status = 'approved'";
-$projects_stmt = $conn->prepare($projects_query);
-$projects_stmt->bind_param("i", $user_id);
-$projects_stmt->execute();
-$projects_result = $projects_stmt->get_result();
+// Load PHPMailer if available
+$phpmailer_available = false;
+if (file_exists('../vendor/autoload.php')) {
+    try {
+        require_once '../vendor/autoload.php';
+        $phpmailer_available = class_exists('PHPMailer\\PHPMailer\\PHPMailer');
+    } catch (Exception $e) {
+        // PHPMailer not available, continue without it
+    }
+}
+
+if (!$error_message && isset($conn)) {
+    // Check if required tables exist
+    $tables_exist = true;
+    $required_tables = ['register', 'mentors', 'mentor_requests', 'projects'];
+    
+    foreach ($required_tables as $table) {
+        $check_table = $conn->query("SHOW TABLES LIKE '$table'");
+        if (!$check_table || $check_table->num_rows == 0) {
+            $tables_exist = false;
+            break;
+        }
+    }
+    
+    if (!$tables_exist) {
+        $error_message = "Required database tables are missing. Please run the database setup.";
+    } else {
+        // Get available mentors
+        $mentors_query = "SELECT r.id, r.name, r.email, 
+                                COALESCE(r.department, 'Not specified') as department,
+                                COALESCE(m.specialization, 'General') as specialization, 
+                                COALESCE(m.experience_years, 0) as experience_years, 
+                                COALESCE(m.bio, '') as bio, 
+                                COALESCE(m.max_students, 5) as max_students, 
+                                COALESCE(m.current_students, 0) as current_students 
+                         FROM register r 
+                         LEFT JOIN mentors m ON r.id = m.user_id 
+                         WHERE r.role = 'mentor' 
+                         ORDER BY r.name";
+        $mentors_result = $conn->query($mentors_query);
+        
+        // Get user's projects for selection
+        $projects_query = "SELECT id, project_name FROM projects WHERE user_id = ?";
+        $projects_stmt = $conn->prepare($projects_query);
+        if ($projects_stmt) {
+            $projects_stmt->bind_param("i", $user_id);
+            $projects_stmt->execute();
+            $projects_result = $projects_stmt->get_result();
+        }
+    }
+}
 
 // Handle mentor request submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && !$error_message) {
     $mentor_id = $_POST['mentor_id'];
     $project_id = $_POST['project_id'] ?? null;
     $message = $_POST['message'];
@@ -42,53 +85,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor'])) {
 
     if ($check_stmt->get_result()->num_rows == 0) {
         try {
-            // Get mentor and student details
-            $details_query = "SELECT r1.name as student_name, r1.email as student_email, 
-                                    r2.name as mentor_name, r2.email as mentor_email,
-                                    p.project_name
-                             FROM register r1, register r2
-                             LEFT JOIN projects p ON p.id = ?
-                             WHERE r1.id = ? AND r2.id = ?";
-            $details_stmt = $conn->prepare($details_query);
-            $details_stmt->bind_param("iii", $project_id, $user_id, $mentor_id);
-            $details_stmt->execute();
-            $details = $details_stmt->get_result()->fetch_assoc();
-
             $insert_query = "INSERT INTO mentor_requests (student_id, mentor_id, project_id, message) VALUES (?, ?, ?, ?)";
             $insert_stmt = $conn->prepare($insert_query);
             $insert_stmt->bind_param("iiis", $user_id, $mentor_id, $project_id, $message);
             $insert_stmt->execute();
 
-            // Send email notification to mentor
-            $mail = new PHPMailer(true);
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'ideanest.ict@gmail.com';
-            $mail->Password = 'luou xlhs ojuw auvx';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
+            $success_message = "Mentor request sent successfully!";
+            
+            // Send email if PHPMailer is available
+            if ($phpmailer_available) {
+                try {
+                    $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+                    $mail->isSMTP();
+                    $mail->Host = 'smtp.gmail.com';
+                    $mail->SMTPAuth = true;
+                    $mail->Username = 'ideanest.ict@gmail.com';
+                    $mail->Password = 'luou xlhs ojuw auvx';
+                    $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+                    $mail->Port = 587;
 
-            $mail->setFrom('ideanest.ict@gmail.com', 'IdeaNest');
-            $mail->addAddress($details['mentor_email'], $details['mentor_name']);
+                    // Get mentor details
+                    $details_query = "SELECT r1.name as student_name, r2.name as mentor_name, r2.email as mentor_email
+                                     FROM register r1, register r2
+                                     WHERE r1.id = ? AND r2.id = ?";
+                    $details_stmt = $conn->prepare($details_query);
+                    $details_stmt->bind_param("ii", $user_id, $mentor_id);
+                    $details_stmt->execute();
+                    $details = $details_stmt->get_result()->fetch_assoc();
 
-            $mail->isHTML(true);
-            $mail->Subject = 'New Mentorship Request - IdeaNest';
-            $project_text = $details['project_name'] ? "for the project '{$details['project_name']}'" : "for general mentorship";
-            $mail->Body = "
-            <h2>New Mentorship Request</h2>
-            <p>Dear {$details['mentor_name']},</p>
-            <p>You have received a new mentorship request from <strong>{$details['student_name']}</strong> {$project_text}.</p>
-            <p><strong>Student's Message:</strong></p>
-            <p style='background: #f5f5f5; padding: 15px; border-radius: 5px;'>{$message}</p>
-            <p>Please log in to your mentor dashboard to review and respond to this request.</p>
-            <p><a href='https://ictmu.in/hcd/IdeaNest/mentor/student_requests.php' style='background: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>View Request</a></p>
-            <p>Best regards,<br>The IdeaNest Team</p>
-            ";
+                    $mail->setFrom('ideanest.ict@gmail.com', 'IdeaNest');
+                    $mail->addAddress($details['mentor_email'], $details['mentor_name']);
+                    $mail->isHTML(true);
+                    $mail->Subject = 'New Mentorship Request - IdeaNest';
+                    $mail->Body = "
+                    <h2>New Mentorship Request</h2>
+                    <p>Dear {$details['mentor_name']},</p>
+                    <p>You have received a new mentorship request from <strong>{$details['student_name']}</strong>.</p>
+                    <p><strong>Message:</strong></p>
+                    <p style='background: #f5f5f5; padding: 15px; border-radius: 5px;'>{$message}</p>
+                    <p>Best regards,<br>The IdeaNest Team</p>
+                    ";
+                    $mail->send();
+                    $success_message .= " The mentor has been notified via email.";
+                } catch (Exception $e) {
+                    // Email failed, but request was saved
+                }
+            }
 
-            $mail->send();
-
-            $success_message = "Mentor request sent successfully! The mentor has been notified via email.";
         } catch (Exception $e) {
             $error_message = "Failed to send request. Please try again.";
         }
@@ -144,7 +187,7 @@ include 'layout.php';
             <?php endif; ?>
 
             <div class="row">
-                <?php if ($mentors_result->num_rows > 0) : ?>
+                <?php if (!$error_message && $mentors_result && $mentors_result->num_rows > 0) : ?>
                     <?php while ($mentor = $mentors_result->fetch_assoc()) : ?>
                         <div class="col-lg-6 col-xl-4 mb-4">
                             <div class="mentor-card p-4 h-100">
@@ -186,9 +229,23 @@ include 'layout.php';
                 <?php else : ?>
                     <div class="col-12">
                         <div class="mentor-card p-5 text-center">
-                            <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
-                            <h4 class="text-muted">No Available Mentors</h4>
-                            <p class="text-muted">There are currently no mentors available. Please check back later.</p>
+                            <?php if ($error_message) : ?>
+                                <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                                <h4 class="text-warning">System Error</h4>
+                                <p class="text-muted"><?= htmlspecialchars($error_message) ?></p>
+                                <div class="mt-3">
+                                    <p class="small text-muted">To fix this issue:</p>
+                                    <ol class="text-start small text-muted">
+                                        <li>Start MySQL: <code>sudo /opt/lampp/lampp startmysql</code></li>
+                                        <li>Create database: <code>mysql -u root -e "CREATE DATABASE ideanest;"</code></li>
+                                        <li>Import schema: <code>mysql -u root ideanest < db/ideanest.sql</code></li>
+                                    </ol>
+                                </div>
+                            <?php else : ?>
+                                <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                                <h4 class="text-muted">No Available Mentors</h4>
+                                <p class="text-muted">There are currently no mentors available. Please check back later.</p>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -216,9 +273,11 @@ include 'layout.php';
                             <label for="project_id" class="form-label">Select Project (Optional)</label>
                             <select class="form-select" name="project_id" id="project_id">
                                 <option value="">No specific project</option>
-                                <?php while ($project = $projects_result->fetch_assoc()) : ?>
-                                    <option value="<?= $project['id'] ?>"><?= htmlspecialchars($project['project_name']) ?></option>
-                                <?php endwhile; ?>
+                                <?php if ($projects_result) : ?>
+                                    <?php while ($project = $projects_result->fetch_assoc()) : ?>
+                                        <option value="<?= $project['id'] ?>"><?= htmlspecialchars($project['project_name']) ?></option>
+                                    <?php endwhile; ?>
+                                <?php endif; ?>
                             </select>
                         </div>
 

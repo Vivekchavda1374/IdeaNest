@@ -32,12 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     ) {
         $error_message = "Error: All required fields must be filled";
     } else {
-        $host = "localhost";
-        $user = "ictmu6ya_ideanest";
-        $pass = "ictmu6ya_ideanest";
-        $dbname = "ictmu6ya_ideanest";
-
-        $conn = new mysqli($host, $user, $pass, $dbname);
+        require_once '../../Login/Login/db.php';
 
         // Check connection
         if ($conn->connect_error) {
