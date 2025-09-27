@@ -10,6 +10,6 @@ define('GOOGLE_CLIENT_ID', '373663984974-msaj22ll4i9085r7120barr1g1akjs5d.apps.g
 // 2. Create/select project
 // 3. Enable Google+ API
 // 4. Create OAuth 2.0 Client ID
-// 5. Add authorized origins: http://localhost, http://your-domain.com
+// 5. Add authorized origins: https://ictmu.in, https://ictmu.in/hcd/IdeaNest
 // 6. Replace YOUR_GOOGLE_CLIENT_ID_HERE with your actual Client ID
 // 7. Uncomment the Google login section in login.php
