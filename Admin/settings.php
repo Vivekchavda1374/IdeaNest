@@ -496,7 +496,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="site_url" class="form-label">Site URL</label>
-                                    <input type="url" class="form-control" id="site_url" name="site_url" value="<?php echo htmlspecialchars(getSetting($conn, 'site_url', 'http://localhost/IdeaNest')); ?>" required>
+                                    <input type="url" class="form-control" id="site_url" name="site_url" value="<?php echo htmlspecialchars(getSetting($conn, 'site_url', 'https://ictmu.in/hcd/IdeaNest')); ?>" required>
                                 </div>
                             </div>
                         </div>
