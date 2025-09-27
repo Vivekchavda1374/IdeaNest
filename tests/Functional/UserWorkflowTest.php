@@ -13,7 +13,7 @@ class UserWorkflowTest extends TestCase
     protected function setUp(): void
     {
         $this->client = new Client();
-        $this->baseUrl = 'http://localhost/IdeaNest';
+        $this->baseUrl = 'https://ictmu.in/hcd/IdeaNest';
     }
 
     public function testUserRegistrationWorkflow()
