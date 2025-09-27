@@ -8,10 +8,8 @@ $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Database connection
 
-    $host = "localhost";
-    $user = "ictmu6ya_ideanest";
-    $pass = "ictmu6ya_ideanest";
-    $dbname = "ictmu6ya_ideanest";
+    require_once 'db.php';
+
 
     $conn = new mysqli($host, $user, $pass, $dbname);
 
