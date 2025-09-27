@@ -1,15 +1,31 @@
 <?php
 
-// Google OAuth Configuration
-// Replace with your actual Google Client ID from Google Cloud Console
+// Load environment variables if .env file exists
+if (file_exists(__DIR__ . '/../../.env')) {
+    $lines = file(__DIR__ . '/../../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+            list($key, $value) = explode('=', $line, 2);
+            $_ENV[trim($key)] = trim($value);
+        }
+    }
+}
 
-define('GOOGLE_CLIENT_ID', '373663984974-msaj22ll4i9085r7120barr1g1akjs5d.apps.googleusercontent.com');
+// Google OAuth Configuration for Production
+// Production domain: https://ictmu.in/hcd/IdeaNest/
 
-// Instructions:
-// 1. Go to https://console.cloud.google.com/
-// 2. Create/select project
-// 3. Enable Google+ API
-// 4. Create OAuth 2.0 Client ID
-// 5. Add authorized origins: https://ictmu.in, https://ictmu.in/hcd/IdeaNest
-// 6. Replace YOUR_GOOGLE_CLIENT_ID_HERE with your actual Client ID
-// 7. Uncomment the Google login section in login.php
+define('GOOGLE_CLIENT_ID', $_ENV['GOOGLE_CLIENT_ID'] ?? '373663984974-msaj22ll4i9085r7120barr1g1akjs5d.apps.googleusercontent.com');
+define('GOOGLE_CLIENT_SECRET', $_ENV['GOOGLE_CLIENT_SECRET'] ?? '');
+
+// Production OAuth Settings
+define('GOOGLE_REDIRECT_URI', 'https://ictmu.in/hcd/IdeaNest/Login/Login/google_callback.php');
+define('GOOGLE_SCOPE', 'email profile');
+
+// Production authorized origins that need to be added to Google Console:
+// - https://ictmu.in
+// - https://ictmu.in/hcd/IdeaNest
+// 
+// Authorized redirect URIs:
+// - https://ictmu.in/hcd/IdeaNest/Login/Login/google_callback.php
+
+
