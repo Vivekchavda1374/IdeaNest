@@ -8,7 +8,7 @@ $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Database connection
 
-    $conn = new mysqli("localhost", "ictmu6ya_ideanest", "ictmu6ya_ideanest", "ictmu6ya_ideanest");
+    require_once 'db.php';
 
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
