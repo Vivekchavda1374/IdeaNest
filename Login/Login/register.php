@@ -10,9 +10,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     require_once 'db.php';
 
+
+    $conn = new mysqli($host, $user, $pass, $dbname);
+
+    // Check connection
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
+
 
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
@@ -113,29 +118,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <form class="form-section" method="post" autocomplete="off">
         <!-- Error/Success Messages -->
-        <?php
-        require_once "../../includes/csrf.php"; if ($error) : ?>
+        <?php if ($error) : ?>
             <div class="alert alert-error">
                 <i class="fas fa-exclamation-circle"></i>
-                <span><?php
-                require_once "../../includes/csrf.php";
-                echo htmlspecialchars($error); ?></span>
+                <span><?php echo htmlspecialchars($error); ?></span>
             </div>
-                <?php
-                require_once "../../includes/csrf.php";
-        endif; ?>
+        <?php endif; ?>
 
-        <?php
-        require_once "../../includes/csrf.php"; if ($success) : ?>
+        <?php if ($success) : ?>
             <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
-                <span><?php
-                require_once "../../includes/csrf.php";
-                echo $success; ?></span>
+                <span><?php echo $success; ?></span>
             </div>
-                <?php
-                require_once "../../includes/csrf.php";
-        endif; ?>
+        <?php endif; ?>
 
         <!-- Personal Information -->
         <div class="form-row">

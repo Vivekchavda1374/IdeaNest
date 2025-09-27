@@ -1,8 +1,16 @@
 <?php
-// Email Configuration for Production
-// This file should be included in .gitignore for security
 
-// Production email settings
+// Load environment variables if .env file exists
+if (file_exists(__DIR__ . '/../.env')) {
+    $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+            list($key, $value) = explode('=', $line, 2);
+            $_ENV[trim($key)] = trim($value);
+        }
+    }
+}
+
 $email_config = [
     'smtp_host' => $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com',
     'smtp_port' => $_ENV['SMTP_PORT'] ?? 587,
@@ -13,9 +21,9 @@ $email_config = [
     'from_name' => $_ENV['FROM_NAME'] ?? 'IdeaNest',
     
     // SSL options for production
-    'ssl_verify_peer' => $_ENV['SSL_VERIFY_PEER'] ?? true,
-    'ssl_verify_peer_name' => $_ENV['SSL_VERIFY_PEER_NAME'] ?? true,
-    'ssl_allow_self_signed' => $_ENV['SSL_ALLOW_SELF_SIGNED'] ?? false
+    'ssl_verify_peer' => filter_var($_ENV['SSL_VERIFY_PEER'] ?? 'true', FILTER_VALIDATE_BOOLEAN),
+    'ssl_verify_peer_name' => filter_var($_ENV['SSL_VERIFY_PEER_NAME'] ?? 'true', FILTER_VALIDATE_BOOLEAN),
+    'ssl_allow_self_signed' => filter_var($_ENV['SSL_ALLOW_SELF_SIGNED'] ?? 'false', FILTER_VALIDATE_BOOLEAN)
 ];
 
 // Function to get email configuration

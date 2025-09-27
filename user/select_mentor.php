@@ -131,6 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
                     // Email failed, but request was saved
                 }
             }
+
         } catch (Exception $e) {
             $error_message = "Failed to send request. Please try again.";
         }

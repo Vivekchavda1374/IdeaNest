@@ -102,12 +102,12 @@ function sendWeeklyNotification($user, $conn)
         $mail->SMTPSecure = ($smtp_settings['smtp_secure'] ?? 'tls') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
         $mail->Port = $smtp_settings['smtp_port'] ?? 587;
         
-        // Disable SSL verification for development (remove in production)
+        // Production SSL settings
         $mail->SMTPOptions = array(
             'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true
+                'verify_peer' => true,
+                'verify_peer_name' => true,
+                'allow_self_signed' => false
             )
         );
 
