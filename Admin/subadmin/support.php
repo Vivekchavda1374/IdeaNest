@@ -5,7 +5,12 @@ if (!isset($_SESSION['subadmin_logged_in']) || !$_SESSION['subadmin_logged_in'])
     exit();
 }
 
-include_once "../../Login/Login/db.php";
+// Use local XAMPP database connection
+$conn = new mysqli("localhost", "root", "", "ictmu6ya_ideanest", 3306, "/opt/lampp/var/mysql/mysql.sock");
+
+if ($conn->connect_error) {
+    die("Database connection failed: " . $conn->connect_error);
+}
 
 $subadmin_id = $_SESSION['subadmin_id'];
 $action_message = '';
