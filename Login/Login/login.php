@@ -231,12 +231,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <script>
 function handleCredentialResponse(response) {
     if (!response.credential) {
-        alert('Google authentication failed');
+        console.error('No credential received from Google');
         return;
     }
     
-    // Show loading for Google authentication
-    window.loadingManager.show('Authenticating with Google...');
+    window.loadingManager.showPageLoading('Authenticating with Google...');
     
     fetch('google_auth.php', {
         method: 'POST',
@@ -246,23 +245,20 @@ function handleCredentialResponse(response) {
         body: JSON.stringify({
             credential: response.credential
         }),
-        noLoading: true // Prevent double loading
+        credentials: 'same-origin'
     })
-    .then(response => {
-        if (!response.ok) throw new Error('Network error');
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        window.loadingManager.hide();
+        window.loadingManager.hidePageLoading();
         if (data.success) {
-            window.loadingManager.show('Redirecting...');
+            window.loadingManager.showPageLoading('Redirecting...');
             window.location.href = data.redirect;
         } else {
             alert('Login failed: ' + (data.message || 'Unknown error'));
         }
     })
     .catch(error => {
-        window.loadingManager.hide();
+        window.loadingManager.hidePageLoading();
         console.error('Error:', error);
         alert('Login failed. Please try again.');
     });
@@ -275,8 +271,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loginForm.addEventListener('submit', function(e) {
             const submitBtn = this.querySelector('.login-btn');
             if (submitBtn) {
-                window.loadingManager.show('Signing in...');
-                setButtonLoading(submitBtn, true, 'Signing in...');
+                window.loadingManager.showPageLoading('Signing in...');
             }
         });
     }
