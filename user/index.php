@@ -22,26 +22,59 @@ $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "User";
 $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "U";
 
 $user_email = "user@example.com";
+$github_username = '';
+$user_db_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 
-if (isset($conn)) {
-    $email_found = false;
-    if (!$email_found && isset($_SESSION['user_name'])) {
-        $stmt = $conn->prepare("SELECT email FROM register WHERE name = ?");
-        $stmt->bind_param("s", $_SESSION['user_name']);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($row = $result->fetch_assoc()) {
-            $user_email = $row['email'];
-        }
-        $stmt->close();
+if (isset($conn) && $user_db_id) {
+    $stmt = $conn->prepare("SELECT email, github_username FROM register WHERE id = ?");
+    $stmt->bind_param("i", $user_db_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $user_email = $row['email'];
+        $github_username = $row['github_username'] ?? '';
     }
+    $stmt->close();
 }
 $bookmark_count = 0;
-if (isset($conn)) {
+$my_projects_count = 0;
+$my_ideas_count = 0;
+$my_pending_projects = 0;
+$my_approved_projects = 0;
+
+if (isset($conn) && $user_db_id) {
     $stmt = $conn->prepare("SELECT COUNT(*) FROM bookmark WHERE user_id = ?");
     $stmt->bind_param("s", $user_id);
     $stmt->execute();
     $stmt->bind_result($bookmark_count);
+    $stmt->fetch();
+    $stmt->close();
+    
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM admin_approved_projects WHERE user_id = ?");
+    $stmt->bind_param("i", $user_db_id);
+    $stmt->execute();
+    $stmt->bind_result($my_projects_count);
+    $stmt->fetch();
+    $stmt->close();
+    
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM blog WHERE user_id = ?");
+    $stmt->bind_param("i", $user_db_id);
+    $stmt->execute();
+    $stmt->bind_result($my_ideas_count);
+    $stmt->fetch();
+    $stmt->close();
+    
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM admin_approved_projects WHERE user_id = ? AND status = 'pending'");
+    $stmt->bind_param("i", $user_db_id);
+    $stmt->execute();
+    $stmt->bind_result($my_pending_projects);
+    $stmt->fetch();
+    $stmt->close();
+    
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM admin_approved_projects WHERE user_id = ? AND status = 'approved'");
+    $stmt->bind_param("i", $user_db_id);
+    $stmt->execute();
+    $stmt->bind_result($my_approved_projects);
     $stmt->fetch();
     $stmt->close();
 }
@@ -347,27 +380,34 @@ if (empty($weekly_performance)) {
 
         <!-- Stats Grid -->
         <section class="stats-grid">
-            <div class="stat-card projects">
+            <div class="stat-card projects" onclick="window.location.href='all_projects.php'">
                 <div class="stat-header">
                     <div class="stat-icon">
                         <i class="fas fa-project-diagram"></i>
                     </div>
-                    <div class="stat-title">Total Projects</div>
+                    <div class="stat-title">My Projects</div>
                 </div>
-                <div class="stat-value"><?php echo $total_projects; ?></div>
+                <div class="stat-value"><?php echo $my_projects_count; ?></div>
+                <div class="stat-footer">
+                    <span class="stat-badge success"><?php echo $my_approved_projects; ?> approved</span>
+                    <span class="stat-badge warning"><?php echo $my_pending_projects; ?> pending</span>
+                </div>
             </div>
 
-            <div class="stat-card ideas">
+            <div class="stat-card ideas" onclick="window.location.href='Blog/list-project.php'">
                 <div class="stat-header">
                     <div class="stat-icon">
                         <i class="fas fa-lightbulb"></i>
                     </div>
-                    <div class="stat-title">Creative Ideas</div>
+                    <div class="stat-title">My Ideas</div>
                 </div>
-                <div class="stat-value"><?php echo $total_ideas; ?></div>
+                <div class="stat-value"><?php echo $my_ideas_count; ?></div>
+                <div class="stat-footer">
+                    <span class="stat-badge info">Total shared</span>
+                </div>
             </div>
 
-            <div class="stat-card bookmarks">
+            <div class="stat-card bookmarks" onclick="window.location.href='bookmark.php'">
                 <div class="stat-header">
                     <div class="stat-icon">
                         <i class="fas fa-bookmark"></i>
@@ -375,11 +415,164 @@ if (empty($weekly_performance)) {
                     <div class="stat-title">Saved Items</div>
                 </div>
                 <div class="stat-value"><?php echo $bookmark_count; ?></div>
+                <div class="stat-footer">
+                    <span class="stat-badge primary">Bookmarked</span>
+                </div>
+            </div>
+            
+            <div class="stat-card community">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-title">Community</div>
+                </div>
+                <div class="stat-value"><?php echo $total_projects + $total_ideas; ?></div>
+                <div class="stat-footer">
+                    <span class="stat-badge success"><?php echo $total_projects; ?> projects</span>
+                    <span class="stat-badge warning"><?php echo $total_ideas; ?> ideas</span>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Quick Actions Panel -->
+        <section class="quick-actions-panel">
+            <h3 class="section-title"><i class="fas fa-bolt"></i> Quick Actions</h3>
+            <div class="quick-actions-grid">
+                <a href="./forms/new_project_add.php" class="quick-action-card">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="action-content">
+                        <h4>Submit Project</h4>
+                        <p>Share your latest work</p>
+                    </div>
+                </a>
+                
+                <a href="Blog/form.php" class="quick-action-card">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="action-content">
+                        <h4>Share Idea</h4>
+                        <p>Post your creative concept</p>
+                    </div>
+                </a>
+                
+                <a href="all_projects.php" class="quick-action-card">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #10b981, #3b82f6);">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="action-content">
+                        <h4>Explore Projects</h4>
+                        <p>Discover amazing work</p>
+                    </div>
+                </a>
+                
+                <a href="select_mentor.php" class="quick-action-card">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #ec4899, #8b5cf6);">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="action-content">
+                        <h4>Find Mentor</h4>
+                        <p>Get expert guidance</p>
+                    </div>
+                </a>
+                
+                <?php if (!empty($github_username)): ?>
+                <a href="github_profile_view.php" class="quick-action-card">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #24292e, #586069);">
+                        <i class="fab fa-github"></i>
+                    </div>
+                    <div class="action-content">
+                        <h4>GitHub Profile</h4>
+                        <p>View your repositories</p>
+                    </div>
+                </a>
+                <?php else: ?>
+                <a href="user_profile_setting.php" class="quick-action-card">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #24292e, #586069);">
+                        <i class="fab fa-github"></i>
+                    </div>
+                    <div class="action-content">
+                        <h4>Connect GitHub</h4>
+                        <p>Link your profile</p>
+                    </div>
+                </a>
+                <?php endif; ?>
+                
+                <a href="user_profile_setting.php" class="quick-action-card">
+                    <div class="action-icon" style="background: linear-gradient(135deg, #06b6d4, #3b82f6);">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="action-content">
+                        <h4>Settings</h4>
+                        <p>Manage your profile</p>
+                    </div>
+                </a>
             </div>
         </section>
 
         <!-- GitHub Profile Section -->
         <?php include 'github_profile.php'; ?>
+        
+        <!-- Personalized Recommendations -->
+        <?php if ($my_projects_count > 0 || $my_ideas_count > 0 || $my_pending_projects > 0 || empty($github_username)): ?>
+        <section class="recommendations-section">
+            <h3 class="section-title"><i class="fas fa-magic"></i> Recommended For You</h3>
+            <div class="recommendations-grid">
+                <?php if ($my_pending_projects > 0): ?>
+                <div class="recommendation-card">
+                    <div class="recommendation-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="recommendation-content">
+                        <h4>Pending Projects</h4>
+                        <p>You have <?php echo $my_pending_projects; ?> project(s) awaiting review</p>
+                        <a href="all_projects.php" class="recommendation-link">View Status <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <?php if ($my_projects_count == 0): ?>
+                <div class="recommendation-card">
+                    <div class="recommendation-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <div class="recommendation-content">
+                        <h4>Start Your Journey</h4>
+                        <p>Submit your first project and showcase your skills</p>
+                        <a href="./forms/new_project_add.php" class="recommendation-link">Submit Project <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <?php if (empty($github_username)): ?>
+                <div class="recommendation-card">
+                    <div class="recommendation-icon" style="background: rgba(36, 41, 46, 0.1); color: #24292e;">
+                        <i class="fab fa-github"></i>
+                    </div>
+                    <div class="recommendation-content">
+                        <h4>Connect GitHub</h4>
+                        <p>Showcase your repositories and contributions</p>
+                        <a href="user_profile_setting.php" class="recommendation-link">Connect Now <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <div class="recommendation-card">
+                    <div class="recommendation-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="recommendation-content">
+                        <h4>Explore Community</h4>
+                        <p>Discover <?php echo $total_projects; ?> projects from talented creators</p>
+                        <a href="all_projects.php" class="recommendation-link">Explore <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <?php endif; ?>
 
         <!-- Dashboard Section -->
         <section class="dashboard-section">
