@@ -1759,11 +1759,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         <div class="project-actions">
                             <div class="action-buttons">
                                 <!-- Like Button -->
-                                <form method="post" style="display:inline;">
+                                <form method="POST" action="all_projects.php" style="display:inline;" onsubmit="return true;">
                                     <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
                                     <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
                                     <input type="hidden" name="page" value="<?php echo $current_page_num; ?>">
-                                    <button type="submit" name="toggle_like"
+                                    <input type="hidden" name="toggle_like" value="1">
+                                    <button type="submit"
                                             class="action-btn like-btn<?php echo $project['is_liked'] ? ' liked' : ''; ?>">
                                         <i class="fas fa-heart"></i>
                                         <span><?php echo $project['total_likes']; ?></span>
@@ -1778,11 +1779,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 </button>
 
                                 <!-- Bookmark Button -->
-                                <form method="post" style="display:inline;">
+                                <form method="POST" action="all_projects.php" style="display:inline;" onsubmit="return true;">
                                     <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
                                     <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
                                     <input type="hidden" name="page" value="<?php echo $current_page_num; ?>">
-                                    <button type="submit" name="toggle_bookmark"
+                                    <input type="hidden" name="toggle_bookmark" value="1">
+                                    <button type="submit"
                                             class="action-btn bookmark-btn<?php echo $project['is_bookmarked'] ? ' bookmarked' : ''; ?>">
                                         <i class="fas fa-bookmark"></i>
                                         <span><?php echo $project['is_bookmarked'] ? 'Saved' : 'Save'; ?></span>
@@ -2190,22 +2192,24 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 </button>
 
                                 <!-- Quick Actions in Modal Footer -->
-                                <form method="post" style="display:inline;">
+                                <form method="POST" action="all_projects.php" style="display:inline;">
                                     <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
                                     <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
                                     <input type="hidden" name="page" value="<?php echo $current_page_num; ?>">
-                                    <button type="submit" name="toggle_like"
+                                    <input type="hidden" name="toggle_like" value="1">
+                                    <button type="submit"
                                             class="btn <?php echo $project['is_liked'] ? 'btn-danger' : 'btn-outline-danger'; ?>">
                                         <i class="fas fa-heart me-2"></i>
                                         <?php echo $project['is_liked'] ? 'Unlike' : 'Like'; ?> (<?php echo $project['total_likes']; ?>)
                                     </button>
                                 </form>
 
-                                <form method="post" style="display:inline;">
+                                <form method="POST" action="all_projects.php" style="display:inline;">
                                     <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
                                     <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
                                     <input type="hidden" name="page" value="<?php echo $current_page_num; ?>">
-                                    <button type="submit" name="toggle_bookmark" class="btn btn-warning">
+                                    <input type="hidden" name="toggle_bookmark" value="1">
+                                    <button type="submit" class="btn btn-warning">
                                         <i class="fas fa-bookmark me-2"></i>
                                         <?php echo $project['is_bookmarked'] ? 'Remove Bookmark' : 'Add Bookmark'; ?>
                                     </button>
@@ -2285,11 +2289,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                 <?php echo nl2br(htmlspecialchars($comment['comment_text'])); ?>
                                             </div>
                                             <div class="comment-actions">
-                                                <form method="post" style="display:inline;">
+                                                <form method="POST" action="all_projects.php" style="display:inline;">
                                                     <input type="hidden" name="comment_id" value="<?php echo $comment['id']; ?>">
                                                     <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
                                                     <input type="hidden" name="page" value="<?php echo $current_page_num; ?>">
-                                                    <button type="submit" name="toggle_comment_like"
+                                                    <input type="hidden" name="toggle_comment_like" value="1">
+                                                    <button type="submit"
                                                             class="comment-like-btn<?php echo $comment['is_liked'] ? ' liked' : ''; ?>">
                                                         <i class="fas fa-heart"></i>
                                                         <span><?php echo $comment['comment_likes_count']; ?></span>
@@ -2362,11 +2367,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                             <?php echo nl2br(htmlspecialchars($reply['comment_text'])); ?>
                                                         </div>
                                                         <div class="comment-actions">
-                                                            <form method="post" style="display:inline;">
+                                                            <form method="POST" action="all_projects.php" style="display:inline;">
                                                                 <input type="hidden" name="comment_id" value="<?php echo $reply['id']; ?>">
                                                                 <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
                                                                 <input type="hidden" name="page" value="<?php echo $current_page_num; ?>">
-                                                                <button type="submit" name="toggle_comment_like"
+                                                                <input type="hidden" name="toggle_comment_like" value="1">
+                                                                <button type="submit"
                                                                         class="comment-like-btn<?php echo $reply['is_liked'] ? ' liked' : ''; ?>">
                                                                     <i class="fas fa-heart"></i>
                                                                     <span><?php echo $reply['comment_likes_count']; ?></span>
@@ -2575,12 +2581,19 @@ $current_page = basename($_SERVER['PHP_SELF']);
             });
         });
 
-        // Prevent action buttons from triggering card click
-        const actionElements = document.querySelectorAll('.project-actions, .action-btn, .bookmark-btn, .like-btn');
+        // Prevent action buttons and forms from triggering card click
+        const actionElements = document.querySelectorAll('.project-actions, .action-btn, .bookmark-btn, .like-btn, form');
         actionElements.forEach(element => {
             element.addEventListener('click', function(e) {
                 e.stopPropagation();
             });
+            
+            // Also prevent form submission from triggering card click
+            if (element.tagName === 'FORM') {
+                element.addEventListener('submit', function(e) {
+                    e.stopPropagation();
+                });
+            }
         });
 
         // Initialize comment system

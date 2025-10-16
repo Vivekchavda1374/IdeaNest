@@ -1,3676 +1,770 @@
 <?php
-$basePath = '../';
+session_start();
+require_once '../../Login/Login/db.php';
 
-// Check if this is an AJAX request first
-if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
-    handleAjaxRequest();
+$user_name = $_SESSION['user_name'] ?? "Guest";
+$user_id = $_SESSION['user_id'] ?? 0;
+
+// Check if user is logged in
+if ($user_id == 0) {
+    // Redirect to login if not authenticated
+    // header("Location: ../../Login/Login/login.php");
+    // exit;
+}
+
+// Handle like toggle
+if (isset($_POST['toggle_like']) && $user_id > 0) {
+    $idea_id = (int)$_POST['idea_id'];
+    $check = $conn->query("SELECT id FROM idea_likes WHERE idea_id=$idea_id AND user_id=$user_id");
+    if ($check && $check->num_rows > 0) {
+        $conn->query("DELETE FROM idea_likes WHERE idea_id=$idea_id AND user_id=$user_id");
+    } else {
+        $conn->query("INSERT INTO idea_likes (idea_id, user_id) VALUES ($idea_id, $user_id)");
+    }
+    header("Location: " . $_SERVER['PHP_SELF'] . "?" . http_build_query($_GET));
     exit;
 }
 
-// Check if this is an AJAX request for project details
-if (isset($_GET['get_project_details']) && $_GET['get_project_details'] == '1') {
-    handleProjectDetailsRequest();
+// Handle bookmark toggle
+if (isset($_POST['toggle_bookmark']) && $user_id > 0) {
+    $idea_id = (int)$_POST['idea_id'];
+    $check = $conn->query("SELECT id FROM idea_bookmarks WHERE idea_id=$idea_id AND user_id=$user_id");
+    if ($check && $check->num_rows > 0) {
+        $conn->query("DELETE FROM idea_bookmarks WHERE idea_id=$idea_id AND user_id=$user_id");
+    } else {
+        $conn->query("INSERT INTO idea_bookmarks (idea_id, user_id) VALUES ($idea_id, $user_id)");
+    }
+    header("Location: " . $_SERVER['PHP_SELF'] . "?" . http_build_query($_GET));
     exit;
 }
 
-// Handle like/unlike requests
-if (isset($_POST['action']) && $_POST['action'] == 'toggle_like') {
-    handleLikeToggle();
+// Handle share tracking
+if (isset($_POST['track_share']) && $user_id > 0) {
+    $idea_id = (int)$_POST['idea_id'];
+    $platform = $conn->real_escape_string($_POST['platform'] ?? 'other');
+    $conn->query("INSERT INTO idea_shares (idea_id, user_id, platform) VALUES ($idea_id, $user_id, '$platform')");
+    echo json_encode(['success' => true]);
+    exit;
+}
+
+
+
+// Handle view tracking
+if (isset($_POST['track_view']) && $user_id > 0) {
+    $idea_id = (int)$_POST['idea_id'];
+    $conn->query("INSERT INTO idea_views (idea_id, user_id) VALUES ($idea_id, $user_id)");
+    echo json_encode(['success' => true]);
+    exit;
+}
+
+// Handle follow toggle
+if (isset($_POST['toggle_follow']) && $user_id > 0) {
+    $idea_id = (int)$_POST['idea_id'];
+    $check = $conn->query("SELECT id FROM idea_followers WHERE idea_id=$idea_id AND user_id=$user_id");
+    if ($check && $check->num_rows > 0) {
+        $conn->query("DELETE FROM idea_followers WHERE idea_id=$idea_id AND user_id=$user_id");
+    } else {
+        $conn->query("INSERT INTO idea_followers (idea_id, user_id) VALUES ($idea_id, $user_id)");
+    }
+    header("Location: " . $_SERVER['PHP_SELF'] . "?" . http_build_query($_GET));
+    exit;
+}
+
+// Handle rating submission
+if (isset($_POST['submit_rating']) && $user_id > 0) {
+    $idea_id = (int)$_POST['idea_id'];
+    $rating = (int)$_POST['rating'];
+    if ($idea_id > 0 && $rating >= 1 && $rating <= 5) {
+        $conn->query("INSERT INTO idea_ratings (idea_id, user_id, rating) VALUES ($idea_id, $user_id, $rating) ON DUPLICATE KEY UPDATE rating=$rating");
+    }
+    header("Location: " . $_SERVER['PHP_SELF'] . "?" . http_build_query($_GET));
     exit;
 }
 
 // Handle comment submission
-if (isset($_POST['action']) && $_POST['action'] == 'add_comment') {
-    handleAddComment();
+if (isset($_POST['submit_comment']) && $user_id > 0) {
+    $idea_id = (int)$_POST['idea_id'];
+    $parent_id = (int)($_POST['parent_id'] ?? 0) ?: NULL;
+    $comment = trim($_POST['comment'] ?? '');
+    
+    if ($idea_id > 0 && !empty($comment)) {
+        $comment = $conn->real_escape_string($comment);
+        $parent_sql = $parent_id ? $parent_id : 'NULL';
+        $conn->query("INSERT INTO idea_comments (idea_id, user_id, parent_id, comment) VALUES ($idea_id, $user_id, $parent_sql, '$comment')");
+    }
+    echo json_encode(['success' => true]);
     exit;
 }
 
-// Handle comment deletion
-if (isset($_POST['action']) && $_POST['action'] == 'delete_comment') {
-    handleDeleteComment();
-    exit;
+// Filters
+$search = $_GET['search'] ?? '';
+$filter_classification = $_GET['classification'] ?? '';
+$filter_type = $_GET['type'] ?? '';
+$sort_by = $_GET['sort'] ?? 'newest';
+$view_mode = $_GET['view'] ?? 'my_ideas'; // my_ideas, all_ideas, bookmarked
+$current_page = max(1, (int)($_GET['page'] ?? 1));
+$ideas_per_page = 12;
+$offset = ($current_page - 1) * $ideas_per_page;
+
+// Build WHERE clause
+$where = "1=1";
+
+// Filter by view mode
+if ($view_mode === 'my_ideas' && $user_id > 0) {
+    $where .= " AND b.user_id=$user_id";
+} elseif ($view_mode === 'bookmarked' && $user_id > 0) {
+    $where .= " AND EXISTS (SELECT 1 FROM idea_bookmarks WHERE idea_id=b.id AND user_id=$user_id)";
 }
 
-include $basePath . 'layout.php';
+if ($search) {
+    $s = $conn->real_escape_string($search);
+    $where .= " AND (b.project_name LIKE '%$s%' OR b.description LIKE '%$s%')";
+}
+if ($filter_classification) {
+    $c = $conn->real_escape_string($filter_classification);
+    $where .= " AND b.classification='$c'";
+}
+if ($filter_type) {
+    $t = $conn->real_escape_string($filter_type);
+    $where .= " AND b.project_type='$t'";
+}
 
-// AJAX handler for like/unlike
-function handleLikeToggle()
-{
-    header('Content-Type: application/json');
-    session_start();
+// Sorting
+$order_by = "b.submission_datetime DESC";
+switch ($sort_by) {
+    case 'popular':
+        $order_by = "(SELECT COUNT(*) FROM idea_likes WHERE idea_id=b.id) DESC, b.submission_datetime DESC";
+        break;
 
-    if (!isset($_SESSION['user_id'])) {
-        echo json_encode(['success' => false, 'message' => 'Please login to like ideas']);
-        return;
-    }
+    case 'most_viewed':
+        $order_by = "(SELECT COUNT(*) FROM idea_views WHERE idea_id=b.id) DESC, b.submission_datetime DESC";
+        break;
+    case 'oldest':
+        $order_by = "b.submission_datetime ASC";
+        break;
+}
 
-    $user_id = $_SESSION['user_id'];
-    $idea_id = isset($_POST['idea_id']) ? (int)$_POST['idea_id'] : 0;
+// Get total count
+$total_result = $conn->query("SELECT COUNT(*) as total FROM blog b WHERE $where");
+$total_ideas = $total_result ? $total_result->fetch_assoc()['total'] : 0;
+$total_pages = ceil($total_ideas / $ideas_per_page);
 
-    if ($idea_id <= 0) {
-        echo json_encode(['success' => false, 'message' => 'Invalid idea ID']);
-        return;
-    }
+// Get ideas with stats - simplified query
+$sql = "SELECT b.*, 
+        COALESCE(r.name, 'Unknown') as author_name,
+        0 as total_likes,
+        0 as total_comments,
+        0 as total_views,
+        0 as total_shares,
+        0 as is_liked,
+        0 as is_bookmarked,
+        IF(b.user_id=$user_id, 1, 0) as is_owner
+        FROM blog b
+        LEFT JOIN register r ON b.user_id=r.id
+        WHERE $where
+        ORDER BY $order_by
+        LIMIT $ideas_per_page OFFSET $offset";
 
-    try {
-        $conn = createDBConnection();
-        if (!$conn) {
-            throw new Exception("Database connection failed");
+// Get stats separately for each idea
+if ($result = $conn->query($sql)) {
+    $ideas = $result->fetch_all(MYSQLI_ASSOC);
+    
+    // Add stats for each idea
+    foreach ($ideas as &$idea) {
+        $id = $idea['id'];
+        
+        // Get likes
+        $likes_result = $conn->query("SELECT COUNT(*) as count FROM idea_likes WHERE idea_id=$id");
+        $idea['total_likes'] = $likes_result ? $likes_result->fetch_assoc()['count'] : 0;
+        
+        // Get comments count
+        $comments_result = $conn->query("SELECT COUNT(*) as count FROM idea_comments WHERE idea_id=$id");
+        $idea['total_comments'] = $comments_result ? $comments_result->fetch_assoc()['count'] : 0;
+        
+        // Get user-specific data
+        if ($user_id > 0) {
+            $user_like = $conn->query("SELECT COUNT(*) as count FROM idea_likes WHERE idea_id=$id AND user_id=$user_id");
+            $idea['is_liked'] = $user_like ? $user_like->fetch_assoc()['count'] : 0;
+            
+            $user_bookmark = $conn->query("SELECT COUNT(*) as count FROM idea_bookmarks WHERE idea_id=$id AND user_id=$user_id");
+            $idea['is_bookmarked'] = $user_bookmark ? $user_bookmark->fetch_assoc()['count'] : 0;
         }
-
-        // Check if user already liked this idea
-        $check_sql = "SELECT id FROM idea_likes WHERE idea_id = ? AND user_id = ?";
-        $check_stmt = $conn->prepare($check_sql);
-        $check_stmt->bind_param("ii", $idea_id, $user_id);
-        $check_stmt->execute();
-        $result = $check_stmt->get_result();
-
-        if ($result->num_rows > 0) {
-            // Unlike - remove the like
-            $delete_sql = "DELETE FROM idea_likes WHERE idea_id = ? AND user_id = ?";
-            $delete_stmt = $conn->prepare($delete_sql);
-            $delete_stmt->bind_param("ii", $idea_id, $user_id);
-            $delete_stmt->execute();
-            $liked = false;
+        
+        // Get all stats from new tables
+        $views_result = $conn->query("SELECT COUNT(*) as count FROM idea_views WHERE idea_id=$id");
+        $idea['total_views'] = $views_result ? $views_result->fetch_assoc()['count'] : 0;
+        
+        $shares_result = $conn->query("SELECT COUNT(*) as count FROM idea_shares WHERE idea_id=$id");
+        $idea['total_shares'] = $shares_result ? $shares_result->fetch_assoc()['count'] : 0;
+        
+        $followers_result = $conn->query("SELECT COUNT(*) as count FROM idea_followers WHERE idea_id=$id");
+        $idea['total_followers'] = $followers_result ? $followers_result->fetch_assoc()['count'] : 0;
+        
+        $ratings_result = $conn->query("SELECT AVG(rating) as avg, COUNT(*) as count FROM idea_ratings WHERE idea_id=$id");
+        $rating_data = $ratings_result ? $ratings_result->fetch_assoc() : ['avg' => 0, 'count' => 0];
+        $idea['avg_rating'] = round($rating_data['avg'], 1);
+        $idea['total_ratings'] = $rating_data['count'];
+        
+        $reports_result = $conn->query("SELECT COUNT(*) as count FROM idea_reports WHERE idea_id=$id");
+        $idea['total_reports'] = $reports_result ? $reports_result->fetch_assoc()['count'] : 0;
+        
+        // Check user-specific data for new tables
+        if ($user_id > 0) {
+            $user_follow = $conn->query("SELECT COUNT(*) as count FROM idea_followers WHERE idea_id=$id AND user_id=$user_id");
+            $idea['is_following'] = $user_follow ? $user_follow->fetch_assoc()['count'] : 0;
+            
+            $user_rating = $conn->query("SELECT rating FROM idea_ratings WHERE idea_id=$id AND user_id=$user_id");
+            $idea['user_rating'] = $user_rating && $user_rating->num_rows > 0 ? $user_rating->fetch_assoc()['rating'] : 0;
         } else {
-            // Like - add the like
-            $insert_sql = "INSERT INTO idea_likes (idea_id, user_id) VALUES (?, ?)";
-            $insert_stmt = $conn->prepare($insert_sql);
-            $insert_stmt->bind_param("ii", $idea_id, $user_id);
-            $insert_stmt->execute();
-            $liked = true;
+            $idea['is_following'] = 0;
+            $idea['user_rating'] = 0;
         }
-
-        // Get updated like count
-        $count_sql = "SELECT COUNT(*) as like_count FROM idea_likes WHERE idea_id = ?";
-        $count_stmt = $conn->prepare($count_sql);
-        $count_stmt->bind_param("i", $idea_id);
-        $count_stmt->execute();
-        $count_result = $count_stmt->get_result();
-        $like_count = $count_result->fetch_assoc()['like_count'];
-
-        $conn->close();
-
-        echo json_encode([
-                'success' => true,
-                'liked' => $liked,
-                'like_count' => $like_count
-        ]);
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     }
+} else {
+    $ideas = [];
 }
 
-// AJAX handler for adding comments
-function handleAddComment()
-{
-    header('Content-Type: application/json');
-    session_start();
+// Ideas are now populated above
 
-    if (!isset($_SESSION['user_id'])) {
-        echo json_encode(['success' => false, 'message' => 'Please login to comment']);
-        return;
+// Get classifications for filter
+$class_result = $conn->query("SELECT DISTINCT classification FROM blog WHERE classification IS NOT NULL AND classification!='' ORDER BY classification");
+$classifications = $class_result ? $class_result->fetch_all(MYSQLI_ASSOC) : [];
+
+// Get user statistics
+$user_stats = ['ideas' => 0, 'likes' => 0, 'comments' => 0, 'bookmarks' => 0];
+if ($user_id > 0) {
+    $stats_result = $conn->query("
+        SELECT 
+            (SELECT COUNT(*) FROM blog WHERE user_id=$user_id) as ideas,
+            (SELECT COUNT(*) FROM idea_likes WHERE user_id=$user_id) as likes,
+            0 as comments,
+            (SELECT COUNT(*) FROM idea_bookmarks WHERE user_id=$user_id) as bookmarks
+    ");
+    if ($stats_result) {
+        $user_stats = $stats_result->fetch_assoc();
     }
-
-    $user_id = $_SESSION['user_id'];
-    $idea_id = isset($_POST['idea_id']) ? (int)$_POST['idea_id'] : 0;
-    $comment = isset($_POST['comment']) ? trim($_POST['comment']) : '';
-
-    if ($idea_id <= 0) {
-        echo json_encode(['success' => false, 'message' => 'Invalid idea ID']);
-        return;
-    }
-
-    if (empty($comment)) {
-        echo json_encode(['success' => false, 'message' => 'Comment cannot be empty']);
-        return;
-    }
-
-    if (strlen($comment) > 500) {
-        echo json_encode(['success' => false, 'message' => 'Comment too long (max 500 characters)']);
-        return;
-    }
-
-    try {
-        $conn = createDBConnection();
-        if (!$conn) {
-            throw new Exception("Database connection failed");
-        }
-
-        // Insert comment
-        $insert_sql = "INSERT INTO idea_comments (idea_id, user_id, comment) VALUES (?, ?, ?)";
-        $insert_stmt = $conn->prepare($insert_sql);
-        $insert_stmt->bind_param("iis", $idea_id, $user_id, $comment);
-        $insert_stmt->execute();
-
-        // Get updated comment count
-        $count_sql = "SELECT COUNT(*) as comment_count FROM idea_comments WHERE idea_id = ?";
-        $count_stmt = $conn->prepare($count_sql);
-        $count_stmt->bind_param("i", $idea_id);
-        $count_stmt->execute();
-        $count_result = $count_stmt->get_result();
-        $comment_count = $count_result->fetch_assoc()['comment_count'];
-
-        $conn->close();
-
-        echo json_encode([
-                'success' => true,
-                'comment_count' => $comment_count,
-                'message' => 'Comment added successfully'
-        ]);
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-    }
-}
-
-// AJAX handler for deleting comments
-function handleDeleteComment()
-{
-    header('Content-Type: application/json');
-    session_start();
-
-    if (!isset($_SESSION['user_id'])) {
-        echo json_encode(['success' => false, 'message' => 'Please login to delete comments']);
-        return;
-    }
-
-    $user_id = $_SESSION['user_id'];
-    $comment_id = isset($_POST['comment_id']) ? (int)$_POST['comment_id'] : 0;
-
-    if ($comment_id <= 0) {
-        echo json_encode(['success' => false, 'message' => 'Invalid comment ID']);
-        return;
-    }
-
-    try {
-        $conn = createDBConnection();
-        if (!$conn) {
-            throw new Exception("Database connection failed");
-        }
-
-        // Check if user owns this comment
-        $check_sql = "SELECT idea_id FROM idea_comments WHERE id = ? AND user_id = ?";
-        $check_stmt = $conn->prepare($check_sql);
-        $check_stmt->bind_param("ii", $comment_id, $user_id);
-        $check_stmt->execute();
-        $result = $check_stmt->get_result();
-
-        if ($result->num_rows === 0) {
-            echo json_encode(['success' => false, 'message' => 'You can only delete your own comments']);
-            return;
-        }
-
-        $idea_id = $result->fetch_assoc()['idea_id'];
-
-        // Delete comment
-        $delete_sql = "DELETE FROM idea_comments WHERE id = ?";
-        $delete_stmt = $conn->prepare($delete_sql);
-        $delete_stmt->bind_param("i", $comment_id);
-        $delete_stmt->execute();
-
-        // Get updated comment count
-        $count_sql = "SELECT COUNT(*) as comment_count FROM idea_comments WHERE idea_id = ?";
-        $count_stmt = $conn->prepare($count_sql);
-        $count_stmt->bind_param("i", $idea_id);
-        $count_stmt->execute();
-        $count_result = $count_stmt->get_result();
-        $comment_count = $count_result->fetch_assoc()['comment_count'];
-
-        $conn->close();
-
-        echo json_encode([
-                'success' => true,
-                'comment_count' => $comment_count,
-                'message' => 'Comment deleted successfully'
-        ]);
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-    }
-}
-
-// AJAX handler function for project details with likes and comments
-function handleProjectDetailsRequest()
-{
-    header('Content-Type: application/json');
-
-    try {
-        $conn = createDBConnection();
-        if (!$conn) {
-            throw new Exception("Database connection failed");
-        }
-
-        $project_id = isset($_GET['project_id']) ? (int)$_GET['project_id'] : 0;
-
-        if ($project_id <= 0) {
-            throw new Exception("Invalid project ID");
-        }
-
-        // Get project with user info and engagement data from blog table
-        $sql = "SELECT b.*, r.id as owner_id, r.name as owner_name, r.email as owner_email, 
-                       r.phone_no as owner_phone, r.about as owner_bio, r.department as owner_department,
-                       (SELECT COUNT(*) FROM idea_likes WHERE idea_id = b.id) as like_count,
-                       (SELECT COUNT(*) FROM idea_comments WHERE idea_id = b.id) as comment_count,
-                       (SELECT COUNT(*) FROM blog WHERE user_id = b.user_id) as user_total_projects,
-                       (SELECT COUNT(*) FROM blog WHERE user_id = b.user_id AND status = 'completed') as user_completed_projects
-                FROM blog b 
-                LEFT JOIN register r ON b.user_id = r.id 
-                WHERE b.id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $project_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows === 0) {
-            throw new Exception("Project not found");
-        }
-
-        $project = $result->fetch_assoc();
-
-        // Check if current user liked this project
-        session_start();
-        $current_user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
-        $user_liked = false;
-
-        if ($current_user_id) {
-            $like_check_sql = "SELECT id FROM idea_likes WHERE idea_id = ? AND user_id = ?";
-            $like_stmt = $conn->prepare($like_check_sql);
-            $like_stmt->bind_param("ii", $project_id, $current_user_id);
-            $like_stmt->execute();
-            $like_result = $like_stmt->get_result();
-            $user_liked = $like_result->num_rows > 0;
-            $like_stmt->close();
-        }
-
-        // Get recent comments with user names
-        $comments_sql = "SELECT c.*, r.name as commenter_name 
-                        FROM idea_comments c 
-                        LEFT JOIN register r ON c.user_id = r.id 
-                        WHERE c.idea_id = ? 
-                        ORDER BY c.created_at DESC 
-                        LIMIT 5";
-        $comments_stmt = $conn->prepare($comments_sql);
-        $comments_stmt->bind_param("i", $project_id);
-        $comments_stmt->execute();
-        $comments_result = $comments_stmt->get_result();
-        $comments = $comments_result->fetch_all(MYSQLI_ASSOC);
-        $comments_stmt->close();
-
-        $stmt->close();
-        $conn->close();
-
-        $can_edit = ($current_user_id && $current_user_id == $project['user_id']);
-
-        $response = [
-                'success' => true,
-                'project' => [
-                        'id' => $project['id'],
-                        'project_name' => htmlspecialchars($project['project_name']),
-                        'er_number' => htmlspecialchars($project['er_number']),
-                        'project_type' => ucfirst($project['project_type']),
-                        'classification' => ucfirst(str_replace('_', ' ', $project['classification'])),
-                        'priority1' => ucfirst($project['priority1']),
-                        'status' => ucfirst(str_replace('_', ' ', $project['status'])),
-                        'description' => nl2br(htmlspecialchars($project['description'])),
-                        'submission_datetime' => formatDate($project['submission_datetime']),
-                        'assigned_to' => htmlspecialchars(!empty($project['assigned_to']) ? $project['assigned_to'] : 'Not Assigned'),
-                        'completion_date' => formatDate($project['completion_date']),
-                        'title' => htmlspecialchars($project['title'] ?? $project['project_name']),
-                        'content' => nl2br(htmlspecialchars($project['content'] ?? $project['description'])),
-                        'priority_class' => getPriorityClass($project['priority1']),
-                        'status_class' => getStatusClass($project['status']),
-                        'can_edit' => $can_edit,
-                        'user_id' => $project['user_id'],
-                        'owner_name' => htmlspecialchars($project['owner_name']),
-                        'owner_email' => htmlspecialchars($project['owner_email'] ?? ''),
-                        'owner_phone' => htmlspecialchars($project['owner_phone'] ?? ''),
-                        'owner_bio' => htmlspecialchars($project['owner_bio'] ?? ''),
-                        'owner_department' => htmlspecialchars($project['owner_department'] ?? ''),
-                        'user_total_projects' => (int)($project['user_total_projects'] ?? 0),
-                        'user_completed_projects' => (int)($project['user_completed_projects'] ?? 0),
-                        'like_count' => (int)$project['like_count'],
-                        'comment_count' => (int)$project['comment_count'],
-                        'user_liked' => $user_liked,
-                        'comments' => $comments,
-                        'current_user_id' => $current_user_id
-                ]
-        ];
-
-        echo json_encode($response);
-    } catch (Exception $e) {
-        error_log("Project details error: " . $e->getMessage());
-        echo json_encode([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-        ]);
-    }
-}
-
-// AJAX handler function for loading projects with engagement data
-function handleAjaxRequest()
-{
-    header('Content-Type: application/json');
-
-    try {
-        $conn = createDBConnection();
-        if (!$conn) {
-            throw new Exception("Database connection failed");
-        }
-
-        session_start();
-        $current_user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
-
-        // Get parameters
-        $filter_type = isset($_GET['type']) ? $_GET['type'] : '';
-        $filter_status = isset($_GET['status']) ? $_GET['status'] : '';
-        $filter_priority = isset($_GET['priority']) ? $_GET['priority'] : '';
-        $search_term = isset($_GET['search']) ? $_GET['search'] : '';
-        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-        $per_page = 6;
-        $offset = ($page - 1) * $per_page;
-
-        // Build query conditions
-        $where_conditions = ["1=1"];
-        $params = [];
-        $types = "";
-
-        if (!empty($filter_type)) {
-            $where_conditions[] = "b.project_type = ?";
-            $params[] = $filter_type;
-            $types .= "s";
-        }
-
-        if (!empty($filter_status)) {
-            $where_conditions[] = "b.status = ?";
-            $params[] = $filter_status;
-            $types .= "s";
-        }
-
-        if (!empty($filter_priority)) {
-            $where_conditions[] = "b.priority1 = ?";
-            $params[] = $filter_priority;
-            $types .= "s";
-        }
-
-        if (!empty($search_term)) {
-            $where_conditions[] = "(b.project_name LIKE ? OR b.description LIKE ? OR b.er_number LIKE ?)";
-            $search_pattern = "%{$search_term}%";
-            $params[] = $search_pattern;
-            $params[] = $search_pattern;
-            $params[] = $search_pattern;
-            $types .= "sss";
-        }
-
-        $where_clause = implode(" AND ", $where_conditions);
-
-        // Get total count
-        $count_sql = "SELECT COUNT(*) as total FROM blog b WHERE " . $where_clause;
-        $count_stmt = $conn->prepare($count_sql);
-        if (!!$params) {
-            $count_stmt->bind_param($types, ...$params);
-        }
-        $count_stmt->execute();
-        $count_result = $count_stmt->get_result();
-        $total_projects = $count_result->fetch_assoc()['total'];
-        $total_pages = ceil($total_projects / $per_page);
-        $count_stmt->close();
-
-        // Get projects with engagement data
-        $sql = "SELECT b.*, r.id as owner_id, r.name as owner_name,
-                       (SELECT COUNT(*) FROM idea_likes WHERE idea_id = b.id) as like_count,
-                       (SELECT COUNT(*) FROM idea_comments WHERE idea_id = b.id) as comment_count,
-                       " . ($current_user_id ? "(SELECT COUNT(*) FROM idea_likes WHERE idea_id = b.id AND user_id = ?) as user_liked" : "0 as user_liked") . "
-                FROM blog b 
-                LEFT JOIN register r ON b.user_id = r.id 
-                WHERE " . $where_clause . " ORDER BY 
-                CASE b.priority1 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END,
-                b.submission_datetime DESC 
-                LIMIT ? OFFSET ?";
-
-        if ($current_user_id) {
-            array_unshift($params, $current_user_id);
-            $types = "i" . $types;
-        }
-
-        $params[] = $per_page;
-        $params[] = $offset;
-        $types .= "ii";
-
-        $stmt = $conn->prepare($sql);
-        if (!!$params) {
-            $stmt->bind_param($types, ...$params);
-        }
-
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $projects = $result->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
-        $conn->close();
-
-        // Generate HTML with engagement features
-        ob_start();
-        foreach ($projects as $project) :
-            $can_edit = ($current_user_id && $current_user_id == $project['user_id']);
-            $user_liked = ($current_user_id && $project['user_liked'] > 0);
-            ?>
-            <div class="project-card" data-aos="fade-up" data-idea-id="<?php echo $project['id']; ?>" onclick="showProjectDetails(<?php echo $project['id']; ?>)" style="cursor: pointer;">
-                <div class="priority-badge <?php echo getPriorityClass($project['priority1']); ?>">
-                    <?php echo ucfirst($project['priority1']); ?>
-                </div>
-
-                <div class="project-header">
-                    <div>
-                        <h3 class="project-title"><?php echo htmlspecialchars($project['project_name']); ?></h3>
-                        <div class="project-id">ID: <?php echo htmlspecialchars($project['er_number']); ?></div>
-                        <div class="project-owner">
-                            <i class="fas fa-user me-1"></i>
-                            by <?php echo htmlspecialchars($project['owner_name'] ?: 'Unknown'); ?>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="project-meta">
-                    <span class="meta-tag">
-                        <i class="<?php echo ($project['project_type'] == 'software') ? 'fas fa-laptop-code' : 'fas fa-microchip'; ?> me-1"></i>
-                        <?php echo ucfirst($project['project_type']); ?>
-                    </span>
-                    <span class="meta-tag">
-                        <i class="fas fa-tag me-1"></i>
-                        <?php echo ucfirst(str_replace('_', ' ', $project['classification'])); ?>
-                    </span>
-                </div>
-
-                <div class="status-badge <?php echo getStatusClass($project['status']); ?>">
-                    <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>
-                    <?php echo ucfirst(str_replace('_', ' ', $project['status'])); ?>
-                </div>
-
-                <div class="project-description">
-                    <?php echo nl2br(htmlspecialchars(truncateText($project['description']))); ?>
-                </div>
-
-                <div class="project-date">
-                    <i class="fas fa-calendar-alt me-1"></i>
-                    Submitted: <?php echo formatDate($project['submission_datetime']); ?>
-                </div>
-
-                <!-- Engagement Section -->
-                <div class="project-engagement">
-                    <div class="engagement-stats">
-                        <span class="engagement-stat">
-                            <i class="fas fa-heart <?php echo $user_liked ? 'text-danger' : 'text-muted'; ?>"></i>
-                            <span class="like-count"><?php echo $project['like_count']; ?></span>
-                        </span>
-                        <span class="engagement-stat">
-                            <i class="fas fa-comment text-muted"></i>
-                            <span class="comment-count"><?php echo $project['comment_count']; ?></span>
-                        </span>
-                    </div>
-
-                    <div class="engagement-actions">
-                        <?php if ($current_user_id) : ?>
-                            <button class="btn-like <?php echo $user_liked ? 'liked' : ''; ?>"
-                                    data-idea-id="<?php echo $project['id']; ?>"
-                                    title="<?php echo $user_liked ? 'Unlike' : 'Like'; ?> this idea">
-                                <i class="fas fa-heart"></i>
-                                <span class="like-text"><?php echo $user_liked ? 'Liked' : 'Like'; ?></span>
-                            </button>
-                        <?php else : ?>
-                            <button class="btn-like disabled" title="Login to like ideas">
-                                <i class="fas fa-heart"></i>
-                                <span class="like-text">Like</span>
-                            </button>
-                        <?php endif; ?>
-
-                        <button class="btn-comment" data-idea-id="<?php echo $project['id']; ?>" title="View comments">
-                            <i class="fas fa-comment"></i>
-                            <span>Comment</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="project-actions">
-                    <button class="btn btn-outline-purple btn-sm view-details-btn" data-project-id="<?php echo $project['id']; ?>">
-                        <i class="fas fa-eye me-1"></i>View Details
-                    </button>
-                    <?php if ($can_edit) : ?>
-                        <a href="edit.php?id=<?php echo $project['id']; ?>" class="btn btn-outline-purple btn-sm">
-                            <i class="fas fa-edit me-1"></i>Edit
-                        </a>
-                    <?php else : ?>
-                        <button class="btn btn-outline-secondary btn-sm" disabled title="You can only edit your own idea">
-                            <i class="fas fa-lock me-1"></i>Edit
-                        </button>
-                    <?php endif; ?>
-                    <?php if ($current_user_id && !$can_edit) : ?>
-                        <button class="btn btn-outline-danger btn-sm report-btn" data-idea-id="<?php echo $project['id']; ?>" title="Report this idea">
-                            <i class="fas fa-flag me-1"></i>Report
-                        </button>
-                    <?php endif; ?>
-                </div>
-            </div>
-        <?php endforeach;
-
-        $html = ob_get_clean();
-
-        $currentlyShown = $page * $per_page;
-        $paginationInfo = "Showing " . min($currentlyShown, $total_projects) . " of " . $total_projects . " projects";
-        if ($page < $total_pages) {
-            $paginationInfo .= " (Page " . $page . " of " . $total_pages . ")";
-        }
-
-        $response = [
-                'success' => true,
-                'html' => $html,
-                'hasMore' => $page < $total_pages,
-                'nextPage' => $page + 1,
-                'paginationInfo' => $paginationInfo,
-                'projects' => $projects
-        ];
-
-        echo json_encode($response);
-    } catch (Exception $e) {
-        echo json_encode([
-                'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
-        ]);
-    }
-}
-
-// Helper functions (existing ones remain the same)
-function createDBConnection()
-{
-    require_once '../../Login/Login/db.php';
-    global $conn;
-    return $conn;
-
-
-
-    // Check connection
-    $servername = $host;
-
-    try {
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        if ($conn->connect_error) {
-            throw new Exception("Connection failed: " . $conn->connect_error);
-        }
-        return $conn;
-    } catch (Exception $e) {
-        error_log("Database connection error: " . $e->getMessage());
-        return false;
-    }
-
-}
-
-function getStatusClass($status)
-{
-    switch ($status) {
-        case 'pending':
-            return 'status-pending';
-        case 'in_progress':
-            return 'status-in_progress';
-        case 'completed':
-            return 'status-completed';
-        case 'rejected':
-            return 'status-rejected';
-        default:
-            return 'status-pending';
-    }
-}
-
-function getPriorityClass($priority)
-{
-    switch ($priority) {
-        case 'high':
-            return 'priority-high';
-        case 'medium':
-            return 'priority-medium';
-        case 'low':
-            return 'priority-low';
-        default:
-            return 'priority-medium';
-    }
-}
-
-function formatDate($date)
-{
-    if (empty($date) || $date === '0000-00-00 00:00:00' || $date === '0000-00-00') {
-        return 'N/A';
-    }
-    try {
-        return date('M d, Y', strtotime($date));
-    } catch (Exception $e) {
-        return 'N/A';
-    }
-}
-
-function truncateText($text, $length = 150)
-{
-    if (strlen($text) <= $length) {
-        return $text;
-    }
-    return substr($text, 0, $length) . '...';
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Projects - IdeaNest</title>
-    <!-- Bootstrap 5 CSS -->
+    <title>All Ideas - IdeaNest</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../../assets/css/list_project.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* User Details Section Styles */
-        .user-details-section {
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .user-info-card {
-            display: flex;
-            align-items: flex-start;
-            gap: 1.5rem;
-        }
-
-        .user-avatar {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: 700;
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-            flex-shrink: 0;
-        }
-
-        .user-details h5 {
-            color: #1e293b;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-        }
-
-        .user-details p {
-            color: #64748b;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .user-details i {
-            color: #8b5cf6;
-            width: 16px;
-        }
-
-        .user-stats {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            margin-top: 1rem;
-        }
-
-        .stat-badge {
-            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 1.5rem;
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
-        }
-
-        /* Enhanced Project Card Styles */
-        .project-card {
-            background: white;
-            border-radius: 20px;
-            padding: 1.8rem;
-            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.08);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(139, 92, 246, 0.08);
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-            transform: translateY(0);
-        }
-
-        .project-card:hover {
-            transform: translateY(-12px) scale(1.02);
-            box-shadow: 0 25px 60px rgba(139, 92, 246, 0.15);
-            border-color: rgba(139, 92, 246, 0.2);
-        }
-
-        .project-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #8b5cf6, #a78bfa, #c084fc);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.3s ease;
-        }
-
-        .project-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 50px rgba(139, 92, 246, 0.15);
-            border-color: rgba(139, 92, 246, 0.2);
-        }
-
-        .project-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .project-card:active {
-            transform: translateY(-4px) scale(1.01);
-            transition: all 0.1s ease;
-        }
-
-        /* Card Content Enhancements */
-        .project-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.2rem;
-            position: relative;
-        }
-
-        .project-title {
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 0.5rem;
-            line-height: 1.3;
-            transition: color 0.3s ease;
-        }
-
-        .project-card:hover .project-title {
-            color: var(--primary-purple);
-        }
-
-        .project-id {
-            color: #64748b;
-            font-size: 0.9rem;
-            font-weight: 500;
-            background: #f1f5f9;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            display: inline-block;
-        }
-
-        .project-owner {
-            color: #64748b;
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
-            font-weight: 500;
-        }
-
-        .project-owner i {
-            color: var(--primary-purple);
-        }
-
-        /* Priority Badge Enhancement */
-        .priority-badge {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            padding: 0.4rem 1rem;
-            border-radius: 25px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            z-index: 2;
-        }
-
-        /* Meta Tags Enhancement */
-        .project-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.6rem;
-            margin-bottom: 1.2rem;
-        }
-
-        .meta-tag {
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            color: #475569;
-            padding: 0.4rem 0.9rem;
-            border-radius: 18px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border: 1px solid #e2e8f0;
-            transition: all 0.3s ease;
-        }
-
-        .meta-tag:hover {
-            background: linear-gradient(135deg, var(--light-purple), #ddd6fe);
-            color: var(--dark-purple);
-            transform: translateY(-1px);
-        }
-
-        /* Status Badge Enhancement */
-        .status-badge {
-            padding: 0.6rem 1.2rem;
-            border-radius: 25px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            margin-bottom: 1.2rem;
-            display: inline-flex;
-            align-items: center;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Description Enhancement */
-        .project-description {
-            color: #64748b;
-            line-height: 1.7;
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .project-description::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 30px;
-            height: 20px;
-            background: linear-gradient(to left, white, transparent);
-        }
-
-        /* Date Enhancement */
-        .project-date {
-            font-size: 0.85rem;
-            color: #94a3b8;
-            margin-top: 1rem;
-            padding: 0.5rem 0;
-            border-top: 1px solid #f1f5f9;
-            font-weight: 500;
-        }
-
-        .project-date i {
-            color: var(--primary-purple);
-        }
-
-        /* Engagement Section Styling */
-        .project-engagement {
-            margin: 1.5rem 0;
-            padding: 1rem 0;
-            border-top: 1px solid #f1f5f9;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .engagement-stats {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 1rem;
-        }
-
-        .engagement-stat {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #64748b;
-        }
-
-        .engagement-actions {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-        }
-
-        .btn-like, .btn-comment {
-            background: transparent;
-            border: 2px solid #e2e8f0;
-            color: #64748b;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-like:hover, .btn-comment:hover {
-            border-color: var(--primary-purple);
-            color: var(--primary-purple);
-            transform: translateY(-2px);
-        }
-
-        .btn-like.liked {
-            background: #fef2f2;
-            border-color: #f87171;
-            color: #dc2626;
-        }
-
-        .btn-like.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Actions Enhancement */
-        .project-actions {
-            display: flex;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
-            justify-content: center;
-        }
-
-        .btn-outline-purple {
-            border: 2px solid var(--primary-purple);
-            color: var(--primary-purple);
-            background: transparent;
-            border-radius: 12px;
-            padding: 0.7rem 1.4rem;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-outline-purple:hover {
-            background: var(--primary-purple);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
-        }
-
-        .btn-outline-purple:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Tap Interaction Effects */
-        @media (hover: none) and (pointer: coarse) {
-            .project-card {
-                transition: all 0.2s ease;
-            }
-
-            .project-card:active {
-                transform: scale(0.98);
-                box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
-            }
-        }
-
-        /* Enhanced Responsive Design */
-        @media (max-width: 768px) {
-            .project-card {
-                padding: 1.5rem;
-                margin-bottom: 1rem;
-            }
-
-            .priority-badge {
-                top: 1rem;
-                right: 1rem;
-                padding: 0.3rem 0.8rem;
-                font-size: 0.7rem;
-            }
-
-            .project-title {
-                font-size: 1.2rem;
-            }
-
-            .engagement-actions {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .btn-like, .btn-comment {
-                justify-content: center;
-            }
-
-            .project-actions {
-                flex-direction: column;
-            }
-
-            .btn-outline-purple {
-                text-align: center;
-                justify-content: center;
-            }
-        }
-
-        /* Loading States */
-        .project-card.loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-
-        .project-card.loading::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-        }
-
-        /* Hover Animation for Icons */
-        .project-card:hover .fas,
-        .project-card:hover .far {
-            animation: iconBounce 0.6s ease;
-        }
-
-        @keyframes iconBounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        /* Grid Enhancements */
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-            padding: 0.5rem;
-        }
-
-        @media (max-width: 1200px) {
-            .projects-grid {
-                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-                gap: 1.5rem;
-            }
-            
-            .project-details-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            }
-            
-            .meta-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .projects-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-                padding: 0;
-            }
-            
-            .project-details-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .meta-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .modal-dialog {
-                margin: 0.5rem;
-                max-width: 60vw !important;
-                width: 98vw !important;
-            }
-            
-            .modal-body {
-                padding: 1.5rem !important;
-            }
-        }
-
-        /* View Only Button Styling */
-        .btn-view-only {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            color: #6c757d;
-            border-radius: 12px;
-            padding: 0.7rem 1.4rem;
-            font-weight: 600;
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: default;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-view-only::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg,
-            transparent 30%,
-            rgba(108, 117, 125, 0.1) 50%,
-            transparent 70%);
-            transform: translateX(-100%);
-            transition: transform 0.6s ease;
-        }
-
-        .btn-view-only:hover::before {
-            transform: translateX(100%);
-        }
-
-        .btn-view-only i.fa-eye {
-            color: #28a745;
-            font-size: 1rem;
-        }
-
-        .btn-view-only i.fa-lock {
-            color: #dc3545;
-            font-size: 0.85rem;
-        }
-
-        /* Modal View Only Badge */
-        .modal .btn-view-only,
-        .modal-footer .btn-view-only {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border: 2px solid #dee2e6;
-            color: #495057;
-            border-radius: 10px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 700;
-            font-size: 0.95rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .modal .btn-view-only:hover,
-        .modal-footer .btn-view-only:hover {
-            background: linear-gradient(135deg, #e9ecef, #dee2e6);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-        }
-
-        /* View Only Badge in Cards */
-        .view-only-badge {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            color: #6c757d;
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border: 1px solid #dee2e6;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .view-only-badge i {
-            color: #dc3545;
-            font-size: 0.8rem;
-        }
-
-        /* Enhanced Badge Styling */
-        .badge.bg-secondary {
-            background: linear-gradient(135deg, #6c757d, #495057) !important;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 15px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-            border: none;
-        }
-
-        .badge.bg-success {
-            background: linear-gradient(135deg, #28a745, #20c997) !important;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 15px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-            border: none;
-        }
-
-        /* Footer Info Styling */
-        .project-footer-info {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 2px solid #f1f5f9;
-        }
-
-        .project-footer-info .badge {
-            font-size: 0.8rem;
-            padding: 0.6rem 1.2rem;
-            border-radius: 20px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .project-footer-info .text-muted {
-            color: #64748b !important;
-            font-weight: 500;
-        }
-
-        .project-footer-info .text-muted i {
-            color: var(--primary-purple);
-            margin-right: 0.5rem;
-        }
-
-        /* View Details Button Enhancement */
-        .view-details-btn {
-            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-            border: none;
-            color: white;
-            border-radius: 12px;
-            padding: 0.7rem 1.4rem;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
-        }
-
-        .view-details-btn:hover {
-            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
-            color: white;
-        }
-
-        .view-details-btn:active {
-            transform: translateY(0);
-            transition: all 0.1s ease;
-        }
-
-        .view-details-btn i {
-            font-size: 0.9rem;
-            transition: transform 0.3s ease;
-        }
-
-        .view-details-btn:hover i {
-            transform: scale(1.1);
-        }
-
-        /* Accessibility Enhancements */
-        .project-card:focus {
-            outline: 3px solid rgba(139, 92, 246, 0.5);
-            outline-offset: 2px;
-        }
-
-        /* Smooth Transitions */
-        * {
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .project-card * {
-            transition: inherit;
-        }
-        /* Enhanced Modal/Dialog Box Styles */
-
-        /* Modal Backdrop */
-        .modal-backdrop {
-            background-color: rgba(30, 41, 59, 0.75);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-
-        /* Main Modal Dialog */
-        .modal-dialog {
-            margin: 1.75rem auto;
-            max-width: 90%;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .modal-dialog-xl {
-            max-width: 1140px;
-        }
-
-        @media (min-width: 576px) {
-            .modal-dialog {
-                max-width: 500px;
-                margin: 1.75rem auto;
-            }
-
-            .modal-dialog-xl {
-                max-width: 1140px;
-            }
-        }
-
-        /* Modal Content Container */
-        .modal-content {
-            background: #ffffff;
-            border: none;
-            border-radius: 20px;
-            box-shadow:
-                    0 25px 50px -12px rgba(139, 92, 246, 0.25),
-                    0 0 0 1px rgba(139, 92, 246, 0.05);
-            overflow: hidden;
-            position: relative;
-            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-50px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* Modal Header */
-        .modal-header {
-            padding: 2rem 2.5rem 1.5rem;
-            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
-            position: relative;
-            background: linear-gradient(135deg, var(--primary-purple, #8b5cf6), var(--secondary-purple, #a78bfa));
-            color: white;
-        }
-
-        .modal-header::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        }
-
-        .modal-title {
-            font-weight: 700;
-            font-size: 1.5rem;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .modal-title i {
-            font-size: 1.25rem;
-            opacity: 0.9;
-        }
-
-        /* Close Button */
-        .btn-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            font-weight: 700;
-            line-height: 1;
-            color: rgba(255, 255, 255, 0.8);
-            text-shadow: none;
-            opacity: 1;
-            padding: 0.5rem;
-            margin: 0;
-            width: 2rem;
-            height: 2rem;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-close:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            transform: rotate(90deg);
-        }
-
-        .btn-close:focus {
-            box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
-            outline: 0;
-        }
-
-        .btn-close-white {
-            filter: invert(1) grayscale(100%) brightness(200%);
-        }
-
-        /* Modal Body */
-        .modal-body {
-            padding: 2.5rem;
-            max-height: 70vh;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        /* Custom Scrollbar for Modal Body */
-        .modal-body::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .modal-body::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 4px;
-        }
-
-        .modal-body::-webkit-scrollbar-thumb {
-            background: var(--primary-purple, #8b5cf6);
-            border-radius: 4px;
-            opacity: 0.7;
-        }
-
-        .modal-body::-webkit-scrollbar-thumb:hover {
-            background: var(--dark-purple, #6d28d9);
-        }
-
-        /* Modal Footer */
-        .modal-footer {
-            padding: 1.5rem 2.5rem 2rem;
-            border-top: 1px solid rgba(139, 92, 246, 0.1);
-            background: linear-gradient(to top, rgba(139, 92, 246, 0.02), transparent);
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        /* Enhanced Section Styling */
-        .detail-section {
-            background: #ffffff;
-            border: 1px solid rgba(139, 92, 246, 0.08);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .detail-section:hover {
-            border-color: rgba(139, 92, 246, 0.15);
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.08);
-        }
-
-        .section-title {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--dark-purple, #6d28d9);
-            margin-bottom: 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid rgba(139, 92, 246, 0.1);
-        }
-
-        .section-title i {
-            color: var(--primary-purple, #8b5cf6);
-            font-size: 1rem;
-        }
-
-        /* Detail Rows */
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid rgba(241, 245, 249, 0.8);
-            transition: all 0.2s ease;
-        }
-
-        .detail-row:last-child {
-            border-bottom: none;
-        }
-
-        .detail-row:hover {
-            background: rgba(139, 92, 246, 0.02);
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-            margin-left: -0.5rem;
-            margin-right: -0.5rem;
-            border-radius: 8px;
-        }
-
-        .detail-label {
-            font-weight: 600;
-            color: #64748b;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .detail-label i {
-            color: var(--primary-purple, #8b5cf6);
-            width: 16px;
-        }
-
-        .detail-value {
-            font-weight: 500;
-            color: #1e293b;
-            text-align: right;
-            max-width: 60%;
-        }
-
-        /* Description Box */
-        .description-box {
-            background: #f8fafc;
-            border: 1px solid rgba(139, 92, 246, 0.1);
-            border-radius: 12px;
-            padding: 1.25rem;
-            line-height: 1.7;
-            color: #475569;
-            font-size: 0.95rem;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .description-box::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .description-box::-webkit-scrollbar-track {
-            background: rgba(139, 92, 246, 0.05);
-            border-radius: 3px;
-        }
-
-        .description-box::-webkit-scrollbar-thumb {
-            background: var(--primary-purple, #8b5cf6);
-            border-radius: 3px;
-            opacity: 0.6;
-        }
-
-        /* Info Cards */
-        .info-card {
-            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-            border: 1px solid rgba(139, 92, 246, 0.1);
-            border-radius: 16px;
-            padding: 1.25rem;
-            text-align: center;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .info-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--primary-purple, #8b5cf6);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-
-        .info-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15);
-            border-color: rgba(139, 92, 246, 0.2);
-        }
-
-        .info-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .info-number {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--dark-purple, #6d28d9);
-            margin: 0.5rem 0;
-        }
-
-        .info-label {
-            color: #64748b;
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Loading States */
-        .loading-placeholder {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 3rem;
-            color: #64748b;
-        }
-
-        .spinner-border {
-            width: 3rem;
-            height: 3rem;
-            border-width: 0.3em;
-            border-color: var(--primary-purple, #8b5cf6);
-            border-right-color: transparent;
-        }
-
-        /* Error States */
-        .error-state {
-            text-align: center;
-            padding: 3rem 2rem;
-            color: #64748b;
-        }
-
-        .error-icon {
-            font-size: 3rem;
-            color: #f59e0b;
-            margin-bottom: 1rem;
-            opacity: 0.7;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 992px) {
-            .modal-dialog-xl {
-                max-width: 95%;
-                margin: 1rem auto;
-            }
-
-            .modal-body {
-                padding: 2rem;
-                max-height: 65vh;
-            }
-
-            .modal-header,
-            .modal-footer {
-                padding-left: 2rem;
-                padding-right: 2rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .modal-dialog {
-                margin: 0.5rem auto;
-                max-width: 98%;
-            }
-
-            .modal-header {
-                padding: 1.5rem 1.5rem 1rem;
-            }
-
-            .modal-body {
-                padding: 1.5rem;
-                max-height: 60vh;
-            }
-
-            .modal-footer {
-                padding: 1rem 1.5rem 1.5rem;
-                flex-direction: column;
-                gap: 0.75rem;
-            }
-
-            .modal-footer .btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .modal-title {
-                font-size: 1.25rem;
-            }
-
-            .detail-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-                text-align: left;
-            }
-
-            .detail-value {
-                max-width: 100%;
-                text-align: left;
-            }
-
-            .info-card {
-                padding: 1rem;
-            }
-
-            .info-number {
-                font-size: 1.5rem;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .modal-content {
-                border-radius: 0;
-                height: 100vh;
-                max-height: none;
-            }
-
-            .modal-dialog {
-                margin: 0;
-                max-width: 100%;
-                height: 100vh;
-                max-height: none;
-            }
-
-            .modal-body {
-                max-height: none;
-                flex: 1;
-                overflow-y: auto;
-            }
-        }
-
-        /* Animation for Modal Elements */
-        .detail-section {
-            animation: fadeInUp 0.6s ease forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        .detail-section:nth-child(1) { animation-delay: 0.1s; }
-        .detail-section:nth-child(2) { animation-delay: 0.2s; }
-        .detail-section:nth-child(3) { animation-delay: 0.3s; }
-        .detail-section:nth-child(4) { animation-delay: 0.4s; }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Focus Styles for Accessibility */
-        .modal-content:focus {
-            outline: 3px solid rgba(139, 92, 246, 0.3);
-            outline-offset: -3px;
-        }
-
-        .detail-section:focus-within {
-            border-color: var(--primary-purple, #8b5cf6);
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-        }
-
-        /* Report Button Styling */
-        .btn-outline-danger {
-            border: 2px solid #dc3545;
-            color: #dc3545;
-            background: transparent;
-            transition: all 0.3s ease;
-        }
+        :root{--primary:#6366f1;--secondary:#8b5cf6;--success:#10b981;--warning:#f59e0b;--danger:#ef4444}
+        body{background:#f8fafc;font-family:'Inter',sans-serif}
+        .main-content{margin-left:280px;padding:2rem;min-height:100vh}
+        .page-header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;padding:2.5rem;border-radius:1.5rem;margin-bottom:2rem;box-shadow:0 10px 25px rgba(99,102,241,0.15)}
+        .page-header h2{margin:0;font-weight:700;font-size:2rem}
         
-        .btn-outline-danger:hover {
-            background: #dc3545;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-        }
+        /* Stats Cards */
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+        .stat-card{background:white;padding:1.5rem;border-radius:1rem;box-shadow:0 4px 6px rgba(0,0,0,0.05);border-left:4px solid var(--primary);transition:transform 0.3s}
+        .stat-card:hover{transform:translateY(-5px)}
+        .stat-card .stat-icon{font-size:2rem;margin-bottom:0.5rem;color:var(--primary)}
+        .stat-card .stat-value{font-size:2rem;font-weight:700;color:#1e293b}
+        .stat-card .stat-label{color:#64748b;font-size:0.9rem}
         
-        /* Report Modal Styling */
-        .report-options .form-check {
-            margin-bottom: 0.75rem;
-            padding: 0.5rem;
-            border-radius: 8px;
-            transition: background-color 0.2s ease;
-        }
+        /* View Mode Tabs */
+        .view-tabs{background:white;padding:1rem;border-radius:1rem;box-shadow:0 4px 6px rgba(0,0,0,0.05);margin-bottom:2rem}
+        .view-tabs .nav-link{border:none;color:#64748b;font-weight:600;padding:0.75rem 1.5rem;border-radius:0.5rem;transition:all 0.3s}
+        .view-tabs .nav-link.active{background:var(--primary);color:white}
+        .view-tabs .nav-link:hover:not(.active){background:#f1f5f9}
         
-        .report-options .form-check:hover {
-            background-color: rgba(0, 0, 0, 0.02);
-        }
+        .filter-section{background:white;padding:2rem;border-radius:1rem;box-shadow:0 4px 6px rgba(0,0,0,0.05);margin-bottom:2rem}
+        .ideas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:2rem;margin-bottom:2rem}
+        .idea-card{background:white;border-radius:1rem;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.05);transition:all 0.3s;border:1px solid #e5e7eb;position:relative}
+        .idea-card:hover{transform:translateY(-8px);box-shadow:0 12px 24px rgba(99,102,241,0.15)}
+        .lock-badge{position:absolute;top:1rem;right:1rem;background:#fbbf24;color:white;padding:0.25rem 0.75rem;border-radius:1rem;font-size:0.75rem;z-index:10}
+        .trending-badge{position:absolute;top:1rem;left:1rem;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;padding:0.25rem 0.75rem;border-radius:1rem;font-size:0.75rem;z-index:10;animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
         
-        .report-options .form-check-label {
-            cursor: pointer;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-        }
+        .idea-card-header{padding:1.5rem;border-bottom:1px solid #f1f5f9}
+        .idea-title{font-size:1.25rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem}
+        .idea-meta{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem}
+        .badge-custom{padding:0.5rem 1rem;border-radius:2rem;font-size:0.85rem;font-weight:600}
+        .badge-classification{background:linear-gradient(135deg,rgba(6,182,212,0.1),rgba(14,165,233,0.1));color:#0891b2;border:1px solid rgba(6,182,212,0.2)}
+        .badge-type{background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(168,85,247,0.1));color:var(--secondary);border:1px solid rgba(139,92,246,0.2)}
         
-        .report-options .form-check-input:checked + .form-check-label {
-            color: #dc3545;
-            font-weight: 600;
-        }
+        .idea-card-body{padding:1.5rem}
+        .idea-description{color:#64748b;line-height:1.6;margin-bottom:1rem}
         
-        /* Enhanced Modal Styles */
-        :root {
-            --primary-color: #6366f1;
-            --secondary-color: #8b5cf6;
-            --accent-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --info-color: #06b6d4;
-            --success-color: #10b981;
-            --dark-color: #1e293b;
-            --light-color: #f8fafc;
-            --border-color: #e2e8f0;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --text-muted: #94a3b8;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8fafc;
-            --bg-tertiary: #f1f5f9;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            --gradient-accent: linear-gradient(135deg, var(--accent-color), #34d399);
-            --gradient-warm: linear-gradient(135deg, var(--warning-color), #fbbf24);
-        }
-
-        .project-meta-info {
-            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
-            border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .meta-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 1rem;
-            text-align: center;
-        }
-
-        .meta-stat {
-            background: var(--bg-primary);
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-        }
-
-        .meta-stat:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .meta-stat-number {
-            font-size: 1.75rem;
-            font-weight: 800;
-            color: var(--primary-color);
-            display: block;
-        }
-
-        .meta-stat-label {
-            font-size: 0.8rem;
-            color: #475569;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 0.25rem;
-        }
-
-        .project-details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .detail-card {
-            background: var(--bg-tertiary);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            border-left: 4px solid var(--primary-color);
-            box-shadow: var(--shadow-sm);
-            transition: all 0.3s ease;
-        }
-
-        .detail-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .detail-card h6 {
-            color: #475569;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .detail-card p {
-            margin: 0;
-            color: #1e293b;
-            font-weight: 500;
-        }
-
-        .detail-card.highlight {
-            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-            border-left-color: var(--warning-color);
-        }
-
-        .detail-card.success {
-            background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
-            border-left-color: var(--success-color);
-        }
-
-        .detail-card.info {
-            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-            border-left-color: var(--info-color);
-        }
-
-        .project-description {
-            background: var(--bg-primary);
-            border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border-color);
-        }
-
-        .project-goals, .challenges-section, .enhancements-section {
-            background: var(--bg-primary);
-            border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #f1f5f9;
-        }
-
-        .section-title i {
-            color: var(--primary-color);
-            font-size: 1.3rem;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .social-links {
-            background: var(--bg-primary);
-            border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .project-modal-desc {
-            color: #475569;
-            line-height: 1.6;
-        }
-
-        .comments-section {
-            background: var(--bg-primary);
-            border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .comment-form {
-            background: var(--bg-tertiary);
-            padding: 1.5rem;
-            border-radius: 1rem;
-            margin-bottom: 2rem;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .comment-item {
-            border: 1px solid var(--border-color);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            background: var(--bg-primary);
-            box-shadow: var(--shadow-sm);
-            transition: all 0.3s ease;
-        }
-
-        .comment-item:hover {
-            box-shadow: var(--shadow-md);
-        }
-
-        .comment-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.75rem;
-        }
-
-        .comment-author {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-            color: #1e293b;
-        }
-
-        .comment-date {
-            font-size: 0.8rem;
-            color: #64748b;
-        }
-
-        .comment-body {
-            color: #1e293b;
-            line-height: 1.6;
-        }
-
-        .comment-actions {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            margin-top: 1rem;
-            padding-top: 0.75rem;
-            border-top: 1px solid #f1f5f9;
-        }
-
-        .btn-delete-comment {
-            background: none;
-            border: none;
-            color: #ef4444;
-            cursor: pointer;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            transition: all 0.3s ease;
-            font-size: 0.8rem;
-        }
-
-        .btn-delete-comment:hover {
-            background: #fef2f2;
-            color: #dc2626;
-        }
-
-        .btn-like-modal {
-            background: transparent;
-            border: 2px solid #e2e8f0;
-            color: #64748b;
-            padding: 0.75rem 1.25rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-like-modal:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            transform: translateY(-2px);
-        }
-
-        .btn-like-modal.liked {
-            background: #fef2f2;
-            border-color: #f87171;
-            color: #dc2626;
-        }
-
-        .btn-like-modal.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .engagement-stat {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #64748b;
-        }
-
-        .char-count {
-            color: #64748b;
-            font-size: 0.8rem;
-        }
-
-        .submit-comment-btn {
-            background: var(--gradient-primary);
-            border: none;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .submit-comment-btn:hover {
-            background: linear-gradient(135deg, #5b21b6, #7c3aed);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        /* Print Styles */
-        @media print {
-            .modal-backdrop,
-            .modal-header,
-            .modal-footer {
-                display: none !important;
-            }
-
-            .modal-content {
-                box-shadow: none;
-                border: 1px solid #ddd;
-            }
-
-            .modal-body {
-                max-height: none;
-                overflow: visible;
-            }
-        }
-
+        /* Stats Row */
+        .stats-row{display:flex;gap:1.5rem;padding:1rem 1.5rem;background:#f8fafc;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9}
+        .stat-item{display:flex;align-items:center;gap:0.5rem;color:#64748b;font-size:0.9rem}
+        .stat-item i{color:var(--primary)}
+        
+        .idea-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;padding:1rem 1.5rem;background:#f8fafc}
+        .action-btn{padding:0.5rem;border:1px solid #e5e7eb;background:white;border-radius:0.5rem;cursor:pointer;transition:all 0.3s;font-size:0.9rem;display:flex;align-items:center;justify-content:center;gap:0.25rem}
+        .action-btn:hover:not(:disabled){background:#f8fafc;border-color:var(--primary);color:var(--primary)}
+        .action-btn.liked{background:#fee2e2;border-color:#ef4444;color:#ef4444}
+        .action-btn.bookmarked{background:#fef3c7;border-color:#f59e0b;color:#f59e0b}
+        .action-btn:disabled{opacity:0.5;cursor:not-allowed}
+        .btn-edit{background:#10b981;color:white;border:none;text-decoration:none}
+        .btn-edit:hover{background:#059669;color:white}
+        
+        /* Share Modal */
+        .share-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:1rem;margin-top:1rem}
+        .share-btn{padding:1rem;border:1px solid #e5e7eb;border-radius:0.5rem;text-align:center;cursor:pointer;transition:all 0.3s;background:white}
+        .share-btn:hover{background:#f8fafc;border-color:var(--primary);transform:translateY(-2px)}
+        .share-btn i{font-size:1.5rem;margin-bottom:0.5rem;display:block}
+        .share-btn.twitter i{color:#1DA1F2}
+        .share-btn.facebook i{color:#4267B2}
+        .share-btn.linkedin i{color:#0077b5}
+        .share-btn.whatsapp i{color:#25D366}
+        .share-btn.copy i{color:#64748b}
+        
+        .empty-state{text-align:center;padding:4rem 2rem;background:white;border-radius:1rem;box-shadow:0 4px 6px rgba(0,0,0,0.05)}
+        .empty-state i{font-size:4rem;color:#cbd5e1;margin-bottom:1rem}
+        
+        /* New badges */
+        .rating-badge{position:absolute;top:1rem;right:4rem;background:#fbbf24;color:white;padding:0.25rem 0.75rem;border-radius:1rem;font-size:0.75rem;z-index:10}
+        .action-btn.following{background:#dcfce7;border-color:#16a34a;color:#16a34a}
+        
+        /* Star rating */
+        .star-rating{display:inline-flex;gap:0.25rem;margin-left:0.5rem}
+        .star-rating i{cursor:pointer;color:#d1d5db;transition:color 0.2s}
+        .star-rating i:hover,.star-rating i.active{color:#fbbf24}
+        
+        /* Tooltips */
+        .tooltip-icon{cursor:help;color:#94a3b8}
+        
+        @media(max-width:1024px){.main-content{margin-left:0;padding:1rem}.ideas-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,1fr)}}
     </style>
-    <link rel="stylesheet" href="../../assets/css/layout_user.css">
 </head>
-
 <body>
-<div class="main-content">
-    <?php
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+<?php 
+$basePath = '../';
+include '../layout.php'; 
+?>
 
-    $current_user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
-    $projects = [];
-    $error_message = null;
-    $filter_type = isset($_GET['type']) ? $_GET['type'] : '';
-    $filter_status = isset($_GET['status']) ? $_GET['status'] : '';
-    $filter_priority = isset($_GET['priority']) ? $_GET['priority'] : '';
-    $search_term = isset($_GET['search']) ? $_GET['search'] : '';
-
-    $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-    $per_page = 6;
-    $offset = ($page - 1) * $per_page;
-
-    try {
-        $conn = createDBConnection();
-        if (!$conn) {
-            throw new Exception("Database connection failed");
-        }
-
-        // Get statistics with engagement data
-        $stats = [
-                'total' => 0,
-                'software' => 0,
-                'hardware' => 0,
-                'pending' => 0,
-                'in_progress' => 0,
-                'completed' => 0,
-                'high_priority' => 0,
-                'total_likes' => 0,
-                'total_comments' => 0
-        ];
-
-        // Get all basic stats
-        $total_result = $conn->query("SELECT COUNT(*) as total FROM blog");
-        if ($total_result) {
-            $stats['total'] = $total_result->fetch_assoc()['total'];
-        }
-
-        $software_result = $conn->query("SELECT COUNT(*) as count FROM blog WHERE project_type = 'software'");
-        if ($software_result) {
-            $stats['software'] = $software_result->fetch_assoc()['count'];
-        }
-
-        $hardware_result = $conn->query("SELECT COUNT(*) as count FROM blog WHERE project_type = 'hardware'");
-        if ($hardware_result) {
-            $stats['hardware'] = $hardware_result->fetch_assoc()['count'];
-        }
-
-        $pending_result = $conn->query("SELECT COUNT(*) as count FROM blog WHERE status = 'pending'");
-        if ($pending_result) {
-            $stats['pending'] = $pending_result->fetch_assoc()['count'];
-        }
-
-        $progress_result = $conn->query("SELECT COUNT(*) as count FROM blog WHERE status = 'in_progress'");
-        if ($progress_result) {
-            $stats['in_progress'] = $progress_result->fetch_assoc()['count'];
-        }
-
-        $completed_result = $conn->query("SELECT COUNT(*) as count FROM blog WHERE status = 'completed'");
-        if ($completed_result) {
-            $stats['completed'] = $completed_result->fetch_assoc()['count'];
-        }
-
-        $high_priority_result = $conn->query("SELECT COUNT(*) as count FROM blog WHERE priority1 = 'high'");
-        if ($high_priority_result) {
-            $stats['high_priority'] = $high_priority_result->fetch_assoc()['count'];
-        }
-
-        // Get engagement stats
-        $likes_result = $conn->query("SELECT COUNT(*) as count FROM idea_likes");
-        if ($likes_result) {
-            $stats['total_likes'] = $likes_result->fetch_assoc()['count'];
-        }
-
-        $comments_result = $conn->query("SELECT COUNT(*) as count FROM idea_comments");
-        if ($comments_result) {
-            $stats['total_comments'] = $comments_result->fetch_assoc()['count'];
-        }
-
-        // Build filtered query with engagement data
-        $where_conditions = ["1=1"];
-        $params = [];
-        $types = "";
-
-        if (!empty($filter_type)) {
-            $where_conditions[] = "b.project_type = ?";
-            $params[] = $filter_type;
-            $types .= "s";
-        }
-
-        if (!empty($filter_status)) {
-            $where_conditions[] = "b.status = ?";
-            $params[] = $filter_status;
-            $types .= "s";
-        }
-
-        if (!empty($filter_priority)) {
-            $where_conditions[] = "b.priority1 = ?";
-            $params[] = $filter_priority;
-            $types .= "s";
-        }
-
-        if (!empty($search_term)) {
-            $where_conditions[] = "(b.project_name LIKE ? OR b.description LIKE ? OR b.er_number LIKE ?)";
-            $search_pattern = "%{$search_term}%";
-            $params[] = $search_pattern;
-            $params[] = $search_pattern;
-            $params[] = $search_pattern;
-            $types .= "sss";
-        }
-
-        $where_clause = implode(" AND ", $where_conditions);
-
-        // Get total count for pagination
-        $count_sql = "SELECT COUNT(*) as total FROM blog b WHERE " . $where_clause;
-        if (!!$params) {
-            $count_stmt = $conn->prepare($count_sql);
-            $count_stmt->bind_param($types, ...$params);
-            $count_stmt->execute();
-            $count_result = $count_stmt->get_result();
-            $total_projects = $count_result->fetch_assoc()['total'];
-            $count_stmt->close();
-        } else {
-            $count_result = $conn->query($count_sql);
-            $total_projects = $count_result->fetch_assoc()['total'];
-        }
-        $total_pages = ceil($total_projects / $per_page);
-
-        // Get projects with engagement data and user info
-        $sql = "SELECT b.*, r.id as owner_id, r.name as owner_name,
-                       (SELECT COUNT(*) FROM idea_likes WHERE idea_id = b.id) as like_count,
-                       (SELECT COUNT(*) FROM idea_comments WHERE idea_id = b.id) as comment_count,
-                       " . ($current_user_id ? "(SELECT COUNT(*) FROM idea_likes WHERE idea_id = b.id AND user_id = ?) as user_liked" : "0 as user_liked") . "
-                FROM blog b 
-                LEFT JOIN register r ON b.user_id = r.id 
-                WHERE " . $where_clause . " ORDER BY 
-                CASE b.priority1 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END,
-                b.submission_datetime DESC 
-                LIMIT ? OFFSET ?";
-
-        $final_params = [];
-        $final_types = "";
-
-        if ($current_user_id) {
-            $final_params[] = $current_user_id;
-            $final_types .= "i";
-        }
-
-        $final_params = array_merge($final_params, $params);
-        $final_types .= $types;
-        $final_params[] = $per_page;
-        $final_params[] = $offset;
-        $final_types .= "ii";
-
-        if (!!$final_params) {
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param($final_types, ...$final_params);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $projects = $result->fetch_all(MYSQLI_ASSOC);
-            $stmt->close();
-        }
-
-        $conn->close();
-    } catch (Exception $e) {
-        $error_message = "Error: " . $e->getMessage();
-        error_log("Projects page error: " . $e->getMessage());
-    }
-    ?>
-
-    <!-- Page Header -->
+<main class="main-content">
     <div class="page-header">
-        <h1 class="page-title">
-            <i class="fas fa-list me-3"></i>
-            All Ideas
-        </h1>
-        <p class="page-subtitle">Browse and explore all innovative ideas</p>
+        <h2><i class="fas fa-lightbulb me-3"></i>Ideas Hub</h2>
+        <p class="mb-0 mt-2">Explore, collaborate, and innovate with our community</p>
     </div>
 
-    <?php if (isset($error_message)) : ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <?php echo htmlspecialchars($error_message); ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+
+
+    <?php if($user_id > 0): ?>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-lightbulb"></i></div>
+            <div class="stat-value"><?= $user_stats['ideas'] ?></div>
+            <div class="stat-label">My Ideas</div>
         </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-heart"></i></div>
+            <div class="stat-value"><?= $user_stats['likes'] ?></div>
+            <div class="stat-label">Likes Given</div>
+        </div>
+      
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-bookmark"></i></div>
+            <div class="stat-value"><?= $user_stats['bookmarks'] ?></div>
+            <div class="stat-label">Bookmarked</div>
+        </div>
+    </div>
     <?php endif; ?>
 
-    <!-- Enhanced Statistics Cards -->
-    <div class="stats-container">
-        <div class="stats-card">
-            <div class="stat-icon">
-                <i class="fas fa-clipboard-list"></i>
-            </div>
-            <div class="stat-number"><?php echo intval($stats['total']); ?></div>
-            <div class="stat-label">Total Ideas</div>
-        </div>
-        <div class="stats-card">
-            <div class="stat-icon">
-                <i class="fas fa-laptop-code"></i>
-            </div>
-            <div class="stat-number"><?php echo intval($stats['software']); ?></div>
-            <div class="stat-label">Software Ideas</div>
-        </div>
-        <div class="stats-card">
-            <div class="stat-icon">
-                <i class="fas fa-microchip"></i>
-            </div>
-            <div class="stat-number"><?php echo intval($stats['hardware']); ?></div>
-            <div class="stat-label">Hardware Ideas</div>
-        </div>
-        <div class="stats-card">
-            <div class="stat-icon">
-                <i class="fas fa-fire"></i>
-            </div>
-            <div class="stat-number"><?php echo intval($stats['high_priority']); ?></div>
-            <div class="stat-label">High Priority</div>
-        </div>
+    <div class="view-tabs">
+        <ul class="nav nav-pills">
+            <li class="nav-item">
+                <a class="nav-link <?= $view_mode==='all_ideas'?'active':'' ?>" href="?view=all_ideas">
+                    <i class="fas fa-globe me-2"></i>All Ideas
+                </a>
+            </li>
+            <?php if($user_id > 0): ?>
+            <li class="nav-item">
+                <a class="nav-link <?= $view_mode==='my_ideas'?'active':'' ?>" href="?view=my_ideas">
+                    <i class="fas fa-user me-2"></i>My Ideas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?= $view_mode==='bookmarked'?'active':'' ?>" href="?view=bookmarked">
+                    <i class="fas fa-bookmark me-2"></i>Bookmarked
+                </a>
+            </li>
+            <?php endif; ?>
+        </ul>
     </div>
 
-    <!-- Filters -->
-    <div class="filters-container">
-        <form method="GET" class="row g-3 align-items-end" id="filterForm">
-            <div class="col-md-4">
-                <label class="form-label fw-semibold">Search Ideas</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="fas fa-search text-muted"></i>
-                    </span>
-                    <input type="text" class="form-control search-input border-start-0"
-                           placeholder="Search by name, description, or ID..."
-                           name="search" value="<?php echo htmlspecialchars($search_term); ?>">
-                </div>
+    <div class="filter-section">
+        <form method="get" class="row g-3">
+            <input type="hidden" name="view" value="<?= htmlspecialchars($view_mode) ?>">
+            <div class="col-md-3">
+                <label class="form-label">Search Ideas</label>
+                <input type="text" class="form-control" name="search" placeholder="Search..." value="<?= htmlspecialchars($search) ?>">
             </div>
             <div class="col-md-2">
-                <label class="form-label fw-semibold">Idea Type</label>
-                <select class="form-select filter-select" name="type">
+                <label class="form-label">Classification</label>
+                <select class="form-select" name="classification">
+                    <option value="">All</option>
+                    <?php foreach($classifications as $c): ?>
+                        <option value="<?= htmlspecialchars($c['classification']) ?>" <?= $filter_classification===$c['classification']?'selected':'' ?>>
+                            <?= htmlspecialchars($c['classification']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Project Type</label>
+                <select class="form-select" name="type">
                     <option value="">All Types</option>
-                    <option value="software" <?php echo ($filter_type == 'software') ? 'selected' : ''; ?>>Software</option>
-                    <option value="hardware" <?php echo ($filter_type == 'hardware') ? 'selected' : ''; ?>>Hardware</option>
+                    <option value="software" <?= $filter_type==='software'?'selected':'' ?>>Software</option>
+                    <option value="hardware" <?= $filter_type==='hardware'?'selected':'' ?>>Hardware</option>
                 </select>
             </div>
             <div class="col-md-2">
-                <label class="form-label fw-semibold">Status</label>
-                <select class="form-select filter-select" name="status">
-                    <option value="">All Statuses</option>
-                    <option value="pending" <?php echo ($filter_status == 'pending') ? 'selected' : ''; ?>>Pending</option>
-                    <option value="in_progress" <?php echo ($filter_status == 'in_progress') ? 'selected' : ''; ?>>In Progress</option>
-                    <option value="completed" <?php echo ($filter_status == 'completed') ? 'selected' : ''; ?>>Completed</option>
-                    <option value="rejected" <?php echo ($filter_status == 'rejected') ? 'selected' : ''; ?>>Rejected</option>
+                <label class="form-label">Sort By</label>
+                <select class="form-select" name="sort">
+                    <option value="newest" <?= $sort_by==='newest'?'selected':'' ?>>Newest First</option>
+                    <option value="oldest" <?= $sort_by==='oldest'?'selected':'' ?>>Oldest First</option>
+                    <option value="popular" <?= $sort_by==='popular'?'selected':'' ?>>Most Popular</option>
+
+                    <option value="most_viewed" <?= $sort_by==='most_viewed'?'selected':'' ?>>Most Viewed</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                <label class="form-label fw-semibold">Priority</label>
-                <select class="form-select filter-select" name="priority">
-                    <option value="">All Priorities</option>
-                    <option value="high" <?php echo ($filter_priority == 'high') ? 'selected' : ''; ?>>High</option>
-                    <option value="medium" <?php echo ($filter_priority == 'medium') ? 'selected' : ''; ?>>Medium</option>
-                    <option value="low" <?php echo ($filter_priority == 'low') ? 'selected' : ''; ?>>Low</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-purple w-100">
-                    <i class="fas fa-filter me-2"></i>Filter
-                </button>
+            <div class="col-md-3 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1"><i class="fas fa-search me-2"></i>Filter</button>
+                <a href="?view=<?= htmlspecialchars($view_mode) ?>" class="btn btn-secondary"><i class="fas fa-redo"></i></a>
             </div>
         </form>
-
-        <?php if (!empty($filter_type) || !empty($filter_status) || !empty($filter_priority) || !empty($search_term)) : ?>
-            <div class="mt-3">
-                <a href="?" class="btn btn-outline-secondary">
-                    <i class="fas fa-times me-2"></i>Clear Filters
-                </a>
-            </div>
-        <?php endif; ?>
     </div>
 
-    <!-- Projects Grid -->
-    <div id="projectsContainer">
-        <?php if (empty($projects)) : ?>
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-folder-open"></i>
-                </div>
-                <h3>No Ideas Found</h3>
-                <p>No Ideas match your search criteria. Try adjusting your filters.</p>
-                <a href="add_project.php" class="btn btn-purple mt-3">
-                    <i class="fas fa-plus me-2"></i>Create New Idea
-                </a>
-            </div>
-        <?php else : ?>
-            <div class="projects-grid" id="projectsGrid">
-                <?php foreach ($projects as $project) :
-                    $can_edit = ($current_user_id && $current_user_id == $project['user_id']);
-                    $user_liked = ($current_user_id && $project['user_liked'] > 0);
-                    ?>
-                    <div class="project-card" data-aos="fade-up" data-idea-id="<?php echo $project['id']; ?>" onclick="showProjectDetails(<?php echo $project['id']; ?>)" style="cursor: pointer;">
-                        <div class="priority-badge <?php echo getPriorityClass($project['priority1']); ?>">
-                            <?php echo ucfirst($project['priority1']); ?>
-                        </div>
-
-                        <div class="project-header">
-                            <div>
-                                <h3 class="project-title"><?php echo htmlspecialchars($project['project_name']); ?></h3>
-                                <div class="project-id">ID: <?php echo htmlspecialchars($project['er_number']); ?></div>
-                                <div class="project-owner">
-                                    <i class="fas fa-user me-1"></i>
-                                    by <?php echo htmlspecialchars($project['owner_name'] ?: 'Unknown'); ?>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="project-meta">
-                            <span class="meta-tag">
-                                <i class="<?php echo ($project['project_type'] == 'software') ? 'fas fa-laptop-code' : 'fas fa-microchip'; ?> me-1"></i>
-                                <?php echo ucfirst($project['project_type']); ?>
-                            </span>
-                            <span class="meta-tag">
-                                <i class="fas fa-tag me-1"></i>
-                                <?php echo ucfirst(str_replace('_', ' ', $project['classification'])); ?>
-                            </span>
-                        </div>
-
-                        <div class="status-badge <?php echo getStatusClass($project['status']); ?>">
-                            <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>
-                            <?php echo ucfirst(str_replace('_', ' ', $project['status'])); ?>
-                        </div>
-
-                        <div class="project-description">
-                            <?php echo nl2br(htmlspecialchars(truncateText($project['description']))); ?>
-                        </div>
-
-                        <div class="project-date">
-                            <i class="fas fa-calendar-alt me-1"></i>
-                            Submitted: <?php echo formatDate($project['submission_datetime']); ?>
-                        </div>
-
-                        <!-- Engagement Section -->
-                        <div class="project-engagement">
-                            <div class="engagement-stats">
-                                <span class="engagement-stat">
-                                    <i class="fas fa-heart <?php echo $user_liked ? 'text-danger' : 'text-muted'; ?>"></i>
-                                    <span class="like-count"><?php echo $project['like_count']; ?></span>
-                                </span>
-                                <span class="engagement-stat">
-                                    <i class="fas fa-comment text-muted"></i>
-                                    <span class="comment-count"><?php echo $project['comment_count']; ?></span>
-                                </span>
-                            </div>
-
-                            <div class="engagement-actions">
-                                <?php if ($current_user_id) : ?>
-                                    <button class="btn-like <?php echo $user_liked ? 'liked' : ''; ?>"
-                                            data-idea-id="<?php echo $project['id']; ?>"
-                                            title="<?php echo $user_liked ? 'Unlike' : 'Like'; ?> this idea">
-                                        <i class="fas fa-heart"></i>
-                                        <span class="like-text"><?php echo $user_liked ? 'Liked' : 'Like'; ?></span>
-                                    </button>
-                                <?php else : ?>
-                                    <button class="btn-like disabled" title="Login to like ideas">
-                                        <i class="fas fa-heart"></i>
-                                        <span class="like-text">Like</span>
-                                    </button>
-                                <?php endif; ?>
-
-                                <button class="btn-comment" data-idea-id="<?php echo $project['id']; ?>" title="View comments">
-                                    <i class="fas fa-comment"></i>
-                                    <span>Comment</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="project-actions">
-                            <button class="btn btn-outline-purple btn-sm view-details-btn" data-project-id="<?php echo $project['id']; ?>">
-                                <i class="fas fa-eye me-1"></i>View Details
-                            </button>
-                            <?php if ($can_edit) : ?>
-                                <a href="edit.php?id=<?php echo $project['id']; ?>" class="btn btn-outline-purple btn-sm">
-                                    <i class="fas fa-edit me-1"></i>Edit
-                                </a>
-                            <?php else : ?>
-                                <button class="btn btn-outline-secondary btn-sm" disabled title="You can only edit your own idea">
-                                    <i class="fas fa-lock me-1"></i>Edit
-                                </button>
-                            <?php endif; ?>
-                            <?php if ($current_user_id && !$can_edit) : ?>
-                                <button class="btn btn-outline-danger btn-sm report-btn" data-idea-id="<?php echo $project['id']; ?>" title="Report this idea">
-                                    <i class="fas fa-flag me-1"></i>Report
-                                </button>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-
-            <!-- Load More Button -->
-            <?php if ($page < $total_pages) : ?>
-                <button id="loadMoreBtn" class="load-more-btn" data-page="<?php echo $page + 1; ?>">
-                    <i class="fas fa-plus-circle me-2"></i>Load More Ideas
-                </button>
-            <?php endif; ?>
-
-            <!-- Loading Spinner -->
-            <div id="loadingSpinner" class="loading-spinner" style="display: none;">
-                <div class="spinner-border" role="status"></div>
-                <div class="loading-text">Loading more ideas...</div>
-            </div>
-
-            <!-- Pagination Info -->
-            <div class="text-center mt-3 text-muted">
-                <small>
-                    Showing <?php echo count($projects); ?> of <?php echo $total_projects; ?> Ideas
-                    <?php if ($page < $total_pages) : ?>
-                        (Page <?php echo $page; ?> of <?php echo $total_pages; ?>)
+    <div class="ideas-grid">
+        <?php if(count($ideas)>0): ?>
+            <?php foreach($ideas as $idea): 
+                $is_trending = $idea['total_likes'] > 5 || $idea['total_comments'] > 3;
+            ?>
+                <div class="idea-card" data-idea-id="<?= $idea['id'] ?>" onclick="openIdeaModal(<?= $idea['id'] ?>)" style="cursor:pointer">
+                    <?php if($is_trending): ?>
+                        <span class="trending-badge"><i class="fas fa-fire me-1"></i>Trending</span>
                     <?php endif; ?>
-                </small>
+                    <?php if(!$idea['is_owner']): ?>
+                        <span class="lock-badge"><i class="fas fa-lock me-1"></i>View Only</span>
+                    <?php endif; ?>
+                    <?php if($idea['avg_rating'] > 0): ?>
+                        <span class="rating-badge">★ <?= $idea['avg_rating'] ?></span>
+                    <?php endif; ?>
+                    
+                    <div class="idea-card-header">
+                        <h5 class="idea-title"><?= htmlspecialchars($idea['project_name']) ?></h5>
+                        <div class="idea-meta">
+                            <?php if(!empty($idea['classification'])): ?>
+                                <span class="badge-custom badge-classification">
+                                    <i class="fas fa-tag me-1"></i><?= htmlspecialchars($idea['classification']) ?>
+                                </span>
+                            <?php endif; ?>
+                            <?php if(!empty($idea['project_type'])): ?>
+                                <span class="badge-custom badge-type">
+                                    <i class="fas fa-cogs me-1"></i><?= htmlspecialchars(ucfirst($idea['project_type'])) ?>
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    
+                    <div class="idea-card-body">
+                        <p class="idea-description"><?= htmlspecialchars(mb_strimwidth($idea['description'],0,150,'...')) ?></p>
+                        <div class="text-muted small">
+                            <i class="fas fa-user me-1"></i><?= htmlspecialchars($idea['author_name']) ?>
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-calendar me-1"></i><?= date('M j, Y',strtotime($idea['submission_datetime'])) ?>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <i class="fas fa-heart"></i>
+                            <span><?= $idea['total_likes'] ?></span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-eye"></i>
+                            <span><?= $idea['total_views'] ?></span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-users"></i>
+                            <span><?= $idea['total_followers'] ?></span>
+                        </div>
+                        <?php if($idea['avg_rating'] > 0): ?>
+                        <div class="stat-item">
+                            <i class="fas fa-star"></i>
+                            <span><?= $idea['avg_rating'] ?></span>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="idea-actions">
+                        <?php if($idea['is_owner']): ?>
+                            <a href="edit.php?id=<?= $idea['id'] ?>" class="action-btn btn-edit" title="Edit" onclick="event.stopPropagation()">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        <?php else: ?>
+                            <form method="post" onclick="event.stopPropagation()">
+                                <input type="hidden" name="idea_id" value="<?= $idea['id'] ?>">
+                                <input type="hidden" name="toggle_like" value="1">
+                                <button type="submit" class="action-btn <?= $idea['is_liked']?'liked':'' ?>" <?= !$user_id?'disabled':'' ?> title="Like">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                            </form>
+                        <?php endif; ?>
+                        
+                        <form method="post" onclick="event.stopPropagation()">
+                            <input type="hidden" name="idea_id" value="<?= $idea['id'] ?>">
+                            <input type="hidden" name="toggle_bookmark" value="1">
+                            <button type="submit" class="action-btn <?= $idea['is_bookmarked']?'bookmarked':'' ?>" <?= !$user_id?'disabled':'' ?> title="Bookmark">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                        </form>
+                        
+                        <form method="post" onclick="event.stopPropagation()">
+                            <input type="hidden" name="idea_id" value="<?= $idea['id'] ?>">
+                            <input type="hidden" name="toggle_follow" value="1">
+                            <button type="submit" class="action-btn <?= $idea['is_following']?'following':'' ?>" <?= !$user_id?'disabled':'' ?> title="Follow">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="empty-state" style="grid-column:1/-1">
+                <i class="fas fa-search"></i>
+                <h4>No Ideas Found</h4>
+                <p class="text-muted">
+                    <?php if($view_mode==='my_ideas'): ?>
+                        You haven't created any ideas yet.
+                    <?php elseif($view_mode==='bookmarked'): ?>
+                        You haven't bookmarked any ideas yet.
+                    <?php else: ?>
+                        No ideas match your current filters.
+                    <?php endif; ?>
+                </p>
+                <a href="?view=all_ideas" class="btn btn-primary mt-3"><i class="fas fa-refresh me-2"></i>View All Ideas</a>
             </div>
         <?php endif; ?>
     </div>
 
-    <!-- Enhanced Project Detail Modal with Comments -->
-    <div class="modal fade" id="projectDetailModal" tabindex="-1" aria-labelledby="projectDetailModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-fullscreen-lg-down" style="max-width: 60vw; width: 55vw;">
-            <div class="modal-content">
-                <div class="modal-header" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white;">
-                    <h5 class="modal-title" id="projectDetailModalLabel">
-                        <i class="fas fa-project-diagram me-2"></i>
-                        <span id="modalProjectTitle">Idea Details</span>
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="projectModalContent" style="padding: 2.5rem; max-height: 70vh; overflow-y: auto;">
-                    <div class="text-center p-4">
-                        <div class="spinner-border" style="color: #8b5cf6;" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-2">Loading Idea details...</p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    </div>
 
-    <!-- Report Modal -->
-    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <!-- Share Modal -->
+    <div class="modal fade" id="shareModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="reportModalLabel">
-                        <i class="fas fa-flag me-2"></i>Report Idea
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <div class="modal-header">
+                    <h5 class="modal-title">Share Idea</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="reportForm">
-                        <input type="hidden" id="reportIdeaId" name="idea_id">
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Why are you reporting this idea?</label>
-                            <div class="report-options">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="report_type" value="inappropriate_content" id="inappropriate">
-                                    <label class="form-check-label" for="inappropriate">
-                                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>Inappropriate Content
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="report_type" value="spam" id="spam">
-                                    <label class="form-check-label" for="spam">
-                                        <i class="fas fa-ban text-danger me-2"></i>Spam or Repetitive
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="report_type" value="copyright" id="copyright">
-                                    <label class="form-check-label" for="copyright">
-                                        <i class="fas fa-copyright text-info me-2"></i>Copyright Violation
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="report_type" value="misleading" id="misleading">
-                                    <label class="form-check-label" for="misleading">
-                                        <i class="fas fa-question-circle text-secondary me-2"></i>Misleading Information
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="report_type" value="other" id="other">
-                                    <label class="form-check-label" for="other">
-                                        <i class="fas fa-ellipsis-h text-muted me-2"></i>Other
-                                    </label>
-                                </div>
-                            </div>
+                    <p class="text-muted" id="shareIdeaName"></p>
+                    <div class="share-options">
+                        <div class="share-btn twitter" onclick="shareOn('twitter')">
+                            <i class="fab fa-twitter"></i>
+                            <div>Twitter</div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="reportDescription" class="form-label fw-bold">Additional Details (Optional)</label>
-                            <textarea class="form-control" id="reportDescription" name="description" rows="3" 
-                                    placeholder="Please provide more details about why you're reporting this idea..."
-                                    maxlength="500"></textarea>
-                            <div class="form-text">
-                                <span id="reportCharCount">0</span>/500 characters
-                            </div>
+                        <div class="share-btn facebook" onclick="shareOn('facebook')">
+                            <i class="fab fa-facebook"></i>
+                            <div>Facebook</div>
                         </div>
-                        
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <small>Reports are reviewed by our moderation team. False reports may result in account restrictions.</small>
+                        <div class="share-btn linkedin" onclick="shareOn('linkedin')">
+                            <i class="fab fa-linkedin"></i>
+                            <div>LinkedIn</div>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>Cancel
-                    </button>
-                    <button type="button" class="btn btn-danger" id="submitReportBtn">
-                        <i class="fas fa-flag me-1"></i>Submit Report
-                    </button>
+                        <div class="share-btn whatsapp" onclick="shareOn('whatsapp')">
+                            <i class="fab fa-whatsapp"></i>
+                            <div>WhatsApp</div>
+                        </div>
+                        <div class="share-btn copy" onclick="shareOn('copy')">
+                            <i class="fas fa-link"></i>
+                            <div>Copy Link</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Override alerts
-            window.alert = function(message) {
-                console.log('Alert blocked:', message);
-            };
-
-            window.confirm = function(message) {
-                console.log('Confirm blocked:', message);
-                return true;
-            };
-
-            // Like functionality
-            function setupLikeButtons() {
-                const likeButtons = document.querySelectorAll('.btn-like:not(.disabled)');
-                likeButtons.forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        const ideaId = this.getAttribute('data-idea-id');
-                        const isLiked = this.classList.contains('liked');
-
-                        // Disable button during request
-                        this.disabled = true;
-
-                        fetch(window.location.pathname, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            body: `action=toggle_like&idea_id=${ideaId}`
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    // Update button state
-                                    if (data.liked) {
-                                        this.classList.add('liked');
-                                        this.querySelector('.like-text').textContent = 'Liked';
-                                        this.title = 'Unlike this idea';
-                                    } else {
-                                        this.classList.remove('liked');
-                                        this.querySelector('.like-text').textContent = 'Like';
-                                        this.title = 'Like this idea';
-                                    }
-
-                                    // Update like count in card
-                                    const card = this.closest('.project-card');
-                                    const likeCountElement = card.querySelector('.like-count');
-                                    if (likeCountElement) {
-                                        likeCountElement.textContent = data.like_count;
-                                    }
-
-                                    // Update heart icon color
-                                    const heartIcon = card.querySelector('.engagement-stat i.fa-heart');
-                                    if (heartIcon) {
-                                        heartIcon.className = data.liked ?
-                                            'fas fa-heart text-danger' :
-                                            'fas fa-heart text-muted';
-                                    }
-                                } else {
-                                    console.error('Like error:', data.message);
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Network error:', error);
-                            })
-                            .finally(() => {
-                                this.disabled = false;
-                            });
-                    });
-                });
-            }
-
-            // Comment functionality
-            function setupCommentButtons() {
-                const commentButtons = document.querySelectorAll('.btn-comment');
-                commentButtons.forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        const ideaId = this.getAttribute('data-idea-id');
-                        showProjectDetails(ideaId, true); // Show modal with comments focus
-                    });
-                });
-            }
-
-            // Enhanced project details function with comments
-            function showProjectDetails(projectId, focusComments = false) {
-                const modal = new bootstrap.Modal(document.getElementById('projectDetailModal'));
-                const modalContent = document.getElementById('projectModalContent');
-                const modalTitle = document.getElementById('modalProjectTitle');
-
-                modal.show();
-
-                modalContent.innerHTML = `
-                    <div class="text-center p-4">
-                        <div class="spinner-border" style="color: #8b5cf6;" role="status">
+    <!-- Detailed Idea Modal -->
+    <div class="modal fade" id="ideaDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ideaDetailTitle">Idea Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="ideaDetailBody">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                        <p class="mt-2">Loading Idea details...</p>
                     </div>
-                `;
-                modalTitle.textContent = 'Idea Details';
-
-                const baseUrl = window.location.pathname;
-                const params = new URLSearchParams({
-                    get_project_details: '1',
-                    project_id: projectId
-                });
-
-                fetch(baseUrl + '?' + params.toString())
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success && data.project) {
-                            const project = data.project;
-                            modalTitle.textContent = project.project_name;
-
-                            // Generate enhanced project HTML with comments section
-                            modalContent.innerHTML = generateProjectDetailHTML(project);
-
-                            // Setup engagement handlers
-                            setupModalLikeButton(project);
-                            setupCommentSection(project);
-
-                            addDetailModalStyles();
-
-                            // Focus comments if requested
-                            if (focusComments) {
-                                setTimeout(() => {
-                                    const commentsSection = document.getElementById('commentsSection');
-                                    if (commentsSection) {
-                                        commentsSection.scrollIntoView({ behavior: 'smooth' });
-                                    }
-                                }, 100);
-                            }
-
-                        } else {
-                            modalContent.innerHTML = generateErrorHTML(data.message, projectId);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        modalContent.innerHTML = generateNetworkErrorHTML(projectId);
-                    });
-            }
-
-            // Generate project detail HTML with proper modal layout
-            function generateProjectDetailHTML(project) {
-                return `
-                    <div class="container-fluid">
-                        <!-- Project Meta Information -->
-                        <div class="project-meta-info">
-                            <div class="meta-stats">
-                                <div class="meta-stat">
-                                    <span class="meta-stat-number">${project.like_count || 0}</span>
-                                    <span class="meta-stat-label">Likes</span>
-                                </div>
-                                <div class="meta-stat">
-                                    <span class="meta-stat-number">${project.comment_count || 0}</span>
-                                    <span class="meta-stat-label">Comments</span>
-                                </div>
-                                <div class="meta-stat">
-                                    <span class="meta-stat-number">${new Date(project.submission_datetime).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}</span>
-                                    <span class="meta-stat-label">Submitted</span>
-                                </div>
-                                <div class="meta-stat">
-                                    <span class="meta-stat-number">${project.er_number}</span>
-                                    <span class="meta-stat-label">ID</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- User Details Section -->
-                        <div class="user-details-section">
-                            <h6 class="section-title">
-                                <i class="fas fa-user"></i>Project Creator Details
-                            </h6>
-                            <div class="user-info-card">
-                                <div class="user-avatar">
-                                    ${project.owner_name ? project.owner_name.charAt(0).toUpperCase() : 'U'}
-                                </div>
-                                <div class="user-details">
-                                    <h5>${project.owner_name || 'Unknown User'}</h5>
-                                    ${project.owner_email ? `<p><i class="fas fa-envelope"></i> ${project.owner_email}</p>` : ''}
-                                    ${project.owner_phone ? `<p><i class="fas fa-phone"></i> ${project.owner_phone}</p>` : ''}
-                                    ${project.owner_department ? `<p><i class="fas fa-graduation-cap"></i> ${project.owner_department}</p>` : ''}
-                                    ${project.owner_bio ? `<p><i class="fas fa-info-circle"></i> ${project.owner_bio}</p>` : ''}
-                                    <div class="user-stats">
-                                        <span class="stat-badge">
-                                            <i class="fas fa-project-diagram"></i>
-                                            ${project.user_total_projects || 0} Total Projects
-                                        </span>
-                                        <span class="stat-badge">
-                                            <i class="fas fa-check-circle"></i>
-                                            ${project.user_completed_projects || 0} Completed
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Project Details Grid -->
-                        <div class="project-details-grid">
-                            <div class="detail-card">
-                                <h6><i class="fas fa-cogs"></i> Project Type</h6>
-                                <p>${project.project_type}</p>
-                            </div>
-                            <div class="detail-card">
-                                <h6><i class="fas fa-tags"></i> Classification</h6>
-                                <p>${project.classification}</p>
-                            </div>
-                            <div class="detail-card highlight">
-                                <h6><i class="fas fa-flag"></i> Priority</h6>
-                                <p><span class="badge bg-${project.priority1 === 'high' ? 'danger' : project.priority1 === 'medium' ? 'warning' : 'success'} px-2 py-1">${project.priority1.toUpperCase()}</span></p>
-                            </div>
-                            <div class="detail-card info">
-                                <h6><i class="fas fa-info-circle"></i> Status</h6>
-                                <p><span class="badge bg-${project.status === 'completed' ? 'success' : project.status === 'in_progress' ? 'info' : project.status === 'rejected' ? 'danger' : 'warning'} px-2 py-1">${project.status.replace('_', ' ').toUpperCase()}</span></p>
-                            </div>
-                            ${project.assigned_to && project.assigned_to !== 'Not Assigned' ? `
-                            <div class="detail-card success">
-                                <h6><i class="fas fa-user-check"></i> Assigned To</h6>
-                                <p>${project.assigned_to}</p>
-                            </div>
-                            ` : ''}
-                            ${project.completion_date && project.completion_date !== 'N/A' ? `
-                            <div class="detail-card success">
-                                <h6><i class="fas fa-calendar-check"></i> Completion Date</h6>
-                                <p>${project.completion_date}</p>
-                            </div>
-                            ` : ''}
-                        </div>
-
-                        <!-- Description -->
-                        <div class="project-description">
-                            <h6 class="section-title">
-                                <i class="fas fa-file-text"></i>Description
-                            </h6>
-                            <div class="project-modal-desc">
-                                ${project.description}
-                            </div>
-                        </div>
-
-                        ${project.content && project.content !== project.description ? `
-                        <!-- Additional Content -->
-                        <div class="project-goals">
-                            <h6 class="section-title">
-                                <i class="fas fa-file-alt"></i>Additional Content
-                            </h6>
-                            <p>${project.content}</p>
-                        </div>
-                        ` : ''}
-
-                        <!-- Engagement Section -->
-                        <div class="social-links">
-                            <h6 class="section-title">
-                                <i class="fas fa-heart"></i>Engagement
-                            </h6>
-                            <div class="d-flex gap-3 align-items-center">
-                                ${project.current_user_id ? `
-                                <button class="btn-like-modal ${project.user_liked ? 'liked' : ''}"
-                                        data-idea-id="${project.id}"
-                                        title="${project.user_liked ? 'Unlike' : 'Like'} this idea">
-                                    <i class="fas fa-heart"></i>
-                                    <span class="like-text">${project.user_liked ? 'Liked' : 'Like'}</span>
-                                    <span class="modal-like-count">(${project.like_count})</span>
-                                </button>
-                                ` : `
-                                <button class="btn-like-modal disabled" title="Login to like ideas">
-                                    <i class="fas fa-heart"></i>
-                                    <span class="like-text">Like (${project.like_count})</span>
-                                </button>
-                                `}
-                                <div class="engagement-stat">
-                                    <i class="fas fa-comment text-info"></i>
-                                    <span class="modal-comment-count">${project.comment_count}</span> Comments
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Comments Section -->
-                        <div id="commentsSection" class="comments-section">
-                            <h6 class="section-title">
-                                <i class="fas fa-comments"></i>Comments (${project.comment_count})
-                            </h6>
-                            
-                            ${project.current_user_id ? `
-                            <!-- Comment Form -->
-                            <div class="comment-form mb-4">
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">
-                                        <i class="fas fa-user-circle me-2"></i>Add a comment
-                                    </label>
-                                    <textarea class="form-control" id="commentInput" rows="3" 
-                                            placeholder="Share your thoughts about this idea..." 
-                                            maxlength="500"></textarea>
-                                    <div class="form-text d-flex justify-content-between">
-                                        <span><span class="char-count">0</span>/500 characters</span>
-                                    </div>
-                                </div>
-                                <button class="btn btn-primary submit-comment-btn" data-idea-id="${project.id}">
-                                    <i class="fas fa-paper-plane"></i> Post
-                                </button>
-                            </div>
-                            ` : `
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Please login to add comments.
-                            </div>
-                            `}
-                            
-                            <!-- Comments List -->
-                            <div id="commentsList">
-                                ${generateCommentsHTML(project.comments, project.current_user_id)}
-                            </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="rating-section" id="ratingSection">
+                        <span>Rate this idea:</span>
+                        <div class="star-rating" id="starRating">
+                            <i class="fas fa-star" data-rating="1"></i>
+                            <i class="fas fa-star" data-rating="2"></i>
+                            <i class="fas fa-star" data-rating="3"></i>
+                            <i class="fas fa-star" data-rating="4"></i>
+                            <i class="fas fa-star" data-rating="5"></i>
                         </div>
                     </div>
-                `;
-            }
+                </div>
+            </div>
+        </div>
+    </div>
 
-            // Generate comments HTML
-            function generateCommentsHTML(comments, currentUserId) {
-                if (!comments || comments.length === 0) {
-                    return `
-                        <div class="no-comments text-center py-4">
-                            <i class="fas fa-comments text-muted mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
-                            <p class="text-muted">No comments yet. Be the first to share your thoughts!</p>
-                        </div>
-                    `;
-                }
+    <?php if($total_pages>1): ?>
+        <nav class="mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="text-muted">
+                    Showing <?= (($current_page-1)*$ideas_per_page)+1 ?> to <?= min($current_page*$ideas_per_page,$total_ideas) ?> of <?= $total_ideas ?> ideas
+                </div>
+            </div>
+            <ul class="pagination justify-content-center">
+                <li class="page-item <?= $current_page<=1?'disabled':'' ?>">
+                    <a class="page-link" href="?<?= http_build_query(array_merge($_GET,['page'=>$current_page-1])) ?>">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                <?php for($i=max(1,$current_page-2);$i<=min($total_pages,$current_page+2);$i++): ?>
+                    <li class="page-item <?= $i==$current_page?'active':'' ?>">
+                        <a class="page-link" href="?<?= http_build_query(array_merge($_GET,['page'=>$i])) ?>"><?= $i ?></a>
+                    </li>
+                <?php endfor; ?>
+                <li class="page-item <?= $current_page>=$total_pages?'disabled':'' ?>">
+                    <a class="page-link" href="?<?= http_build_query(array_merge($_GET,['page'=>$current_page+1])) ?>">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    <?php endif; ?>
+</main>
 
-                let html = '';
-                comments.forEach(comment => {
-                    const canDelete = currentUserId && currentUserId == comment.user_id;
-                    const commentDate = new Date(comment.created_at).toLocaleString();
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let currentShareIdeaId = null;
 
-                    html += `
-                        <div class="comment-item" data-comment-id="${comment.id}">
-                            <div class="comment-header">
-                                <div class="comment-author">
-                                    <i class="fas fa-user-circle me-2"></i>
-                                    <strong>${comment.commenter_name || 'Anonymous'}</strong>
-                                </div>
-                                <div class="comment-date">
-                                    <small class="text-muted">${commentDate}</small>
-                                    ${canDelete ? `
-                                        <button class="btn-delete-comment ms-2"
-                                                data-comment-id="${comment.id}"
-                                                title="Delete comment">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    ` : ''}
-                                </div>
-                            </div>
-                            <div class="comment-body">
-                                ${comment.comment.replace(/\n/g, '<br>')}
-                            </div>
-                        </div>
-                    `;
-                });
-
-                return html;
-            }
-
-            // Setup modal like button
-            function setupModalLikeButton(project) {
-                const likeBtn = document.querySelector('.btn-like-modal:not(.disabled)');
-                if (likeBtn) {
-                    likeBtn.addEventListener('click', function() {
-                        const ideaId = this.getAttribute('data-idea-id');
-
-                        this.disabled = true;
-
-                        fetch(window.location.pathname, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            body: `action=toggle_like&idea_id=${ideaId}`
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    // Update modal button
-                                    if (data.liked) {
-                                        this.classList.add('liked');
-                                        this.querySelector('.like-text').textContent = 'Liked';
-                                        this.title = 'Unlike this idea';
-                                    } else {
-                                        this.classList.remove('liked');
-                                        this.querySelector('.like-text').textContent = 'Like';
-                                        this.title = 'Like this idea';
-                                    }
-
-                                    // Update modal like count
-                                    const modalLikeCount = document.querySelector('.modal-like-count');
-                                    if (modalLikeCount) {
-                                        modalLikeCount.textContent = data.like_count;
-                                    }
-
-                                    // Update card like count if visible
-                                    const card = document.querySelector(`[data-idea-id="${ideaId}"]`);
-                                    if (card) {
-                                        const cardLikeCount = card.querySelector('.like-count');
-                                        const cardLikeBtn = card.querySelector('.btn-like');
-                                        const cardHeartIcon = card.querySelector('.engagement-stat i.fa-heart');
-
-                                        if (cardLikeCount) cardLikeCount.textContent = data.like_count;
-                                        if (cardLikeBtn) {
-                                            cardLikeBtn.classList.toggle('liked', data.liked);
-                                            cardLikeBtn.querySelector('.like-text').textContent = data.liked ? 'Liked' : 'Like';
-                                        }
-                                        if (cardHeartIcon) {
-                                            cardHeartIcon.className = data.liked ?
-                                                'fas fa-heart text-danger' :
-                                                'fas fa-heart text-muted';
-                                        }
-                                    }
-                                }
-                            })
-                            .catch(error => console.error('Like error:', error))
-                            .finally(() => {
-                                this.disabled = false;
-                            });
-                    });
+// Auto-track views when cards are visible
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const ideaId = entry.target.dataset.ideaId;
+                if (ideaId && <?= $user_id ?> > 0) {
+                    trackView(ideaId);
+                    observer.unobserve(entry.target);
                 }
             }
-
-            // Setup comment section
-            function setupCommentSection(project) {
-                // Character count for comment input
-                const commentInput = document.getElementById('commentInput');
-                const charCount = document.querySelector('.char-count');
-
-                if (commentInput && charCount) {
-                    commentInput.addEventListener('input', function() {
-                        charCount.textContent = this.value.length;
-
-                        // Change color based on length
-                        if (this.value.length > 450) {
-                            charCount.style.color = '#ef4444';
-                        } else if (this.value.length > 400) {
-                            charCount.style.color = '#f59e0b';
-                        } else {
-                            charCount.style.color = '#64748b';
-                        }
-                    });
-                }
-
-                // Submit comment
-                const submitBtn = document.querySelector('.submit-comment-btn');
-                if (submitBtn) {
-                    submitBtn.addEventListener('click', function() {
-                        const comment = commentInput.value.trim();
-                        const ideaId = this.getAttribute('data-idea-id');
-
-                        if (!comment) {
-                            showToast('Please enter a comment', 'warning');
-                            return;
-                        }
-
-                        if (comment.length > 500) {
-                            showToast('Comment is too long (max 500 characters)', 'danger');
-                            return;
-                        }
-
-                        this.disabled = true;
-                        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
-
-                        fetch(window.location.pathname, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            body: `action=add_comment&idea_id=${ideaId}&comment=${encodeURIComponent(comment)}`
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    // Clear input
-                                    commentInput.value = '';
-                                    charCount.textContent = '0';
-                                    charCount.style.color = '#64748b';
-
-                                    // Update comment count
-                                    const modalCommentCount = document.querySelector('.modal-comment-count');
-                                    if (modalCommentCount) {
-                                        modalCommentCount.textContent = data.comment_count;
-                                    }
-
-                                    // Update card comment count
-                                    const card = document.querySelector(`[data-idea-id="${ideaId}"]`);
-                                    if (card) {
-                                        const cardCommentCount = card.querySelector('.comment-count');
-                                        if (cardCommentCount) {
-                                            cardCommentCount.textContent = data.comment_count;
-                                        }
-                                    }
-
-                                    // Reload project details to show new comment
-                                    showProjectDetails(ideaId, true);
-
-                                    showToast('Comment added successfully!', 'success');
-                                } else {
-                                    showToast(data.message || 'Failed to add comment', 'danger');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Comment error:', error);
-                                showToast('Network error. Please try again.', 'danger');
-                            })
-                            .finally(() => {
-                                this.disabled = false;
-                                this.innerHTML = '<i class="fas fa-paper-plane"></i> Post';
-                            });
-                    });
-                }
-
-                // Delete comment buttons
-                const deleteButtons = document.querySelectorAll('.btn-delete-comment');
-                deleteButtons.forEach(button => {
-                    button.addEventListener('click', function() {
-                        const commentId = this.getAttribute('data-comment-id');
-
-                        if (confirm('Are you sure you want to delete this comment?')) {
-                            this.disabled = true;
-
-                            fetch(window.location.pathname, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded',
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                },
-                                body: `action=delete_comment&comment_id=${commentId}`
-                            })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        // Remove comment from DOM
-                                        const commentItem = this.closest('.comment-item');
-                                        commentItem.remove();
-
-                                        // Update comment count
-                                        const modalCommentCount = document.querySelector('.modal-comment-count');
-                                        if (modalCommentCount) {
-                                            modalCommentCount.textContent = data.comment_count;
-                                        }
-
-                                        // Update section title
-                                        const sectionTitle = document.querySelector('#commentsSection .section-title');
-                                        if (sectionTitle) {
-                                            sectionTitle.innerHTML = `<i class="fas fa-comments me-2"></i>Comments (${data.comment_count})`;
-                                        }
-
-                                        // Show no comments message if needed
-                                        if (data.comment_count === 0) {
-                                            document.getElementById('commentsList').innerHTML = `
-                                            <div class="no-comments text-center py-4">
-                                                <i class="fas fa-comments text-muted mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
-                                                <p class="text-muted">No comments yet. Be the first to share your thoughts!</p>
-                                            </div>
-                                        `;
-                                        }
-
-                                        showToast('Comment deleted successfully', 'success');
-                                    } else {
-                                        showToast(data.message || 'Failed to delete comment', 'danger');
-                                        this.disabled = false;
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Delete error:', error);
-                                    showToast('Network error. Please try again.', 'danger');
-                                    this.disabled = false;
-                                });
-                        }
-                    });
-                });
-            }
-
-            // Generate error HTML
-            function generateErrorHTML(message, projectId) {
-                return `
-                    <div class="text-center p-5">
-                        <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
-                        <h5 class="text-muted">Unable to Load Project Details</h5>
-                        <p class="text-muted mb-4">
-                            ${message || 'There was an issue loading the project information.'}
-                        </p>
-                        <button class="btn btn-purple me-2" onclick="showProjectDetails(${projectId})">
-                            <i class="fas fa-refresh me-2"></i>Try Again
-                        </button>
-                        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-2"></i>Close
-                        </button>
-                    </div>
-                `;
-            }
-
-            // Generate network error HTML
-            function generateNetworkErrorHTML(projectId) {
-                return `
-                    <div class="text-center p-5">
-                        <i class="fas fa-wifi text-danger mb-3" style="font-size: 3rem;"></i>
-                        <h5 class="text-muted">Connection Error</h5>
-                        <p class="text-muted mb-4">
-                            Unable to connect to server. Please check your connection and try again.
-                        </p>
-                        <button class="btn btn-purple me-2" onclick="showProjectDetails(${projectId})">
-                            <i class="fas fa-refresh me-2"></i>Retry
-                        </button>
-                        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-2"></i>Close
-                        </button>
-                    </div>
-                `;
-            }
-
-            // Toast notification function
-            function showToast(message, type = 'info') {
-                // Remove existing toasts
-                const existingToasts = document.querySelectorAll('.toast-notification');
-                existingToasts.forEach(toast => toast.remove());
-
-                const toast = document.createElement('div');
-                toast.className = `toast-notification alert alert-${type} alert-dismissible fade show`;
-                toast.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    z-index: 9999;
-                    min-width: 300px;
-                    animation: slideIn 0.3s ease;
-                `;
-
-                const icons = {
-                    success: 'fas fa-check-circle',
-                    danger: 'fas fa-exclamation-circle',
-                    warning: 'fas fa-exclamation-triangle',
-                    info: 'fas fa-info-circle'
-                };
-
-                toast.innerHTML = `
-                    <i class="${icons[type] || icons.info} me-2"></i>
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-
-                document.body.appendChild(toast);
-
-                // Auto remove after 5 seconds
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toast.remove();
-                    }
-                }, 5000);
-            }
-
-            // Load More Button Functionality (updated to include engagement)
-            const loadMoreBtn = document.getElementById('loadMoreBtn');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            const projectsGrid = document.getElementById('projectsGrid');
-
-            if (loadMoreBtn) {
-                loadMoreBtn.addEventListener('click', function() {
-                    const currentPage = parseInt(this.getAttribute('data-page'));
-
-                    loadMoreBtn.style.display = 'none';
-                    loadingSpinner.style.display = 'flex';
-
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const filterParams = new URLSearchParams();
-
-                    if (urlParams.get('type')) filterParams.set('type', urlParams.get('type'));
-                    if (urlParams.get('status')) filterParams.set('status', urlParams.get('status'));
-                    if (urlParams.get('priority')) filterParams.set('priority', urlParams.get('priority'));
-                    if (urlParams.get('search')) filterParams.set('search', urlParams.get('search'));
-
-                    filterParams.set('ajax', '1');
-                    filterParams.set('page', currentPage);
-
-                    fetch(window.location.pathname + '?' + filterParams.toString())
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success && data.html) {
-                                projectsGrid.insertAdjacentHTML('beforeend', data.html);
-
-                                setupViewDetailsButtons();
-                                setupLikeButtons();
-                                setupCommentButtons();
-                                setupReportButtons();
-
-                                if (data.hasMore) {
-                                    loadMoreBtn.setAttribute('data-page', data.nextPage);
-                                    loadMoreBtn.style.display = 'block';
-                                } else {
-                                    loadMoreBtn.style.display = 'none';
-                                    const allLoadedMsg = document.createElement('div');
-                                    allLoadedMsg.className = 'text-center mt-3 text-muted';
-                                    allLoadedMsg.innerHTML = '<small><i class="fas fa-check-circle me-1"></i>All projects loaded</small>';
-                                    loadingSpinner.parentNode.insertBefore(allLoadedMsg, loadingSpinner);
-                                }
-                            } else {
-                                console.error('Error loading more projects:', data.message);
-                                showToast('Failed to load more projects. Please try again.', 'danger');
-                                loadMoreBtn.style.display = 'block';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Network error:', error);
-                            showToast('Network error. Please check your connection and try again.', 'danger');
-                            loadMoreBtn.style.display = 'block';
-                        })
-                        .finally(() => {
-                            loadingSpinner.style.display = 'none';
-                        });
-                });
-            }
-
-            // Helper functions
-            function getProgressInfo(status) {
-                const progressMap = {
-                    'pending': { percent: 10, color: 'warning', text: 'Pending' },
-                    'in_progress': { percent: 60, color: 'info', text: 'In Progress' },
-                    'completed': { percent: 100, color: 'success', text: 'Completed' },
-                    'rejected': { percent: 0, color: 'danger', text: 'Rejected' }
-                };
-
-                const progress = progressMap[status] || progressMap['pending'];
-
-                return `
-                    <div class="progress mb-1" style="height: 6px;">
-                        <div class="progress-bar bg-${progress.color}" style="width: ${progress.percent}%"></div>
-                    </div>
-                    <small class="text-${progress.color}">${progress.percent}%</small>
-                `;
-            }
-
-            function calculateDaysActive(startDate) {
-                if (!startDate || startDate === 'N/A') return 0;
-                const start = new Date(startDate);
-                const now = new Date();
-                const diffTime = Math.abs(now - start);
-                return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            }
-
-            function getCompletionPercentage(status) {
-                const percentMap = {
-                    'pending': 10,
-                    'in_progress': 60,
-                    'completed': 100,
-                    'rejected': 0
-                };
-                return percentMap[status] || 10;
-            }
-
-            function addDetailModalStyles() {
-                const existingStyle = document.querySelector('#detail-modal-styles');
-                if (existingStyle) existingStyle.remove();
-
-                const style = document.createElement('style');
-                style.id = 'detail-modal-styles';
-                style.textContent = `
-                    @keyframes slideIn {
-                        from { transform: translateX(100%); opacity: 0; }
-                        to { transform: translateX(0); opacity: 1; }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-
-            // Setup view details buttons
-            function setupViewDetailsButtons() {
-                const viewBtns = document.querySelectorAll('.view-details-btn');
-                viewBtns.forEach(btn => {
-                    const newBtn = btn.cloneNode(true);
-                    btn.parentNode.replaceChild(newBtn, btn);
-
-                    newBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const projectId = this.getAttribute('data-project-id');
-                        if (projectId) {
-                            showProjectDetails(projectId);
-                        }
-                    });
-                });
-            }
-
-            // Setup report buttons
-            function setupReportButtons() {
-                const reportButtons = document.querySelectorAll('.report-btn');
-                reportButtons.forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        const ideaId = this.getAttribute('data-idea-id');
-                        showReportModal(ideaId);
-                    });
-                });
-            }
-            
-            // Show report modal
-            function showReportModal(ideaId) {
-                const modal = new bootstrap.Modal(document.getElementById('reportModal'));
-                const reportIdeaId = document.getElementById('reportIdeaId');
-                const reportForm = document.getElementById('reportForm');
-                
-                reportIdeaId.value = ideaId;
-                reportForm.reset();
-                
-                // Reset character count
-                document.getElementById('reportCharCount').textContent = '0';
-                
-                modal.show();
-            }
-            
-            // Setup report form
-            function setupReportForm() {
-                const reportDescription = document.getElementById('reportDescription');
-                const reportCharCount = document.getElementById('reportCharCount');
-                const submitReportBtn = document.getElementById('submitReportBtn');
-                
-                // Character count
-                reportDescription.addEventListener('input', function() {
-                    reportCharCount.textContent = this.value.length;
-                    
-                    if (this.value.length > 450) {
-                        reportCharCount.style.color = '#dc3545';
-                    } else if (this.value.length > 400) {
-                        reportCharCount.style.color = '#ffc107';
-                    } else {
-                        reportCharCount.style.color = '#6c757d';
-                    }
-                });
-                
-                // Submit report
-                submitReportBtn.addEventListener('click', function() {
-                    const form = document.getElementById('reportForm');
-                    const formData = new FormData(form);
-                    formData.append('action', 'submit_report');
-                    
-                    const reportType = formData.get('report_type');
-                    if (!reportType) {
-                        showToast('Please select a reason for reporting', 'warning');
-                        return;
-                    }
-                    
-                    this.disabled = true;
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Submitting...';
-                    
-                    fetch('report_handler.php', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showToast('Report submitted successfully. Thank you for helping keep our community safe.', 'success');
-                            bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
-                        } else {
-                            showToast(data.message || 'Failed to submit report', 'danger');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Report error:', error);
-                        showToast('Network error. Please try again.', 'danger');
-                    })
-                    .finally(() => {
-                        this.disabled = false;
-                        this.innerHTML = '<i class="fas fa-flag me-1"></i>Submit Report';
-                    });
-                });
-            }
-
-            // Initialize all functionality
-            setupViewDetailsButtons();
-            setupLikeButtons();
-            setupCommentButtons();
-            setupReportButtons();
-            setupReportForm();
-            
-            // Prevent card click on interactive elements
-            document.querySelectorAll('.project-actions, .btn-like, .btn-comment, .report-btn, .view-details-btn').forEach(element => {
-                element.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                });
-            });
-
-            // Make showProjectDetails function globally available
-            window.showProjectDetails = function(projectId) {
-                const modal = new bootstrap.Modal(document.getElementById('projectDetailModal'));
-                const modalContent = document.getElementById('projectModalContent');
-                const modalTitle = document.getElementById('modalProjectTitle');
-
-                modal.show();
-                modalContent.innerHTML = `
-                    <div class="text-center p-4">
-                        <div class="spinner-border" style="color: #8b5cf6;" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-2">Loading Idea details...</p>
-                    </div>
-                `;
-                modalTitle.textContent = 'Idea Details';
-
-                fetch(window.location.pathname + '?get_project_details=1&project_id=' + projectId)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success && data.project) {
-                            const project = data.project;
-                            modalTitle.textContent = project.project_name;
-                            modalContent.innerHTML = generateProjectDetailHTML(project);
-                        } else {
-                            modalContent.innerHTML = '<div class="alert alert-danger">Error loading project details</div>';
-                        }
-                    })
-                    .catch(error => {
-                        modalContent.innerHTML = '<div class="alert alert-danger">Network error loading project details</div>';
-                    });
-            };
-            
-            window.setupViewDetailsButtons = setupViewDetailsButtons;
-            window.setupLikeButtons = setupLikeButtons;
-            window.setupCommentButtons = setupCommentButtons;
-            window.setupReportButtons = setupReportButtons;
-
-            // Remove existing alerts
-            document.querySelectorAll('.alert').forEach(alert => alert.remove());
-            setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => alert.remove());
-            }, 100);
         });
-    </script>
-    <script src="../../assets/js/layout_user.js"></script>
+    }, { threshold: 0.5 });
+    
+    document.querySelectorAll('.idea-card').forEach(card => {
+        observer.observe(card);
+    });
+});
 
-    <?php include $basePath . 'layout_footer.php'; ?>
-</div>
+function trackView(ideaId) {
+    fetch('', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `track_view=1&idea_id=${ideaId}`
+    });
+}
+
+function openShareModal(ideaId, ideaName) {
+    currentShareIdeaId = ideaId;
+    document.getElementById('shareIdeaName').textContent = ideaName;
+    new bootstrap.Modal(document.getElementById('shareModal')).show();
+}
+
+function shareOn(platform) {
+    const url = window.location.origin + window.location.pathname + '?idea_id=' + currentShareIdeaId;
+    const text = document.getElementById('shareIdeaName').textContent;
+    
+    let shareUrl = '';
+    switch(platform) {
+        case 'twitter':
+            shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+            break;
+        case 'facebook':
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+            break;
+        case 'linkedin':
+            shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+            break;
+        case 'whatsapp':
+            shareUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
+            break;
+        case 'copy':
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Link copied to clipboard!');
+            });
+            trackShare(platform);
+            return;
+    }
+    
+    if(shareUrl) {
+        window.open(shareUrl, '_blank', 'width=600,height=400');
+        trackShare(platform);
+    }
+}
+
+function trackShare(platform) {
+    fetch('', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `track_share=1&idea_id=${currentShareIdeaId}&platform=${platform}`
+    });
+}
+
+function openIdeaModal(ideaId) {
+    const modal = new bootstrap.Modal(document.getElementById('ideaDetailModal'));
+    modal.show();
+    
+    // Load idea details
+    fetch(`idea_details.php?id=${ideaId}`)
+        .then(r => r.text())
+        .then(html => {
+            document.getElementById('ideaDetailBody').innerHTML = html;
+        })
+        .catch(() => {
+            document.getElementById('ideaDetailBody').innerHTML = '<p class="text-danger">Error loading details</p>';
+        });
+}
+
+// Star rating functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.star-rating i');
+    stars.forEach((star, index) => {
+        star.addEventListener('click', function() {
+            const rating = this.dataset.rating;
+            const ideaId = document.querySelector('.modal.show')?.dataset.ideaId;
+            if (ideaId) {
+                submitRating(ideaId, rating);
+            }
+            
+            // Update visual state
+            stars.forEach((s, i) => {
+                s.classList.toggle('active', i < rating);
+            });
+        });
+    });
+});
+
+function submitRating(ideaId, rating) {
+    fetch('', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `submit_rating=1&idea_id=${ideaId}&rating=${rating}`
+    }).then(() => location.reload());
+}
+
+</script>
 </body>
 </html>
