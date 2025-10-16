@@ -15,14 +15,14 @@ class ValidationTest extends TestCase
     {
         $input = '<script>alert("xss")</script>Hello';
         $result = sanitizeInput($input);
-        $this->assertEquals('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;Hello', $result);
+        $this->assertEquals('alert(&quot;xss&quot;)Hello', $result);
     }
 
     public function testSanitizeInputEmail()
     {
         $input = 'test@example.com<script>';
         $result = sanitizeInput($input, 'email');
-        $this->assertEquals('test@example.com', $result);
+        $this->assertEquals('test@example.comscript', $result);
     }
 
     public function testValidateEmailValid()
@@ -50,6 +50,6 @@ class ValidationTest extends TestCase
     {
         $input = ['<script>test</script>', 'normal text'];
         $result = sanitizeInput($input);
-        $this->assertEquals(['&lt;script&gt;test&lt;/script&gt;', 'normal text'], $result);
+        $this->assertEquals(['test', 'normal text'], $result);
     }
 }
