@@ -1,0 +1,150 @@
+/* Subadmin Sidebar Styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 250px;
+    background-color: #fff;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    z-index: 1000;
+    transition: all 0.3s;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.sidebar-brand {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #4361ee;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-brand i {
+    margin-right: 0.5rem;
+}
+
+.sidebar-content {
+    flex: 1;
+    padding: 1rem;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-item {
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: #6c757d;
+    text-decoration: none;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+}
+
+.sidebar-link i {
+    margin-right: 0.75rem;
+    font-size: 1.25rem;
+}
+
+.sidebar-link.active {
+    background-color: #4361ee;
+    color: #fff;
+}
+
+.sidebar-link:hover:not(.active) {
+    background-color: #f8f9fa;
+    color: #4361ee;
+}
+
+.sidebar-divider {
+    margin: 1rem 0;
+    border-top: 1px solid #f1f1f1;
+}
+
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid #f1f1f1;
+}
+
+.main-content {
+    margin-left: 250px;
+    min-height: 100vh;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background-color: #fff;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.mobile-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6c757d;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4361ee;
+    cursor: pointer;
+}
+
+.content-area {
+    padding: 2rem;
+}
+
+@media (max-width: 991.98px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .mobile-toggle {
+        display: block;
+    }
+}
