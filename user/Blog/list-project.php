@@ -582,6 +582,23 @@ function createDBConnection()
     require_once '../../Login/Login/db.php';
     global $conn;
     return $conn;
+
+
+
+    // Check connection
+    $servername = $host;
+
+    try {
+        $conn = new mysqli($servername, $username, $password, $dbname);
+        if ($conn->connect_error) {
+            throw new Exception("Connection failed: " . $conn->connect_error);
+        }
+        return $conn;
+    } catch (Exception $e) {
+        error_log("Database connection error: " . $e->getMessage());
+        return false;
+    }
+
 }
 
 function getStatusClass($status)

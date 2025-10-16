@@ -59,7 +59,8 @@ if ($_POST) {
         <p><strong>Login Credentials:</strong></p>
         <p>Email: $email</p>
         <p>Password: $password</p>
-        <p>Login URL: <a href='https://ictmu.in/hcd/IdeaNest/mentor/login.php'>Mentor Dashboard</a></p>
+
+        <p>Login URL: <a href='https://ictmu.in/hcd/IdeaNest/mentor/dashboard.php'>Mentor Dashboard</a></p>
         <p>Please change your password after first login.</p>
         ";
 

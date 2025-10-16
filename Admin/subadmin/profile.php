@@ -178,6 +178,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['request_classificati
 ob_start();
 ?>
 
+    <link rel="stylesheet" href="../../assets/css/profile_subadmin.css">
+
     <div class="row g-4">
         <!-- Profile Information Card -->
         <div class="col-lg-12">
