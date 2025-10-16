@@ -255,7 +255,7 @@ function submitComment(event) {
     const form = event.target;
     const formData = new FormData(form);
     
-    fetch('../list-project.php', {
+    fetch('list-project.php', {
         method: 'POST',
         body: new URLSearchParams(Object.fromEntries(formData)).toString() + '&submit_comment=1',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -273,7 +273,7 @@ function submitReply(event, parentId) {
     const form = event.target;
     const formData = new FormData(form);
     
-    fetch('../list-project.php', {
+    fetch('list-project.php', {
         method: 'POST',
         body: new URLSearchParams(Object.fromEntries(formData)).toString() + '&submit_comment=1',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'}
