@@ -11,7 +11,7 @@ use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 
 include "../Login/Login/db.php";
-include "project_notification.php";
+require_once "../config/email_config.php";
 
 session_start();
 
@@ -40,7 +40,7 @@ if(isset($_GET['action']) && isset($_GET['id'])) {
 
 // Functions
 function approveProject($project_id, $conn) {
-    $query = "SELECT * FROM projects WHERE id = ?";
+    $query = "SELECT p.*, r.email, r.name FROM projects p JOIN register r ON p.user_id = r.id WHERE p.id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $project_id);
     $stmt->execute();
@@ -77,13 +77,15 @@ function approveProject($project_id, $conn) {
         $update_stmt->bind_param("i", $project_id);
         $update_stmt->execute();
 
+        sendApprovalEmail($project['email'], $project['name'], $project['project_name'], $conn);
+
         header("Location: admin_view_project.php?message=Project approved successfully");
         exit;
     }
 }
 
 function rejectProject($project_id, $rejection_reason, $conn) {
-    $query = "SELECT * FROM projects WHERE id = ?";
+    $query = "SELECT p.*, r.email, r.name FROM projects p JOIN register r ON p.user_id = r.id WHERE p.id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $project_id);
     $stmt->execute();
@@ -121,8 +123,54 @@ function rejectProject($project_id, $rejection_reason, $conn) {
         $update_stmt->bind_param("i", $project_id);
         $update_stmt->execute();
 
+        sendRejectionEmail($project['email'], $project['name'], $project['project_name'], $rejection_reason, $conn);
+
         header("Location: admin_view_project.php?message=Project rejected successfully");
         exit;
+    }
+}
+
+function sendApprovalEmail($email, $name, $project_name, $conn) {
+    try {
+        $mail = setupPHPMailer($conn);
+        $mail->addAddress($email, $name);
+        $mail->Subject = 'Project Approved - ' . $project_name;
+        $mail->isHTML(true);
+        $mail->Body = "
+        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+            <h2 style='color: #10b981;'>🎉 Congratulations! Your Project Has Been Approved</h2>
+            <p>Dear {$name},</p>
+            <p>We are pleased to inform you that your project <strong>{$project_name}</strong> has been approved by our admin team.</p>
+            <p>Your project is now live on IdeaNest and visible to the community.</p>
+            <p>Thank you for your contribution!</p>
+            <p>Best regards,<br>IdeaNest Team</p>
+        </div>";
+        $mail->send();
+    } catch (Exception $e) {
+        error_log('Approval email failed: ' . $e->getMessage());
+    }
+}
+
+function sendRejectionEmail($email, $name, $project_name, $reason, $conn) {
+    try {
+        $mail = setupPHPMailer($conn);
+        $mail->addAddress($email, $name);
+        $mail->Subject = 'Project Review - ' . $project_name;
+        $mail->isHTML(true);
+        $mail->Body = "
+        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+            <h2 style='color: #ef4444;'>Project Review Update</h2>
+            <p>Dear {$name},</p>
+            <p>Thank you for submitting your project <strong>{$project_name}</strong> to IdeaNest.</p>
+            <p>After careful review, we need you to make some improvements before we can approve it.</p>
+            <h3>Feedback:</h3>
+            <p style='background: #f3f4f6; padding: 15px; border-left: 4px solid #ef4444;'>{$reason}</p>
+            <p>Please review the feedback and resubmit your project with the necessary improvements.</p>
+            <p>Best regards,<br>IdeaNest Team</p>
+        </div>";
+        $mail->send();
+    } catch (Exception $e) {
+        error_log('Rejection email failed: ' . $e->getMessage());
     }
 }
 
