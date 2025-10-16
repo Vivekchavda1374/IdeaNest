@@ -1269,7 +1269,19 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                         <h6 class="text-success mb-3"><i class="bi bi-person-circle me-2"></i>Submission Details</h6>
 
                         <div class="project-detail-label">Submitted By:</div>
-                        <div class="project-detail-value">User #<?php echo htmlspecialchars($project['user_id']); ?></div>
+                        <div class="project-detail-value">
+                            <?php 
+                            // Get user name from register table
+                            $user_query = "SELECT name FROM register WHERE id = ?";
+                            $user_stmt = $conn->prepare($user_query);
+                            $user_stmt->bind_param("i", $project['user_id']);
+                            $user_stmt->execute();
+                            $user_result = $user_stmt->get_result();
+                            $user_data = $user_result->fetch_assoc();
+                            $user_stmt->close();
+                            echo htmlspecialchars($user_data['name'] ?? 'User #' . $project['user_id']);
+                            ?>
+                        </div>
 
                         <div class="project-detail-label">Submission Date:</div>
                         <div class="project-detail-value"><?php echo date('F j, Y, g:i a', strtotime($project['submission_date'])); ?></div>
