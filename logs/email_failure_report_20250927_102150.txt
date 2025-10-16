@@ -1,0 +1,26 @@
+IdeaNest Email System Failure Report
+Generated: Saturday 27 September 2025 10:21:50 AM IST
+========================================
+
+=== Recent Failures (Last 24 hours) ===
+
+=== System Status ===
+Config file: OK
+Autoload: OK
+Weekly script: OK
+Mentor script: OK
+
+=== Cron Jobs ===
+0 2 * * * find /opt/lampp/htdocs/IdeaNest/logs -name '*.log' -mtime +30 -delete
+0 2 * * * find /opt/lampp/htdocs/IdeaNest/logs -name '*.log' -mtime +30 -delete
+0 2 * * * find /opt/lampp/htdocs/IdeaNest/logs -name '*.log' -mtime +30 -delete
+0 9 * * 0 /opt/lampp/bin/php /opt/lampp/htdocs/IdeaNest/cron/weekly_notifications.php >> /opt/lampp/htdocs/IdeaNest/logs/weekly_notifications.log 2>&1
+*/5 * * * * /opt/lampp/bin/php /opt/lampp/htdocs/IdeaNest/cron/mentor_email_cron.php >> /opt/lampp/htdocs/IdeaNest/logs/mentor_emails.log 2>&1
+0 2 * * * find /opt/lampp/htdocs/IdeaNest/logs -name '*.log' -mtime +30 -delete
+
+=== Log Files ===
+Weekly log: EXISTS (2025-09-27 10:20:06.107835432 +0530)
+Mentor log: EXISTS (2025-09-27 10:20:06.107835432 +0530)
+
+=== Database Status ===
+Database connection error. Please contact administrator.

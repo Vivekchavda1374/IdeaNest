@@ -34,9 +34,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         require_once '../../Login/Login/db.php';
 
+        // Check connection
         if ($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
-        } else {
+        }
+       else {
             // ✅ Insert with user_id (foreign key to register table)
             $stmt = $conn->prepare("INSERT INTO blog 
                 (er_number, project_name, project_type, classification, description, submission_datetime, priority1, status, assigned_to, completion_date, user_id) 

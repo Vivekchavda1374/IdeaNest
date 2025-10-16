@@ -195,8 +195,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <div class="google-login">
+        <?php 
+        require_once 'google_config.php';
+        ?>
         <div id="g_id_onload"
-             data-client_id="373663984974-msaj22ll4i9085r7120barr1g1akjs5d.apps.googleusercontent.com"
+             data-client_id="<?php echo GOOGLE_CLIENT_ID; ?>"
              data-callback="handleCredentialResponse"
              data-auto_prompt="false"
              data-cancel_on_tap_outside="false">
