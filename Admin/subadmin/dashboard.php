@@ -28,75 +28,69 @@ $stmt->bind_result($domains);
 $stmt->fetch();
 $stmt->close();
 
-// Build domain array and map to classifications
-$domain_list = [];
-$classifications = [];
+// Map subadmin domains to project classifications
+$classification_map = [
+    'web' => ['web'], 'web development' => ['web'], 'web application' => ['web'],
+    'mobile' => ['mobile'], 'mobile development' => ['mobile'], 'mobile application' => ['mobile'],
+    'ai/ml' => ['ai_ml'], 'ai & machine learning' => ['ai_ml'],
+    'desktop' => ['desktop'], 'desktop application' => ['desktop'],
+    'system software' => ['system'], 'system' => ['system'],
+    'embedded systems' => ['embedded', 'embedded_iot'], 'embedded' => ['embedded', 'embedded_iot'],
+    'iot' => ['iot', 'embedded_iot'], 'iot projects' => ['iot', 'embedded_iot'],
+    'robotics' => ['robotics'], 'automation' => ['automation'],
+    'sensor-based projects' => ['sensor'], 'sensor' => ['sensor'],
+    'communication systems' => ['communication'], 'communication' => ['communication'],
+    'power electronics' => ['power'], 'power' => ['power'],
+    'wearable technology' => ['wearable'], 'wearable' => ['wearable'],
+    'mechatronics' => ['mechatronics'], 'renewable energy' => ['renewable'], 'renewable' => ['renewable'],
+    'cybersecurity' => ['cybersecurity'], 'game development' => ['game'], 'game' => ['game'],
+    'data science' => ['data_science'], 'data science & analytics' => ['data_science']
+];
+
+$matched_classifications = [];
 if (!empty($domains)) {
     $domain_list = array_map('trim', explode(',', $domains));
-    
-    // Map domain names to classification values
-    $domain_mapping = [
-        'Web Development' => 'web',
-        'Web Application' => 'web', 
-        'Mobile Development' => 'mobile',
-        'AI/ML' => 'ai_ml',
-        'Data Science' => 'ai_ml',
-        'Cybersecurity' => 'system',
-        'IoT' => 'iot',
-        'Internet of Things (IoT)' => 'iot',
-        'Blockchain' => 'system',
-        'Game Development' => 'system',
-        'Desktop Application' => 'system',
-        'Embedded' => 'embedded',
-        'Wearable' => 'wearable'
-    ];
-    
     foreach ($domain_list as $domain) {
-        if (isset($domain_mapping[$domain])) {
-            $classifications[] = $domain_mapping[$domain];
+        $domain_lower = strtolower($domain);
+        if (isset($classification_map[$domain_lower])) {
+            $matched_classifications = array_merge($matched_classifications, $classification_map[$domain_lower]);
         }
     }
-    $classifications = array_unique($classifications);
+    $matched_classifications = array_unique($matched_classifications);
 }
 
-if (!empty($classifications)) {
-    $placeholders = str_repeat('?,', count($classifications) - 1) . '?';
+if (!empty($matched_classifications)) {
+    $placeholders = str_repeat('?,', count($matched_classifications) - 1) . '?';
     
-    // Assigned Projects count
-    $stmt = $conn->prepare("SELECT COUNT(*) FROM admin_approved_projects WHERE classification IN ($placeholders)");
-    $stmt->bind_param(str_repeat('s', count($classifications)), ...$classifications);
+    // Total Projects count (pending)
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM projects WHERE status = 'pending' AND classification IN ($placeholders)");
+    $stmt->bind_param(str_repeat('s', count($matched_classifications)), ...$matched_classifications);
     $stmt->execute();
     $stmt->bind_result($assigned_projects_count);
     $stmt->fetch();
     $stmt->close();
     
     // Pending Tasks count
-    $stmt = $conn->prepare("SELECT COUNT(*) FROM admin_approved_projects WHERE classification IN ($placeholders) AND status = 'pending'");
-    $stmt->bind_param(str_repeat('s', count($classifications)), ...$classifications);
-    $stmt->execute();
-    $stmt->bind_result($pending_tasks_count);
-    $stmt->fetch();
-    $stmt->close();
+    $pending_tasks_count = $assigned_projects_count;
     
-    // Approved Projects count
-    $stmt = $conn->prepare("SELECT COUNT(*) FROM admin_approved_projects WHERE classification IN ($placeholders) AND status = 'approved'");
-    $stmt->bind_param(str_repeat('s', count($classifications)), ...$classifications);
+    // Approved Projects count (by this subadmin)
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM admin_approved_projects WHERE classification IN ($placeholders)");
+    $stmt->bind_param(str_repeat('s', count($matched_classifications)), ...$matched_classifications);
     $stmt->execute();
     $stmt->bind_result($approved_projects_count);
     $stmt->fetch();
     $stmt->close();
     
-    // Fetch recent projects
-    $stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM admin_approved_projects WHERE classification IN ($placeholders) ORDER BY id DESC LIMIT 5");
-    $stmt->bind_param(str_repeat('s', count($classifications)), ...$classifications);
+    // Fetch recent pending projects
+    $stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE status = 'pending' AND classification IN ($placeholders) ORDER BY submission_date DESC LIMIT 5");
+    $stmt->bind_param(str_repeat('s', count($matched_classifications)), ...$matched_classifications);
     $stmt->execute();
     $result = $stmt->get_result();
 } else {
-    // No domains assigned
     $assigned_projects_count = 0;
     $pending_tasks_count = 0;
     $approved_projects_count = 0;
-    $result = $conn->query("SELECT id, project_name, project_type, classification, description, status FROM admin_approved_projects WHERE 1=0 LIMIT 5");
+    $result = $conn->query("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE 1=0 LIMIT 5");
 }
 
 // Notifications and messages count (dummy data)
