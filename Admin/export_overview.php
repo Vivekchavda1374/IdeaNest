@@ -47,14 +47,57 @@ try {
         FROM admin_approved_projects");
     $admin_project_stats = $admin_project_result ? $admin_project_result->fetch_assoc() : ['admin_approved' => 0, 'admin_pending' => 0, 'admin_approved_count' => 0, 'admin_rejected' => 0];
 
-    // Ideas statistics
+    // Ideas statistics with comprehensive details
     $idea_result = $conn->query("SELECT 
         COUNT(*) as total_ideas,
         COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_ideas,
         COUNT(CASE WHEN status = 'in_progress' THEN 1 END) as in_progress_ideas,
-        COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_ideas
+        COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_ideas,
+        COUNT(CASE WHEN category = 'Software' THEN 1 END) as software_ideas,
+        COUNT(CASE WHEN category = 'Hardware' THEN 1 END) as hardware_ideas,
+        COUNT(CASE WHEN difficulty = 'Easy' THEN 1 END) as easy_ideas,
+        COUNT(CASE WHEN difficulty = 'Medium' THEN 1 END) as medium_ideas,
+        COUNT(CASE WHEN difficulty = 'Hard' THEN 1 END) as hard_ideas,
+        AVG(CHAR_LENGTH(description)) as avg_description_length,
+        COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 END) as recent_ideas
         FROM blog");
-    $idea_stats = $idea_result ? $idea_result->fetch_assoc() : ['total_ideas' => 0, 'pending_ideas' => 0, 'in_progress_ideas' => 0, 'completed_ideas' => 0];
+    $idea_stats = $idea_result ? $idea_result->fetch_assoc() : [
+        'total_ideas' => 0, 'pending_ideas' => 0, 'in_progress_ideas' => 0, 'completed_ideas' => 0,
+        'software_ideas' => 0, 'hardware_ideas' => 0, 'easy_ideas' => 0, 'medium_ideas' => 0, 'hard_ideas' => 0,
+        'avg_description_length' => 0, 'recent_ideas' => 0
+    ];
+
+    // Ideas engagement statistics
+    $idea_engagement_result = $conn->query("SELECT 
+        COUNT(DISTINCT il.idea_id) as liked_ideas,
+        COUNT(il.id) as total_idea_likes,
+        COUNT(DISTINCT ic.idea_id) as commented_ideas,
+        COUNT(ic.id) as total_idea_comments,
+        COUNT(DISTINCT ir.idea_id) as reported_ideas,
+        COUNT(ir.id) as total_reports
+        FROM blog b
+        LEFT JOIN idea_likes il ON b.id = il.idea_id
+        LEFT JOIN idea_comments ic ON b.id = ic.idea_id
+        LEFT JOIN idea_reports ir ON b.id = ir.idea_id");
+    $idea_engagement = $idea_engagement_result ? $idea_engagement_result->fetch_assoc() : [
+        'liked_ideas' => 0, 'total_idea_likes' => 0, 'commented_ideas' => 0, 
+        'total_idea_comments' => 0, 'reported_ideas' => 0, 'total_reports' => 0
+    ];
+
+    // Top idea contributors
+    $top_contributors_result = $conn->query("SELECT 
+        r.name, COUNT(b.id) as idea_count
+        FROM blog b
+        JOIN register r ON b.user_id = r.id
+        GROUP BY b.user_id, r.name
+        ORDER BY idea_count DESC
+        LIMIT 5");
+    $top_contributors = [];
+    if ($top_contributors_result) {
+        while ($row = $top_contributors_result->fetch_assoc()) {
+            $top_contributors[] = $row;
+        }
+    }
 
     // Mentor activity statistics
     $mentor_result = $conn->query("SELECT 
@@ -99,7 +142,16 @@ try {
     $stats = ['total_users' => 0, 'students' => 0, 'mentors' => 0, 'subadmins' => 0];
     $project_stats = ['total' => 0, 'pending' => 0, 'approved' => 0, 'rejected' => 0];
     $admin_project_stats = ['admin_approved' => 0];
-    $idea_stats = ['total_ideas' => 0, 'pending_ideas' => 0, 'in_progress_ideas' => 0, 'completed_ideas' => 0];
+    $idea_stats = [
+        'total_ideas' => 0, 'pending_ideas' => 0, 'in_progress_ideas' => 0, 'completed_ideas' => 0,
+        'software_ideas' => 0, 'hardware_ideas' => 0, 'easy_ideas' => 0, 'medium_ideas' => 0, 'hard_ideas' => 0,
+        'avg_description_length' => 0, 'recent_ideas' => 0
+    ];
+    $idea_engagement = [
+        'liked_ideas' => 0, 'total_idea_likes' => 0, 'commented_ideas' => 0, 
+        'total_idea_comments' => 0, 'reported_ideas' => 0, 'total_reports' => 0
+    ];
+    $top_contributors = [];
     $mentor_stats = ['active_mentors' => 0, 'total_sessions' => 0, 'completed_sessions' => 0];
     $subadmin_activity = ['total_requests' => 0, 'approved_requests' => 0];
     $additional_stats = ['bookmarks' => 0, 'project_likes' => 0, 'project_comments' => 0, 'idea_likes' => 0, 'idea_comments' => 0, 'idea_reports' => 0, 'support_tickets' => 0, 'mentor_requests' => 0, 'mentor_pairs' => 0, 'notifications' => 0, 'denied_projects' => 0];
@@ -159,6 +211,7 @@ try {
                                     <a href="export_comprehensive_data.php?type=all" class="btn btn-outline-dark mb-2">
                                         <i class="bi bi-database"></i> Complete Database Export
                                     </a>
+                                  
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -168,6 +221,8 @@ try {
                                     <li><i class="bi bi-check-circle text-success"></i> <?php echo $project_stats['total'] ?? 0; ?> Project Submissions</li>
                                     <li><i class="bi bi-check-circle text-success"></i> <?php echo $admin_project_stats['admin_approved'] ?? 0; ?> Admin Projects</li>
                                     <li><i class="bi bi-check-circle text-success"></i> <?php echo $idea_stats['total_ideas'] ?? 0; ?> Project Ideas</li>
+                                    <li><i class="bi bi-check-circle text-success"></i> <?php echo $idea_engagement['total_idea_likes'] ?? 0; ?> Idea Likes</li>
+                                    <li><i class="bi bi-check-circle text-success"></i> <?php echo $idea_engagement['total_idea_comments'] ?? 0; ?> Idea Comments</li>
                                     <li><i class="bi bi-check-circle text-success"></i> <?php echo $stats['subadmins'] ?? 0; ?> Subadmin Records</li>
                                     <li><i class="bi bi-check-circle text-success"></i> <?php echo $subadmin_activity['total_requests'] ?? 0; ?> Subadmin Requests</li>
                                     <li><i class="bi bi-check-circle text-success"></i> <?php echo $mentor_stats['total_sessions'] ?? 0; ?> Mentor Sessions</li>
@@ -206,7 +261,85 @@ try {
                 </div>
             </div>
         </div>
-        <!-- Activity Summary -->
+        <!-- Ideas Details Section -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-lightbulb"></i> Ideas & Innovation Analytics</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6>Status Distribution</h6>
+                                <ul class="list-unstyled">
+                                    <li><span class="badge bg-warning"><?php echo $idea_stats['pending_ideas']; ?></span> Pending Ideas</li>
+                                    <li><span class="badge bg-info"><?php echo $idea_stats['in_progress_ideas']; ?></span> In Progress</li>
+                                    <li><span class="badge bg-success"><?php echo $idea_stats['completed_ideas']; ?></span> Completed</li>
+                                </ul>
+                                
+                                <h6 class="mt-3">Category Breakdown</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="bi bi-laptop text-primary"></i> <?php echo $idea_stats['software_ideas']; ?> Software Ideas</li>
+                                    <li><i class="bi bi-cpu text-success"></i> <?php echo $idea_stats['hardware_ideas']; ?> Hardware Ideas</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <h6>Difficulty Levels</h6>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-success" style="width: <?php echo $idea_stats['total_ideas'] > 0 ? ($idea_stats['easy_ideas'] / $idea_stats['total_ideas']) * 100 : 0; ?>%"></div>
+                                </div>
+                                <small>Easy: <?php echo $idea_stats['easy_ideas']; ?> ideas</small>
+                                
+                                <div class="progress mb-2 mt-2">
+                                    <div class="progress-bar bg-warning" style="width: <?php echo $idea_stats['total_ideas'] > 0 ? ($idea_stats['medium_ideas'] / $idea_stats['total_ideas']) * 100 : 0; ?>%"></div>
+                                </div>
+                                <small>Medium: <?php echo $idea_stats['medium_ideas']; ?> ideas</small>
+                                
+                                <div class="progress mb-2 mt-2">
+                                    <div class="progress-bar bg-danger" style="width: <?php echo $idea_stats['total_ideas'] > 0 ? ($idea_stats['hard_ideas'] / $idea_stats['total_ideas']) * 100 : 0; ?>%"></div>
+                                </div>
+                                <small>Hard: <?php echo $idea_stats['hard_ideas']; ?> ideas</small>
+                                
+                                <h6 class="mt-3">Engagement Metrics</h6>
+                                <ul class="list-unstyled small">
+                                    <li><i class="bi bi-heart-fill text-danger"></i> <?php echo $idea_engagement['total_idea_likes']; ?> Total Likes</li>
+                                    <li><i class="bi bi-chat-fill text-primary"></i> <?php echo $idea_engagement['total_idea_comments']; ?> Total Comments</li>
+                                    <li><i class="bi bi-flag-fill text-warning"></i> <?php echo $idea_engagement['total_reports']; ?> Reports</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <h6>Top Contributors</h6>
+                                <?php if (!empty($top_contributors)): ?>
+                                    <ol class="list-group list-group-numbered">
+                                        <?php foreach ($top_contributors as $contributor): ?>
+                                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                                <div class="ms-2 me-auto">
+                                                    <div class="fw-bold"><?php echo htmlspecialchars($contributor['name']); ?></div>
+                                                </div>
+                                                <span class="badge bg-primary rounded-pill"><?php echo $contributor['idea_count']; ?></span>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ol>
+                                <?php else: ?>
+                                    <p class="text-muted">No contributors found</p>
+                                <?php endif; ?>
+                                
+                                <h6 class="mt-3">Activity Summary</h6>
+                                <ul class="list-unstyled small">
+                                    <li><i class="bi bi-calendar-check"></i> <?php echo $idea_stats['recent_ideas']; ?> ideas in last 30 days</li>
+                                    <li><i class="bi bi-file-text"></i> Avg description: <?php echo round($idea_stats['avg_description_length']); ?> chars</li>
+                                    <li><i class="bi bi-graph-up"></i> <?php echo $idea_engagement['liked_ideas']; ?> ideas have likes</li>
+                                    <li><i class="bi bi-chat-dots"></i> <?php echo $idea_engagement['commented_ideas']; ?> ideas have comments</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
