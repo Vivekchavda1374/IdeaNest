@@ -192,6 +192,45 @@
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 }
 
+/* Project Card Styles */
+.glass-card .btn-sm {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.glass-card .btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+}
+
+.glass-card .btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.glass-card .btn-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border: none;
+}
+
+.glass-card .btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.glass-card .btn-info {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border: none;
+    color: white;
+}
+
+.glass-card .btn-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
 /* Empty State */
 .empty-state {
     text-align: center;
@@ -364,6 +403,10 @@
     
     .modal-body {
         padding: 1.5rem;
+    }
+    
+    .col-md-6 {
+        margin-bottom: 1rem;
     }
 }
 
