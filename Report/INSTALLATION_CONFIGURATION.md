@@ -70,13 +70,13 @@ sudo systemctl enable mariadb
 sudo mysql -u root -p
 
 # Create database
-CREATE DATABASE ideanest CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE ictmu6ya_ideanest CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 # Create dedicated user
-CREATE USER 'ideanest_user'@'localhost' IDENTIFIED BY 'secure_password_here';
+CREATE USER 'ictmu6ya_ideanest'@'localhost' IDENTIFIED BY 'ictmu6ya_ideanest';
 
 # Grant privileges
-GRANT ALL PRIVILEGES ON ideanest.* TO 'ideanest_user'@'localhost';
+GRANT ALL PRIVILEGES ON ictmu6ya_ideanest.* TO 'ictmu6ya_ideanest'@'localhost';
 FLUSH PRIVILEGES;
 
 # Exit MySQL
@@ -89,10 +89,10 @@ EXIT;
 cd /var/www/html/IdeaNest
 
 # Import database schema
-mysql -u ideanest_user -p ideanest < db/ideanest.sql
+mysql -u ictmu6ya_ideanest -p ictmu6ya_ideanest < db/ideanest.sql
 
 # Verify import
-mysql -u ideanest_user -p -e "USE ideanest; SHOW TABLES;"
+mysql -u ictmu6ya_ideanest -p -e "USE ictmu6ya_ideanest; SHOW TABLES;"
 ```
 
 ### Step 3: Database Configuration Optimization
@@ -151,8 +151,8 @@ nano .env
 ```bash
 # Database Configuration
 DB_HOST=localhost
-DB_NAME=ideanest
-DB_USER=ideanest_user
+DB_NAME=ictmu6ya_ideanest
+DB_USER=ictmu6ya_ideanest
 DB_PASS=secure_password_here
 DB_CHARSET=utf8mb4
 
@@ -198,8 +198,8 @@ ALLOWED_EXTENSIONS=jpg,jpeg,png,gif,pdf,zip,mp4,avi,mov,ppt,pptx,doc,docx
 <?php
 // Edit Login/Login/db.php
 $host = $_ENV['DB_HOST'] ?? 'localhost';
-$dbname = $_ENV['DB_NAME'] ?? 'ideanest';
-$username = $_ENV['DB_USER'] ?? 'ideanest_user';
+$dbname = $_ENV['DB_NAME'] ?? 'ictmu6ya_ideanest';
+$username = $_ENV['DB_USER'] ?? 'ictmu6ya_ideanest';
 $password = $_ENV['DB_PASS'] ?? 'secure_password_here';
 $charset = $_ENV['DB_CHARSET'] ?? 'utf8mb4';
 
@@ -617,10 +617,10 @@ chmod +x /usr/local/bin/ideanest-monitor.sh
 sudo systemctl status mariadb
 
 # Test database connection
-mysql -u ideanest_user -p ideanest -e "SELECT 1;"
+mysql -u ictmu6ya_ideanest -p ictmu6ya_ideanest -e "SELECT 1;"
 
 # Check database permissions
-mysql -u root -p -e "SHOW GRANTS FOR 'ideanest_user'@'localhost';"
+mysql -u root -p -e "SHOW GRANTS FOR 'ideanest_user'@'ictmu.in';"
 ```
 
 #### File Permission Issues

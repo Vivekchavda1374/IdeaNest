@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['is_admin'] = true;
             $_SESSION['admin_logged_in'] = true;
 
-            header("Location: ../../Admin/admin.php");
+            header("Location: https://ictmu.in/hcd/IdeaNest/Admin/admin.php");
             exit();
         }
 
@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['mentor_name'] = $mentor_name;
                 $_SESSION['user_id'] = $mentor_id;
                 $_SESSION['er_number'] = $email;
-                header("Location: ../../mentor/dashboard.php");
+                header("Location: https://ictmu.in/hcd/IdeaNest/mentor/dashboard.php");
                 exit();
             } else {
                 $error_message = "Incorrect Password!";
@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['user_name'] = $user_name;
                 $_SESSION['is_admin'] = false;
 
-                header("Location: ../../user/index.php");
+                header("Location: https://ictmu.in/hcd/IdeaNest/user/index.php");
                 exit();
             } else {
                 $error_message = "Incorrect Password!";
@@ -83,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['subadmin_email'] = $email;
                     $_SESSION['subadmin_name'] = trim($first_name . ' ' . $last_name);
                     $_SESSION['subadmin_logged_in'] = true;
-                    header("Location: ../../Admin/subadmin/dashboard.php");
+                    header("Location: https://ictmu.in/hcd/IdeaNest/Admin/subadmin/dashboard.php");
                     exit();
                 } else {
                     $error_message = "Incorrect Password!";

@@ -455,8 +455,8 @@ Header always set X-XSS-Protection "1; mode=block"
 composer install --dev
 
 # Setup test database
-mysql -u root -p -e "CREATE DATABASE ideanest_test;"
-mysql -u root -p ideanest_test < db/ideanest.sql
+mysql -u ictmu6ya_ideanest -p -e "CREATE DATABASE ideanest_test;"
+mysql -u ictmu6ya_ideanest -p ideanest_test < db/ideanest.sql
 
 # Run test suite
 ./tests/run_tests.sh
