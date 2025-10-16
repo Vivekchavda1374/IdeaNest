@@ -763,8 +763,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="col-md-6">
                                 <div class="icon-input mb-3">
                                     <i class="fas fa-clipboard"></i>
-                                    <label for="title" class="form-label">Project Title</label>
-                                    <input type="text" class="form-control" id="title" name="title"
+                                    <label for="projectName" class="form-label">Project Title</label>
+                                    <input type="text" class="form-control" id="projectName" name="projectName"
                                         value="<?php echo isset($projectName) ? htmlspecialchars($projectName) : ''; ?>"
                                         placeholder="Enter project name" required>
                                 </div>
@@ -824,9 +824,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
 
                         <div class="mb-3">
-                            <label for="content" class="form-label">Project Content</label>
-                            <textarea class="form-control" id="content" name="content" rows="5"
-                                placeholder="Provide detailed content for your project..."
+                            <label for="description" class="form-label">Project Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="5"
+                                placeholder="Provide detailed description for your project..."
                                 required><?php echo isset($description) ? htmlspecialchars($description) : ''; ?></textarea>
                         </div>
                     </div>
@@ -1075,13 +1075,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Run this on page load to ensure correct classification options are displayed
     document.addEventListener('DOMContentLoaded', function() {
-        if (document.getElementById('projectType').value) {
+        const projectTypeElement = document.getElementById('projectType');
+        if (projectTypeElement && projectTypeElement.value) {
             updateClassifications();
 
             // If classification is already set, select it
             <?php if (isset($classification) && !empty($classification)) : ?>
             setTimeout(() => {
-                document.getElementById('classification').value = '<?php echo $classification; ?>';
+                const classificationElement = document.getElementById('classification');
+                if (classificationElement) {
+                    classificationElement.value = '<?php echo $classification; ?>';
+                }
             }, 100);
             <?php endif; ?>
         }
