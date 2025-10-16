@@ -1,4 +1,5 @@
 /* Assigned Projects Specific Styles */
+:root{--primary-color:#6366f1;--primary-dark:#4f46e5;--text-primary:#1e293b;--text-secondary:#64748b;--border-color:#e2e8f0;}
 .glass-card {
     background: white;
     backdrop-filter: blur(10px);
