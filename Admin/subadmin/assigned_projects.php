@@ -25,19 +25,52 @@ if (!empty($domains)) {
     
     // Map domain names to classification values
     $domain_mapping = [
-        'Web Development' => 'web',
-        'Web Application' => 'web', 
-        'Mobile Development' => 'mobile',
-        'AI/ML' => 'ai_ml',
-        'Data Science' => 'ai_ml',
-        'Cybersecurity' => 'system',
-        'IoT' => 'iot',
-        'Internet of Things (IoT)' => 'iot',
-        'Blockchain' => 'system',
-        'Game Development' => 'system',
-        'Desktop Application' => 'system',
-        'Embedded' => 'embedded',
-        'Wearable' => 'wearable'
+        // Web domains
+        'Web Development' => 'Web',
+        'Web Application' => 'Web',
+        'Web' => 'Web',
+        
+        // Mobile domains
+        'Mobile Development' => 'Mobile',
+        'Mobile Application' => 'Mobile',
+        'Mobile' => 'Mobile',
+        
+        // AI/ML domains
+        'AI/ML' => 'Artificial Intelligence & Machine Learning',
+        'AI & Machine Learning' => 'Artificial Intelligence & Machine Learning',
+        'Artificial Intelligence & Machine Learning' => 'Artificial Intelligence & Machine Learning',
+        'Data Science' => 'Data Science & Analytics',
+        'Data Science & Analytics' => 'Data Science & Analytics',
+        
+        // Desktop domains
+        'Desktop Application' => 'Desktop',
+        'Desktop' => 'Desktop',
+        
+        // System Software
+        'System Software' => 'System Software',
+        'Cybersecurity' => 'Cybersecurity',
+        'Game Development' => 'Game Development',
+        
+        // IoT and Embedded
+        'IoT' => 'Embedded/IoT Software',
+        'IoT Projects' => 'Embedded/IoT Software',
+        'Internet of Things (IoT)' => 'Embedded/IoT Software',
+        'Embedded Systems' => 'Embedded/IoT Software',
+        'Embedded/IoT Software' => 'Embedded/IoT Software',
+        'Embedded' => 'Embedded/IoT Software',
+        'Sensor-Based Projects' => 'Embedded/IoT Software',
+        
+        // Hardware domains
+        'Robotics' => 'Embedded/IoT Software',
+        'Automation' => 'Embedded/IoT Software',
+        'Communication Systems' => 'Embedded/IoT Software',
+        'Power Electronics' => 'Embedded/IoT Software',
+        'Wearable Technology' => 'Embedded/IoT Software',
+        'Mechatronics' => 'Embedded/IoT Software',
+        'Renewable Energy' => 'Embedded/IoT Software',
+        
+        // Cloud
+        'Cloud-Based Applications' => 'Cloud-Based Applications'
     ];
     
     foreach ($domain_list as $domain) {
@@ -87,9 +120,15 @@ if (isset($_POST['action']) && isset($_POST['project_id'])) {
         }
         
         if ($action === 'approve') {
-            // Keep in admin_approved_projects but update status
+            // Update status to approved in admin_approved_projects
             $stmt = $conn->prepare("UPDATE admin_approved_projects SET status='approved' WHERE id=?");
             $stmt->bind_param("i", $project_id);
+            $stmt->execute();
+            $stmt->close();
+            
+            // Also update in projects table
+            $stmt = $conn->prepare("UPDATE projects SET status='approved' WHERE id=? OR project_name=?");
+            $stmt->bind_param("is", $project_data['id'], $project_data['project_name']);
             $stmt->execute();
             $stmt->close();
             
@@ -127,11 +166,16 @@ if (isset($_POST['action']) && isset($_POST['project_id'])) {
         $conn->commit();
         
         // Get subadmin details for email
-        $stmt = $conn->prepare("SELECT name, email FROM subadmins WHERE id=?");
+        $stmt = $conn->prepare("SELECT CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as name, email, department, specialization FROM subadmins WHERE id=?");
         $stmt->bind_param("i", $subadmin_id);
         $stmt->execute();
         $subadmin_result = $stmt->get_result()->fetch_assoc();
         $stmt->close();
+        
+        // Clean up name if empty
+        if (trim($subadmin_result['name']) === '') {
+            $subadmin_result['name'] = 'SubAdmin';
+        }
         
         // Send email notification with subadmin details
         $result_email = sendProjectStatusEmail($project_id, $status, $rejection_reason, $subadmin_result);

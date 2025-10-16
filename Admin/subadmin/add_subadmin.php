@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_subadmin']) &&
 
     if ($subadmin_id !== false) {
         // Get subadmin details before deletion for logging
-        $stmt = $conn->prepare("SELECT email, name FROM subadmins WHERE id = ?");
+        $stmt = $conn->prepare("SELECT email, CONCAT(first_name, ' ', last_name) as name FROM subadmins WHERE id = ?");
         $stmt->bind_param("i", $subadmin_id);
         $stmt->execute();
         $stmt->bind_result($subadmin_email, $subadmin_name);
@@ -340,12 +340,12 @@ $result = $conn->query("
         r.id, 
         r.subadmin_id, 
         r.requested_domains, 
-        r.request_date,
+        r.created_at as request_date,
         s.email
     FROM subadmin_classification_requests r 
     JOIN subadmins s ON r.subadmin_id = s.id 
     WHERE r.status = 'pending' 
-    ORDER BY r.request_date ASC
+    ORDER BY r.created_at ASC
 ");
 
 if ($result) {
@@ -443,13 +443,13 @@ $params = [];
 $types = '';
 
 if ($search !== '') {
-    $where[] = "(name LIKE ? OR email LIKE ?)";
+    $where[] = "(CONCAT(first_name, ' ', last_name) LIKE ? OR email LIKE ?)";
     $params[] = "%$search%";
     $params[] = "%$search%";
     $types .= 'ss';
 }
 if ($department !== '') {
-    $where[] = "domain = ?";
+    $where[] = "department = ?";
     $params[] = $department;
     $types .= 's';
 }
@@ -471,7 +471,7 @@ if ($status !== '') {
     }
 }
 
-$sql = "SELECT id, name, email, domain, domains, status, created_at, last_login FROM subadmins";
+$sql = "SELECT id, CONCAT(first_name, ' ', last_name) as name, email, department as domain, domains, status, created_at, last_login FROM subadmins";
 if ($where) {
     $sql .= " WHERE " . implode(" AND ", $where);
 }
@@ -815,14 +815,7 @@ $active_tab = $_GET['tab'] ?? 'overview';
                     <i class="bi bi-gear me-1"></i> Manage Subadmins
                 </button>
             </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link <?php echo $active_tab === 'pending' ? 'active' : ''; ?>" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-controls="pending" aria-selected="<?php echo $active_tab === 'pending' ? 'true' : 'false'; ?>">
-                    <i class="bi bi-hourglass-split me-1"></i> Pending Requests
-                    <?php if (count($pending_requests) !== false) : ?>
-                        <span class="badge bg-warning text-dark ms-1"><?php echo count($pending_requests); ?></span>
-                    <?php endif; ?>
-                </button>
-            </li>
+
             <li class="nav-item" role="presentation">
                 <button class="nav-link <?php echo $active_tab === 'tickets' ? 'active' : ''; ?>" id="tickets-tab" data-bs-toggle="tab" data-bs-target="#tickets" type="button" role="tab" aria-controls="tickets" aria-selected="<?php echo $active_tab === 'tickets' ? 'true' : 'false'; ?>">
                     <i class="bi bi-headset me-1"></i> Support Tickets
@@ -1140,126 +1133,7 @@ $active_tab = $_GET['tab'] ?? 'overview';
                 </div>
             </div>
 
-            <!-- Pending Requests Tab -->
-            <div class="tab-pane fade <?php echo $active_tab === 'pending' ? 'show active' : ''; ?>" id="pending" role="tabpanel" aria-labelledby="pending-tab">
-                <div class="row justify-content-center align-items-start w-100">
-                    <div class="col-md-12">
-                        <div class="card shadow-lg mt-4">
-                            <div class="card-body">
-                                <h4 class="mb-4">
-                                    <i class="bi bi-hourglass-split me-2"></i>Pending Classification Change Requests
-                                    <?php if (count($pending_requests) !== false) : ?>
-                                        <span class="badge bg-warning text-dark ms-2"><?php echo count($pending_requests); ?> Pending</span>
-                                    <?php endif; ?>
-                                </h4>
-                                <?php if (count($pending_requests) !== false) : ?>
-                                    <div class="table-responsive">
-                                        <table class="table table-hover align-middle">
-                                            <thead class="table-light">
-                                            <tr>
-                                                <th>Subadmin Email</th>
-                                                <th>Request Date</th>
-                                                <th>Requested Domains</th>
-                                                <th>Action</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <?php foreach ($pending_requests as $req) : ?>
-                                                <tr>
-                                                    <td>
-                                                        <strong><?php echo htmlspecialchars($req['email']); ?></strong>
-                                                    </td>
-                                                    <td>
-                                                        <small class="text-muted">
-                                                            <?php echo date('M d, Y H:i', strtotime($req['request_date'])); ?>
-                                                        </small>
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge bg-primary">
-                                                            <?php echo htmlspecialchars($req['requested_domains'] ?: 'No domains requested'); ?>
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <div class="btn-group" role="group">
-                                                            <!-- Approve Button -->
-                                                            <form method="post" style="display:inline-block;">
-                                                                <input type="hidden" name="request_id" value="<?php echo $req['id']; ?>">
-                                                                <input type="hidden" name="admin_comment" value="Request approved by admin">
-                                                                <button type="submit" name="request_action" value="approve"
-                                                                        class="btn btn-success btn-sm"
-                                                                        onclick="return confirm('Are you sure you want to approve this classification change?')">
-                                                                    <i class="bi bi-check-circle me-1"></i>Approve
-                                                                </button>
-                                                            </form>
-                                                            <!-- Reject Button -->
-                                                            <button class="btn btn-danger btn-sm"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#rejectModal<?php echo $req['id']; ?>">
-                                                                <i class="bi bi-x-circle me-1"></i>Reject
-                                                            </button>
-                                                        </div>
 
-                                                        <!-- Reject Modal -->
-                                                        <div class="modal fade" id="rejectModal<?php echo $req['id']; ?>"
-                                                             tabindex="-1"
-                                                             aria-labelledby="rejectModalLabel<?php echo $req['id']; ?>"
-                                                             aria-hidden="true">
-                                                            <div class="modal-dialog">
-                                                                <div class="modal-content">
-                                                                    <div class="modal-header bg-danger text-white">
-                                                                        <h5 class="modal-title" id="rejectModalLabel<?php echo $req['id']; ?>">
-                                                                            <i class="bi bi-x-circle me-2"></i>Reject Classification Change
-                                                                        </h5>
-                                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                    </div>
-                                                                    <form method="post">
-                                                                        <div class="modal-body">
-                                                                            <input type="hidden" name="request_id" value="<?php echo $req['id']; ?>">
-                                                                            <div class="mb-3">
-                                                                                <p><strong>Subadmin:</strong> <?php echo htmlspecialchars($req['email']); ?></p>
-                                                                                <p><strong>Requested Domains:</strong> <?php echo htmlspecialchars($req['requested_domains'] ?: 'No domains'); ?></p>
-                                                                            </div>
-                                                                            <div class="mb-3">
-                                                                                <label for="admin_comment<?php echo $req['id']; ?>" class="form-label">
-                                                                                    <strong>Reason for rejection (required):</strong>
-                                                                                </label>
-                                                                                <textarea class="form-control"
-                                                                                          name="admin_comment"
-                                                                                          id="admin_comment<?php echo $req['id']; ?>"
-                                                                                          rows="3"
-                                                                                          placeholder="Please provide a detailed reason for rejecting this request..."
-                                                                                          required></textarea>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="modal-footer">
-                                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                                                                Cancel
-                                                                            </button>
-                                                                            <button type="submit" name="request_action" value="reject" class="btn btn-danger">
-                                                                                <i class="bi bi-x-circle me-2"></i>Reject Request
-                                                                            </button>
-                                                                        </div>
-                                                                    </form>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                <?php else : ?>
-                                    <div class="alert alert-info text-center mb-0">
-                                        <i class="bi bi-info-circle me-2"></i>
-                                        No pending classification change requests at this time.
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Support Tickets Tab -->
             <div class="tab-pane fade <?php echo $active_tab === 'tickets' ? 'show active' : ''; ?>" id="tickets" role="tabpanel" aria-labelledby="tickets-tab">

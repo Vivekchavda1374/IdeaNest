@@ -1,192 +1,142 @@
-// Global Loading System
+// Loading Component JavaScript
 class LoadingManager {
     constructor() {
-        this.createLoadingOverlay();
-        this.setupFormHandlers();
+        this.activeLoaders = new Set();
     }
 
-    createLoadingOverlay() {
-        if (document.getElementById('globalLoading')) return;
-        
+    // Show page loading overlay
+    showPageLoading(message = 'Loading...') {
+        const loaderId = 'page-loader';
+        if (this.activeLoaders.has(loaderId)) return;
+
         const overlay = document.createElement('div');
-        overlay.id = 'globalLoading';
+        overlay.id = loaderId;
         overlay.className = 'loading-overlay';
         overlay.innerHTML = `
             <div class="loading-content">
                 <div class="loading-spinner"></div>
-                <p class="loading-text" id="loadingText">Loading...</p>
-                <div class="progress-loading">
-                    <div class="progress-loading-bar"></div>
-                </div>
+                <p style="margin-top: 1rem; color: #64748b; font-weight: 500;">${message}</p>
             </div>
         `;
+        
         document.body.appendChild(overlay);
+        this.activeLoaders.add(loaderId);
+        
+        // Show with animation
+        requestAnimationFrame(() => {
+            overlay.classList.add('show');
+        });
+        
+        return loaderId;
     }
 
-    show(message = 'Loading...', type = 'default') {
-        const overlay = document.getElementById('globalLoading');
-        const text = document.getElementById('loadingText');
-        const content = overlay.querySelector('.loading-content');
-        
-        if (text) text.textContent = message;
-        
-        // Apply type-specific styling
-        content.className = 'loading-content';
-        if (type === 'email') {
-            content.classList.add('email-loading');
-        }
-        
-        overlay.classList.add('show');
-        document.body.style.overflow = 'hidden';
-    }
-
-    hide() {
-        const overlay = document.getElementById('globalLoading');
+    // Hide page loading overlay
+    hidePageLoading(loaderId = 'page-loader') {
+        const overlay = document.getElementById(loaderId);
         if (overlay) {
             overlay.classList.remove('show');
-            document.body.style.overflow = '';
+            setTimeout(() => {
+                overlay.remove();
+                this.activeLoaders.delete(loaderId);
+            }, 300);
         }
     }
 
-    setupFormHandlers() {
-        // Auto-handle form submissions
-        document.addEventListener('submit', (e) => {
-            const form = e.target;
-            if (form.tagName === 'FORM' && !form.hasAttribute('data-no-loading')) {
-                this.handleFormSubmission(form);
-            }
-        });
-
-        // Auto-handle AJAX requests
-        this.interceptFetch();
-    }
-
-    handleFormSubmission(form) {
-        const submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) {
-            this.setButtonLoading(submitBtn, true);
-        }
+    // Show button loading state
+    showButtonLoading(button, text = 'Loading...') {
+        if (button.classList.contains('btn-loading')) return;
         
-        // Determine loading message based on form action
-        let message = 'Processing...';
-        if (form.action.includes('email') || form.id.includes('email')) {
-            message = 'Sending email...';
-            this.show(message, 'email');
-        } else if (form.action.includes('upload') || form.enctype === 'multipart/form-data') {
-            message = 'Uploading files...';
-            this.show(message);
-        } else {
-            this.show(message);
-        }
-    }
-
-    setButtonLoading(button, loading) {
-        if (loading) {
-            button.dataset.originalText = button.textContent;
-            button.textContent = 'Loading...';
-            button.classList.add('btn-loading');
-            button.disabled = true;
-        } else {
-            button.textContent = button.dataset.originalText || button.textContent;
-            button.classList.remove('btn-loading');
-            button.disabled = false;
-        }
-    }
-
-    interceptFetch() {
-        const originalFetch = window.fetch;
-        const self = this;
-        
-        window.fetch = function(...args) {
-            const url = args[0];
-            const options = args[1] || {};
-            
-            // Don't show loading for certain requests
-            if (options.noLoading || url.includes('api/')) {
-                return originalFetch.apply(this, args);
-            }
-            
-            // Determine loading message
-            let message = 'Loading...';
-            if (url.includes('email') || url.includes('send')) {
-                message = 'Sending...';
-                self.show(message, 'email');
-            } else {
-                self.show(message);
-            }
-            
-            return originalFetch.apply(this, args)
-                .then(response => {
-                    self.hide();
-                    return response;
-                })
-                .catch(error => {
-                    self.hide();
-                    throw error;
-                });
-        };
-    }
-}
-
-// Email-specific loading functions
-function showEmailLoading(message = 'Sending email...') {
-    window.loadingManager.show(message, 'email');
-}
-
-function hideEmailLoading() {
-    window.loadingManager.hide();
-}
-
-// Form-specific loading
-function showFormLoading(form, message = 'Processing...') {
-    form.classList.add('form-loading');
-    window.loadingManager.show(message);
-}
-
-function hideFormLoading(form) {
-    form.classList.remove('form-loading');
-    window.loadingManager.hide();
-}
-
-// Button-specific loading
-function setButtonLoading(button, loading, loadingText = 'Loading...') {
-    if (loading) {
-        button.dataset.originalText = button.textContent;
-        button.textContent = loadingText;
+        button.dataset.originalText = button.innerHTML;
+        button.innerHTML = `
+            <div class="loading-dots">
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            </div>
+            <span style="margin-left: 8px;">${text}</span>
+        `;
         button.classList.add('btn-loading');
         button.disabled = true;
-    } else {
-        button.textContent = button.dataset.originalText || button.textContent;
+    }
+
+    // Hide button loading state
+    hideButtonLoading(button) {
+        if (!button.classList.contains('btn-loading')) return;
+        
+        button.innerHTML = button.dataset.originalText || button.innerHTML;
         button.classList.remove('btn-loading');
         button.disabled = false;
+        delete button.dataset.originalText;
+    }
+
+    // Show inline loading for specific elements
+    showInlineLoading(element, size = 'small') {
+        const spinner = document.createElement('div');
+        spinner.className = `loading-spinner loading-${size}`;
+        spinner.style.cssText = `
+            width: ${size === 'small' ? '20px' : '40px'};
+            height: ${size === 'small' ? '20px' : '40px'};
+            border-width: ${size === 'small' ? '2px' : '4px'};
+            margin: 10px auto;
+        `;
+        
+        element.dataset.originalContent = element.innerHTML;
+        element.innerHTML = '';
+        element.appendChild(spinner);
+    }
+
+    // Hide inline loading
+    hideInlineLoading(element) {
+        if (element.dataset.originalContent) {
+            element.innerHTML = element.dataset.originalContent;
+            delete element.dataset.originalContent;
+        }
     }
 }
 
-// Initialize loading manager when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.loadingManager = new LoadingManager();
+// Create global instance
+const loadingManager = new LoadingManager();
+
+// Global functions for backward compatibility
+function showPageLoading(message) {
+    return loadingManager.showPageLoading(message);
+}
+
+function hidePageLoading(loaderId) {
+    loadingManager.hidePageLoading(loaderId);
+}
+
+// Auto-hide loading on page navigation
+window.addEventListener('beforeunload', function() {
+    loadingManager.activeLoaders.forEach(loaderId => {
+        loadingManager.hidePageLoading(loaderId);
+    });
 });
 
-// Page loading for navigation
-function showPageLoading() {
-    const pageLoading = document.createElement('div');
-    pageLoading.id = 'pageLoading';
-    pageLoading.className = 'page-loading';
-    pageLoading.innerHTML = `
-        <div class="page-loading-content">
-            <div class="page-loading-spinner"></div>
-            <p class="page-loading-text">Loading page...</p>
-        </div>
-    `;
-    document.body.appendChild(pageLoading);
-}
-
-function hidePageLoading() {
-    const pageLoading = document.getElementById('pageLoading');
-    if (pageLoading) {
-        pageLoading.remove();
+// Form submission loading
+document.addEventListener('submit', function(e) {
+    const form = e.target;
+    const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+    
+    if (submitBtn && !submitBtn.classList.contains('no-loading')) {
+        loadingManager.showButtonLoading(submitBtn, 'Processing...');
     }
+});
+
+// AJAX loading for links with data-loading attribute
+document.addEventListener('click', function(e) {
+    const link = e.target.closest('a[data-loading]');
+    if (link) {
+        const message = link.dataset.loading || 'Loading...';
+        showPageLoading(message);
+    }
+});
+
+// Export for module use
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = LoadingManager;
 }
 
-// Auto-hide page loading when page loads
-window.addEventListener('load', hidePageLoading);
+// Make available globally
+window.LoadingManager = LoadingManager;
+window.loadingManager = loadingManager;

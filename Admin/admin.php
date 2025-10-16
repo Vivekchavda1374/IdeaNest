@@ -29,7 +29,7 @@ $user_name = "Admin";
 
 // Handle project actions
 if (isset($_GET['action']) && isset($_GET['id'])) {
-    $project_id = $_GET['id'];
+    $project_id = (int)$_GET['id'];
     $action = $_GET['action'];
 
     // View project - Updated to include all columns
@@ -64,8 +64,8 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
 
 // Handle rejection form submission
 if (isset($_POST['reject_submit'])) {
-    $project_id = $_POST['project_id'];
-    $rejection_reason = $_POST['rejection_reason'];
+    $project_id = (int)$_POST['project_id'];
+    $rejection_reason = trim($_POST['rejection_reason'] ?? '');
     rejectProject($project_id, $rejection_reason, $conn);
 }
 
