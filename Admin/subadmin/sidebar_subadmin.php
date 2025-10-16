@@ -121,10 +121,15 @@ function renderLayout($title, $content, $activePage = '')
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
     <script src="../../assets/js/sidebar_subadmin.js"></script>
     <script src="../../assets/js/loading.js"></script>
-    <script src="loading_init.js"></script>
+    <script>
+        function showPageLoading() {
+            if (window.loadingManager) {
+                window.loadingManager.show('Loading page...');
+            }
+        }
+    </script>
     </body>
     </html>
     <?php
