@@ -22,5 +22,5 @@ session_destroy();
 session_write_close();
 
 // Redirect to admin login page with a success message
-header("Location: ../Login/Login/login.php?logout=success");
+header("Location: https://ictmu.in/hcd/IdeaNest/Login/Login/login.php?logout=success");
 exit();
