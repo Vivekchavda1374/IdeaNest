@@ -161,19 +161,19 @@
    4. **Database setup:**
    ```bash
    # Create MySQL database
-   mysql -u root -p -e "CREATE DATABASE ideanest;"
+   mysql -u ictmu6ya_ideanest -p -e "CREATE DATABASE ictmu6ya_ideanest;"
 
    # Import database schema
-   mysql -u root -p ideanest < db/ideanest.sql
+   mysql -u ictmu6ya_ideanest -p ictmu6ya_ideanest < db/ideanest.sql
    ```
 
    5. **Configure database connection:**
    ```php
    // Edit Login/Login/db.php
    $host = "localhost";
-   $user = "root";
-   $pass = "your_password";
-   $dbname = "ideanest";
+   $user = "ictmu6ya_ideanest";
+   $pass = "ictmu6ya_ideanest";
+   $dbname = "ictmu6ya_ideanest";
    ```
 
    6. **Set file permissions:**

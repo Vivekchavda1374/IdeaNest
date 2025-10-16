@@ -4,7 +4,7 @@ session_start();
 require_once '../Login/Login/db.php';
 
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header("Location: ../Login/Login/login.php");
+    header("Location: https://ictmu.in/hcd/IdeaNest/Login/Login/login.php");
     exit();
 }
 

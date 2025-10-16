@@ -52,8 +52,8 @@ cp .env.example .env
 nano .env
 
 # 4. Database setup
-mysql -u root -p -e "CREATE DATABASE ideanest;"
-mysql -u root -p ideanest < db/ideanest.sql
+mysql -u ictmu6ya_ideanest -p -e "CREATE DATABASE ictmu6ya_ideanest;"
+mysql -u ictmu6ya_ideanest -p ictmu6ya_ideanest < db/ideanest.sql
 
 # 5. Set permissions
 chmod 755 user/uploads/ user/forms/uploads/ logs/
@@ -153,21 +153,21 @@ echo "Deployment completed at $(date)"
 APP_ENV=development
 APP_DEBUG=true
 DB_HOST=localhost
-DB_NAME=ideanest_dev
+DB_NAME=ictmu6ya_ideanest_dev
 MAIL_MAILER=log
 
 # Staging (.env.staging)
 APP_ENV=staging
 APP_DEBUG=false
 DB_HOST=staging-db.example.com
-DB_NAME=ideanest_staging
+DB_NAME=ictmu6ya_ideanest_staging
 MAIL_MAILER=smtp
 
 # Production (.env.prod)
 APP_ENV=production
 APP_DEBUG=false
 DB_HOST=prod-db.example.com
-DB_NAME=ideanest_prod
+DB_NAME=ictmu6ya_ideanest_prod
 MAIL_MAILER=smtp
 ```
 
@@ -314,7 +314,7 @@ RETENTION_DAYS=30
 mkdir -p "$BACKUP_DIR"
 
 # Database backup
-mysqldump -u backup_user -p ideanest > "$BACKUP_DIR/db_backup_$TIMESTAMP.sql"
+mysqldump -u ictmu6ya_ideanest -p ictmu6ya_ideanest > "$BACKUP_DIR/db_backup_$TIMESTAMP.sql"
 gzip "$BACKUP_DIR/db_backup_$TIMESTAMP.sql"
 
 # File backup

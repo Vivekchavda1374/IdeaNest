@@ -24,7 +24,7 @@ composer install
 
 ### 2. Setup Test Database
 ```bash
-mysql -u root -p -e "CREATE DATABASE ideanest_test;"
+mysql -u ictmu6ya_ideanest -p -e "CREATE DATABASE ideanest_test;"
 ```
 
 ### 3. Run All Tests

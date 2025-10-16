@@ -87,4 +87,4 @@ echo ""
 # Performance test reminder
 echo -e "${YELLOW}⚡ For performance testing:${NC}"
 echo "   Use tools like Apache Bench (ab) or JMeter"
-echo "   Example: ab -n 100 -c 10 http://localhost/IdeaNest/"
+echo "   Example: ab -n 100 -c 10 https://ictmu.in/hcd/IdeaNest/"
