@@ -71,17 +71,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         } else {
             // If not found in register, check subadmins table using email
-            $stmt2 = $conn->prepare("SELECT id, password, name FROM subadmins WHERE email = ?");
+            $stmt2 = $conn->prepare("SELECT id, password, first_name, last_name FROM subadmins WHERE email = ?");
             $stmt2->bind_param("s", $email);
             $stmt2->execute();
             $stmt2->store_result();
             if ($stmt2->num_rows > 0) {
-                $stmt2->bind_result($subadmin_id, $subadmin_hashed_password, $subadmin_name);
+                $stmt2->bind_result($subadmin_id, $subadmin_hashed_password, $first_name, $last_name);
                 $stmt2->fetch();
                 if (password_verify($password, $subadmin_hashed_password)) {
                     $_SESSION['subadmin_id'] = $subadmin_id;
                     $_SESSION['subadmin_email'] = $email;
-                    $_SESSION['subadmin_name'] = $subadmin_name;
+                    $_SESSION['subadmin_name'] = trim($first_name . ' ' . $last_name);
                     $_SESSION['subadmin_logged_in'] = true;
                     header("Location: ../../Admin/subadmin/dashboard.php");
                     exit();
@@ -180,6 +180,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="forgot-password">
             <a href="forgot_password.php">Forgot Password?</a>
+            <small style="display: block; color: #666; font-size: 0.8rem; margin-top: 0.25rem;">Available for all users (Students, Mentors, SubAdmins)</small>
         </div>
 
         <?php echo getCSRFField(); ?>

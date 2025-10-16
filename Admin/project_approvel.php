@@ -16,7 +16,7 @@ if (session_status() == PHP_SESSION_NONE) {
 
 // Handle bookmark toggle
 if (isset($_POST['toggle_bookmark'])) {
-    $project_id = $_POST['project_id'];
+    $project_id = (int)$_POST['project_id'];
     $session_id = session_id();
 
     // Check if bookmark already exists for this project
@@ -71,7 +71,7 @@ include "notification_backend.php";
 
 // Handle project approval
 if (isset($_POST['approve_project'])) {
-    $project_id = $_POST['project_id'];
+    $project_id = (int)$_POST['project_id'];
 
     // Get the project data
     $get_project_sql = "SELECT * FROM projects WHERE id = $project_id";
@@ -147,8 +147,8 @@ if (isset($_POST['approve_project'])) {
 
 // Handle project rejection
 if (isset($_POST['reject_project'])) {
-    $project_id = $_POST['project_id'];
-    $rejection_reason = $_POST['rejection_reason'] ?? 'Project does not meet our criteria.';
+    $project_id = (int)$_POST['project_id'];
+    $rejection_reason = trim($_POST['rejection_reason'] ?? 'Project does not meet our criteria.');
 
     // Get the project data before deletion
     $get_project_sql = "SELECT * FROM projects WHERE id = $project_id";

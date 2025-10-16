@@ -255,7 +255,7 @@ if ($export_type === 'csv' || $export_type === 'subadmins') {
     if ($export_type !== 'html') {
         // Subadmin profiles
         fputcsv($output, ['=== SUBADMIN PROFILES ===']);
-        fputcsv($output, ['ID', 'Name', 'Email', 'Domain', 'Software Classification', 'Hardware Classification', 'Status', 'Profile Complete', 'Total Requests', 'Approved Requests', 'Support Tickets', 'Created Date', 'Last Login']);
+        fputcsv($output, ['ID', 'Name', 'Email', 'Domain', 'Domains', 'Status', 'Profile Complete', 'Total Requests', 'Approved Requests', 'Support Tickets', 'Created Date', 'Last Login']);
 
         foreach ($subadmins as $subadmin) {
             fputcsv($output, [
@@ -263,8 +263,7 @@ if ($export_type === 'csv' || $export_type === 'subadmins') {
                 $subadmin['name'] ?? 'N/A',
                 $subadmin['email'],
                 $subadmin['domain'] ?? 'N/A',
-                $subadmin['software_classification'] ?? 'N/A',
-                $subadmin['hardware_classification'] ?? 'N/A',
+                $subadmin['domains'] ?? 'N/A',
                 ucfirst($subadmin['status']),
                 $subadmin['profile_complete'] ? 'Yes' : 'No',
                 $subadmin['total_requests'],
@@ -278,15 +277,14 @@ if ($export_type === 'csv' || $export_type === 'subadmins') {
 
         // Classification requests
         fputcsv($output, ['=== SUBADMIN CLASSIFICATION REQUESTS ===']);
-        fputcsv($output, ['ID', 'Subadmin Name', 'Subadmin Email', 'Software Classification', 'Hardware Classification', 'Status', 'Request Date', 'Decision Date', 'Admin Comment']);
+        fputcsv($output, ['ID', 'Subadmin Name', 'Subadmin Email', 'Requested Domains', 'Status', 'Request Date', 'Decision Date', 'Admin Comment']);
 
         foreach ($subadmin_requests as $request) {
             fputcsv($output, [
                 $request['id'],
                 $request['subadmin_name'] ?? 'Unknown',
                 $request['subadmin_email'] ?? 'N/A',
-                $request['requested_software_classification'] ?? 'N/A',
-                $request['requested_hardware_classification'] ?? 'N/A',
+                $request['requested_domains'] ?? 'N/A',
                 ucfirst($request['status']),
                 $request['request_date'],
                 $request['decision_date'] ?? 'Pending',

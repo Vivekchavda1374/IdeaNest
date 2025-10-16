@@ -12,12 +12,13 @@ include_once "sidebar_subadmin.php"; // Include the layout file
 $subadmin_id = $_SESSION['subadmin_id'];
 
 // Fetch subadmin basic info
-$stmt = $conn->prepare("SELECT email, name FROM subadmins WHERE id = ?");
+$stmt = $conn->prepare("SELECT email, first_name, last_name FROM subadmins WHERE id = ?");
 $stmt->bind_param("i", $subadmin_id);
 $stmt->execute();
-$stmt->bind_result($email, $name);
+$stmt->bind_result($email, $first_name, $last_name);
 $stmt->fetch();
 $stmt->close();
+$name = $first_name . ' ' . $last_name;
 
 // Fetch subadmin's domains
 $stmt = $conn->prepare("SELECT domains FROM subadmins WHERE id = ?");
@@ -97,8 +98,6 @@ if (!empty($classifications)) {
     $approved_projects_count = 0;
     $result = $conn->query("SELECT id, project_name, project_type, classification, description, status FROM admin_approved_projects WHERE 1=0 LIMIT 5");
 }
-$stmt->execute();
-$result = $stmt->get_result();
 
 // Notifications and messages count (dummy data)
 $notifications_count = 3;
@@ -241,7 +240,6 @@ ob_start();
     </div>
 
 <?php
-$stmt->close();
 $content = ob_get_clean();
 
 // Render the layout with the dashboard content

@@ -15,33 +15,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['send_otp'])) {
         $email = $_POST['email'];
 
-        $stmt = $conn->prepare("SELECT id, name FROM register WHERE email = ?");
+        // Check in register table (students and mentors)
+        $stmt = $conn->prepare("SELECT id, name, 'register' as table_type FROM register WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
-
+        
+        $user = null;
         if ($result->num_rows > 0) {
             $user = $result->fetch_assoc();
+        } else {
+            // Check in subadmins table
+            $stmt2 = $conn->prepare("SELECT id, name, 'subadmins' as table_type FROM subadmins WHERE email = ?");
+            $stmt2->bind_param("s", $email);
+            $stmt2->execute();
+            $result2 = $stmt2->get_result();
+            if ($result2->num_rows > 0) {
+                $user = $result2->fetch_assoc();
+            }
+            $stmt2->close();
+        }
+        $stmt->close();
+
+        if ($user) {
             $otp = rand(100000, 999999);
 
             $_SESSION['reset_otp'] = $otp;
             $_SESSION['reset_email'] = $email;
             $_SESSION['reset_user_id'] = $user['id'];
+            $_SESSION['reset_table'] = $user['table_type'];
             $_SESSION['otp_time'] = time();
 
-            $mail = new PHPMailer(true);
             try {
-                $mail->isSMTP();
-                $mail->Host = 'smtp.gmail.com';
-                $mail->SMTPAuth = true;
-                $mail->Username = 'ideanest.ict@gmail.com';
-                $mail->Password = 'luou xlhs ojuw auvx'; // Replace with actual app password
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port = 587;
-
-                $mail->setFrom('ideanest.ict@gmail.com', 'IdeaNest');
+                require_once '../../config/email_config.php';
+                $mail = setupPHPMailer($conn);
+                
                 $mail->addAddress($email, $user['name']);
-
                 $mail->Subject = 'Password Reset OTP - IdeaNest';
                 $mail->Body = "Your OTP for password reset is: $otp\n\nThis OTP is valid for 10 minutes.";
 
@@ -49,7 +58,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $step = 'otp';
                 $success_message = "OTP sent to your email address.";
             } catch (Exception $e) {
-                $error_message = "Failed to send OTP. Please try again.";
+                error_log('OTP Email Error: ' . $e->getMessage());
+                $error_message = "Failed to send OTP. Email service temporarily unavailable.";
             }
         } else {
             $error_message = "Email not found.";
@@ -84,17 +94,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $step = 'reset';
         } else {
             $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-            $stmt = $conn->prepare("UPDATE register SET password = ? WHERE id = ?");
+            $table = $_SESSION['reset_table'];
+            $stmt = $conn->prepare("UPDATE $table SET password = ? WHERE id = ?");
             $stmt->bind_param("si", $hashed_password, $_SESSION['reset_user_id']);
 
             if ($stmt->execute()) {
-                unset($_SESSION['reset_otp'], $_SESSION['reset_email'], $_SESSION['reset_user_id'], $_SESSION['otp_time']);
+                unset($_SESSION['reset_otp'], $_SESSION['reset_email'], $_SESSION['reset_user_id'], $_SESSION['reset_table'], $_SESSION['otp_time']);
                 $success_message = "Password updated successfully!";
                 $step = 'complete';
             } else {
                 $error_message = "Failed to update password. Please try again.";
                 $step = 'reset';
             }
+            $stmt->close();
         }
     }
 }
@@ -122,9 +134,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     ($step == 'reset' ? 'Reset Password' : 'Success'));
                 ?></h1>
             <p><?php
-                echo $step == 'email' ? 'Enter your email to receive OTP' :
+                echo $step == 'email' ? 'Enter your registered email address to receive OTP' :
                     ($step == 'otp' ? 'Enter the 6-digit code sent to your email' :
-                    ($step == 'reset' ? 'Enter your new password' : 'Password has been reset'));
+                    ($step == 'reset' ? 'Enter your new password' : 'Password has been reset successfully'));
                 ?></p>
         </div>
     </div>

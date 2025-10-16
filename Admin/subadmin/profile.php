@@ -11,12 +11,14 @@ include_once "sidebar_subadmin.php"; // Include the layout file
 $subadmin_id = $_SESSION['subadmin_id'];
 
 // Fetch current profile
-$stmt = $conn->prepare("SELECT email, name, domain, domains FROM subadmins WHERE id = ?");
+$stmt = $conn->prepare("SELECT email, first_name, last_name, phone, department, position, specialization, domains, experience_years, bio FROM subadmins WHERE id = ?");
 $stmt->bind_param("i", $subadmin_id);
 $stmt->execute();
-$stmt->bind_result($email, $name, $domain, $domains);
+$stmt->bind_result($email, $first_name, $last_name, $phone, $department, $position, $specialization, $domains, $experience_years, $bio);
 $stmt->fetch();
 $stmt->close();
+$name = $first_name . ' ' . $last_name;
+$domain = $department;
 
 $available_domains = [
     'Embedded Systems', 'IoT Projects', 'Robotics', 'Automation',
@@ -108,14 +110,20 @@ if (isset($_POST['request_classification_change'])) {
 
 // Handle update for name, domain, domains, and password
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['request_classification_change'])) {
-    $new_name = trim($_POST['name']);
-    $new_domain = trim($_POST['domain']);
+    $new_first_name = trim($_POST['first_name']);
+    $new_last_name = trim($_POST['last_name']);
+    $new_phone = trim($_POST['phone'] ?? '');
+    $new_department = trim($_POST['department']);
+    $new_position = trim($_POST['position'] ?? '');
+    $new_specialization = trim($_POST['specialization'] ?? '');
     $new_domains = isset($_POST['domains']) ? implode(',', $_POST['domains']) : '';
+    $new_experience_years = intval($_POST['experience_years'] ?? 0);
+    $new_bio = trim($_POST['bio'] ?? '');
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
 
-    if ($new_name === '' || $new_domain === '') {
-        $error = "Name and department are required fields.";
+    if ($new_first_name === '' || $new_last_name === '' || $new_department === '') {
+        $error = "First name, last name, and department are required fields.";
     } elseif ($new_password !== '' || $confirm_password !== '') {
         if ($new_password !== $confirm_password) {
             $error = "Passwords do not match. Please try again.";
@@ -123,12 +131,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['request_classificati
             $error = "Password must be at least 6 characters long.";
         } else {
             $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-            $stmt = $conn->prepare("UPDATE subadmins SET name=?, domain=?, domains=?, password=? WHERE id=?");
-            $stmt->bind_param("ssssi", $new_name, $new_domain, $new_domains, $hashed_password, $subadmin_id);
+            $stmt = $conn->prepare("UPDATE subadmins SET first_name=?, last_name=?, phone=?, department=?, position=?, specialization=?, domains=?, experience_years=?, bio=?, password=? WHERE id=?");
+            $stmt->bind_param("sssssssissi", $new_first_name, $new_last_name, $new_phone, $new_department, $new_position, $new_specialization, $new_domains, $new_experience_years, $new_bio, $hashed_password, $subadmin_id);
             if ($stmt->execute()) {
                 $success = "Profile and password updated successfully.";
-                $name = $new_name;
-                $domain = $new_domain;
+                $first_name = $new_first_name;
+                $last_name = $new_last_name;
+                $phone = $new_phone;
+                $department = $new_department;
+                $position = $new_position;
+                $specialization = $new_specialization;
+                $experience_years = $new_experience_years;
+                $bio = $new_bio;
+                $name = $first_name . ' ' . $last_name;
+                $domain = $department;
                 $selected_domains = $new_domains ? explode(',', $new_domains) : [];
             } else {
                 $error = "Failed to update profile and password. Please try again.";
@@ -136,12 +152,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['request_classificati
             $stmt->close();
         }
     } else {
-        $stmt = $conn->prepare("UPDATE subadmins SET name=?, domain=?, domains=? WHERE id=?");
-        $stmt->bind_param("sssi", $new_name, $new_domain, $new_domains, $subadmin_id);
+        $stmt = $conn->prepare("UPDATE subadmins SET first_name=?, last_name=?, phone=?, department=?, position=?, specialization=?, domains=?, experience_years=?, bio=? WHERE id=?");
+        $stmt->bind_param("sssssssisi", $new_first_name, $new_last_name, $new_phone, $new_department, $new_position, $new_specialization, $new_domains, $new_experience_years, $new_bio, $subadmin_id);
         if ($stmt->execute()) {
             $success = "Profile updated successfully.";
-            $name = $new_name;
-            $domain = $new_domain;
+            $first_name = $new_first_name;
+            $last_name = $new_last_name;
+            $phone = $new_phone;
+            $department = $new_department;
+            $position = $new_position;
+            $specialization = $new_specialization;
+            $experience_years = $new_experience_years;
+            $bio = $new_bio;
+            $name = $first_name . ' ' . $last_name;
+            $domain = $department;
             $selected_domains = $new_domains ? explode(',', $new_domains) : [];
         } else {
             $error = "Failed to update profile. Please try again.";
@@ -154,9 +178,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['request_classificati
 ob_start();
 ?>
 
+    <link rel="stylesheet" href="../../assets/css/profile_subadmin.css">
+
     <div class="row g-4">
         <!-- Profile Information Card -->
-        <div class="col-lg-8">
+        <div class="col-lg-12">
             <div class="glass-card">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-4">
@@ -197,16 +223,65 @@ ob_start();
 
                         <div class="col-md-6">
                             <label class="form-label">
-                                <i class="bi bi-person me-2"></i>Full Name
+                                <i class="bi bi-person me-2"></i>First Name
                             </label>
-                            <input type="text" class="form-control" name="name" value="<?php echo htmlspecialchars($name); ?>" required>
+                            <input type="text" class="form-control" name="first_name" value="<?php echo htmlspecialchars($first_name); ?>" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-person me-2"></i>Last Name
+                            </label>
+                            <input type="text" class="form-control" name="last_name" value="<?php echo htmlspecialchars($last_name); ?>" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-telephone me-2"></i>Phone Number
+                            </label>
+                            <input type="tel" class="form-control" name="phone" value="<?php echo htmlspecialchars($phone ?? ''); ?>">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">
                                 <i class="bi bi-building me-2"></i>Department
                             </label>
-                            <input type="text" class="form-control" name="domain" value="<?php echo htmlspecialchars($domain); ?>" required>
+                            <input type="text" class="form-control" name="department" value="<?php echo htmlspecialchars($department ?? ''); ?>" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-briefcase me-2"></i>Position
+                            </label>
+                            <select class="form-control" name="position">
+                                <option value="">Select Position</option>
+                                <option value="Faculty" <?php echo ($position ?? '') === 'Faculty' ? 'selected' : ''; ?>>Faculty</option>
+                                <option value="Mentor" <?php echo ($position ?? '') === 'Mentor' ? 'selected' : ''; ?>>Mentor</option>
+                                <option value="Working Professional" <?php echo ($position ?? '') === 'Working Professional' ? 'selected' : ''; ?>>Working Professional</option>
+                                <option value="HOD" <?php echo ($position ?? '') === 'HOD' ? 'selected' : ''; ?>>HOD</option>
+                                <option value="Student" <?php echo ($position ?? '') === 'Student' ? 'selected' : ''; ?>>Student</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-award me-2"></i>Experience (Years)
+                            </label>
+                            <input type="number" class="form-control" name="experience_years" value="<?php echo htmlspecialchars($experience_years ?? 0); ?>" min="0">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">
+                                <i class="bi bi-star me-2"></i>Specialization
+                            </label>
+                            <input type="text" class="form-control" name="specialization" value="<?php echo htmlspecialchars($specialization ?? ''); ?>" placeholder="e.g., Web Development, AI/ML">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">
+                                <i class="bi bi-file-text me-2"></i>Bio
+                            </label>
+                            <textarea class="form-control" name="bio" rows="3" placeholder="Tell us about yourself..."><?php echo htmlspecialchars($bio ?? ''); ?></textarea>
                         </div>
 
                         <div class="col-md-6">
@@ -269,149 +344,10 @@ ob_start();
             </div>
         </div>
 
-        <!-- Classification Request Card -->
-        <div class="col-lg-4">
-            <div class="glass-card">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold mb-4">
-                        <i class="bi bi-tags-fill me-2"></i>Domain Management
-                    </h5>
 
-                    <!-- Current Request Status -->
-                    <?php if ($has_request) : ?>
-                        <div class="mb-4">
-                            <h6 class="fw-semibold mb-3">Current Request Status</h6>
-
-                            <?php if ($req_status === 'pending') : ?>
-                                <div class="alert alert-warning">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="bi bi-clock-fill me-2"></i>
-                                        <strong>Status: Pending</strong>
-                                    </div>
-                                    <div class="small">
-                                        <div><strong>Requested Domains:</strong> <?php echo htmlspecialchars($req_domains ?: 'No domains'); ?></div>
-                                    </div>
-                                </div>
-                            <?php elseif ($req_status === 'approved') : ?>
-                                <div class="alert alert-success">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="bi bi-check-circle-fill me-2"></i>
-                                        <strong>Status: Approved</strong>
-                                    </div>
-                                    <div class="small">Your classification has been updated successfully.</div>
-                                </div>
-                            <?php elseif ($req_status === 'rejected') : ?>
-                                <div class="alert alert-danger">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="bi bi-x-circle-fill me-2"></i>
-                                        <strong>Status: Rejected</strong>
-                                    </div>
-                                    <div class="small mb-2">
-                                        <div><strong>Requested Domains:</strong> <?php echo htmlspecialchars($req_domains ?: 'No domains'); ?></div>
-                                    </div>
-                                    <?php if ($admin_comment) : ?>
-                                        <div class="small">
-                                            <strong>Admin Comment:</strong><br>
-                                            <?php echo htmlspecialchars($admin_comment); ?>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <!-- Request Button -->
-                    <button class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center"
-                            data-bs-toggle="modal"
-                            data-bs-target="#classificationRequestModal"
-                            <?php if (!$can_request) {
-                                echo 'disabled';
-                            } ?>>
-                        <i class="bi bi-send-fill me-2"></i>
-                        Request Domain Change
-                    </button>
-
-                    <?php if (!$can_request) : ?>
-                        <div class="small text-muted text-center mt-2">
-                            You have a pending request. Please wait for admin response.
-                        </div>
-                    <?php endif; ?>
-
-                    <!-- Quick Info -->
-                    <div class="mt-4 pt-3 border-top">
-                        <h6 class="fw-semibold mb-3">Quick Information</h6>
-                        <div class="small text-muted">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Account Status:</span>
-                                <span class="badge bg-success">Active</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Last Login:</span>
-                                <span><?php echo date('M d, Y'); ?></span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span>Member Since:</span>
-                                <span>2024</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- Classification Request Modal -->
-    <div class="modal fade" id="classificationRequestModal" tabindex="-1" aria-labelledby="classificationRequestModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <form method="post" data-loading-message="Sending domain change request...">
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-bold" id="classificationRequestModalLabel">
-                            <i class="bi bi-tags-fill me-2"></i>Request Domain Change
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle-fill me-2"></i>
-                            <strong>Note:</strong> Your request will be reviewed by an administrator. Select the domains you want to be assigned to.
-                        </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                <i class="bi bi-tags me-2"></i>Request New Domains
-                            </label>
-                            <div class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
-                                <?php foreach ($available_domains as $dom): ?>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="requested_domains[]" value="<?php echo htmlspecialchars($dom); ?>">
-                                        <label class="form-check-label"><?php echo htmlspecialchars($dom); ?></label>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-
-                        <div class="mt-4">
-                            <h6 class="fw-semibold mb-2">Current Domains:</h6>
-                            <div class="bg-light p-3 rounded">
-                                <div class="small">
-                                    <?php echo htmlspecialchars($domains ?: 'No domains assigned'); ?>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="bi bi-x-lg me-2"></i>Cancel
-                        </button>
-                        <button type="submit" name="request_classification_change" class="btn btn-primary">
-                            <i class="bi bi-send-fill me-2"></i>Send Request
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
 <?php
 // Get the content
