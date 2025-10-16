@@ -5,12 +5,7 @@ if (!isset($_SESSION['subadmin_logged_in']) || !$_SESSION['subadmin_logged_in'])
     exit();
 }
 
-// Use local XAMPP database connection
-$conn = new mysqli("localhost", "root", "", "ictmu6ya_ideanest", 3306, "/opt/lampp/var/mysql/mysql.sock");
-
-if ($conn->connect_error) {
-    die("Database connection failed: " . $conn->connect_error);
-}
+include_once "../../Login/Login/db.php";
 
 $subadmin_id = $_SESSION['subadmin_id'];
 $action_message = '';
@@ -23,7 +18,7 @@ $domains = '';
 
 // Fetch subadmin details with error handling
 try {
-    $stmt = $conn->prepare("SELECT name, email, domains FROM subadmins WHERE id = ?");
+    $stmt = $conn->prepare("SELECT first_name, last_name, email, domains FROM subadmins WHERE id = ?");
     if (!$stmt) {
         throw new Exception("Prepare failed: " . $conn->error);
     }
@@ -33,9 +28,11 @@ try {
         throw new Exception("Execute failed: " . $stmt->error);
     }
 
-    $stmt->bind_result($subadmin_name, $subadmin_email, $domains);
+    $first_name = $last_name = '';
+    $stmt->bind_result($first_name, $last_name, $subadmin_email, $domains);
     $stmt->fetch();
     $stmt->close();
+    $subadmin_name = $first_name . ' ' . $last_name;
 } catch (Exception $e) {
     error_log("Error fetching subadmin details: " . $e->getMessage());
     $action_message = "Error loading user data. Please refresh the page.";
