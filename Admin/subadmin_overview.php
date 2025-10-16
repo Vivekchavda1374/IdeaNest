@@ -103,8 +103,7 @@ $subadmins = $conn->query("
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Domain</th>
-                                            <th>Software</th>
-                                            <th>Hardware</th>
+                                            <th>Domains</th>
                                             <th>Status</th>
                                             <th>Requests</th>
                                             <th>Tickets</th>
@@ -114,7 +113,7 @@ $subadmins = $conn->query("
                                     <tbody>
                                         <?php foreach ($subadmins as $subadmin) : ?>
                                         <tr>
-                                            <td><?php echo htmlspecialchars($subadmin['name'] ?? 'Not Set'); ?></td>
+                                            <td><?php echo htmlspecialchars(trim(($subadmin['first_name'] ?? '') . ' ' . ($subadmin['last_name'] ?? '')) ?: 'Not Set'); ?></td>
                                             <td><?php echo htmlspecialchars($subadmin['email']); ?></td>
                                             <td>
                                                 <?php 
@@ -126,8 +125,16 @@ $subadmins = $conn->query("
                                                 }
                                                 ?>
                                             </td>
-                                            <td><?php echo htmlspecialchars($subadmin['software_classification'] ?? 'Not Set'); ?></td>
-                                            <td><?php echo htmlspecialchars($subadmin['hardware_classification'] ?? 'Not Set'); ?></td>
+                                            <td>
+                                                <?php 
+                                                $domains_display = $subadmin['domains'] ?? 'Not Set';
+                                                if ($domains_display !== 'Not Set' && strlen($domains_display) > 50) {
+                                                    echo '<span title="' . htmlspecialchars($domains_display) . '">' . htmlspecialchars(substr($domains_display, 0, 50)) . '...</span>';
+                                                } else {
+                                                    echo htmlspecialchars($domains_display);
+                                                }
+                                                ?>
+                                            </td>
                                             <td>
                                                 <span class="badge bg-<?php echo $subadmin['status'] == 'active' ? 'success' : 'secondary'; ?>">
                                                     <?php echo ucfirst($subadmin['status']); ?>
