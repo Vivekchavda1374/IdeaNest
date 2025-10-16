@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_subadmin']) &&
 
     if ($subadmin_id !== false) {
         // Get subadmin details before deletion for logging
-        $stmt = $conn->prepare("SELECT email, name FROM subadmins WHERE id = ?");
+        $stmt = $conn->prepare("SELECT email, CONCAT(first_name, ' ', last_name) as name FROM subadmins WHERE id = ?");
         $stmt->bind_param("i", $subadmin_id);
         $stmt->execute();
         $stmt->bind_result($subadmin_email, $subadmin_name);
@@ -340,12 +340,12 @@ $result = $conn->query("
         r.id, 
         r.subadmin_id, 
         r.requested_domains, 
-        r.request_date,
+        r.created_at as request_date,
         s.email
     FROM subadmin_classification_requests r 
     JOIN subadmins s ON r.subadmin_id = s.id 
     WHERE r.status = 'pending' 
-    ORDER BY r.request_date ASC
+    ORDER BY r.created_at ASC
 ");
 
 if ($result) {
@@ -443,13 +443,13 @@ $params = [];
 $types = '';
 
 if ($search !== '') {
-    $where[] = "(name LIKE ? OR email LIKE ?)";
+    $where[] = "(CONCAT(first_name, ' ', last_name) LIKE ? OR email LIKE ?)";
     $params[] = "%$search%";
     $params[] = "%$search%";
     $types .= 'ss';
 }
 if ($department !== '') {
-    $where[] = "domain = ?";
+    $where[] = "department = ?";
     $params[] = $department;
     $types .= 's';
 }
@@ -471,7 +471,7 @@ if ($status !== '') {
     }
 }
 
-$sql = "SELECT id, name, email, domain, domains, status, created_at, last_login FROM subadmins";
+$sql = "SELECT id, CONCAT(first_name, ' ', last_name) as name, email, department as domain, domains, status, created_at, last_login FROM subadmins";
 if ($where) {
     $sql .= " WHERE " . implode(" AND ", $where);
 }
