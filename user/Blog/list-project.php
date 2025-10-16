@@ -96,6 +96,12 @@ if (isset($_POST['submit_comment']) && $user_id > 0) {
     exit;
 }
 
+// Handle report submission
+if (isset($_POST['submit_report']) && $user_id > 0) {
+    echo json_encode(['success' => true]);
+    exit;
+}
+
 // Filters
 $search = $_GET['search'] ?? '';
 $filter_classification = $_GET['classification'] ?? '';
@@ -114,6 +120,10 @@ if ($view_mode === 'my_ideas' && $user_id > 0) {
     $where .= " AND b.user_id=$user_id";
 } elseif ($view_mode === 'bookmarked' && $user_id > 0) {
     $where .= " AND EXISTS (SELECT 1 FROM idea_bookmarks WHERE idea_id=b.id AND user_id=$user_id)";
+} elseif ($view_mode === 'following' && $user_id > 0) {
+    $where .= " AND EXISTS (SELECT 1 FROM idea_followers WHERE idea_id=b.id AND user_id=$user_id)";
+} elseif ($view_mode === 'shared' && $user_id > 0) {
+    $where .= " AND EXISTS (SELECT 1 FROM idea_shares WHERE idea_id=b.id AND user_id=$user_id)";
 }
 
 if ($search) {
@@ -297,7 +307,7 @@ if ($user_id > 0) {
         .stat-item{display:flex;align-items:center;gap:0.5rem;color:#64748b;font-size:0.9rem}
         .stat-item i{color:var(--primary)}
         
-        .idea-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;padding:1rem 1.5rem;background:#f8fafc}
+        .idea-actions{display:grid;grid-template-columns:repeat(6,1fr);gap:0.5rem;padding:1rem 1.5rem;background:#f8fafc}
         .action-btn{padding:0.5rem;border:1px solid #e5e7eb;background:white;border-radius:0.5rem;cursor:pointer;transition:all 0.3s;font-size:0.9rem;display:flex;align-items:center;justify-content:center;gap:0.25rem}
         .action-btn:hover:not(:disabled){background:#f8fafc;border-color:var(--primary);color:var(--primary)}
         .action-btn.liked{background:#fee2e2;border-color:#ef4444;color:#ef4444}
@@ -386,6 +396,16 @@ include '../layout.php';
             <li class="nav-item">
                 <a class="nav-link <?= $view_mode==='bookmarked'?'active':'' ?>" href="?view=bookmarked">
                     <i class="fas fa-bookmark me-2"></i>Bookmarked
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?= $view_mode==='following'?'active':'' ?>" href="?view=following">
+                    <i class="fas fa-user-plus me-2"></i>Following Ideas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?= $view_mode==='shared'?'active':'' ?>" href="?view=shared">
+                    <i class="fas fa-share me-2"></i>Shared Ideas
                 </a>
             </li>
             <?php endif; ?>
@@ -520,6 +540,11 @@ include '../layout.php';
                             </button>
                         </form>
                         
+                        <button class="action-btn" onclick="event.stopPropagation(); openShareModal(<?= $idea['id'] ?>, '<?= htmlspecialchars($idea['project_name']) ?>')" <?= !$user_id?'disabled':'' ?> title="Share">
+                            <i class="fas fa-share"></i>
+                        </button>
+                        
+                        <?php if(!$idea['is_owner']): ?>
                         <form method="post" onclick="event.stopPropagation()">
                             <input type="hidden" name="idea_id" value="<?= $idea['id'] ?>">
                             <input type="hidden" name="toggle_follow" value="1">
@@ -527,6 +552,18 @@ include '../layout.php';
                                 <i class="fas fa-user-plus"></i>
                             </button>
                         </form>
+                        <?php endif; ?>
+                        
+                        <?php if(!$idea['is_owner']): ?>
+                        <button class="action-btn" onclick="event.stopPropagation(); openReportModal(<?= $idea['id'] ?>, '<?= htmlspecialchars($idea['project_name']) ?>')" <?= !$user_id?'disabled':'' ?> title="Report">
+                            <i class="fas fa-flag"></i>
+                        </button>
+                        <?php endif; ?>
+                        
+                        <button class="action-btn" onclick="event.stopPropagation(); openIdeaModal(<?= $idea['id'] ?>)" <?= !$user_id?'disabled':'' ?> title="Comments">
+                            <i class="fas fa-comment"></i>
+                            <span class="ms-1"><?= $idea['total_comments'] ?></span>
+                        </button>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -539,6 +576,10 @@ include '../layout.php';
                         You haven't created any ideas yet.
                     <?php elseif($view_mode==='bookmarked'): ?>
                         You haven't bookmarked any ideas yet.
+                    <?php elseif($view_mode==='following'): ?>
+                        You aren't following any ideas yet.
+                    <?php elseif($view_mode==='shared'): ?>
+                        You haven't shared any ideas yet.
                     <?php else: ?>
                         No ideas match your current filters.
                     <?php endif; ?>
@@ -582,6 +623,42 @@ include '../layout.php';
                             <div>Copy Link</div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Report Idea</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted" id="reportIdeaName"></p>
+                    <form id="reportForm">
+                        <input type="hidden" id="reportIdeaId" name="idea_id">
+                        <div class="mb-3">
+                            <label class="form-label">Reason for reporting:</label>
+                            <select class="form-select" name="reason" required>
+                                <option value="inappropriate">Inappropriate content</option>
+                                <option value="spam">Spam</option>
+                                <option value="copyright">Copyright violation</option>
+                                <option value="harassment">Harassment</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Additional details (optional):</label>
+                            <textarea class="form-control" name="description" rows="3" placeholder="Please provide more details..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="submitReport()">Submit Report</button>
                 </div>
             </div>
         </div>
@@ -763,6 +840,68 @@ function submitRating(ideaId, rating) {
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: `submit_rating=1&idea_id=${ideaId}&rating=${rating}`
     }).then(() => location.reload());
+}
+
+function toggleCommentForm() {
+    const form = document.getElementById('commentForm');
+    if(form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleReplyForm(commentId) {
+    const form = document.getElementById('replyForm' + commentId);
+    if(form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+function submitComment(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    fetch('', {
+        method: 'POST',
+        body: new URLSearchParams(Object.fromEntries(formData)).toString() + '&submit_comment=1',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+    })
+    .then(r => r.json())
+    .then(data => {
+        if(data.success) location.reload();
+    });
+}
+
+function openReportModal(ideaId, ideaName) {
+    document.getElementById('reportIdeaId').value = ideaId;
+    document.getElementById('reportIdeaName').textContent = ideaName;
+    new bootstrap.Modal(document.getElementById('reportModal')).show();
+}
+
+function submitReport() {
+    const form = document.getElementById('reportForm');
+    const formData = new FormData(form);
+    
+    fetch('', {
+        method: 'POST',
+        body: new URLSearchParams(Object.fromEntries(formData)).toString() + '&submit_report=1',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+    })
+    .then(r => r.text())
+    .then(text => {
+        try {
+            const data = JSON.parse(text);
+            if(data.success) {
+                bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
+                alert('Report submitted successfully. Thank you for helping keep our community safe.');
+            } else {
+                alert('Failed to submit report. Please try again.');
+            }
+        } catch(e) {
+            console.error('Response:', text);
+            alert('An error occurred. Please try again.');
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('An error occurred. Please try again.');
+    });
 }
 
 </script>
