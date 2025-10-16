@@ -42,9 +42,9 @@ header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
 
 // Enhanced Content Security Policy for production
 $csp = "default-src 'self'; ";
-$csp .= "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://accounts.google.com https://ictmu.in; ";
-$csp .= "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; ";
-$csp .= "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; ";
+$csp .= "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://accounts.google.com https://ictmu.in https://cdn.jsdelivr.net; ";
+$csp .= "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; ";
+$csp .= "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; ";
 $csp .= "img-src 'self' data: https: https://ictmu.in; ";
 $csp .= "connect-src 'self' https://api.github.com https://ictmu.in; ";
 $csp .= "frame-src https://accounts.google.com;";
