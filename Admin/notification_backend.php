@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Database connection
-include "../Login/Login/db.php";
+require_once __DIR__ . '/../Login/Login/db.php';
 
 // Include PHPMailer
 require_once dirname(__DIR__) . '/vendor/autoload.php';
