@@ -5,12 +5,7 @@ if (!isset($_SESSION['subadmin_logged_in']) || !$_SESSION['subadmin_logged_in'])
     exit();
 }
 
-// Use local XAMPP database connection
-$conn = new mysqli("localhost", "root", "", "ictmu6ya_ideanest", 3306, "/opt/lampp/var/mysql/mysql.sock");
-
-if ($conn->connect_error) {
-    die("Database connection failed: " . $conn->connect_error);
-}
+include_once "../../Login/Login/db.php";
 require_once "sidebar_subadmin.php"; // Include the layout file
 
 $subadmin_id = $_SESSION['subadmin_id'];
@@ -222,50 +217,29 @@ while ($row = $result->fetch_assoc()) {
 }
 ?>
 
-    <!-- Project Statistics -->
-    <div class="row mb-4 fade-in-up">
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="glass-card stats-card">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <span class="stats-number"><?php echo $total_projects; ?></span>
-                        <span class="stats-label">Total Projects</span>
-                    </div>
-                    <i class="bi bi-kanban" style="font-size: 2.5rem; opacity: 0.8;"></i>
-                </div>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="glass-card stats-card text-center">
+                <span class="stats-number"><?php echo $total_projects; ?></span>
+                <span class="stats-label">Total Projects</span>
             </div>
         </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="glass-card stats-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <span class="stats-number"><?php echo $approved_count; ?></span>
-                        <span class="stats-label">Approved</span>
-                    </div>
-                    <i class="bi bi-check-circle" style="font-size: 2.5rem; opacity: 0.8;"></i>
-                </div>
+        <div class="col-md-3">
+            <div class="glass-card p-3 text-center" style="background: linear-gradient(135deg, var(--success-color) 0%, #10b981 100%); color: white;">
+                <span class="stats-number"><?php echo $approved_count; ?></span>
+                <span class="stats-label">Approved</span>
             </div>
         </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="glass-card stats-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <span class="stats-number"><?php echo $pending_count; ?></span>
-                        <span class="stats-label">Pending Review</span>
-                    </div>
-                    <i class="bi bi-clock-history" style="font-size: 2.5rem; opacity: 0.8;"></i>
-                </div>
+        <div class="col-md-3">
+            <div class="glass-card p-3 text-center" style="background: linear-gradient(135deg, var(--warning-color) 0%, #f59e0b 100%); color: white;">
+                <span class="stats-number"><?php echo $pending_count; ?></span>
+                <span class="stats-label">Pending</span>
             </div>
         </div>
-        <div class="col-lg-3 col-md-6 mb-3">
-            <div class="glass-card stats-card" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <span class="stats-number"><?php echo $rejected_count; ?></span>
-                        <span class="stats-label">Rejected</span>
-                    </div>
-                    <i class="bi bi-x-circle" style="font-size: 2.5rem; opacity: 0.8;"></i>
-                </div>
+        <div class="col-md-3">
+            <div class="glass-card p-3 text-center" style="background: linear-gradient(135deg, var(--danger-color) 0%, #ef4444 100%); color: white;">
+                <span class="stats-number"><?php echo $rejected_count; ?></span>
+                <span class="stats-label">Rejected</span>
             </div>
         </div>
     </div>
