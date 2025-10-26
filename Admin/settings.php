@@ -1,13 +1,22 @@
 <?php
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Production-safe error reporting
+if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+}
 
 // Database connection
 include "../Login/Login/db.php";
 
 // Include PHPMailer for email functionality
-require_once dirname(__DIR__) . '/vendor/autoload.php';
+if (file_exists(dirname(__DIR__) . '/vendor/autoload.php')) {
+    try {
+        require_once dirname(__DIR__) . '/vendor/autoload.php';
+    } catch (Exception $e) {
+        error_log("PHPMailer not available: " . $e->getMessage());
+        // Continue without PHPMailer
+    }
+}
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;

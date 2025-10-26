@@ -27,7 +27,11 @@ if (file_exists('../vendor/autoload.php')) {
         $phpmailer_available = class_exists('PHPMailer\\PHPMailer\\PHPMailer');
     } catch (Exception $e) {
         // PHPMailer not available, continue without it
+        error_log("PHPMailer not available: " . $e->getMessage());
     }
+} else {
+    // No vendor directory - this is normal in production without Composer
+    // Email functionality will be disabled but the page will work
 }
 
 if (!$error_message && isset($conn)) {
@@ -60,6 +64,10 @@ if (!$error_message && isset($conn)) {
                          ORDER BY r.name";
         $mentors_result = $conn->query($mentors_query);
         
+        if (!$mentors_result) {
+            $error_message = "Failed to fetch mentors: " . $conn->error;
+        }
+        
         // Get user's projects for selection
         $projects_query = "SELECT id, project_name FROM projects WHERE user_id = ?";
         $projects_stmt = $conn->prepare($projects_query);
@@ -67,6 +75,8 @@ if (!$error_message && isset($conn)) {
             $projects_stmt->bind_param("i", $user_id);
             $projects_stmt->execute();
             $projects_result = $projects_stmt->get_result();
+        } else {
+            $error_message = "Failed to prepare projects query: " . $conn->error;
         }
     }
 }

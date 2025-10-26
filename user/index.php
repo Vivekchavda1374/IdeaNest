@@ -16,25 +16,30 @@ if (isset($_SESSION['google_new_user']) && $_SESSION['google_new_user'] === true
 
 // DB connection for stats
 include_once dirname(__DIR__) . '/Login/Login/db.php';
-$user_id = session_id();
+$user_db_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+$user_id = $user_db_id; // Use actual user ID instead of session ID
+
 // Get user info from session and database
 $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "User";
 $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "U";
 
 $user_email = "user@example.com";
 $github_username = '';
-$user_db_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 
 if (isset($conn) && $user_db_id) {
     $stmt = $conn->prepare("SELECT email, github_username FROM register WHERE id = ?");
-    $stmt->bind_param("i", $user_db_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($row = $result->fetch_assoc()) {
-        $user_email = $row['email'];
-        $github_username = $row['github_username'] ?? '';
+    if ($stmt) {
+        $stmt->bind_param("i", $user_db_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $user_email = $row['email'];
+            $github_username = $row['github_username'] ?? '';
+        }
+        $stmt->close();
+    } else {
+        error_log("Failed to prepare user email query: " . $conn->error);
     }
-    $stmt->close();
 }
 $bookmark_count = 0;
 $my_projects_count = 0;
