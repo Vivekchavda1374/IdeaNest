@@ -1,7 +1,16 @@
 <?php
 session_start();
 require_once '../Login/Login/db.php';
-require_once '../vendor/autoload.php';
+
+// Include PHPMailer if available
+if (file_exists('../vendor/autoload.php')) {
+    try {
+        require_once '../vendor/autoload.php';
+    } catch (Exception $e) {
+        error_log("PHPMailer not available: " . $e->getMessage());
+        // Continue without PHPMailer
+    }
+}
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;

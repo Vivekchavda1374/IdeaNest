@@ -1,27 +1,32 @@
 <?php
 // user/all_projects.php - Enhanced version with complete project details modal
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// Production-safe error reporting
+if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+}                                                                                                                                                                                                                                                                       
 
 $basePath = './';
 include '../Login/Login/db.php';
+require_once '../includes/csrf.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$session_id = session_id();
+$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
 $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "Guest User";
 
 // Handle like toggle
-if (isset($_POST['toggle_like']) && isset($_POST['project_id'])) {
+if (isset($_POST['toggle_like']) && isset($_POST['project_id']) && $user_id) {
+    requireCSRF();
     $project_id = intval($_POST['project_id']);
 
     // Check if like already exists
     $check_like_sql = "SELECT * FROM project_likes WHERE project_id = ? AND user_id = ?";
     $check_like_stmt = $conn->prepare($check_like_sql);
-    $check_like_stmt->bind_param("is", $project_id, $session_id);
+    $check_like_stmt->bind_param("ii", $project_id, $user_id);
     $check_like_stmt->execute();
     $like_result = $check_like_stmt->get_result();
 
@@ -29,7 +34,7 @@ if (isset($_POST['toggle_like']) && isset($_POST['project_id'])) {
         // Remove like
         $delete_like_sql = "DELETE FROM project_likes WHERE project_id = ? AND user_id = ?";
         $delete_like_stmt = $conn->prepare($delete_like_sql);
-        $delete_like_stmt->bind_param("is", $project_id, $session_id);
+        $delete_like_stmt->bind_param("ii", $project_id, $user_id);
         $delete_like_stmt->execute();
         $delete_like_stmt->close();
         $like_message = '<div class="alert alert-info">Like removed!</div>';
@@ -37,7 +42,7 @@ if (isset($_POST['toggle_like']) && isset($_POST['project_id'])) {
         // Add like
         $insert_like_sql = "INSERT INTO project_likes (project_id, user_id) VALUES (?, ?)";
         $insert_like_stmt = $conn->prepare($insert_like_sql);
-        $insert_like_stmt->bind_param("is", $project_id, $session_id);
+        $insert_like_stmt->bind_param("ii", $project_id, $user_id);
         $insert_like_stmt->execute();
         $insert_like_stmt->close();
         $like_message = '<div class="alert alert-success">Project liked!</div>';
@@ -46,7 +51,7 @@ if (isset($_POST['toggle_like']) && isset($_POST['project_id'])) {
 }
 
 // Handle comment submission
-if (isset($_POST['submit_comment']) && isset($_POST['project_id']) && isset($_POST['comment_text'])) {
+if (isset($_POST['submit_comment']) && isset($_POST['project_id']) && isset($_POST['comment_text']) && $user_id) {
     $project_id = intval($_POST['project_id']);
     $comment_text = trim($_POST['comment_text']);
     $parent_comment_id = isset($_POST['parent_comment_id']) && !empty($_POST['parent_comment_id']) ? intval($_POST['parent_comment_id']) : null;
@@ -54,7 +59,7 @@ if (isset($_POST['submit_comment']) && isset($_POST['project_id']) && isset($_PO
     if (!empty($comment_text)) {
         $insert_comment_sql = "INSERT INTO project_comments (project_id, user_id, user_name, comment_text, parent_comment_id) VALUES (?, ?, ?, ?, ?)";
         $insert_comment_stmt = $conn->prepare($insert_comment_sql);
-        $insert_comment_stmt->bind_param("isssi", $project_id, $session_id, $user_name, $comment_text, $parent_comment_id);
+        $insert_comment_stmt->bind_param("iissi", $project_id, $user_id, $user_name, $comment_text, $parent_comment_id);
 
         if ($insert_comment_stmt->execute()) {
             $comment_message = '<div class="alert alert-success">Comment added successfully!</div>';
@@ -66,7 +71,7 @@ if (isset($_POST['submit_comment']) && isset($_POST['project_id']) && isset($_PO
 }
 
 // Handle comment edit
-if (isset($_POST['edit_comment']) && isset($_POST['comment_id']) && isset($_POST['comment_text'])) {
+if (isset($_POST['edit_comment']) && isset($_POST['comment_id']) && isset($_POST['comment_text']) && $user_id) {
     $comment_id = intval($_POST['comment_id']);
     $new_comment_text = trim($_POST['comment_text']);
 
@@ -80,7 +85,7 @@ if (isset($_POST['edit_comment']) && isset($_POST['comment_id']) && isset($_POST
 
         if ($ownership_result->num_rows > 0) {
             $comment_owner = $ownership_result->fetch_assoc();
-            if ($comment_owner['user_id'] === $session_id) {
+            if ($comment_owner['user_id'] === $user_id) {
                 // Update comment
                 $update_comment_sql = "UPDATE project_comments SET comment_text = ?, updated_at = NOW() WHERE id = ?";
                 $update_comment_stmt = $conn->prepare($update_comment_sql);
@@ -101,7 +106,7 @@ if (isset($_POST['edit_comment']) && isset($_POST['comment_id']) && isset($_POST
 }
 
 // Handle comment delete
-if (isset($_POST['delete_comment']) && isset($_POST['comment_id'])) {
+if (isset($_POST['delete_comment']) && isset($_POST['comment_id']) && $user_id) {
     $comment_id = intval($_POST['comment_id']);
 
     // Verify comment ownership
@@ -113,7 +118,7 @@ if (isset($_POST['delete_comment']) && isset($_POST['comment_id'])) {
 
     if ($ownership_result->num_rows > 0) {
         $comment_owner = $ownership_result->fetch_assoc();
-        if ($comment_owner['user_id'] === $session_id) {
+        if ($comment_owner['user_id'] === $user_id) {
             // Delete comment
             $delete_comment_sql = "DELETE FROM project_comments WHERE id = ?";
             $delete_comment_stmt = $conn->prepare($delete_comment_sql);
@@ -133,13 +138,13 @@ if (isset($_POST['delete_comment']) && isset($_POST['comment_id'])) {
 }
 
 // Handle comment like toggle
-if (isset($_POST['toggle_comment_like']) && isset($_POST['comment_id'])) {
+if (isset($_POST['toggle_comment_like']) && isset($_POST['comment_id']) && $user_id) {
     $comment_id = intval($_POST['comment_id']);
 
     // Check if comment like already exists
     $check_comment_like_sql = "SELECT * FROM comment_likes WHERE comment_id = ? AND user_id = ?";
     $check_comment_like_stmt = $conn->prepare($check_comment_like_sql);
-    $check_comment_like_stmt->bind_param("is", $comment_id, $session_id);
+    $check_comment_like_stmt->bind_param("ii", $comment_id, $user_id);
     $check_comment_like_stmt->execute();
     $comment_like_result = $check_comment_like_stmt->get_result();
 
@@ -147,14 +152,14 @@ if (isset($_POST['toggle_comment_like']) && isset($_POST['comment_id'])) {
         // Remove comment like
         $delete_comment_like_sql = "DELETE FROM comment_likes WHERE comment_id = ? AND user_id = ?";
         $delete_comment_like_stmt = $conn->prepare($delete_comment_like_sql);
-        $delete_comment_like_stmt->bind_param("is", $comment_id, $session_id);
+        $delete_comment_like_stmt->bind_param("ii", $comment_id, $user_id);
         $delete_comment_like_stmt->execute();
         $delete_comment_like_stmt->close();
     } else {
         // Add comment like
         $insert_comment_like_sql = "INSERT INTO comment_likes (comment_id, user_id) VALUES (?, ?)";
         $insert_comment_like_stmt = $conn->prepare($insert_comment_like_sql);
-        $insert_comment_like_stmt->bind_param("is", $comment_id, $session_id);
+        $insert_comment_like_stmt->bind_param("ii", $comment_id, $user_id);
         $insert_comment_like_stmt->execute();
         $insert_comment_like_stmt->close();
     }
@@ -162,19 +167,20 @@ if (isset($_POST['toggle_comment_like']) && isset($_POST['comment_id'])) {
 }
 
 // Handle bookmark toggle
-if (isset($_POST['toggle_bookmark']) && isset($_POST['project_id'])) {
+if (isset($_POST['toggle_bookmark']) && isset($_POST['project_id']) && $user_id) {
+    requireCSRF();
     $project_id = intval($_POST['project_id']);
 
     $check_sql = "SELECT * FROM bookmark WHERE project_id = ? AND user_id = ?";
     $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("is", $project_id, $session_id);
+    $check_stmt->bind_param("ii", $project_id, $user_id);
     $check_stmt->execute();
     $check_result = $check_stmt->get_result();
 
     if ($check_result->num_rows > 0) {
         $delete_sql = "DELETE FROM bookmark WHERE project_id = ? AND user_id = ?";
         $delete_stmt = $conn->prepare($delete_sql);
-        $delete_stmt->bind_param("is", $project_id, $session_id);
+        $delete_stmt->bind_param("ii", $project_id, $user_id);
         $delete_stmt->execute();
         $delete_stmt->close();
         $bookmark_message = '<div class="alert alert-info">Bookmark removed!</div>';
@@ -182,7 +188,7 @@ if (isset($_POST['toggle_bookmark']) && isset($_POST['project_id'])) {
         $idea_id = 0;
         $insert_sql = "INSERT INTO bookmark (project_id, user_id, idea_id) VALUES (?, ?, ?)";
         $insert_stmt = $conn->prepare($insert_sql);
-        $insert_stmt->bind_param("isi", $project_id, $session_id, $idea_id);
+        $insert_stmt->bind_param("iii", $project_id, $user_id, $idea_id);
         $insert_stmt->execute();
         $insert_stmt->close();
         $bookmark_message = '<div class="alert alert-success">Project bookmarked!</div>';
@@ -329,6 +335,10 @@ $params[] = $offset;
 $types .= "ii";
 
 $stmt = $conn->prepare($sql);
+if (!$stmt) {
+    error_log("Prepare failed: " . $conn->error);
+    die("Database query preparation failed. Please try again later.");
+}
 $stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -1760,6 +1770,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                             <div class="action-buttons">
                                 <!-- Like Button -->
                                 <form method="POST" action="all_projects.php" style="display:inline;" onsubmit="return true;">
+                                    <?php echo getCSRFField(); ?>
                                     <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
                                     <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
                                     <input type="hidden" name="page" value="<?php echo $current_page_num; ?>">
@@ -1780,6 +1791,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
                                 <!-- Bookmark Button -->
                                 <form method="POST" action="all_projects.php" style="display:inline;" onsubmit="return true;">
+                                    <?php echo getCSRFField(); ?>
                                     <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
                                     <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
                                     <input type="hidden" name="page" value="<?php echo $current_page_num; ?>">
@@ -2123,6 +2135,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                     <!-- Quick Comment Form -->
                                     <div class="comment-form mb-3">
                                         <form method="post">
+                                            <?php echo getCSRFField(); ?>
                                             <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
                                             <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
                                             <input type="hidden" name="page" value="<?php echo $current_page_num; ?>">
@@ -2324,6 +2337,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                             <!-- Reply Form -->
                                             <div class="reply-form" id="modalReplyForm<?php echo $comment['id']; ?>" style="display: none;">
                                                 <form method="post">
+                                            <?php echo getCSRFField(); ?>
                                                     <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
                                                     <input type="hidden" name="parent_comment_id" value="<?php echo $comment['id']; ?>">
                                                     <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
