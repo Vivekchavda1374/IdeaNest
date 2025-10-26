@@ -1,7 +1,10 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// Production-safe error reporting
+if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+}
 
 // Start session before any output or includes
 if (session_status() === PHP_SESSION_NONE) {
@@ -87,8 +90,15 @@ $sql = "SELECT admin_approved_projects.*,
         ORDER BY bookmark.bookmarked_at DESC";
 
 $stmt = $conn->prepare($sql);
-$session_id = session_id();
-$stmt->bind_param("s", $session_id);
+if (!$stmt) {
+    error_log("Prepare failed: " . $conn->error);
+    die("Database query preparation failed. Please try again later.");
+}
+$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+if (!$user_id) {
+    die("User not authenticated");
+}
+$stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 

@@ -1,12 +1,24 @@
 <?php
 
-// Try different autoload paths
+// Try different autoload paths - Production Safe
+$phpmailer_available = false;
 if (file_exists('../vendor/autoload.php')) {
-    require_once '../vendor/autoload.php';
+    try {
+        require_once '../vendor/autoload.php';
+        $phpmailer_available = class_exists('PHPMailer\\PHPMailer\\PHPMailer');
+    } catch (Exception $e) {
+        error_log("PHPMailer not available: " . $e->getMessage());
+    }
 } elseif (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    require_once __DIR__ . '/../vendor/autoload.php';
+    try {
+        require_once __DIR__ . '/../vendor/autoload.php';
+        $phpmailer_available = class_exists('PHPMailer\\PHPMailer\\PHPMailer');
+    } catch (Exception $e) {
+        error_log("PHPMailer not available: " . $e->getMessage());
+    }
 } else {
-    throw new Exception('Composer autoload not found. Run: composer install');
+    // No vendor directory - this is normal in production without Composer
+    error_log("Composer autoload not found - continuing without PHPMailer");
 }
 
 require_once '../Login/Login/db.php';

@@ -672,8 +672,8 @@ if (isset($conn)) {
                             <select class="form-select" name="project_type" id="projectType" required
                                     onchange="toggleProjectType()">
                                 <option value="">Select Project Type</option>
-                                <option value="software" <?php echo (isset($_POST['project_type']) && $_POST['project_type'] === 'software') ? 'selected' : ''; ?>>Software Development</option>
-                                <option value="hardware" <?php echo (isset($_POST['project_type']) && $_POST['project_type'] === 'hardware') ? 'selected' : ''; ?>>Hardware Engineering</option>
+                                <option value="software" <?php echo (isset($_POST['project_type']) && htmlspecialchars($_POST['project_type']) === 'software') ? 'selected' : ''; ?>>Software Development</option>
+                                <option value="hardware" <?php echo (isset($_POST['project_type']) && htmlspecialchars($_POST['project_type']) === 'hardware') ? 'selected' : ''; ?>>Hardware Engineering</option>
                             </select>
                         </div>
                     </div>
@@ -685,15 +685,15 @@ if (isset($conn)) {
                             </label>
                             <select class="form-select" name="project_category">
                                 <option value="">Select Category</option>
-                                <option value="education" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'education') ? 'selected' : ''; ?>>Education</option>
-                                <option value="healthcare" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'healthcare') ? 'selected' : ''; ?>>Healthcare</option>
-                                <option value="finance" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'finance') ? 'selected' : ''; ?>>Finance</option>
-                                <option value="entertainment" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'entertainment') ? 'selected' : ''; ?>>Entertainment</option>
-                                <option value="productivity" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'productivity') ? 'selected' : ''; ?>>Productivity</option>
-                                <option value="social" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'social') ? 'selected' : ''; ?>>Social</option>
-                                <option value="business" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'business') ? 'selected' : ''; ?>>Business</option>
-                                <option value="research" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'research') ? 'selected' : ''; ?>>Research</option>
-                                <option value="other" <?php echo (isset($_POST['project_category']) && $_POST['project_category'] === 'other') ? 'selected' : ''; ?>>Other</option>
+                                <option value="education" <?php echo (isset($_POST['project_category']) && htmlspecialchars($_POST['project_category']) === 'education') ? 'selected' : ''; ?>>Education</option>
+                                <option value="healthcare" <?php echo (isset($_POST['project_category']) && htmlspecialchars($_POST['project_category']) === 'healthcare') ? 'selected' : ''; ?>>Healthcare</option>
+                                <option value="finance" <?php echo (isset($_POST['project_category']) && htmlspecialchars($_POST['project_category']) === 'finance') ? 'selected' : ''; ?>>Finance</option>
+                                <option value="entertainment" <?php echo (isset($_POST['project_category']) && htmlspecialchars($_POST['project_category']) === 'entertainment') ? 'selected' : ''; ?>>Entertainment</option>
+                                <option value="productivity" <?php echo (isset($_POST['project_category']) && htmlspecialchars($_POST['project_category']) === 'productivity') ? 'selected' : ''; ?>>Productivity</option>
+                                <option value="social" <?php echo (isset($_POST['project_category']) && htmlspecialchars($_POST['project_category']) === 'social') ? 'selected' : ''; ?>>Social</option>
+                                <option value="business" <?php echo (isset($_POST['project_category']) && htmlspecialchars($_POST['project_category']) === 'business') ? 'selected' : ''; ?>>Business</option>
+                                <option value="research" <?php echo (isset($_POST['project_category']) && htmlspecialchars($_POST['project_category']) === 'research') ? 'selected' : ''; ?>>Research</option>
+                                <option value="other" <?php echo (isset($_POST['project_category']) && htmlspecialchars($_POST['project_category']) === 'other') ? 'selected' : ''; ?>>Other</option>
                             </select>
                         </div>
 
@@ -703,10 +703,10 @@ if (isset($conn)) {
                             </label>
                             <select class="form-select" name="difficulty_level">
                                 <option value="">Select Difficulty</option>
-                                <option value="beginner" <?php echo (isset($_POST['difficulty_level']) && $_POST['difficulty_level'] === 'beginner') ? 'selected' : ''; ?>>Beginner</option>
-                                <option value="intermediate" <?php echo (isset($_POST['difficulty_level']) && $_POST['difficulty_level'] === 'intermediate') ? 'selected' : ''; ?>>Intermediate</option>
-                                <option value="advanced" <?php echo (isset($_POST['difficulty_level']) && $_POST['difficulty_level'] === 'advanced') ? 'selected' : ''; ?>>Advanced</option>
-                                <option value="expert" <?php echo (isset($_POST['difficulty_level']) && $_POST['difficulty_level'] === 'expert') ? 'selected' : ''; ?>>Expert</option>
+                                <option value="beginner" <?php echo (isset($_POST['difficulty_level']) && htmlspecialchars($_POST['difficulty_level']) === 'beginner') ? 'selected' : ''; ?>>Beginner</option>
+                                <option value="intermediate" <?php echo (isset($_POST['difficulty_level']) && htmlspecialchars($_POST['difficulty_level']) === 'intermediate') ? 'selected' : ''; ?>>Intermediate</option>
+                                <option value="advanced" <?php echo (isset($_POST['difficulty_level']) && htmlspecialchars($_POST['difficulty_level']) === 'advanced') ? 'selected' : ''; ?>>Advanced</option>
+                                <option value="expert" <?php echo (isset($_POST['difficulty_level']) && htmlspecialchars($_POST['difficulty_level']) === 'expert') ? 'selected' : ''; ?>>Expert</option>
                             </select>
                         </div>
                     </div>
@@ -719,16 +719,16 @@ if (isset($conn)) {
                     </label>
                     <select class="form-select" name="software_classification">
                         <option value="">Select Software Category</option>
-                        <option value="web" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'web') ? 'selected' : ''; ?>>Web Application</option>
-                        <option value="mobile" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'mobile') ? 'selected' : ''; ?>>Mobile Application</option>
-                        <option value="ai_ml" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'ai_ml') ? 'selected' : ''; ?>>AI & Machine Learning</option>
-                        <option value="desktop" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'desktop') ? 'selected' : ''; ?>>Desktop Application</option>
-                        <option value="system" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'system') ? 'selected' : ''; ?>>System Software</option>
-                        <option value="embedded_iot" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'embedded_iot') ? 'selected' : ''; ?>>Embedded Systems / IoT</option>
-                        <option value="cybersecurity" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'cybersecurity') ? 'selected' : ''; ?>>Cybersecurity</option>
-                        <option value="game" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'game') ? 'selected' : ''; ?>>Game Development</option>
-                        <option value="data_science" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'data_science') ? 'selected' : ''; ?>>Data Science & Analytics</option>
-                        <option value="cloud" <?php echo (isset($_POST['software_classification']) && $_POST['software_classification'] === 'cloud') ? 'selected' : ''; ?>>Cloud Applications</option>
+                        <option value="web" <?php echo (isset($_POST['software_classification']) && htmlspecialchars($_POST['software_classification']) === 'web') ? 'selected' : ''; ?>>Web Application</option>
+                        <option value="mobile" <?php echo (isset($_POST['software_classification']) && htmlspecialchars($_POST['software_classification']) === 'mobile') ? 'selected' : ''; ?>>Mobile Application</option>
+                        <option value="ai_ml" <?php echo (isset($_POST['software_classification']) && htmlspecialchars($_POST['software_classification']) === 'ai_ml') ? 'selected' : ''; ?>>AI & Machine Learning</option>
+                        <option value="desktop" <?php echo (isset($_POST['software_classification']) && htmlspecialchars($_POST['software_classification']) === 'desktop') ? 'selected' : ''; ?>>Desktop Application</option>
+                        <option value="system" <?php echo (isset($_POST['software_classification']) && htmlspecialchars($_POST['software_classification']) === 'system') ? 'selected' : ''; ?>>System Software</option>
+                        <option value="embedded_iot" <?php echo (isset($_POST['software_classification']) && htmlspecialchars($_POST['software_classification']) === 'embedded_iot') ? 'selected' : ''; ?>>Embedded Systems / IoT</option>
+                        <option value="cybersecurity" <?php echo (isset($_POST['software_classification']) && htmlspecialchars($_POST['software_classification']) === 'cybersecurity') ? 'selected' : ''; ?>>Cybersecurity</option>
+                        <option value="game" <?php echo (isset($_POST['software_classification']) && htmlspecialchars($_POST['software_classification']) === 'game') ? 'selected' : ''; ?>>Game Development</option>
+                        <option value="data_science" <?php echo (isset($_POST['software_classification']) && htmlspecialchars($_POST['software_classification']) === 'data_science') ? 'selected' : ''; ?>>Data Science & Analytics</option>
+                        <option value="cloud" <?php echo (isset($_POST['software_classification']) && htmlspecialchars($_POST['software_classification']) === 'cloud') ? 'selected' : ''; ?>>Cloud Applications</option>
                     </select>
                 </div>
 
@@ -738,16 +738,16 @@ if (isset($conn)) {
                     </label>
                     <select class="form-select" name="hardware_classification">
                         <option value="">Select Hardware Category</option>
-                        <option value="embedded" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'embedded') ? 'selected' : ''; ?>>Embedded Systems</option>
-                        <option value="iot" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'iot') ? 'selected' : ''; ?>>IoT Projects</option>
-                        <option value="robotics" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'robotics') ? 'selected' : ''; ?>>Robotics</option>
-                        <option value="automation" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'automation') ? 'selected' : ''; ?>>Automation</option>
-                        <option value="sensor" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'sensor') ? 'selected' : ''; ?>>Sensor-Based Projects</option>
-                        <option value="communication" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'communication') ? 'selected' : ''; ?>>Communication Systems</option>
-                        <option value="power" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'power') ? 'selected' : ''; ?>>Power Electronics</option>
-                        <option value="wearable" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'wearable') ? 'selected' : ''; ?>>Wearable Technology</option>
-                        <option value="mechatronics" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'mechatronics') ? 'selected' : ''; ?>>Mechatronics</option>
-                        <option value="renewable" <?php echo (isset($_POST['hardware_classification']) && $_POST['hardware_classification'] === 'renewable') ? 'selected' : ''; ?>>Renewable Energy</option>
+                        <option value="embedded" <?php echo (isset($_POST['hardware_classification']) && htmlspecialchars($_POST['hardware_classification']) === 'embedded') ? 'selected' : ''; ?>>Embedded Systems</option>
+                        <option value="iot" <?php echo (isset($_POST['hardware_classification']) && htmlspecialchars($_POST['hardware_classification']) === 'iot') ? 'selected' : ''; ?>>IoT Projects</option>
+                        <option value="robotics" <?php echo (isset($_POST['hardware_classification']) && htmlspecialchars($_POST['hardware_classification']) === 'robotics') ? 'selected' : ''; ?>>Robotics</option>
+                        <option value="automation" <?php echo (isset($_POST['hardware_classification']) && htmlspecialchars($_POST['hardware_classification']) === 'automation') ? 'selected' : ''; ?>>Automation</option>
+                        <option value="sensor" <?php echo (isset($_POST['hardware_classification']) && htmlspecialchars($_POST['hardware_classification']) === 'sensor') ? 'selected' : ''; ?>>Sensor-Based Projects</option>
+                        <option value="communication" <?php echo (isset($_POST['hardware_classification']) && htmlspecialchars($_POST['hardware_classification']) === 'communication') ? 'selected' : ''; ?>>Communication Systems</option>
+                        <option value="power" <?php echo (isset($_POST['hardware_classification']) && htmlspecialchars($_POST['hardware_classification']) === 'power') ? 'selected' : ''; ?>>Power Electronics</option>
+                        <option value="wearable" <?php echo (isset($_POST['hardware_classification']) && htmlspecialchars($_POST['hardware_classification']) === 'wearable') ? 'selected' : ''; ?>>Wearable Technology</option>
+                        <option value="mechatronics" <?php echo (isset($_POST['hardware_classification']) && htmlspecialchars($_POST['hardware_classification']) === 'mechatronics') ? 'selected' : ''; ?>>Mechatronics</option>
+                        <option value="renewable" <?php echo (isset($_POST['hardware_classification']) && htmlspecialchars($_POST['hardware_classification']) === 'renewable') ? 'selected' : ''; ?>>Renewable Energy</option>
                     </select>
                 </div>
 
@@ -803,12 +803,12 @@ if (isset($conn)) {
                             </label>
                             <select class="form-select" name="development_time">
                                 <option value="">Select Duration</option>
-                                <option value="1-2 weeks" <?php echo (isset($_POST['development_time']) && $_POST['development_time'] === '1-2 weeks') ? 'selected' : ''; ?>>1-2 weeks</option>
-                                <option value="1 month" <?php echo (isset($_POST['development_time']) && $_POST['development_time'] === '1 month') ? 'selected' : ''; ?>>1 month</option>
-                                <option value="2-3 months" <?php echo (isset($_POST['development_time']) && $_POST['development_time'] === '2-3 months') ? 'selected' : ''; ?>>2-3 months</option>
-                                <option value="3-6 months" <?php echo (isset($_POST['development_time']) && $_POST['development_time'] === '3-6 months') ? 'selected' : ''; ?>>3-6 months</option>
-                                <option value="6+ months" <?php echo (isset($_POST['development_time']) && $_POST['development_time'] === '6+ months') ? 'selected' : ''; ?>>6+ months</option>
-                                <option value="ongoing" <?php echo (isset($_POST['development_time']) && $_POST['development_time'] === 'ongoing') ? 'selected' : ''; ?>>Ongoing</option>
+                                <option value="1-2 weeks" <?php echo (isset($_POST['development_time']) && htmlspecialchars($_POST['development_time']) === '1-2 weeks') ? 'selected' : ''; ?>>1-2 weeks</option>
+                                <option value="1 month" <?php echo (isset($_POST['development_time']) && htmlspecialchars($_POST['development_time']) === '1 month') ? 'selected' : ''; ?>>1 month</option>
+                                <option value="2-3 months" <?php echo (isset($_POST['development_time']) && htmlspecialchars($_POST['development_time']) === '2-3 months') ? 'selected' : ''; ?>>2-3 months</option>
+                                <option value="3-6 months" <?php echo (isset($_POST['development_time']) && htmlspecialchars($_POST['development_time']) === '3-6 months') ? 'selected' : ''; ?>>3-6 months</option>
+                                <option value="6+ months" <?php echo (isset($_POST['development_time']) && htmlspecialchars($_POST['development_time']) === '6+ months') ? 'selected' : ''; ?>>6+ months</option>
+                                <option value="ongoing" <?php echo (isset($_POST['development_time']) && htmlspecialchars($_POST['development_time']) === 'ongoing') ? 'selected' : ''; ?>>Ongoing</option>
                             </select>
                         </div>
 
@@ -818,10 +818,10 @@ if (isset($conn)) {
                             </label>
                             <select class="form-select" name="team_size">
                                 <option value="">Select Team Size</option>
-                                <option value="1" <?php echo (isset($_POST['team_size']) && $_POST['team_size'] === '1') ? 'selected' : ''; ?>>Solo (1 person)</option>
-                                <option value="2" <?php echo (isset($_POST['team_size']) && $_POST['team_size'] === '2') ? 'selected' : ''; ?>>2 people</option>
-                                <option value="3" <?php echo (isset($_POST['team_size']) && $_POST['team_size'] === '3') ? 'selected' : ''; ?>>3-4 people</option>
-                                <option value="5" <?php echo (isset($_POST['team_size']) && $_POST['team_size'] === '5') ? 'selected' : ''; ?>>5-10 people</option>
+                                <option value="1" <?php echo (isset($_POST['team_size']) && htmlspecialchars($_POST['team_size']) === '1') ? 'selected' : ''; ?>>Solo (1 person)</option>
+                                <option value="2" <?php echo (isset($_POST['team_size']) && htmlspecialchars($_POST['team_size']) === '2') ? 'selected' : ''; ?>>2 people</option>
+                                <option value="3" <?php echo (isset($_POST['team_size']) && htmlspecialchars($_POST['team_size']) === '3') ? 'selected' : ''; ?>>3-4 people</option>
+                                <option value="5" <?php echo (isset($_POST['team_size']) && htmlspecialchars($_POST['team_size']) === '5') ? 'selected' : ''; ?>>5-10 people</option>
                                 <option value="10" <?php echo (isset($_POST['team_size']) && $_POST['team_size'] === '10') ? 'selected' : ''; ?>>10+ people</option>
                             </select>
                         </div>
