@@ -30,6 +30,7 @@ if ($is_in_subdirectory) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IdeaNest</title>
+    <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
     <!-- CSS -->
     <link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/layout_user.css">
     <link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/loading.css">

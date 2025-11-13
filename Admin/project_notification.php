@@ -6,12 +6,8 @@ ini_set('display_errors', 1);
 
 include_once dirname(__DIR__) . "/Login/Login/db.php";
 
-// Use Composer autoloader
-require_once dirname(__DIR__) . '/vendor/autoload.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\SMTP;
+// Use simple SMTP email system
+require_once dirname(__DIR__) . '/includes/simple_smtp.php';
 
 function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $subadmin_details = null, $email_options = [])
 {
@@ -92,50 +88,11 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $s
         return ['success' => false, 'message' => 'Invalid status provided'];
     }
 
-    // Send email using PHPMailer
-    try {
-        $mail = new PHPMailer(true);
-
-        // Server settings
-        $mail->SMTPDebug = 0; // Set to 0 for production, 2 for debugging
-        $mail->isSMTP();
-        $mail->Host = $options['smtp_host'];
-        $mail->SMTPAuth = true;
-        $mail->Username = $options['smtp_username'];
-        $mail->Password = $options['smtp_password'];
-        $mail->SMTPSecure = $options['smtp_secure'];
-        $mail->Port = $options['smtp_port'];
-
-        // Additional settings for better compatibility
-        $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true
-            )
-        );
-
-        // Set timeout values for XAMPP compatibility
-        $mail->Timeout = 30;
-        $mail->SMTPKeepAlive = true;
-
-        // Recipients
-        $mail->setFrom($options['support_email'], $options['company_name']);
-        $mail->addAddress($user_email, $user_name);
-        if (isset($options['reply_to'])) {
-            $mail->addReplyTo($options['reply_to']);
-        }
-
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = $subject;
-        $mail->Body = $message;
-        $mail->AltBody = strip_tags(str_replace(['<br>', '<br/>', '<br />'], "\n", $message));
-
-        $mail->send();
+    // Send email using simple SMTP
+    if (sendSMTPEmail($user_email, $subject, $message, $conn)) {
         return ['success' => true, 'message' => 'Email has been sent successfully'];
-    } catch (Exception $e) {
-        return ['success' => false, 'message' => "Email could not be sent. Mailer Error: {$mail->ErrorInfo}"];
+    } else {
+        return ['success' => false, 'message' => 'Email could not be sent'];
     }
 }
 
@@ -191,6 +148,7 @@ function createApprovedEmailContent($user_name, $project, $options, $subadmin_de
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Project Approved</title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
             .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
@@ -300,6 +258,7 @@ function createRejectedEmailContent($user_name, $project, $rejection_reason, $op
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Project Update</title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
             .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }

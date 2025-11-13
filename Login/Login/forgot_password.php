@@ -2,18 +2,8 @@
 session_start();
 include 'db.php';
 
-// Include PHPMailer if available
-if (file_exists('../../vendor/autoload.php')) {
-    try {
-        require_once '../../vendor/autoload.php';
-    } catch (Exception $e) {
-        error_log("PHPMailer not available: " . $e->getMessage());
-        // Continue without PHPMailer
-    }
-}
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
+// Include simple email functions
+require_once '../../includes/simple_smtp.php';
 
 $step = $_GET['step'] ?? 'email';
 $error_message = '';
@@ -55,19 +45,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['reset_table'] = $user['table_type'];
             $_SESSION['otp_time'] = time();
 
-            try {
-                require_once '../../config/email_config.php';
-                $mail = setupPHPMailer($conn);
-                
-                $mail->addAddress($email, $user['name']);
-                $mail->Subject = 'Password Reset OTP - IdeaNest';
-                $mail->Body = "Your OTP for password reset is: $otp\n\nThis OTP is valid for 10 minutes.";
-
-                $mail->send();
+            $subject = 'Password Reset OTP - IdeaNest';
+            $message = "Your OTP for password reset is: $otp\n\nThis OTP is valid for 10 minutes.";
+            
+            if (sendEmail($email, $subject, $message)) {
                 $step = 'otp';
                 $success_message = "OTP sent to your email address.";
-            } catch (Exception $e) {
-                error_log('OTP Email Error: ' . $e->getMessage());
+            } else {
                 $error_message = "Failed to send OTP. Email service temporarily unavailable.";
             }
         } else {
@@ -126,6 +110,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password | IdeaNest</title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/login.css">

@@ -143,15 +143,12 @@ if (!empty($matched_classifications)) {
     $result = $conn->query("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE 1=0");
 }
 
-require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+require_once dirname(__DIR__) . "/includes/simple_smtp.php";
 
 require_once dirname(__FILE__) . '/../../config/email_config.php';
 
 function sendApprovalEmail($email, $name, $project_name, $conn) {
     try {
-        $mail = setupPHPMailer($conn);
         $mail->addAddress($email, $name);
         $mail->Subject = 'Project Approved - ' . $project_name;
         $mail->isHTML(true);
@@ -172,7 +169,6 @@ function sendApprovalEmail($email, $name, $project_name, $conn) {
 
 function sendRejectionEmail($email, $name, $project_name, $reason, $conn) {
     try {
-        $mail = setupPHPMailer($conn);
         $mail->addAddress($email, $name);
         $mail->Subject = 'Project Review - ' . $project_name;
         $mail->isHTML(true);

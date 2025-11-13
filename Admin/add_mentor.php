@@ -2,18 +2,12 @@
 session_start();
 require_once '../Login/Login/db.php';
 
-// Include PHPMailer if available
-if (file_exists('../vendor/autoload.php')) {
     try {
-        require_once '../vendor/autoload.php';
+        require_once dirname(__DIR__) . "/includes/simple_smtp.php";
     } catch (Exception $e) {
-        error_log("PHPMailer not available: " . $e->getMessage());
-        // Continue without PHPMailer
     }
 }
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
 
 if (!isset($_SESSION['admin_logged_in'])) {
     header('Location: ../Login/Login/login.php');
@@ -47,21 +41,15 @@ if ($_POST) {
         $stmt->execute();
 
         // Send email with credentials
-        $mail = new PHPMailer(true);
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'ideanest.ict@gmail.com';
-        $mail->Password = 'luou xlhs ojuw auvx';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
+        $mail = sendSMTPEmail;
+        
 
-        $mail->setFrom('ideanest.ict@gmail.com', 'IdeaNest');
-        $mail->addAddress($email, $name);
+        
+        
 
-        $mail->isHTML(true);
-        $mail->Subject = 'Welcome to IdeaNest - Mentor Account Created';
-        $mail->Body = "
+        
+        $subject = 'Welcome to IdeaNest - Mentor Account Created';
+        $body = "
         <h2>Welcome to IdeaNest Mentor Program</h2>
         <p>Dear $name,</p>
         <p>Your mentor account has been created successfully.</p>
@@ -87,6 +75,7 @@ if ($_POST) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Mentor - IdeaNest Admin</title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 </head>

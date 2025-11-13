@@ -3,12 +3,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/Exception.php';
-require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/PHPMailer.php';
 require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/SMTP.php';
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\SMTP;
 
 include "../Login/Login/db.php";
 require_once "../config/email_config.php";
@@ -132,11 +128,10 @@ function rejectProject($project_id, $rejection_reason, $conn) {
 
 function sendApprovalEmail($email, $name, $project_name, $conn) {
     try {
-        $mail = setupPHPMailer($conn);
-        $mail->addAddress($email, $name);
-        $mail->Subject = 'Project Approved - ' . $project_name;
-        $mail->isHTML(true);
-        $mail->Body = "
+        
+        $subject = 'Project Approved - ' . $project_name;
+        
+        $body = "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
             <h2 style='color: #10b981;'>🎉 Congratulations! Your Project Has Been Approved</h2>
             <p>Dear {$name},</p>
@@ -153,11 +148,10 @@ function sendApprovalEmail($email, $name, $project_name, $conn) {
 
 function sendRejectionEmail($email, $name, $project_name, $reason, $conn) {
     try {
-        $mail = setupPHPMailer($conn);
-        $mail->addAddress($email, $name);
-        $mail->Subject = 'Project Review - ' . $project_name;
-        $mail->isHTML(true);
-        $mail->Body = "
+        
+        $subject = 'Project Review - ' . $project_name;
+        
+        $body = "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
             <h2 style='color: #ef4444;'>Project Review Update</h2>
             <p>Dear {$name},</p>
@@ -187,6 +181,7 @@ $message = $_GET['message'] ?? '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Projects Management | IdeaNest</title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
