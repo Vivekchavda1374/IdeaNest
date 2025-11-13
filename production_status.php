@@ -12,6 +12,7 @@ require_once 'Login/Login/db.php';
 <html>
 <head>
     <title>IdeaNest Production Status</title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }

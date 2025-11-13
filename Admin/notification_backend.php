@@ -9,19 +9,8 @@ if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
 // Database connection
 require_once __DIR__ . '/../Login/Login/db.php';
 
-// Include PHPMailer
-if (file_exists(dirname(__DIR__) . '/vendor/autoload.php')) {
-    try {
-        require_once dirname(__DIR__) . '/vendor/autoload.php';
-    } catch (Exception $e) {
-        error_log("PHPMailer not available: " . $e->getMessage());
-        // Continue without PHPMailer
-    }
-}
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\SMTP;
+// Include simple email functions
+require_once dirname(__DIR__) . '/includes/simple_smtp.php';
 
 // Function to get setting value
 function getSetting($conn, $key, $default = '')
@@ -62,58 +51,15 @@ function isNewUserNotificationsEnabled($conn)
     return getSetting($conn, 'new_user_notifications', '0') == '1';
 }
 
-// Function to send email using PHPMailer
-function sendEmail($to_email, $to_name, $subject, $html_body, $conn)
+// Function to send email using simple mail function
+function sendNotificationEmail($to_email, $to_name, $subject, $html_body, $conn)
 {
-    try {
-        $mail = new PHPMailer(true);
-
-        // Get email settings from database
-        $smtp_host = getSetting($conn, 'smtp_host', 'smtp.gmail.com');
-        $smtp_port = getSetting($conn, 'smtp_port', '587');
-        $smtp_username = getSetting($conn, 'smtp_username', 'ideanest.ict@gmail.com');
-        $smtp_password = getSetting($conn, 'smtp_password', 'luou xlhs ojuw auvx');
-        $smtp_secure = getSetting($conn, 'smtp_secure', 'tls');
-        $from_email = getSetting($conn, 'from_email', 'ideanest.ict@gmail.com');
-        $site_name = getSetting($conn, 'site_name', 'IdeaNest');
-
-        // Server settings
-        $mail->SMTPDebug = 0;
-        $mail->isSMTP();
-        $mail->Host = $smtp_host;
-        $mail->SMTPAuth = true;
-        $mail->Username = $smtp_username;
-        $mail->Password = $smtp_password;
-        $mail->SMTPSecure = $smtp_secure;
-        $mail->Port = $smtp_port;
-
-        // XAMPP compatibility settings
-        $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true
-            )
-        );
-
-        // Timeout settings
-        $mail->Timeout = 30;
-        $mail->SMTPKeepAlive = true;
-
-        // Recipients
-        $mail->setFrom($from_email, $site_name . ' Admin');
-        $mail->addAddress($to_email, $to_name);
-
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = $subject;
-        $mail->Body = $html_body;
-        $mail->AltBody = strip_tags(str_replace(['<br>', '<br/>', '<br />'], "\n", $html_body));
-
-        $mail->send();
+    $result = sendSMTPEmail($to_email, $subject, $html_body, $conn);
+    
+    if ($result) {
         return ['success' => true, 'message' => 'Email sent successfully'];
-    } catch (Exception $e) {
-        return ['success' => false, 'message' => "Email could not be sent. Mailer Error: {$mail->ErrorInfo}"];
+    } else {
+        return ['success' => false, 'message' => 'Email could not be sent'];
     }
 }
 
@@ -160,6 +106,7 @@ function sendProjectApprovalEmail($project_id, $conn)
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Project Approved</title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
             .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
@@ -227,7 +174,7 @@ function sendProjectApprovalEmail($project_id, $conn)
     </body>
     </html>';
 
-    return sendEmail($user_email, $user_name, $subject, $html_body, $conn);
+    return sendNotificationEmail($user_email, $user_name, $subject, $html_body, $conn);
 }
 
 // Function to send project rejection email
@@ -273,6 +220,7 @@ function sendProjectRejectionEmail($project_id, $rejection_reason, $conn)
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Project Update</title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
             .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
@@ -345,7 +293,7 @@ function sendProjectRejectionEmail($project_id, $rejection_reason, $conn)
     </body>
     </html>';
 
-    return sendEmail($user_email, $user_name, $subject, $html_body, $conn);
+    return sendNotificationEmail($user_email, $user_name, $subject, $html_body, $conn);
 }
 
 // Function to send new user notification to admin
@@ -381,6 +329,7 @@ function sendNewUserNotificationToAdmin($user_id, $conn)
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>New User Registration</title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
             .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
@@ -443,7 +392,7 @@ function sendNewUserNotificationToAdmin($user_id, $conn)
     </body>
     </html>';
 
-    return sendEmail($admin_email, 'Admin', $subject, $html_body, $conn);
+    return sendNotificationEmail($admin_email, 'Admin', $subject, $html_body, $conn);
 }
 
 // Function to log notification attempts

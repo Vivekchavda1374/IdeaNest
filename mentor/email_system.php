@@ -2,30 +2,20 @@
 
 // Try different autoload paths - Production Safe
 $phpmailer_available = false;
-if (file_exists('../vendor/autoload.php')) {
     try {
-        require_once '../vendor/autoload.php';
-        $phpmailer_available = class_exists('PHPMailer\\PHPMailer\\PHPMailer');
+        require_once dirname(__DIR__) . "/includes/simple_smtp.php";
     } catch (Exception $e) {
-        error_log("PHPMailer not available: " . $e->getMessage());
     }
-} elseif (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     try {
-        require_once __DIR__ . '/../vendor/autoload.php';
-        $phpmailer_available = class_exists('PHPMailer\\PHPMailer\\PHPMailer');
+        require_once dirname(__DIR__) . "/includes/simple_smtp.php";
     } catch (Exception $e) {
-        error_log("PHPMailer not available: " . $e->getMessage());
     }
 } else {
     // No vendor directory - this is normal in production without Composer
-    error_log("Composer autoload not found - continuing without PHPMailer");
 }
 
 require_once '../Login/Login/db.php';
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
 
 class MentorEmailSystem
 {
@@ -51,15 +41,15 @@ class MentorEmailSystem
                 }
             }
 
-            $mail = new PHPMailer(true);
+            $mail = sendSMTPEmail;
             $mail->isSMTP();
-            $mail->Host = $smtp_settings['smtp_host'] ?? 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = $smtp_settings['smtp_username'] ?? 'ideanest.ict@gmail.com';
-            $mail->Password = $smtp_settings['smtp_password'] ?? 'luou xlhs ojuw auvx';
-            $mail->SMTPSecure = ($smtp_settings['smtp_secure'] ?? 'tls') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
+            
+            
+            
+            
+            
             $mail->Port = $smtp_settings['smtp_port'] ?? 587;
-            $mail->setFrom($smtp_settings['from_email'] ?? 'ideanest.ict@gmail.com', 'IdeaNest Mentor System');
+            
             
             // Disable SSL verification for development (remove in production)
             $mail->SMTPOptions = array(
@@ -72,7 +62,6 @@ class MentorEmailSystem
             
             return $mail;
         } catch (Exception $e) {
-            error_log('PHPMailer setup error: ' . $e->getMessage());
             throw new Exception('Email configuration error');
         }
     }
@@ -84,10 +73,10 @@ class MentorEmailSystem
             $mentor = $this->getMentorInfo();
 
             $mail = $this->setupMailer();
-            $mail->addAddress($student['email'], $student['name']);
-            $mail->Subject = "Welcome to Your Mentoring Journey - IdeaNest";
-            $mail->Body = $this->getWelcomeTemplate($student, $mentor);
-            $mail->isHTML(true);
+            
+            $subject = "Welcome to Your Mentoring Journey - IdeaNest";
+            $body = $this->getWelcomeTemplate($student, $mentor);
+            
 
             $result = $mail->send();
             $this->logEmail('welcome_message', $student_id, $result ? 'sent' : 'failed');
@@ -105,10 +94,10 @@ class MentorEmailSystem
             $mentor = $this->getMentorInfo();
 
             $mail = $this->setupMailer();
-            $mail->addAddress($student['email'], $student['name']);
-            $mail->Subject = "New Mentoring Session Scheduled - IdeaNest";
-            $mail->Body = $this->getSessionInvitationTemplate($student, $mentor, $session_data);
-            $mail->isHTML(true);
+            
+            $subject = "New Mentoring Session Scheduled - IdeaNest";
+            $body = $this->getSessionInvitationTemplate($student, $mentor, $session_data);
+            
 
             $result = $mail->send();
             $this->logEmail('session_invitation', $student_id, $result ? 'sent' : 'failed');
@@ -126,10 +115,10 @@ class MentorEmailSystem
             $mentor = $this->getMentorInfo();
 
             $mail = $this->setupMailer();
-            $mail->addAddress($student['email'], $student['name']);
-            $mail->Subject = "Project Feedback from Your Mentor - IdeaNest";
-            $mail->Body = $this->getProjectFeedbackTemplate($student, $mentor, $feedback_data);
-            $mail->isHTML(true);
+            
+            $subject = "Project Feedback from Your Mentor - IdeaNest";
+            $body = $this->getProjectFeedbackTemplate($student, $mentor, $feedback_data);
+            
 
             $result = $mail->send();
             $this->logEmail('project_feedback', $student_id, $result ? 'sent' : 'failed');
@@ -147,10 +136,10 @@ class MentorEmailSystem
             $mentor = $this->getMentorInfo();
 
             $mail = $this->setupMailer();
-            $mail->addAddress($student['email'], $student['name']);
-            $mail->Subject = "Progress Update from Your Mentor - IdeaNest";
-            $mail->Body = $this->getProgressUpdateTemplate($student, $mentor, $progress_data);
-            $mail->isHTML(true);
+            
+            $subject = "Progress Update from Your Mentor - IdeaNest";
+            $body = $this->getProgressUpdateTemplate($student, $mentor, $progress_data);
+            
 
             $result = $mail->send();
             $this->logEmail('progress_update', $student_id, $result ? 'sent' : 'failed');

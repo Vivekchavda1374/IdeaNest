@@ -10,6 +10,7 @@ if (!isset($_SESSION['user'])) {
 <html lang="en">
 <head>
     <title>Dashboard</title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
 </head>
 <body>
 <h2>Welcome, <?php echo $_SESSION['user']; ?>!</h2>

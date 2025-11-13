@@ -103,37 +103,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | IdeaNest</title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/login.css">
     <link rel="stylesheet" href="../../assets/css/loading.css">
-    <style>
-    .google-login {
-        margin: 1rem 0;
-        display: flex;
-        justify-content: center;
-    }
-    .divider {
-        text-align: center;
-        margin: 1.5rem 0;
-        position: relative;
-    }
-    .divider::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: #e0e0e0;
-    }
-    .divider span {
-        background: white;
-        padding: 0 1rem;
-        color: #666;
-        font-size: 0.9rem;
-    }
-    </style>
+
 </head>
 <body>
 <div class="login-container">

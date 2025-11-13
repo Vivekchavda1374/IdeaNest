@@ -1,31 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../Login/Login/db.php';
-
-// Try different autoload paths - Production Safe
-$phpmailer_available = false;
-if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    try {
-        require_once __DIR__ . '/../vendor/autoload.php';
-        $phpmailer_available = class_exists('PHPMailer\\PHPMailer\\PHPMailer');
-    } catch (Exception $e) {
-        error_log("PHPMailer not available: " . $e->getMessage());
-    }
-} elseif (file_exists(__DIR__ . '/../../vendor/autoload.php')) {
-    try {
-        require_once __DIR__ . '/../../vendor/autoload.php';
-        $phpmailer_available = class_exists('PHPMailer\\PHPMailer\\PHPMailer');
-    } catch (Exception $e) {
-        error_log("PHPMailer not available: " . $e->getMessage());
-    }
-} else {
-    // No vendor directory - this is normal in production without Composer
-    error_log("Composer autoload not found - continuing without PHPMailer");
-}
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
+require_once __DIR__ . '/../includes/simple_smtp.php';
 
 // Check database connection
 if (!isset($conn) || $conn->connect_error) {
@@ -92,46 +68,10 @@ function sendWeeklyNotification($user, $conn)
     $ideas = $ideas_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $ideas_stmt->close();
 
-    // Send email even if no new content to maintain weekly contact
-    $mail = new PHPMailer(true);
+    $subject = 'Weekly Digest - New Projects & Ideas on IdeaNest';
+    $body = generateEmailTemplate($user, $projects, $ideas);
 
-    try {
-        // Get SMTP settings from database
-        $smtp_query = "SELECT setting_key, setting_value FROM admin_settings WHERE setting_key IN ('smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'smtp_secure', 'from_email')";
-        $smtp_result = $conn->query($smtp_query);
-        $smtp_settings = [];
-        if ($smtp_result) {
-            while ($row = $smtp_result->fetch_assoc()) {
-                $smtp_settings[$row['setting_key']] = $row['setting_value'];
-            }
-        }
-
-        $mail->isSMTP();
-        $mail->Host = $smtp_settings['smtp_host'] ?? 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = $smtp_settings['smtp_username'] ?? 'ideanest.ict@gmail.com';
-        $mail->Password = $smtp_settings['smtp_password'] ?? 'luou xlhs ojuw auvx';
-        $mail->SMTPSecure = ($smtp_settings['smtp_secure'] ?? 'tls') === 'tls' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port = $smtp_settings['smtp_port'] ?? 587;
-        
-        // Production SSL settings
-        $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer' => true,
-                'verify_peer_name' => true,
-                'allow_self_signed' => false
-            )
-        );
-
-        $mail->setFrom($smtp_settings['from_email'] ?? 'ideanest.ict@gmail.com', 'IdeaNest');
-        $mail->addAddress($user['email'], $user['name']);
-
-        $mail->isHTML(true);
-        $mail->Subject = 'Weekly Digest - New Projects & Ideas on IdeaNest';
-        $mail->Body = generateEmailTemplate($user, $projects, $ideas);
-
-        $mail->send();
-
+    if (sendSMTPEmail($user['email'], $subject, $body, $conn)) {
         // Update last notification sent
         $update_query = "UPDATE register SET last_notification_sent = NOW() WHERE id = ?";
         $update_stmt = $conn->prepare($update_query);
@@ -146,7 +86,7 @@ function sendWeeklyNotification($user, $conn)
             $log_query = "INSERT INTO notification_logs (type, user_id, status, email_to, email_subject, created_at) VALUES ('weekly_notification', ?, 'sent', ?, ?, NOW())";
             $log_stmt = $conn->prepare($log_query);
             if ($log_stmt) {
-                $log_stmt->bind_param("iss", $user['id'], $user['email'], $mail->Subject);
+                $log_stmt->bind_param("iss", $user['id'], $user['email'], $subject);
                 $log_stmt->execute();
                 $log_stmt->close();
             }
@@ -155,13 +95,13 @@ function sendWeeklyNotification($user, $conn)
         }
 
         echo "Notification sent to: " . $user['email'] . "\n";
-    } catch (Exception $e) {
+    } else {
         // Log failed send
         try {
             $log_query = "INSERT INTO notification_logs (type, user_id, status, email_to, error_message, created_at) VALUES ('weekly_notification', ?, 'failed', ?, ?, NOW())";
             $log_stmt = $conn->prepare($log_query);
             if ($log_stmt) {
-                $log_stmt->bind_param("iss", $user['id'], $user['email'], $e->getMessage());
+                $log_stmt->bind_param("iss", $user['id'], $user['email'], 'SMTP send failed');
                 $log_stmt->execute();
                 $log_stmt->close();
             }
@@ -169,9 +109,8 @@ function sendWeeklyNotification($user, $conn)
             error_log('Error logging failed notification: ' . $log_error->getMessage());
         }
 
-        echo "Failed to send notification to: " . $user['email'] . " - Error: " . $e->getMessage() . "\n";
+        echo "Failed to send notification to: " . $user['email'] . "\n";
     }
-
 }
 
 function generateEmailTemplate($user, $projects, $ideas)
@@ -181,6 +120,7 @@ function generateEmailTemplate($user, $projects, $ideas)
     <head>
         <meta charset="UTF-8">
         <title>Weekly Update - IdeaNest</title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }

@@ -2,18 +2,12 @@
 session_start();
 require_once '../Login/Login/db.php';
 
-// Include PHPMailer if available
-if (file_exists('../vendor/autoload.php')) {
     try {
-        require_once '../vendor/autoload.php';
+        require_once dirname(__DIR__) . "/includes/simple_smtp.php";
     } catch (Exception $e) {
-        error_log("PHPMailer not available: " . $e->getMessage());
-        // Continue without PHPMailer
     }
 }
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
 
 if (!isset($_SESSION['mentor_id'])) {
     header("Location: login.php");
@@ -66,22 +60,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 // Send acceptance email
-                $mail = new PHPMailer(true);
-                $mail->isSMTP();
-                $mail->Host = 'smtp.gmail.com';
-                $mail->SMTPAuth = true;
-                $mail->Username = 'ideanest.ict@gmail.com';
-                $mail->Password = 'luou xlhs ojuw auvx';
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port = 587;
+                $mail = sendSMTPEmail;
+                
 
-                $mail->setFrom('ideanest.ict@gmail.com', 'IdeaNest');
-                $mail->addAddress($details['email'], $details['name']);
+                
+                
 
-                $mail->isHTML(true);
-                $mail->Subject = 'Mentorship Request Accepted - IdeaNest';
+                
+                $subject = 'Mentorship Request Accepted - IdeaNest';
                 $project_text = $details['project_name'] ? "for your project '{$details['project_name']}'" : "for general mentorship";
-                $mail->Body = "
+                $body = "
                 <h2>Great News! Your Mentorship Request Has Been Accepted</h2>
                 <p>Dear {$details['name']},</p>
                 <p>We're excited to inform you that <strong>{$details['mentor_name']}</strong> has accepted your mentorship request {$project_text}.</p>
@@ -117,22 +105,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $update_stmt->execute();
 
                 // Send rejection email
-                $mail = new PHPMailer(true);
-                $mail->isSMTP();
-                $mail->Host = 'smtp.gmail.com';
-                $mail->SMTPAuth = true;
-                $mail->Username = 'ideanest.ict@gmail.com';
-                $mail->Password = 'luou xlhs ojuw auvx';
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port = 587;
+                $mail = sendSMTPEmail;
+                
 
-                $mail->setFrom('ideanest.ict@gmail.com', 'IdeaNest');
-                $mail->addAddress($details['email'], $details['name']);
+                
+                
 
-                $mail->isHTML(true);
-                $mail->Subject = 'Mentorship Request Update - IdeaNest';
+                
+                $subject = 'Mentorship Request Update - IdeaNest';
                 $project_text = $details['project_name'] ? "for your project '{$details['project_name']}'" : "for general mentorship";
-                $mail->Body = "
+                $body = "
                 <h2>Mentorship Request Update</h2>
                 <p>Dear {$details['name']},</p>
                 <p>Thank you for your interest in mentorship {$project_text}.</p>

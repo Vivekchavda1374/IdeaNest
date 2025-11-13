@@ -8,6 +8,7 @@ function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '')
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title><?= htmlspecialchars($title) ?> - Mentor Portal</title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
 
         <!-- Bootstrap 5 -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">

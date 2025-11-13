@@ -8,11 +8,8 @@ ini_set('display_errors', 1);
 // Database connection
 include_once "../../Login/Login/db.php";
 
-// PHPMailer dependencies
-require_once '../../vendor/autoload.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+// Simple SMTP email system
+require_once '../../includes/simple_smtp.php';
 
 // Initialize variables
 $message = '';
@@ -52,46 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && !isset($_
 
                 if ($stmt->execute()) {
                     // Send email with credentials
-                    $mail = new PHPMailer(true);
-
-                    try {
-                        // Gmail SMTP settings
-                        $mail->isSMTP();
-                        $mail->Host = 'smtp.gmail.com';
-                        $mail->SMTPAuth = true;
-                        $mail->Username = 'ideanest.ict@gmail.com';
-                        $mail->Password = 'luou xlhs ojuw auvx'; // Use your Gmail App Password
-                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                        $mail->Port = 587;
-
-                        // Email content
-                        $mail->setFrom('ideanest.ict@gmail.com', 'IdeaNest Admin');
-                        $mail->addAddress($email);
-                        $mail->isHTML(true);
-                        $mail->Subject = 'Welcome to IdeaNest - Subadmin Access';
-
-                        $mail->Body = "
-                            <h3>Welcome to IdeaNest!</h3>
-                            <p>Your subadmin account has been created.</p>
-                            <ul>
-                                <li><b>Login ID:</b> $email</li>
-                                <li><b>Password:</b> $plain_password</li>
-                            </ul>
-                            <p>Please log in and change your password after first login.</p>
-                            <p><a href='../../Login/Login/login.php' style='background-color: #4361ee; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Login Now</a></p>
-                        ";
-
-                        $mail->AltBody = "
-                            Your subadmin account has been created.
-                            Login ID: $email
-                            Password: $plain_password
-                            Please log in and change your password after first login.
-                        ";
-
-                        $mail->send();
+                    $subject = 'Welcome to IdeaNest - Subadmin Access';
+                    $body = "<h3>Welcome to IdeaNest!</h3><p>Your subadmin account has been created.</p><ul><li><b>Login ID:</b> $email</li><li><b>Password:</b> $plain_password</li></ul><p>Please log in and change your password after first login.</p>";
+                    
+                    if (sendSMTPEmail($email, $subject, $body, $conn)) {
                         $message = "Subadmin added successfully and credentials sent to $email.";
-                    } catch (Exception $e) {
-                        $error = "Subadmin added, but email could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                    } else {
+                        $error = "Subadmin added, but email could not be sent.";
                     }
                 } else {
                     $error = "Failed to add subadmin. Please try again.";
@@ -150,32 +114,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_subadmin']) &&
                 $message = "Subadmin removed successfully.";
 
                 // Send notification email to removed subadmin
-                try {
-                    $mail = new PHPMailer(true);
-                    $mail->isSMTP();
-                    $mail->Host = 'smtp.gmail.com';
-                    $mail->SMTPAuth = true;
-                    $mail->Username = 'ideanest.ict@gmail.com';
-                    $mail->Password = 'luou xlhs ojuw auvx';
-                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                    $mail->Port = 587;
-
-                    $mail->setFrom('ideanest.ict@gmail.com', 'IdeaNest Admin');
-                    $mail->addAddress($subadmin_email);
-                    $mail->isHTML(true);
-                    $mail->Subject = 'IdeaNest - Subadmin Access Revoked';
-
-                    $mail->Body = "
-                        <h3>Access Revoked</h3>
-                        <p>Your subadmin access to IdeaNest has been revoked.</p>
-                        <p><strong>Reason:</strong> " . htmlspecialchars($removal_reason) . "</p>
-                        <p>If you have any questions, please contact the administrator.</p>
-                    ";
-
-                    $mail->send();
-                } catch (Exception $e) {
-                    // Silently fail email notification
-                }
+                $subject = 'IdeaNest - Subadmin Access Revoked';
+                $body = "<h3>Access Revoked</h3><p>Your subadmin access to IdeaNest has been revoked.</p><p><strong>Reason:</strong> " . htmlspecialchars($removal_reason) . "</p><p>If you have any questions, please contact the administrator.</p>";
+                sendSMTPEmail($subadmin_email, $subject, $body, $conn);
             } catch (Exception $e) {
                 // Rollback on error
                 $conn->rollback();
@@ -501,6 +442,7 @@ $active_tab = $_GET['tab'] ?? 'overview';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subadmin Management</title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
