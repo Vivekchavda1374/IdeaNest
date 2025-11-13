@@ -11,7 +11,6 @@
 //             Admin/notification_backend.php, Admin/add_mentor.php, Login/Login/forgot_password.php,
 //             mentor/student_requests.php, mentor/email_system.php, cron/weekly_notifications.php
 // 
-// Issue: Fatal error when vendor/autoload.php was missing in production
 // Fix: Added try-catch blocks and graceful fallbacks for missing Composer dependencies
 
 // 2. DISPLAY ERRORS IN PRODUCTION FIXED
@@ -119,27 +118,17 @@ function getCurrentUserEmail() {
 
 // Production-safe email sending
 function sendEmailSafely($to, $subject, $message, $from_email = 'noreply@ideanest.com', $from_name = 'IdeaNest') {
-    if (class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
-        // Use PHPMailer if available
         try {
-            $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'ideanest.ict@gmail.com';
-            $mail->Password = 'luou xlhs ojuw auvx';
-            $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
             
-            $mail->setFrom($from_email, $from_name);
-            $mail->addAddress($to);
-            $mail->isHTML(true);
-            $mail->Subject = $subject;
-            $mail->Body = $message;
+            
+            
+            
+            
+            $subject = $subject;
+            $body = $message;
             
             return $mail->send();
         } catch (Exception $e) {
-            error_log("PHPMailer failed: " . $e->getMessage());
             return false;
         }
     } else {

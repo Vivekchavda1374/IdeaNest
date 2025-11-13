@@ -8,19 +8,8 @@ if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
 // Database connection
 include "../Login/Login/db.php";
 
-// Include PHPMailer for email functionality
-if (file_exists(dirname(__DIR__) . '/vendor/autoload.php')) {
-    try {
-        require_once dirname(__DIR__) . '/vendor/autoload.php';
-    } catch (Exception $e) {
-        error_log("PHPMailer not available: " . $e->getMessage());
-        // Continue without PHPMailer
-    }
-}
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\SMTP;
+// Include simple SMTP email system
+require_once dirname(__DIR__) . '/includes/simple_smtp.php';
 
 // Site name
 $site_name = "IdeaNest Admin";
@@ -339,88 +328,16 @@ if (isset($_POST['save_settings'])) {
 
 // Handle test email functionality
 if (isset($_POST['test_email'])) {
-    try {
-        $mail = new PHPMailer(true);
-
-        // Get settings from database
-        $smtp_host = getSetting($conn, 'smtp_host', 'smtp.gmail.com');
-        $smtp_port = getSetting($conn, 'smtp_port', '587');
-        $smtp_username = getSetting($conn, 'smtp_username', 'ideanest.ict@gmail.com');
-        $smtp_password = getSetting($conn, 'smtp_password', 'luou xlhs ojuw auvx');
-        $smtp_secure = getSetting($conn, 'smtp_secure', 'tls');
-        $from_email = getSetting($conn, 'from_email', 'ideanest.ict@gmail.com');
-        $site_name = getSetting($conn, 'site_name', 'IdeaNest');
-
-        // Server settings
-        $mail->SMTPDebug = 0; // Set to 0 for production
-        $mail->isSMTP();
-        $mail->Host = $smtp_host;
-        $mail->SMTPAuth = true;
-        $mail->Username = $smtp_username;
-        $mail->Password = $smtp_password;
-        $mail->SMTPSecure = $smtp_secure;
-        $mail->Port = $smtp_port;
-
-        // XAMPP compatibility settings
-        $mail->SMTPOptions = array(
-                'ssl' => array(
-                        'verify_peer' => false,
-                        'verify_peer_name' => false,
-                        'allow_self_signed' => true
-                )
-        );
-
-        // Timeout settings
-        $mail->Timeout = 30;
-        $mail->SMTPKeepAlive = true;
-
-        // Recipients
-        $mail->setFrom($from_email, $site_name . ' Admin');
-        $mail->addAddress($smtp_username, 'Test Recipient'); // Send to admin email for testing
-
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = 'Test Email from ' . $site_name . ' Settings - ' . date('Y-m-d H:i:s');
-        $mail->Body = '
-        <html>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0;">Test Email Configuration</h2>
-                </div>
-                
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                    <h3 style="color: #2d3748; margin-top: 0;">Email Configuration Test</h3>
-                    <p>This is a test email to verify your email configuration is working properly.</p>
-                    
-                    <h4 style="color: #4a5568;">Configuration Details:</h4>
-                    <ul style="color: #4a5568;">
-                        <li><strong>SMTP Host:</strong> ' . $smtp_host . '</li>
-                        <li><strong>SMTP Port:</strong> ' . $smtp_port . '</li>
-                        <li><strong>SMTP Security:</strong> ' . strtoupper($smtp_secure) . '</li>
-                        <li><strong>From Email:</strong> ' . $from_email . '</li>
-                        <li><strong>Site Name:</strong> ' . $site_name . '</li>
-                    </ul>
-                </div>
-                
-                <div style="background: #e6fffa; padding: 15px; border-radius: 8px; border-left: 4px solid #48bb78;">
-                    <p style="margin: 0; color: #22543d;">
-                        <strong>✅ Success!</strong> If you received this email, your email configuration is working correctly.
-                    </p>
-                </div>
-                
-                <div style="text-align: center; margin-top: 20px; color: #718096; font-size: 14px;">
-                    <p>Test sent at: ' . date('F j, Y, g:i a') . '</p>
-                    <p>This email was sent from the admin settings panel.</p>
-                </div>
-            </div>
-        </body>
-        </html>';
-
-        $mail->send();
+    $smtp_username = getSetting($conn, 'smtp_username', 'ideanest.ict@gmail.com');
+    $site_name = getSetting($conn, 'site_name', 'IdeaNest');
+    
+    $subject = 'Test Email from ' . $site_name . ' Settings - ' . date('Y-m-d H:i:s');
+    $body = '<html><body style="font-family: Arial, sans-serif;"><h2>Test Email Configuration</h2><p>This is a test email to verify your email configuration is working properly.</p><p>Test sent at: ' . date('F j, Y, g:i a') . '</p></body></html>';
+    
+    if (sendSMTPEmail($smtp_username, $subject, $body, $conn)) {
         $message = "Test email sent successfully! Check your inbox at: " . $smtp_username;
-    } catch (Exception $e) {
-        $error = "Test email failed: " . $mail->ErrorInfo;
+    } else {
+        $error = "Test email failed. Please check your SMTP configuration.";
     }
 }
 
@@ -434,6 +351,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings - <?php echo $site_name; ?></title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->

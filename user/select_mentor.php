@@ -19,15 +19,10 @@ try {
     $error_message = "Database connection failed. Please ensure MySQL is running.";
 }
 
-// Load PHPMailer if available
 $phpmailer_available = false;
-if (file_exists('../vendor/autoload.php')) {
     try {
-        require_once '../vendor/autoload.php';
-        $phpmailer_available = class_exists('PHPMailer\\PHPMailer\\PHPMailer');
+        require_once dirname(__DIR__) . "/includes/simple_smtp.php";
     } catch (Exception $e) {
-        // PHPMailer not available, continue without it
-        error_log("PHPMailer not available: " . $e->getMessage());
     }
 } else {
     // No vendor directory - this is normal in production without Composer
@@ -102,17 +97,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
 
             $success_message = "Mentor request sent successfully!";
             
-            // Send email if PHPMailer is available
             if ($phpmailer_available) {
                 try {
-                    $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-                    $mail->isSMTP();
-                    $mail->Host = 'smtp.gmail.com';
-                    $mail->SMTPAuth = true;
-                    $mail->Username = 'ideanest.ict@gmail.com';
-                    $mail->Password = 'luou xlhs ojuw auvx';
-                    $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-                    $mail->Port = 587;
+                    
 
                     // Get mentor details
                     $details_query = "SELECT r1.name as student_name, r2.name as mentor_name, r2.email as mentor_email
@@ -123,11 +110,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
                     $details_stmt->execute();
                     $details = $details_stmt->get_result()->fetch_assoc();
 
-                    $mail->setFrom('ideanest.ict@gmail.com', 'IdeaNest');
-                    $mail->addAddress($details['mentor_email'], $details['mentor_name']);
-                    $mail->isHTML(true);
-                    $mail->Subject = 'New Mentorship Request - IdeaNest';
-                    $mail->Body = "
+                    
+                    
+                    
+                    $subject = 'New Mentorship Request - IdeaNest';
+                    $body = "
                     <h2>New Mentorship Request</h2>
                     <p>Dear {$details['mentor_name']},</p>
                     <p>You have received a new mentorship request from <strong>{$details['student_name']}</strong>.</p>
@@ -159,6 +146,7 @@ include 'layout.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Select Mentor - IdeaNest</title>
+    <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>

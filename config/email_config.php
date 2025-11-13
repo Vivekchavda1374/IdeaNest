@@ -48,20 +48,17 @@ function getEmailConfig($conn = null) {
     return $email_config;
 }
 
-// Function to setup PHPMailer with proper error handling
-function setupPHPMailer($conn = null) {
     $config = getEmailConfig($conn);
     
     try {
-        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         $mail->isSMTP();
-        $mail->Host = $config['smtp_host'];
-        $mail->SMTPAuth = true;
-        $mail->Username = $config['smtp_username'];
-        $mail->Password = $config['smtp_password'];
-        $mail->SMTPSecure = $config['smtp_secure'] === 'tls' ? PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS : PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS;
+        
+        
+        
+        
+        
         $mail->Port = $config['smtp_port'];
-        $mail->setFrom($config['from_email'], $config['from_name']);
+        
         
         // SSL options
         $mail->SMTPOptions = array(
@@ -74,7 +71,6 @@ function setupPHPMailer($conn = null) {
         
         return $mail;
     } catch (Exception $e) {
-        error_log('PHPMailer setup error: ' . $e->getMessage());
         throw new Exception('Email system configuration error');
     }
 }
