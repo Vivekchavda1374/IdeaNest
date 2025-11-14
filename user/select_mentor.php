@@ -15,18 +15,20 @@ $conn = null;
 // Try to connect to database
 try {
     require_once '../Login/Login/db.php';
+    if (!isset($conn) || $conn->connect_error) {
+        throw new Exception("Database connection failed");
+    }
 } catch (Exception $e) {
-    $error_message = "Database connection failed. Please ensure MySQL is running.";
+    $error_message = "Database connection failed. Please start XAMPP/MySQL service.";
+    $conn = null;
 }
 
-$phpmailer_available = false;
-    try {
-        require_once dirname(__DIR__) . "/includes/simple_smtp.php";
-    } catch (Exception $e) {
-    }
-} else {
-    // No vendor directory - this is normal in production without Composer
-    // Email functionality will be disabled but the page will work
+// Load email functionality only if available
+try {
+    require_once dirname(__DIR__) . "/includes/autoload_simple.php";
+    $phpmailer_available = true;
+} catch (Exception $e) {
+    $phpmailer_available = false;
 }
 
 if (!$error_message && isset($conn)) {
@@ -97,36 +99,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
 
             $success_message = "Mentor request sent successfully!";
             
-            if ($phpmailer_available) {
-                try {
-                    
+            try {
+                // Get mentor details
+                $details_query = "SELECT r1.name as student_name, r2.name as mentor_name, r2.email as mentor_email
+                                 FROM register r1, register r2
+                                 WHERE r1.id = ? AND r2.id = ?";
+                $details_stmt = $conn->prepare($details_query);
+                $details_stmt->bind_param("ii", $user_id, $mentor_id);
+                $details_stmt->execute();
+                $details = $details_stmt->get_result()->fetch_assoc();
 
-                    // Get mentor details
-                    $details_query = "SELECT r1.name as student_name, r2.name as mentor_name, r2.email as mentor_email
-                                     FROM register r1, register r2
-                                     WHERE r1.id = ? AND r2.id = ?";
-                    $details_stmt = $conn->prepare($details_query);
-                    $details_stmt->bind_param("ii", $user_id, $mentor_id);
-                    $details_stmt->execute();
-                    $details = $details_stmt->get_result()->fetch_assoc();
-
-                    
-                    
-                    
-                    $subject = 'New Mentorship Request - IdeaNest';
-                    $body = "
-                    <h2>New Mentorship Request</h2>
-                    <p>Dear {$details['mentor_name']},</p>
-                    <p>You have received a new mentorship request from <strong>{$details['student_name']}</strong>.</p>
-                    <p><strong>Message:</strong></p>
-                    <p style='background: #f5f5f5; padding: 15px; border-radius: 5px;'>{$message}</p>
-                    <p>Best regards,<br>The IdeaNest Team</p>
-                    ";
-                    $mail->send();
-                    $success_message .= " The mentor has been notified via email.";
-                } catch (Exception $e) {
-                    // Email failed, but request was saved
-                }
+                $mailer = new SMTPMailer();
+                $subject = 'New Mentorship Request - IdeaNest';
+                $body = "<h2>New Mentorship Request</h2>
+                <p>Dear {$details['mentor_name']},</p>
+                <p>You have received a new mentorship request from <strong>{$details['student_name']}</strong>.</p>
+                <p><strong>Message:</strong></p>
+                <p style='background: #f5f5f5; padding: 15px; border-radius: 5px;'>{$message}</p>
+                <p>Best regards,<br>The IdeaNest Team</p>";
+                $mailer->send($details['mentor_email'], $subject, $body);
+                $success_message .= " The mentor has been notified via email.";
+            } catch (Exception $e) {
+                // Email failed, but request was saved
             }
 
         } catch (Exception $e) {
@@ -137,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
     }
 }
 
-include 'layout.php';
+// Layout included in HTML
 ?>
 
 <!DOCTYPE html>
@@ -150,7 +144,7 @@ include 'layout.php';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: min-height: 100vh; }
+        body { min-height: 100vh; }
         .main-content { margin-left: 280px; padding: 20px; }
         .mentor-card { background: rgba(255, 255, 255, 0.95); border-radius: 15px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease; }
         .mentor-card:hover { transform: translateY(-5px); }
@@ -160,6 +154,7 @@ include 'layout.php';
         @media (max-width: 768px) { .main-content { margin-left: 0; } }
     </style>
 </head>
+<?php include 'layout.php'; ?>
 <body>
     <div class="main-content">
         <div class="container-fluid">
@@ -234,10 +229,15 @@ include 'layout.php';
                                 <div class="mt-3">
                                     <p class="small text-muted">To fix this issue:</p>
                                     <ol class="text-start small text-muted">
-                                        <li>Start MySQL: <code>sudo /opt/lampp/lampp startmysql</code></li>
-                                        <li>Create database: <code>mysql -u root -e "CREATE DATABASE ideanest;"</code></li>
-                                        <li>Import schema: <code>mysql -u root ideanest < db/ideanest.sql</code></li>
+                                        <li>Start XAMPP: <code>sudo /opt/lampp/lampp start</code></li>
+                                        <li>Or start MySQL only: <code>sudo /opt/lampp/lampp startmysql</code></li>
+                                        <li>Refresh this page after starting the service</li>
                                     </ol>
+                                    <div class="mt-2">
+                                        <button class="btn btn-primary btn-sm" onclick="location.reload()">
+                                            <i class="fas fa-refresh me-1"></i>Retry Connection
+                                        </button>
+                                    </div>
                                 </div>
                             <?php else : ?>
                                 <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
