@@ -118,26 +118,15 @@ function getCurrentUserEmail() {
 
 // Production-safe email sending
 function sendEmailSafely($to, $subject, $message, $from_email = 'noreply@ideanest.com', $from_name = 'IdeaNest') {
-        try {
-            
-            
-            
-            
-            
-            $subject = $subject;
-            $body = $message;
-            
-            return $mail->send();
-        } catch (Exception $e) {
-            return false;
-        }
-    } else {
-        // Fallback to PHP mail() function
+    try {
+        require_once __DIR__ . '/smtp_mailer.php';
+        $mailer = new SMTPMailer();
+        return $mailer->send($to, $subject, $message);
+    } catch (Exception $e) {
         $headers = "From: $from_name <$from_email>\r\n";
         $headers .= "Reply-To: $from_email\r\n";
         $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-        
         return mail($to, $subject, $message, $headers);
     }
 }
