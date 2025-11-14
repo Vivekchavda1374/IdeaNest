@@ -1,9 +1,10 @@
 <?php
 session_start();
+require_once '../config/config.php';
 include "../Login/Login/db.php";
 
 if (!isset($_SESSION['admin_id'])) {
-    header("Location: https://ictmu.in/hcd/IdeaNest/Login/Login/login.php");
+    header("Location: ../Login/Login/login.php");
     exit();
 }
 
@@ -41,6 +42,9 @@ $subadmins = $conn->query("
     <?php include 'sidebar_admin.php'; ?>
     
     <div class="main-content">
+        <button class="btn d-lg-none mb-3" id="sidebarToggle">
+            <i class="bi bi-list"></i>
+        </button>
         <div class="topbar">
             <h1 class="page-title">Subadmin Overview</h1>
         </div>

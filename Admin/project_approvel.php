@@ -1,4 +1,5 @@
 <?php
+require_once '../config/config.php';
 // Database connection
 include "../Login/Login/db.php";
 
@@ -9,7 +10,7 @@ if (session_status() == PHP_SESSION_NONE) {
 // Check if admin is logged in
     if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
         // Redirect to admin login page if not logged in
-        header("Location: https://ictmu.in/hcd/IdeaNest/Login/Login/login.php");
+        header("Location: ../Login/Login/login.php");
         exit();
     }
 }

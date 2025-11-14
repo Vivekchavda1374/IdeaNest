@@ -135,24 +135,23 @@ if (!empty($domains)) {
 // Fetch pending projects matching subadmin's expertise
 if (!empty($matched_classifications)) {
     $placeholders = str_repeat('?,', count($matched_classifications) - 1) . '?';
-    $stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE status = 'pending' AND classification IN ($placeholders)");
+    $stmt = $conn->prepare("SELECT * FROM projects WHERE status = 'pending' AND classification IN ($placeholders)");
     $stmt->bind_param(str_repeat('s', count($matched_classifications)), ...$matched_classifications);
     $stmt->execute();
     $result = $stmt->get_result();
+    $stmt->close();
 } else {
-    $result = $conn->query("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE 1=0");
+    $result = $conn->query("SELECT * FROM projects WHERE 1=0");
 }
 
-require_once dirname(__DIR__) . "/includes/simple_smtp.php";
 
-require_once dirname(__FILE__) . '/../../config/email_config.php';
 
 function sendApprovalEmail($email, $name, $project_name, $conn) {
     try {
-        $mail->addAddress($email, $name);
-        $mail->Subject = 'Project Approved - ' . $project_name;
-        $mail->isHTML(true);
-        $mail->Body = "
+        require_once dirname(__DIR__, 2) . '/includes/smtp_mailer.php';
+        $mailer = new SMTPMailer();
+        $subject = 'Project Approved - ' . $project_name;
+        $message = "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
             <h2 style='color: #10b981;'>🎉 Congratulations! Your Project Has Been Approved</h2>
             <p>Dear {$name},</p>
@@ -161,18 +160,19 @@ function sendApprovalEmail($email, $name, $project_name, $conn) {
             <p>Thank you for your contribution!</p>
             <p>Best regards,<br>IdeaNest Team</p>
         </div>";
-        $mail->send();
+        return $mailer->send($email, $subject, $message);
     } catch (Exception $e) {
         error_log('Approval email failed: ' . $e->getMessage());
+        return false;
     }
 }
 
 function sendRejectionEmail($email, $name, $project_name, $reason, $conn) {
     try {
-        $mail->addAddress($email, $name);
-        $mail->Subject = 'Project Review - ' . $project_name;
-        $mail->isHTML(true);
-        $mail->Body = "
+        require_once dirname(__DIR__, 2) . '/includes/smtp_mailer.php';
+        $mailer = new SMTPMailer();
+        $subject = 'Project Review - ' . $project_name;
+        $message = "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
             <h2 style='color: #ef4444;'>Project Review Update</h2>
             <p>Dear {$name},</p>
@@ -183,9 +183,10 @@ function sendRejectionEmail($email, $name, $project_name, $reason, $conn) {
             <p>Please review the feedback and resubmit your project with the necessary improvements.</p>
             <p>Best regards,<br>IdeaNest Team</p>
         </div>";
-        $mail->send();
+        return $mailer->send($email, $subject, $message);
     } catch (Exception $e) {
         error_log('Rejection email failed: ' . $e->getMessage());
+        return false;
     }
 }
 
@@ -289,17 +290,6 @@ if (isset($_POST['action']) && isset($_POST['project_id'])) {
 
 if (isset($_GET['msg'])) {
     $action_message = htmlspecialchars($_GET['msg']);
-}
-
-// Re-fetch projects after potential updates
-if (!empty($matched_classifications)) {
-    $placeholders = str_repeat('?,', count($matched_classifications) - 1) . '?';
-    $stmt = $conn->prepare("SELECT * FROM projects WHERE status = 'pending' AND classification IN ($placeholders)");
-    $stmt->bind_param(str_repeat('s', count($matched_classifications)), ...$matched_classifications);
-    $stmt->execute();
-    $result = $stmt->get_result();
-} else {
-    $result = $conn->query("SELECT * FROM projects WHERE 1=0");
 }
 
 // Start output buffering to capture the content

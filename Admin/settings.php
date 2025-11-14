@@ -1,4 +1,5 @@
 <?php
+require_once '../config/config.php';
 // Production-safe error reporting
 if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
     error_reporting(E_ALL);
@@ -20,7 +21,7 @@ session_start();
 // Check if admin is logged in
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     // Redirect to admin login page if not logged in
-    header("Location: https://ictmu.in/hcd/IdeaNest/Login/Login/login.php");
+    header("Location: ../Login/Login/login.php");
     exit();
 }
 
@@ -423,7 +424,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="site_url" class="form-label">Site URL</label>
-                                    <input type="url" class="form-control" id="site_url" name="site_url" value="<?php echo htmlspecialchars(getSetting($conn, 'site_url', 'https://ictmu.in/hcd/IdeaNest')); ?>" required>
+                                    <input type="url" class="form-control" id="site_url" name="site_url" value="<?php echo htmlspecialchars(getSetting($conn, 'site_url', BASE_URL)); ?>" required>
                                 </div>
                             </div>
                         </div>

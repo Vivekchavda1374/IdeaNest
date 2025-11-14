@@ -1,9 +1,10 @@
 <?php
 session_start();
+require_once '../config/config.php';
 require_once '../Login/Login/db.php';
 
 if (!isset($_SESSION['admin_id'])) {
-    header("Location: https://ictmu.in/hcd/IdeaNest/Login/Login/login.php");
+    header("Location: ../Login/Login/login.php");
     exit();
 }
 
@@ -99,6 +100,9 @@ $stats['avg_rating'] = $result['avg_rating'] ? round($result['avg_rating'], 1) :
     <?php include 'sidebar_admin.php'; ?>
     
     <div class="main-content">
+        <button class="btn d-lg-none mb-3" id="sidebarToggle">
+            <i class="bi bi-list"></i>
+        </button>
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="d-flex align-items-center">
                 <a href="overview.php" class="btn btn-outline-secondary me-3">

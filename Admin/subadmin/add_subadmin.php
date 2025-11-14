@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && !isset($_
         $check_stmt->execute();
         $result = $check_stmt->get_result();
 
-        if ($result->num_rows !== false) {
+        if ($result->num_rows > 0) {
             $error = "A subadmin with this email already exists.";
             $check_stmt->close();
         } else {
