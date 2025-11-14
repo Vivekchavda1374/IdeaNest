@@ -48,30 +48,5 @@ function getEmailConfig($conn = null) {
     return $email_config;
 }
 
-    $config = getEmailConfig($conn);
-    
-    try {
-        $mail->isSMTP();
-        
-        
-        
-        
-        
-        $mail->Port = $config['smtp_port'];
-        
-        
-        // SSL options
-        $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer' => $config['ssl_verify_peer'],
-                'verify_peer_name' => $config['ssl_verify_peer_name'],
-                'allow_self_signed' => $config['ssl_allow_self_signed']
-            )
-        );
-        
-        return $mail;
-    } catch (Exception $e) {
-        throw new Exception('Email system configuration error');
-    }
-}
+
 ?>
