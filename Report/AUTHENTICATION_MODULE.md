@@ -141,7 +141,7 @@ Login/Login/
 ### Database Configuration
 ```php
 // Database connection settings
-$host = "localhost";
+$host = "localhost"; // Database host - keep as localhost for database connection
 $username = "root";
 $password = "";
 $database = "ideanest";
