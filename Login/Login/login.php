@@ -5,95 +5,80 @@ include 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     requireCSRF();
-    if (!isset($_POST['email'], $_POST['password'])) {
-        $error_message = "Invalid form submission";
-    } else {
-        $email = $_POST['email'];
-        $password = $_POST['password'];
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
 
-        // Check for admin credentials first
+    if (empty($email) || empty($password)) {
+        $error = "Please enter both email and password";
+    } else {
+        // Admin check
         if ($email === "ideanest.ict@gmail.com" && $password === "ideanest133") {
-            // Set admin session variables
             $_SESSION['admin_id'] = 1;
             $_SESSION['user_id'] = 'admin';
             $_SESSION['er_number'] = $email;
             $_SESSION['user_name'] = 'Administrator';
             $_SESSION['is_admin'] = true;
             $_SESSION['admin_logged_in'] = true;
-
-            header("Location: https://ictmu.in/hcd/IdeaNest/Admin/admin.php");
+            header("Location: ../../Admin/admin.php");
             exit();
         }
 
-        // Check for mentor login using email
-        $mentor_stmt = $conn->prepare("SELECT id, password, name FROM register WHERE email = ? AND role = 'mentor'");
-        $mentor_stmt->bind_param("s", $email);
-        $mentor_stmt->execute();
-        $mentor_stmt->store_result();
-
-        if ($mentor_stmt->num_rows > 0) {
-            $mentor_stmt->bind_result($mentor_id, $mentor_hashed_password, $mentor_name);
-            $mentor_stmt->fetch();
-
-            if (password_verify($password, $mentor_hashed_password)) {
-                $_SESSION['mentor_id'] = $mentor_id;
-                $_SESSION['mentor_name'] = $mentor_name;
-                $_SESSION['user_id'] = $mentor_id;
+        // Mentor check
+        $stmt = $conn->prepare("SELECT id, password, name FROM register WHERE email = ? AND role = 'mentor'");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $mentor = $result->fetch_assoc();
+            if (password_verify($password, $mentor['password'])) {
+                $_SESSION['mentor_id'] = $mentor['id'];
+                $_SESSION['mentor_name'] = $mentor['name'];
+                $_SESSION['user_id'] = $mentor['id'];
                 $_SESSION['er_number'] = $email;
-                header("Location: https://ictmu.in/hcd/IdeaNest/mentor/dashboard.php");
+                header("Location: ../../mentor/dashboard.php");
                 exit();
-            } else {
-                $error_message = "Incorrect Password!";
             }
         }
-        $mentor_stmt->close();
 
-        // If not mentor, proceed with regular user login
-        $stmt = $conn->prepare("SELECT id, password, name FROM register WHERE email = ? OR enrollment_number = ? ");
+        // User check
+        $stmt = $conn->prepare("SELECT id, password, name FROM register WHERE email = ? OR enrollment_number = ?");
         $stmt->bind_param("ss", $email, $email);
         $stmt->execute();
-        $stmt->store_result();
-
-        if ($stmt->num_rows > 0) {
-            $stmt->bind_result($user_id, $hashed_password, $user_name);
-            $stmt->fetch();
-
-            if (password_verify($password, $hashed_password)) {
-                $_SESSION['user_id'] = $user_id;
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            if (password_verify($password, $user['password'])) {
+                $_SESSION['user_id'] = $user['id'];
                 $_SESSION['er_number'] = $email;
-                $_SESSION['user_name'] = $user_name;
+                $_SESSION['user_name'] = $user['name'];
                 $_SESSION['is_admin'] = false;
-
-                header("Location: https://ictmu.in/hcd/IdeaNest/user/index.php");
+                header("Location: ../../user/index.php");
                 exit();
             } else {
-                $error_message = "Incorrect Password!";
+                $error = "Incorrect password";
             }
         } else {
-            // If not found in register, check subadmins table using email
-            $stmt2 = $conn->prepare("SELECT id, password, first_name, last_name FROM subadmins WHERE email = ?");
-            $stmt2->bind_param("s", $email);
-            $stmt2->execute();
-            $stmt2->store_result();
-            if ($stmt2->num_rows > 0) {
-                $stmt2->bind_result($subadmin_id, $subadmin_hashed_password, $first_name, $last_name);
-                $stmt2->fetch();
-                if (password_verify($password, $subadmin_hashed_password)) {
-                    $_SESSION['subadmin_id'] = $subadmin_id;
+            // SubAdmin check
+            $stmt = $conn->prepare("SELECT id, password, first_name, last_name FROM subadmins WHERE email = ?");
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($result->num_rows > 0) {
+                $subadmin = $result->fetch_assoc();
+                if (password_verify($password, $subadmin['password'])) {
+                    $_SESSION['subadmin_id'] = $subadmin['id'];
                     $_SESSION['subadmin_email'] = $email;
-                    $_SESSION['subadmin_name'] = trim($first_name . ' ' . $last_name);
+                    $_SESSION['subadmin_name'] = trim($subadmin['first_name'] . ' ' . $subadmin['last_name']);
                     $_SESSION['subadmin_logged_in'] = true;
-                    header("Location: https://ictmu.in/hcd/IdeaNest/Admin/subadmin/dashboard.php");
+                    header("Location: ../../Admin/subadmin/dashboard.php");
                     exit();
                 } else {
-                    $error_message = "Incorrect Password!";
+                    $error = "Incorrect password";
                 }
             } else {
-                $error_message = "User not found! Please register.";
+                $error = "User not found. Please register.";
             }
-            $stmt2->close();
         }
-        $stmt->close();
     }
 }
 ?>
@@ -102,159 +87,85 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | IdeaNest</title>
+    <title>Login - IdeaNest</title>
     <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/login.css">
-    <link rel="stylesheet" href="../../assets/css/loading.css">
-
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h1 { text-align: center; color: #333; margin-bottom: 10px; font-size: 24px; }
+        p { text-align: center; color: #666; margin-bottom: 25px; font-size: 14px; }
+        .alert { padding: 12px; margin-bottom: 20px; border-radius: 4px; font-size: 14px; }
+        .alert-error { background: #fee; color: #c33; border: 1px solid #fcc; }
+        .alert-success { background: #efe; color: #3c3; border: 1px solid #cfc; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #555; font-size: 14px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        input:focus { outline: none; border-color: #6366f1; }
+        button { width: 100%; padding: 12px; background: #6366f1; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #5558e3; }
+        .links { text-align: center; margin-top: 20px; font-size: 14px; }
+        .links a { color: #6366f1; text-decoration: none; }
+        .links a:hover { text-decoration: underline; }
+        .divider { text-align: center; margin: 20px 0; color: #999; font-size: 14px; }
+        .google-btn { width: 100%; padding: 10px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; }
+        .google-btn:hover { background: #f9f9f9; }
+    </style>
 </head>
 <body>
-<div class="login-container">
-    <div class="logo-section">
-        <div class="logo">
-            <i class="fas fa-lightbulb"></i>
-        </div>
-        <div class="welcome-text">
-            <h1>Welcome Back</h1>
-            <p>Sign in to continue to IdeaNest</p>
-        </div>
-    </div>
+    <div class="container">
+        <h1>🔐 Login to IdeaNest</h1>
+        <p>Enter your credentials to continue</p>
 
-    <form class="form-section" method="post" autocomplete="off">
-        <!-- Error/Success Messages -->
-        <?php if (isset($error_message)) : ?>
-        <div class="alert alert-error" id="error-alert">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo htmlspecialchars($error_message); ?></span>
-        </div>
+        <?php if (isset($error)): ?>
+            <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
 
-        <?php if (isset($_GET['logout']) && $_GET['logout'] === 'success') : ?>
-        <div class="alert alert-success" id="success-alert">
-            <i class="fas fa-check-circle"></i>
-            <span>You have been successfully logged out!</span>
-        </div>
-        <?php else : ?>
-        <div class="alert alert-success" style="display: none;" id="success-alert">
-            <i class="fas fa-check-circle"></i>
-            <span>You have been successfully logged out!</span>
-        </div>
+        <?php if (isset($_GET['logout'])): ?>
+            <div class="alert alert-success">Logged out successfully!</div>
         <?php endif; ?>
 
-        <div class="input-group">
-            <input type="text" id="email" name="email" placeholder="Enter your ER number or Email" required autofocus>
-            <i class="fas fa-user input-icon"></i>
-        </div>
+        <form method="POST">
+            <div class="form-group">
+                <label>Email or Enrollment Number</label>
+                <input type="text" name="email" required autofocus>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+            <?= getCSRFField() ?>
+            <button type="submit">Sign In</button>
+        </form>
 
-        <div class="input-group">
-            <input type="password" id="password" name="password" placeholder="Enter your password" required>
-            <i class="fas fa-lock input-icon"></i>
-        </div>
+        <div class="divider">OR</div>
 
-        <div class="forgot-password">
-            <a href="forgot_password.php">Forgot Password?</a>
-            <small style="display: block; color: #666; font-size: 0.8rem; margin-top: 0.25rem;">Available for all users (Students, Mentors, SubAdmins)</small>
-        </div>
-
-        <?php echo getCSRFField(); ?>
-        <button type="submit" class="login-btn">
-            <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
-            Sign In
-        </button>
-    </form>
-
-    <div class="divider">
-        <span>or</span>
-    </div>
-
-    <div class="google-login">
-        <?php 
-        require_once 'google_config.php';
-        ?>
         <div id="g_id_onload"
-             data-client_id="<?php echo GOOGLE_CLIENT_ID; ?>"
-             data-callback="handleCredentialResponse"
-             data-auto_prompt="false"
-             data-cancel_on_tap_outside="false">
+             data-client_id="<?php require_once 'google_config.php'; echo GOOGLE_CLIENT_ID; ?>"
+             data-callback="handleCredentialResponse">
         </div>
-        <div class="g_id_signin"
-             data-type="standard"
-             data-size="large"
-             data-theme="outline"
-             data-text="signin_with"
-             data-shape="rectangular"
-             data-logo_alignment="left"
-             data-width="300">
-        </div>
-    </div>
+        <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="signin_with" data-width="100%"></div>
 
-    <div class="divider">
-        <span>New to IdeaNest?</span>
-    </div>
-
-    <div class="register-link">
-        <p>Don't have an account?
+        <div class="links">
+            <a href="forgot_password.php">Forgot Password?</a> | 
             <a href="register.php">Create Account</a>
-        </p>
+        </div>
     </div>
-</div>
 
-<script src="../../assets/js/loading.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script>
-function handleCredentialResponse(response) {
-    if (!response.credential) {
-        console.error('No credential received from Google');
-        return;
-    }
-    
-    window.loadingManager.showPageLoading('Authenticating with Google...');
-    
-    fetch('google_auth.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            credential: response.credential
-        }),
-        credentials: 'same-origin'
-    })
-    .then(response => response.json())
-    .then(data => {
-        window.loadingManager.hidePageLoading();
-        if (data.success) {
-            window.loadingManager.showPageLoading('Redirecting...');
-            window.location.href = data.redirect;
-        } else {
-            alert('Login failed: ' + (data.message || 'Unknown error'));
-        }
-    })
-    .catch(error => {
-        window.loadingManager.hidePageLoading();
-        console.error('Error:', error);
-        alert('Login failed. Please try again.');
-    });
-}
-
-// Add loading to regular login form
-document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.querySelector('.form-section');
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            const submitBtn = this.querySelector('.login-btn');
-            if (submitBtn) {
-                window.loadingManager.showPageLoading('Signing in...');
-            }
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+    function handleCredentialResponse(response) {
+        fetch('google_auth.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({credential: response.credential})
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) window.location.href = data.redirect;
+            else alert('Login failed: ' + data.message);
         });
     }
-});
-</script>
-<script src="../../assets/js/login.js"></script>
-
-
-
+    </script>
 </body>
 </html>
