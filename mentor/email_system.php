@@ -1,18 +1,6 @@
 <?php
 
-// Try different autoload paths - Production Safe
-$phpmailer_available = false;
-    try {
-        require_once dirname(__DIR__) . "/includes/simple_smtp.php";
-    } catch (Exception $e) {
-    }
-    try {
-        require_once dirname(__DIR__) . "/includes/simple_smtp.php";
-    } catch (Exception $e) {
-    }
-} else {
-    // No vendor directory - this is normal in production without Composer
-}
+require_once dirname(__DIR__) . "/includes/autoload_simple.php";
 
 require_once '../Login/Login/db.php';
 
@@ -41,26 +29,7 @@ class MentorEmailSystem
                 }
             }
 
-            $mail = sendSMTPEmail;
-            $mail->isSMTP();
-            
-            
-            
-            
-            
-            $mail->Port = $smtp_settings['smtp_port'] ?? 587;
-            
-            
-            // Disable SSL verification for development (remove in production)
-            $mail->SMTPOptions = array(
-                'ssl' => array(
-                    'verify_peer' => false,
-                    'verify_peer_name' => false,
-                    'allow_self_signed' => true
-                )
-            );
-            
-            return $mail;
+            return new SMTPMailer();
         } catch (Exception $e) {
             throw new Exception('Email configuration error');
         }
@@ -77,8 +46,7 @@ class MentorEmailSystem
             $subject = "Welcome to Your Mentoring Journey - IdeaNest";
             $body = $this->getWelcomeTemplate($student, $mentor);
             
-
-            $result = $mail->send();
+            $result = $mail->send($student['email'], $subject, $body);
             $this->logEmail('welcome_message', $student_id, $result ? 'sent' : 'failed');
             return $result;
         } catch (Exception $e) {
@@ -98,8 +66,7 @@ class MentorEmailSystem
             $subject = "New Mentoring Session Scheduled - IdeaNest";
             $body = $this->getSessionInvitationTemplate($student, $mentor, $session_data);
             
-
-            $result = $mail->send();
+            $result = $mail->send($student['email'], $subject, $body);
             $this->logEmail('session_invitation', $student_id, $result ? 'sent' : 'failed');
             return $result;
         } catch (Exception $e) {
@@ -119,8 +86,7 @@ class MentorEmailSystem
             $subject = "Project Feedback from Your Mentor - IdeaNest";
             $body = $this->getProjectFeedbackTemplate($student, $mentor, $feedback_data);
             
-
-            $result = $mail->send();
+            $result = $mail->send($student['email'], $subject, $body);
             $this->logEmail('project_feedback', $student_id, $result ? 'sent' : 'failed');
             return $result;
         } catch (Exception $e) {
@@ -140,8 +106,7 @@ class MentorEmailSystem
             $subject = "Progress Update from Your Mentor - IdeaNest";
             $body = $this->getProgressUpdateTemplate($student, $mentor, $progress_data);
             
-
-            $result = $mail->send();
+            $result = $mail->send($student['email'], $subject, $body);
             $this->logEmail('progress_update', $student_id, $result ? 'sent' : 'failed');
             return $result;
         } catch (Exception $e) {
