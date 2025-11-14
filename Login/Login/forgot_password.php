@@ -1,9 +1,19 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+ini_set('error_log', '../../logs/forgot_password_errors.log');
+
 session_start();
 include 'db.php';
 
 // Include simple email functions
-require_once '../../includes/simple_smtp.php';
+try {
+    require_once '../../includes/simple_smtp.php';
+} catch (Exception $e) {
+    error_log("Failed to load email functions: " . $e->getMessage());
+    die("System error. Please contact administrator.");
+}
 
 $step = $_GET['step'] ?? 'email';
 $error_message = '';
@@ -88,18 +98,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
             $table = $_SESSION['reset_table'];
-            $stmt = $conn->prepare("UPDATE $table SET password = ? WHERE id = ?");
-            $stmt->bind_param("si", $hashed_password, $_SESSION['reset_user_id']);
-
-            if ($stmt->execute()) {
-                unset($_SESSION['reset_otp'], $_SESSION['reset_email'], $_SESSION['reset_user_id'], $_SESSION['reset_table'], $_SESSION['otp_time']);
-                $success_message = "Password updated successfully!";
-                $step = 'complete';
+            
+            // Validate table name to prevent SQL injection
+            if ($table !== 'register' && $table !== 'subadmins') {
+                $error_message = "Invalid session data. Please try again.";
+                $step = 'email';
             } else {
-                $error_message = "Failed to update password. Please try again.";
-                $step = 'reset';
+                $query = "UPDATE " . $table . " SET password = ? WHERE id = ?";
+                $stmt = $conn->prepare($query);
+                
+                if ($stmt) {
+                    $stmt->bind_param("si", $hashed_password, $_SESSION['reset_user_id']);
+                    
+                    if ($stmt->execute()) {
+                        unset($_SESSION['reset_otp'], $_SESSION['reset_email'], $_SESSION['reset_user_id'], $_SESSION['reset_table'], $_SESSION['otp_time']);
+                        $success_message = "Password updated successfully!";
+                        $step = 'complete';
+                    } else {
+                        $error_message = "Failed to update password. Please try again.";
+                        $step = 'reset';
+                    }
+                    $stmt->close();
+                } else {
+                    $error_message = "Database error. Please try again.";
+                    $step = 'reset';
+                }
             }
-            $stmt->close();
         }
     }
 }

@@ -22,10 +22,15 @@ try {
     $conn = new mysqli($host, $user, $pass, $dbname);
     
     if ($conn->connect_error) {
-        error_log("Database connection failed: " . $conn->connect_error);
+        $error_msg = "Database connection failed: " . $conn->connect_error . " (Host: $host, User: $user, DB: $dbname)";
+        error_log($error_msg);
         
         // In production, don't expose database errors
         if (($_ENV['APP_ENV'] ?? 'development') === 'production') {
+            // Check if we're in a web request or CLI
+            if (php_sapi_name() === 'cli') {
+                die("Database connection error: " . $conn->connect_error . "\n");
+            }
             die("Database connection error. Please contact administrator.");
         } else {
             die("Connection failed: " . $conn->connect_error);
