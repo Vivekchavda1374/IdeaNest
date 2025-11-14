@@ -1,4 +1,5 @@
 <?php
+require_once '../config/config.php';
 
 // Enable error reporting for debugging
 error_reporting(E_ALL);
@@ -43,9 +44,9 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $s
         'logo_url' => 'logo-no-background.png',
         'support_email' => 'ideanest.ict@gmail.com',
         'company_address' => 'Marwadi University',
-        'website_url' => 'https://ictmu.in/hcd/IdeaNest/user/index.php',
-        'dashboard_url' => 'https://ictmu.in/hcd/IdeaNest/user/index.php',
-        'submission_url' => 'https://ictmu.in/hcd/IdeaNest/user/forms/new_project_add.php',
+        'website_url' => getBaseUrl('user/index.php'),
+        'dashboard_url' => getBaseUrl('user/index.php'),
+        'submission_url' => getBaseUrl('user/forms/new_project_add.php'),
         'include_project_details' => true,
         'custom_text' => '',
 

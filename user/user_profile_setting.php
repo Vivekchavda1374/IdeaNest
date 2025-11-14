@@ -69,16 +69,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        // Basic info updates (only if not GitHub-only update)
-        if (!$github_only) {
-            $update_fields[] = "name = ?";
-            $types .= "s";
-            $params[] = $name;
+        // Always update basic info
+        $update_fields[] = "name = ?";
+        $types .= "s";
+        $params[] = $name;
 
-            $update_fields[] = "email = ?";
-            $types .= "s";
-            $params[] = $email;
-        }
+        $update_fields[] = "email = ?";
+        $types .= "s";
+        $params[] = $email;
 
         if (!empty($phone_no)) {
             $update_fields[] = "phone_no = ?";
@@ -124,41 +122,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($github_username)) {
             // Validate GitHub username format
             if (preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9-]){0,38}$/', $github_username)) {
-                require_once 'github_service.php';
-                $github_profile = fetchGitHubProfile($github_username);
-                if ($github_profile) {
+                if (file_exists('github_service.php')) {
+                    require_once 'github_service.php';
+                    $github_profile = fetchGitHubProfile($github_username);
+                    if ($github_profile) {
+                        $update_fields[] = "github_username = ?";
+                        $types .= "s";
+                        $params[] = $github_username;
+
+                        $update_fields[] = "github_profile_url = ?";
+                        $types .= "s";
+                        $params[] = $github_profile['html_url'];
+
+                        $update_fields[] = "github_repos_count = ?";
+                        $types .= "i";
+                        $params[] = $github_profile['public_repos'];
+
+                        $update_fields[] = "github_last_sync = NOW()";
+                    } else {
+                        // Save username anyway, validation can happen later
+                        $update_fields[] = "github_username = ?";
+                        $types .= "s";
+                        $params[] = $github_username;
+                    }
+                } else {
+                    // Save username if service file doesn't exist
                     $update_fields[] = "github_username = ?";
                     $types .= "s";
                     $params[] = $github_username;
-
-                    $update_fields[] = "github_profile_url = ?";
-                    $types .= "s";
-                    $params[] = $github_profile['html_url'];
-
-                    $update_fields[] = "github_repos_count = ?";
-                    $types .= "i";
-                    $params[] = $github_profile['public_repos'];
-
-                    $update_fields[] = "github_last_sync = NOW()";
-                } else {
-                    $errors[] = "GitHub username not found or invalid";
                 }
-            } else {
-                $errors[] = "Invalid GitHub username format";
             }
-        } else {
-            // Clear GitHub data if username is empty
+        } elseif (isset($_POST['github_username']) && empty($github_username)) {
+            // Clear GitHub data if username is explicitly emptied
             $update_fields[] = "github_username = NULL";
             $update_fields[] = "github_profile_url = NULL";
             $update_fields[] = "github_repos_count = 0";
             $update_fields[] = "github_last_sync = NULL";
         }
 
-        // Password update
+        // Password update (skip for Google users without password)
         if (!empty($current_password) && !empty($new_password) && !empty($confirm_password)) {
             if ($new_password === $confirm_password) {
                 if (strlen($new_password) >= 6) {
-                    if (password_verify($current_password, $user['password'])) {
+                    // Check if user has a password (not Google-only user)
+                    if (!empty($user['password']) && password_verify($current_password, $user['password'])) {
                         $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
                         $update_fields[] = "password = ?";
                         $types .= "s";
@@ -176,8 +183,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 
-        // Update database
-        if (!!$update_fields && empty($errors)) {
+        // Update database - ensure we have fields to update
+        if (!empty($update_fields) && empty($errors)) {
+            error_log("Updating profile for user $user_id with fields: " . implode(', ', $update_fields));
             $params[] = $user_id;
             $types .= "i";
 
@@ -186,17 +194,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($stmt->bind_param($types, ...$params)) {
                 if ($stmt->execute()) {
-                    $success = "Profile updated successfully";
-
                     // Mark profile as complete for Google users
                     if (isset($_GET['google_setup'])) {
                         $complete_stmt = $conn->prepare("UPDATE register SET profile_complete = 1 WHERE id = ?");
                         $complete_stmt->bind_param("i", $user_id);
                         $complete_stmt->execute();
                         unset($_SESSION['google_new_user']);
-
-                        echo "<script>setTimeout(function(){ window.location.href = 'index.php'; }, 2000);</script>";
+                        
+                        // Refresh user data
+                        $query = "SELECT * FROM register WHERE id = ?";
+                        $refresh_stmt = $conn->prepare($query);
+                        $refresh_stmt->bind_param("i", $user_id);
+                        $refresh_stmt->execute();
+                        $result = $refresh_stmt->get_result();
+                        $user = $result->fetch_assoc();
+                        $_SESSION['user_name'] = $user['name'];
+                        $_SESSION['er_number'] = $user['enrollment_number'];
+                        
+                        // Redirect immediately
+                        header("Location: index.php");
+                        exit();
                     }
+                    
+                    $success = "Profile updated successfully";
 
                     // Refresh user data
                     $query = "SELECT * FROM register WHERE id = ?";

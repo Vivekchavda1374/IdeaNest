@@ -1,4 +1,5 @@
 <?php
+require_once '../config/config.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -7,7 +8,7 @@ require_once '../Login/Login/db.php';
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header("Location: https://ictmu.in/hcd/IdeaNest/Login/Login/login.php");
+    header("Location: ../Login/Login/login.php");
     exit();
 }
 
@@ -157,6 +158,9 @@ $reported_ideas = $conn->query($reported_ideas_query);
     <?php  include 'sidebar_admin.php';?>
     
     <div class="main-content">
+        <button class="btn d-lg-none mb-3" id="sidebarToggle">
+            <i class="bi bi-list"></i>
+        </button>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">

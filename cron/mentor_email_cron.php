@@ -11,8 +11,8 @@
  * - Every Sunday at 9 AM: Weekly progress updates
  */
 
+require_once dirname(__DIR__) . '/includes/autoload_simple.php';
 require_once dirname(__DIR__) . '/Login/Login/db.php';
-require_once dirname(__DIR__) . '/mentor/automated_emails.php';
 
 // Log file for cron activities
 $log_file = dirname(__DIR__) . '/logs/mentor_email_cron.log';
@@ -28,25 +28,10 @@ function logMessage($message)
 try {
     logMessage("Starting mentor email cron job");
 
-    $automated_emails = new AutomatedMentorEmails($conn);
+    // Process email queue directly
 
-    // Always check for session reminders (runs every hour)
-    logMessage("Checking for session reminders...");
-    $automated_emails->sendSessionReminders();
-
-    // Check for welcome emails (runs daily)
-    $current_hour = (int)date('H');
-    if ($current_hour == 9) { // 9 AM
-        logMessage("Sending welcome emails to new pairs...");
-        $automated_emails->sendWelcomeToNewPairs();
-    }
-
-    // Weekly progress updates (Sundays at 9 AM)
-    $current_day = (int)date('w'); // 0 = Sunday
-    if ($current_day == 0 && $current_hour == 9) {
-        logMessage("Sending weekly progress updates...");
-        $automated_emails->sendWeeklyProgressUpdates();
-    }
+    // Process mentor emails
+    processMentorEmails();
 
     // Process email queue
     logMessage("Processing email queue...");
@@ -84,28 +69,9 @@ function processEmailQueue()
             $stmt->bind_param("i", $email['id']);
             $stmt->execute();
 
-            // Process the email
-            $email_system = new MentorEmailSystem($conn, $email['mentor_id']);
-            $email_data = json_decode($email['email_data'], true);
-
-            $success = false;
-            switch ($email['email_type']) {
-                case 'welcome_message':
-                    $success = $email_system->sendWelcomeMessage($email['recipient_id']);
-                    break;
-                case 'session_invitation':
-                    $success = $email_system->sendSessionInvitation($email['recipient_id'], $email_data);
-                    break;
-                case 'session_reminder':
-                    $success = $email_system->sendSessionReminder($email['recipient_id'], $email_data);
-                    break;
-                case 'project_feedback':
-                    $success = $email_system->sendProjectFeedback($email['recipient_id'], $email_data['project_id'], $email_data['feedback']);
-                    break;
-                case 'progress_update':
-                    $success = $email_system->sendProgressUpdate($email['recipient_id'], $email_data);
-                    break;
-            }
+            // Send email using simple SMTP
+            $mailer = new SMTPMailer();
+            $success = $mailer->send($email['recipient_email'], $email['subject'], $email['message']);
 
             // Update queue status
             if ($success) {
@@ -132,6 +98,25 @@ function processEmailQueue()
             $stmt->execute();
             logMessage("Failed to process queued email ID: " . $email['id'] . " - " . $e->getMessage());
         }
+    }
+}
+
+function processMentorEmails()
+{
+    global $conn;
+    
+    $query = "SELECT * FROM mentor_email_queue WHERE status = 'pending' LIMIT 10";
+    $result = $conn->query($query);
+    
+    while ($email = $result->fetch_assoc()) {
+        $mailer = new SMTPMailer();
+        $success = $mailer->send($email['recipient_email'], $email['subject'], $email['message']);
+        
+        $status = $success ? 'sent' : 'failed';
+        $update = "UPDATE mentor_email_queue SET status = ? WHERE id = ?";
+        $stmt = $conn->prepare($update);
+        $stmt->bind_param('si', $status, $email['id']);
+        $stmt->execute();
     }
 }
 

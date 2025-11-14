@@ -178,6 +178,10 @@ try {
     <?php include 'sidebar_admin.php'; ?>
     
     <div class="main-content">
+        <button class="btn d-lg-none mb-3" id="sidebarToggle">
+            <i class="bi bi-list"></i>
+        </button>
+        
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1><i class="bi bi-download"></i> Export Overview</h1>
         </div>

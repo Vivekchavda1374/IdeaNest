@@ -31,30 +31,17 @@ function sendSimpleEmail($to, $subject, $message, $from_email = 'noreply@ideanes
     }
 }
 
-/**
- */
-}
+
 
 /**
  * Send email with fallback
  */
 function sendEmailWithFallback($to, $subject, $message, $from_email = 'noreply@ideanest.com', $from_name = 'IdeaNest') {
-        try {
-            
-            
-            
-            
-            
-            $subject = $subject;
-            $body = $message;
-            
-            return $mail->send();
-        } catch (Exception $e) {
-            // Fallback to simple email
-            return sendSimpleEmail($to, $subject, $message, $from_email, $from_name);
-        }
-    } else {
-        // Use simple email function
+    try {
+        require_once __DIR__ . '/smtp_mailer.php';
+        $mailer = new SMTPMailer();
+        return $mailer->send($to, $subject, $message);
+    } catch (Exception $e) {
         return sendSimpleEmail($to, $subject, $message, $from_email, $from_name);
     }
 }

@@ -2,10 +2,9 @@
 session_start();
 require_once '../Login/Login/db.php';
 
-    try {
-        require_once dirname(__DIR__) . "/includes/simple_smtp.php";
-    } catch (Exception $e) {
-    }
+try {
+    require_once dirname(__DIR__) . "/includes/simple_smtp.php";
+} catch (Exception $e) {
 }
 
 
@@ -60,13 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 // Send acceptance email
-                $mail = sendSMTPEmail;
-                
-
-                
-                
-
-                
                 $subject = 'Mentorship Request Accepted - IdeaNest';
                 $project_text = $details['project_name'] ? "for your project '{$details['project_name']}'" : "for general mentorship";
                 $body = "
@@ -77,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p>Best regards,<br>The IdeaNest Team</p>
                 ";
 
-                $mail->send();
+                sendSMTPEmail($details['email'], $subject, $body);
 
                 $conn->commit();
                 $success_message = "Request accepted successfully! Email sent to student.";
@@ -105,13 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $update_stmt->execute();
 
                 // Send rejection email
-                $mail = sendSMTPEmail;
-                
-
-                
-                
-
-                
                 $subject = 'Mentorship Request Update - IdeaNest';
                 $project_text = $details['project_name'] ? "for your project '{$details['project_name']}'" : "for general mentorship";
                 $body = "
@@ -123,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p>Best regards,<br>The IdeaNest Team</p>
                 ";
 
-                $mail->send();
+                sendSMTPEmail($details['email'], $subject, $body);
 
                 $success_message = "Request rejected. Email sent to student.";
             } catch (Exception $e) {

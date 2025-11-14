@@ -170,7 +170,7 @@
    5. **Configure database connection:**
    ```php
    // Edit Login/Login/db.php
-   $host = "localhost";
+   $host = "localhost"; // Database host - keep as localhost for database connection
    $user = "ictmu6ya_ideanest";
    $pass = "ictmu6ya_ideanest";
    $dbname = "ictmu6ya_ideanest";
