@@ -2,14 +2,14 @@
     "test_info": {
         "tool": "TestBeast",
         "version": "1.0.0",
-        "timestamp": "2025-10-26 04:19:42",
-        "execution_time": 0.37
+        "timestamp": "2025-11-14 06:22:48",
+        "execution_time": 0.07
     },
     "test_results": {
         "unit_tests": {
-            "total_tests": 2,
+            "total_tests": 1,
             "passed": 1,
-            "failed": 1,
+            "failed": 0,
             "skipped": 0,
             "test_details": [
                 {
@@ -18,15 +18,7 @@
                     "status": "passed",
                     "message": "Test passed successfully",
                     "execution_time": 0,
-                    "timestamp": "2025-10-26 04:19:42"
-                },
-                {
-                    "file": "test_export.php",
-                    "type": "unit",
-                    "status": "failed",
-                    "message": "Test failed due to error",
-                    "execution_time": 0,
-                    "timestamp": "2025-10-26 04:19:42"
+                    "timestamp": "2025-11-14 06:22:48"
                 }
             ]
         },
@@ -88,7 +80,7 @@
             "query_execution": {
                 "status": "passed",
                 "message": "Query execution test passed",
-                "details": "876 database queries detected"
+                "details": "732 database queries detected"
             },
             "data_integrity": {
                 "status": "passed",
@@ -98,7 +90,7 @@
             "transaction_handling": {
                 "status": "passed",
                 "message": "Transaction handling test passed",
-                "details": "50 transaction references found"
+                "details": "20 transaction references found"
             }
         },
         "api_tests": {
@@ -110,17 +102,17 @@
             "response_format": {
                 "status": "passed",
                 "message": "Response format test passed",
-                "details": "174 JSON responses found"
+                "details": "156 JSON responses found"
             },
             "authentication_required": {
                 "status": "passed",
                 "message": "Authentication required test passed",
-                "details": "94 authentication checks found"
+                "details": "90 authentication checks found"
             },
             "error_handling": {
                 "status": "passed",
                 "message": "API error handling test passed",
-                "details": "2070 error handling blocks found"
+                "details": "308 error handling blocks found"
             }
         },
         "regression_tests": {
