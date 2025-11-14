@@ -1,13 +1,13 @@
 <?php
 session_start();
+require_once '../config/config.php';
 require_once '../Login/Login/db.php';
 
-    try {
-        require_once dirname(__DIR__) . "/includes/simple_smtp.php";
-    } catch (Exception $e) {
-    }
+try {
+    require_once dirname(__DIR__) . "/includes/simple_smtp.php";
+} catch (Exception $e) {
+    // SMTP not available
 }
-
 
 if (!isset($_SESSION['admin_logged_in'])) {
     header('Location: ../Login/Login/login.php');
@@ -41,13 +41,6 @@ if ($_POST) {
         $stmt->execute();
 
         // Send email with credentials
-        $mail = sendSMTPEmail;
-        
-
-        
-        
-
-        
         $subject = 'Welcome to IdeaNest - Mentor Account Created';
         $body = "
         <h2>Welcome to IdeaNest Mentor Program</h2>
@@ -57,11 +50,13 @@ if ($_POST) {
         <p>Email: $email</p>
         <p>Password: $password</p>
 
-        <p>Login URL: <a href='https://ictmu.in/hcd/IdeaNest/mentor/dashboard.php'>Mentor Dashboard</a></p>
+        <p>Login URL: <a href='" . getBaseUrl('mentor/dashboard.php') . "'>Mentor Dashboard</a></p>
         <p>Please change your password after first login.</p>
         ";
 
-        $mail->send();
+        if (function_exists('sendSMTPEmail')) {
+            sendSMTPEmail($email, $name, $subject, $body);
+        }
         $success = "Mentor added successfully! Credentials sent to email.";
     } catch (Exception $e) {
         $error = "Error: " . $e->getMessage();

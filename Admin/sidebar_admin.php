@@ -129,8 +129,5 @@ $logout_url = isset($logout_url) ? $logout_url : $web_base_path . "logout.php";
 }
 </style>
 
-<!-- Sidebar Mobile Overlay -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
 <!-- Sidebar JavaScript -->
 <script src="../assets/js/sidebar_admin.js"></script>

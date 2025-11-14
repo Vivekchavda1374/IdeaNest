@@ -1953,32 +1953,8 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         });
     }
 
-    // Enhanced sidebar toggle functionality
+    // Enhanced sidebar toggle functionality - handled by sidebar_admin.js
     document.addEventListener('DOMContentLoaded', function() {
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebar = document.querySelector('.sidebar');
-        const mainContent = document.querySelector('.main-content');
-
-        if (sidebarToggle && sidebar) {
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('show');
-                if (mainContent) {
-                    mainContent.classList.toggle('pushed');
-                }
-            });
-        }
-
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            if (window.innerWidth <= 991.98) {
-                if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
-                    sidebar.classList.remove('show');
-                    if (mainContent) {
-                        mainContent.classList.remove('pushed');
-                    }
-                }
-            }
-        });
 
         // Auto-hide alerts after 5 seconds
         const alerts = document.querySelectorAll('.alert-banner');

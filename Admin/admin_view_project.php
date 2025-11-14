@@ -2,14 +2,12 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/Exception.php';
-require_once dirname(__FILE__) . '/../vendor/phpmailer/phpmailer/src/SMTP.php';
-
-
+require_once dirname(__FILE__) . '/../includes/autoload_simple.php';
 include "../Login/Login/db.php";
-require_once "../config/email_config.php";
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     header("Location: ../Login/Login/login.php");
@@ -128,19 +126,8 @@ function rejectProject($project_id, $rejection_reason, $conn) {
 
 function sendApprovalEmail($email, $name, $project_name, $conn) {
     try {
-        
-        $subject = 'Project Approved - ' . $project_name;
-        
-        $body = "
-        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-            <h2 style='color: #10b981;'>🎉 Congratulations! Your Project Has Been Approved</h2>
-            <p>Dear {$name},</p>
-            <p>We are pleased to inform you that your project <strong>{$project_name}</strong> has been approved by our admin team.</p>
-            <p>Your project is now live on IdeaNest and visible to the community.</p>
-            <p>Thank you for your contribution!</p>
-            <p>Best regards,<br>IdeaNest Team</p>
-        </div>";
-        $mail->send();
+        $emailHelper = new EmailHelper();
+        $emailHelper->sendProjectApprovalEmail($email, $project_name, 'approved');
     } catch (Exception $e) {
         error_log('Approval email failed: ' . $e->getMessage());
     }
@@ -148,11 +135,9 @@ function sendApprovalEmail($email, $name, $project_name, $conn) {
 
 function sendRejectionEmail($email, $name, $project_name, $reason, $conn) {
     try {
-        
+        $mailer = new SMTPMailer();
         $subject = 'Project Review - ' . $project_name;
-        
-        $body = "
-        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+        $body = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
             <h2 style='color: #ef4444;'>Project Review Update</h2>
             <p>Dear {$name},</p>
             <p>Thank you for submitting your project <strong>{$project_name}</strong> to IdeaNest.</p>
@@ -162,7 +147,7 @@ function sendRejectionEmail($email, $name, $project_name, $reason, $conn) {
             <p>Please review the feedback and resubmit your project with the necessary improvements.</p>
             <p>Best regards,<br>IdeaNest Team</p>
         </div>";
-        $mail->send();
+        $mailer->send($email, $subject, $body);
     } catch (Exception $e) {
         error_log('Rejection email failed: ' . $e->getMessage());
     }
@@ -278,6 +263,11 @@ $message = $_GET['message'] ?? '';
     
     <div class="main-content" style="margin-left: 250px; padding: 20px;">
         <div class="container-fluid">
+            <!-- Mobile Toggle Button -->
+            <button class="btn d-lg-none mb-3" id="sidebarToggle">
+                <i class="bi bi-list"></i>
+            </button>
+            
             <!-- Header Section -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>

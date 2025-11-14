@@ -1,4 +1,5 @@
 <?php
+require_once '../config/config.php';
 // Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -10,7 +11,7 @@ include "../Login/Login/db.php";
 session_start();
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     // Redirect to admin login page if not logged in
-    header("Location: https://ictmu.in/hcd/IdeaNest/Login/Login/login.php");
+    header("Location: ../Login/Login/login.php");
     exit();
 }
 

@@ -1,10 +1,11 @@
 <?php
 session_start();
+require_once '../config/config.php';
 include '../Login/Login/db.php';
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_id'])) {
-    header("Location: https://ictmu.in/hcd/IdeaNest/Login/Login/login.php");
+    header("Location: ../Login/Login/login.php");
     exit();
 }
 
