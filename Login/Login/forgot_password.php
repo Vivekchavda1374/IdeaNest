@@ -133,99 +133,87 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password | IdeaNest</title>
+    <title><?php echo $step == 'email' ? 'Forgot Password' : ($step == 'otp' ? 'Verify OTP' : ($step == 'reset' ? 'Reset Password' : 'Success')); ?> - IdeaNest</title>
     <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/login.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h1 { text-align: center; color: #333; margin-bottom: 10px; font-size: 24px; }
+        p { text-align: center; color: #666; margin-bottom: 25px; font-size: 14px; }
+        .alert { padding: 12px; margin-bottom: 20px; border-radius: 4px; font-size: 14px; }
+        .alert-error { background: #fee; color: #c33; border: 1px solid #fcc; }
+        .alert-success { background: #efe; color: #3c3; border: 1px solid #cfc; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #555; font-size: 14px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        input:focus { outline: none; border-color: #6366f1; }
+        button { width: 100%; padding: 12px; background: #6366f1; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #5558e3; }
+        .links { text-align: center; margin-top: 20px; font-size: 14px; }
+        .links a { color: #6366f1; text-decoration: none; }
+        .links a:hover { text-decoration: underline; }
+        .success-icon { text-align: center; font-size: 48px; color: #10b981; margin-bottom: 20px; }
+    </style>
 </head>
 <body>
-<div class="login-container">
-    <div class="logo-section">
-        <div class="logo">
-            <i class="fas fa-<?php echo $step == 'email' ? 'key' : ($step == 'otp' ? 'shield-alt' : ($step == 'reset' ? 'lock' : 'check-circle')); ?>"></i>
-        </div>
-        <div class="welcome-text">
-            <h1><?php
-                echo $step == 'email' ? 'Forgot Password' :
-                    ($step == 'otp' ? 'Verify OTP' :
-                    ($step == 'reset' ? 'Reset Password' : 'Success'));
-                ?></h1>
-            <p><?php
-                echo $step == 'email' ? 'Enter your registered email address to receive OTP' :
-                    ($step == 'otp' ? 'Enter the 6-digit code sent to your email' :
-                    ($step == 'reset' ? 'Enter your new password' : 'Password has been reset successfully'));
-                ?></p>
+    <div class="container">
+        <h1><?php
+            echo $step == 'email' ? '🔑 Forgot Password' :
+                ($step == 'otp' ? '🔐 Verify OTP' :
+                ($step == 'reset' ? '🔒 Reset Password' : '✅ Success'));
+            ?></h1>
+        <p><?php
+            echo $step == 'email' ? 'Enter your email to receive OTP' :
+                ($step == 'otp' ? 'Enter the 6-digit code sent to your email' :
+                ($step == 'reset' ? 'Enter your new password' : 'Password reset successfully'));
+            ?></p>
+
+        <?php if ($error_message): ?>
+            <div class="alert alert-error"><?= htmlspecialchars($error_message) ?></div>
+        <?php endif; ?>
+
+        <?php if ($success_message): ?>
+            <div class="alert alert-success"><?= htmlspecialchars($success_message) ?></div>
+        <?php endif; ?>
+
+        <?php if ($step == 'email'): ?>
+            <form method="POST">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" required autofocus>
+                </div>
+                <button type="submit" name="send_otp">Send OTP</button>
+            </form>
+        <?php elseif ($step == 'otp'): ?>
+            <form method="POST">
+                <div class="form-group">
+                    <label>Enter OTP</label>
+                    <input type="text" name="otp" maxlength="6" pattern="[0-9]{6}" required autofocus placeholder="000000">
+                </div>
+                <button type="submit" name="verify_otp">Verify OTP</button>
+            </form>
+        <?php elseif ($step == 'reset'): ?>
+            <form method="POST">
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" name="new_password" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" name="confirm_password" required>
+                </div>
+                <button type="submit" name="reset_password">Update Password</button>
+            </form>
+        <?php else: ?>
+            <div class="success-icon">✓</div>
+            <script>setTimeout(() => window.location.href = 'login.php', 3000);</script>
+            <p style="color: #10b981;">Redirecting to login...</p>
+        <?php endif; ?>
+
+        <div class="links">
+            <a href="login.php">← Back to Login</a>
         </div>
     </div>
-
-    <?php if ($error_message) : ?>
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span><?php echo $error_message; ?></span>
-        </div>
-    <?php endif; ?>
-
-    <?php if ($success_message) : ?>
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span><?php echo $success_message; ?></span>
-        </div>
-    <?php endif; ?>
-
-    <?php if ($step == 'email') : ?>
-        <form class="form-section" method="post">
-            <div class="input-group">
-                <input type="email" name="email" placeholder="Enter your email address" required>
-                <i class="fas fa-envelope input-icon"></i>
-            </div>
-            <button type="submit" name="send_otp" class="login-btn">
-                <i class="fas fa-paper-plane"></i>
-                Send OTP
-            </button>
-        </form>
-    <?php elseif ($step == 'otp') : ?>
-        <form class="form-section" method="post">
-            <div class="input-group">
-                <input type="text" name="otp" placeholder="Enter 6-digit OTP" maxlength="6" required>
-                <i class="fas fa-key input-icon"></i>
-            </div>
-            <button type="submit" name="verify_otp" class="login-btn">
-                <i class="fas fa-check"></i>
-                Verify OTP
-            </button>
-        </form>
-    <?php elseif ($step == 'reset') : ?>
-        <form class="form-section" method="post">
-            <div class="input-group">
-                <input type="password" name="new_password" placeholder="New Password" required>
-                <i class="fas fa-lock input-icon"></i>
-            </div>
-            <div class="input-group">
-                <input type="password" name="confirm_password" placeholder="Confirm Password" required>
-                <i class="fas fa-lock input-icon"></i>
-            </div>
-            <button type="submit" name="reset_password" class="login-btn">
-                <i class="fas fa-save"></i>
-                Update Password
-            </button>
-        </form>
-    <?php else : ?>
-        <div class="form-section">
-            <script>
-                setTimeout(() => {
-                    window.location.href = 'login.php';
-                }, 3000);
-            </script>
-            <p style="text-align: center; color: #10B981; margin: 2rem 0;">
-                Redirecting to login page...
-            </p>
-        </div>
-    <?php endif; ?>
-
-    <div class="register-link">
-        <p><a href="login.php">Back to Login</a></p>
-    </div>
-</div>
 </body>
 </html>
