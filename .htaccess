@@ -1,84 +1,77 @@
-# Production .htaccess for IdeaNest
-# Domain: https://ictmu.in/hcd/IdeaNest/
-
-# Basic Security
-<Files ~ "^\.">
-    Require all denied
-</Files>
-
-<Files "*.log">
-    Require all denied
-</Files>
-
-<Files ".env">
-    Require all denied
-</Files>
-
-<Files "composer.json">
-    Require all denied
-</Files>
-
-<Files "composer.lock">
-    Require all denied
-</Files>
-
-# PHP Security Settings
-php_flag display_errors Off
-php_flag log_errors On
-php_flag expose_php Off
-
-# File Upload Limits
-php_value upload_max_filesize 50M
-php_value post_max_size 50M
-php_value max_execution_time 60
-php_value memory_limit 256M
+# Security Configuration for IdeaNest
+RewriteEngine On
 
 # Security Headers
 Header always set X-Content-Type-Options nosniff
-Header always set X-Frame-Options SAMEORIGIN
+Header always set X-Frame-Options DENY
 Header always set X-XSS-Protection "1; mode=block"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
-Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://accounts.google.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://accounts.google.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' https://api.github.com https://accounts.google.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; frame-src 'self' https://accounts.google.com; frame-ancestors 'self' https://accounts.google.com;"
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;"
 
-# HTTPS Redirect (if not already handled by server)
+# Hide sensitive files
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "*.log">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "composer.json">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "composer.lock">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Prevent access to includes directory
+<Directory "includes">
+    Order allow,deny
+    Deny from all
+</Directory>
+
+# Prevent access to config directory
+<Directory "config">
+    Order allow,deny
+    Deny from all
+</Directory>
+
+# Prevent PHP execution in upload directories
+<Directory "user/uploads">
+    php_flag engine off
+</Directory>
+
+<Directory "user/forms/uploads">
+    php_flag engine off
+</Directory>
+
+# Block suspicious requests
+RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} ^.*(\[|\]|\(|\)|<|>|ê|"|;|\?|\*|=$).* [NC,OR]
+RewriteCond %{QUERY_STRING} ^.*("|'|<|>|\|{|\}).* [NC,OR]
+RewriteCond %{QUERY_STRING} ^.*(%0|%A|%B|%C|%D|%E|%F|127\.0).* [NC,OR]
+RewriteCond %{QUERY_STRING} ^.*(globals|encode|localhost|loopback).* [NC,OR]
+RewriteCond %{QUERY_STRING} ^.*(request|select|insert|union|declare).* [NC]
+RewriteRule ^(.*)$ - [F,L]
+
+# Prevent access to backup files
+<FilesMatch "\.(bak|backup|old|orig|save|swp|tmp)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Enable HTTPS redirect (uncomment for production)
 # RewriteCond %{HTTPS} off
 # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-RewriteEngine On
-
-# Directory access
-Options -Indexes
-DirectoryIndex index.php index.html
-
-# Pretty URLs
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php [QSA,L]
-
-# Cache Control
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresByType text/css "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
-    ExpiresByType image/png "access plus 1 month"
-    ExpiresByType image/jpg "access plus 1 month"
-    ExpiresByType image/jpeg "access plus 1 month"
-    ExpiresByType image/gif "access plus 1 month"
-    ExpiresByType image/svg+xml "access plus 1 month"
-</IfModule>
-
-# Compression
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/plain
-    AddOutputFilterByType DEFLATE text/html
-    AddOutputFilterByType DEFLATE text/xml
-    AddOutputFilterByType DEFLATE text/css
-    AddOutputFilterByType DEFLATE application/xml
-    AddOutputFilterByType DEFLATE application/xhtml+xml
-    AddOutputFilterByType DEFLATE application/rss+xml
-    AddOutputFilterByType DEFLATE application/javascript
-    AddOutputFilterByType DEFLATE application/x-javascript
-</IfModule>
-
-# Allow access
-Require all granted
+# Custom error pages
+ErrorDocument 403 /IdeaNest/error/403.html
+ErrorDocument 404 /IdeaNest/error/404.html
+ErrorDocument 500 /IdeaNest/error/500.html
