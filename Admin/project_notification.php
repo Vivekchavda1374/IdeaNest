@@ -185,7 +185,7 @@ function createApprovedEmailContent($user_name, $project, $options, $subadmin_de
                     <a href="' . $options['dashboard_url'] . '" class="button">View Your Projects</a>
                 </p>
                 <p>Keep creating amazing things!</p>
-                ' . ($subadmin_details ? '
+                ' . ($subadmin_details && isset($subadmin_details['name']) && isset($subadmin_details['email']) ? '
                 <div style="background-color: #e8f5e9; padding: 15px; border-radius: 4px; margin: 15px 0;">
                     <h4 style="margin-top: 0; color: #2d3748;">Reviewed By</h4>
                     <p style="margin: 5px 0;"><strong>Name:</strong> ' . htmlspecialchars($subadmin_details['name']) . '</p>
@@ -300,7 +300,7 @@ function createRejectedEmailContent($user_name, $project, $rejection_reason, $op
                     <a href="' . $options['submission_url'] . '" class="button">Submit Another Project</a>
                 </p>
                 <p>If you have any questions about the review process or need clarification on the feedback, please don\'t hesitate to contact us.</p>
-                ' . ($subadmin_details ? '
+                ' . ($subadmin_details && isset($subadmin_details['name']) && isset($subadmin_details['email']) ? '
                 <div style="background-color: #fff3cd; padding: 15px; border-radius: 4px; margin: 15px 0;">
                     <h4 style="margin-top: 0; color: #2d3748;">Reviewed By</h4>
                     <p style="margin: 5px 0;"><strong>Name:</strong> ' . htmlspecialchars($subadmin_details['name']) . '</p>

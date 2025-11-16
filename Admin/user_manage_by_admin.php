@@ -73,30 +73,41 @@ if ($view_user_id) {
 // Handle user block action
 if (isset($_POST['block_user'])) {
     $user_id = $_POST['user_id'];
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $enrollment_number = $_POST['enrollment_number'];
-    $gr_number = $_POST['gr_number'];
 
     // Begin transaction
     $conn->begin_transaction();
 
     try {
-        // First, insert into removed_user table WITH THE SAME ID from register
-        $stmt = $conn->prepare("INSERT INTO removed_user (id, name, email, enrollment_number, gr_number) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("issss", $user_id, $name, $email, $enrollment_number, $gr_number);
-        $stmt->execute();
-
-        // Then delete from register table
-        $stmt = $conn->prepare("DELETE FROM register WHERE id = ?");
+        // Get all user data from register table
+        $stmt = $conn->prepare("SELECT * FROM register WHERE id = ?");
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
+        $user_data = $stmt->get_result()->fetch_assoc();
+        
+        if ($user_data) {
+            // Build dynamic INSERT query with all columns
+            $columns = array_keys($user_data);
+            $placeholders = array_fill(0, count($columns), '?');
+            $types = str_repeat('s', count($columns));
+            
+            $insert_query = "INSERT INTO removed_user (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
+            $stmt = $conn->prepare($insert_query);
+            $stmt->bind_param($types, ...array_values($user_data));
+            $stmt->execute();
 
-        // Commit transaction
-        $conn->commit();
+            // Then delete from register table
+            $stmt = $conn->prepare("DELETE FROM register WHERE id = ?");
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
 
-        // Set success message
-        $success_message = "User access removed successfully!";
+            // Commit transaction
+            $conn->commit();
+
+            // Set success message
+            $success_message = "User access removed successfully!";
+        } else {
+            throw new Exception("User not found in register table");
+        }
     } catch (Exception $e) {
         // Roll back transaction on error
         $conn->rollback();
@@ -116,21 +127,36 @@ if (isset($_POST['restore_access'])) {
     $conn->begin_transaction();
 
     try {
-        // First, insert back into register table WITH THE SAME ID
-        $stmt = $conn->prepare("INSERT INTO register (id, name, email, enrollment_number, gr_number) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("issss", $user_id, $name, $email, $enrollment_number, $gr_number);
-        $stmt->execute();
-
-        // Then delete from removed_user table
-        $stmt = $conn->prepare("DELETE FROM removed_user WHERE id = ?");
+        // Get all user data from removed_user table
+        $stmt = $conn->prepare("SELECT * FROM removed_user WHERE id = ?");
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
+        $user_data = $stmt->get_result()->fetch_assoc();
+        
+        if ($user_data) {
+            // Build dynamic INSERT query with all columns
+            $columns = array_keys($user_data);
+            $placeholders = array_fill(0, count($columns), '?');
+            $types = str_repeat('s', count($columns));
+            
+            $insert_query = "INSERT INTO register (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
+            $stmt = $conn->prepare($insert_query);
+            $stmt->bind_param($types, ...array_values($user_data));
+            $stmt->execute();
 
-        // Commit transaction
-        $conn->commit();
+            // Then delete from removed_user table
+            $stmt = $conn->prepare("DELETE FROM removed_user WHERE id = ?");
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
 
-        // Set success message
-        $success_message = "User access restored successfully!";
+            // Commit transaction
+            $conn->commit();
+
+            // Set success message
+            $success_message = "User access restored successfully!";
+        } else {
+            throw new Exception("User not found in removed_user table");
+        }
     } catch (Exception $e) {
         // Roll back transaction on error
         $conn->rollback();
