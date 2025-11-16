@@ -1,0 +1,471 @@
+[
+{"type":"header","version":"5.2.1","comment":"Export to JSON plugin for PHPMyAdmin"},
+{"type":"database","name":"ictmu6ya_ideanest"},
+{"type":"table","name":"admin_approved_projects","database":"ictmu6ya_ideanest","data":
+[
+{"id":"1","user_id":"1","project_name":"vivek","project_type":"software","classification":null,"project_category":"education","difficulty_level":"beginner","development_time":"2-3 months","team_size":"1","target_audience":"me","project_goals":"hello","challenges_faced":"me","future_enhancements":"me","github_repo":"http:\/\/localhost\/IdeaNest\/user\/forms\/new_project_add.php","live_demo_url":"https:\/\/localhost\/IdeaNest\/user\/forms\/new_project_add.ph","project_license":"MIT","keywords":"web app","contact_email":"viveksinhchavda@gmail.com","social_links":"V","description":"hello","language":"flutter , dart , firebase","image_path":null,"video_path":null,"code_file_path":null,"instruction_file_path":null,"presentation_file_path":null,"additional_files_path":null,"submission_date":"2025-10-16 07:22:20","status":"approved"},
+{"id":"2","user_id":"1","project_name":"vivek 2","project_type":"hardware","classification":"iot","project_category":"education","difficulty_level":"expert","development_time":"1-2 weeks","team_size":"1","target_audience":"ghbjnk","project_goals":"cgvhb jn","challenges_faced":"vbn m","future_enhancements":"fghj","github_repo":"https:\/\/github.com\/Abhaypadariya\/Import-and-Export-Analysis-and-Recommendation","live_demo_url":"https:\/\/voicematcher.streamlit.app\/","project_license":"Apache-2.0","keywords":"machine learning","contact_email":"viveksinhchavda@gmail.com","social_links":"hb","description":"gfhjkl","language":"flutter , dart , firebase","image_path":null,"video_path":null,"code_file_path":null,"instruction_file_path":null,"presentation_file_path":null,"additional_files_path":null,"submission_date":"2025-10-16 07:31:58","status":"approved"}
+]
+}
+,{"type":"table","name":"admin_logs","database":"ictmu6ya_ideanest","data":
+[
+{"id":"1","action":"mentor_removed","details":"Removed mentor: vivek (chavdaviveksinh1374@gmail.com)","admin_id":"1","created_at":"2025-10-16 20:15:25","timestamp":"2025-10-16 20:15:25"}
+]
+}
+,{"type":"table","name":"admin_settings","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"blog","database":"ictmu6ya_ideanest","data":
+[
+{"id":"1","user_id":"1","er_number":"92200133026","project_name":"viv","project_type":"hardware","classification":"iot","description":"ghjerfwkeqdkl","submission_datetime":"2025-10-16 11:48:26","status":"pending","priority1":"low","assigned_to":"1","completion_date":"2025-11-01","created_at":"2025-10-16 11:48:26","updated_at":"2025-10-16 11:48:26","title":null,"content":null},
+{"id":"2","user_id":"1","er_number":"92200133052","project_name":"hello","project_type":"hardware","classification":"embedded","description":"vbn,m.efwvfd","submission_datetime":"2025-10-16 11:55:54","status":"in_progress","priority1":"low","assigned_to":"2","completion_date":"2025-10-31","created_at":"2025-10-16 11:55:54","updated_at":"2025-10-16 11:55:54","title":null,"content":null},
+{"id":"4","user_id":"1","er_number":"ER2024002","project_name":"Smart Home Automation System","project_type":"hardware","classification":"iot","description":"IoT-based home automation system with voice control and mobile app integration.","submission_datetime":"2025-10-16 12:08:44","status":"in_progress","priority1":"medium","assigned_to":null,"completion_date":null,"created_at":"2025-10-16 12:08:44","updated_at":"2025-10-16 12:08:44","title":null,"content":null},
+{"id":"5","user_id":"1","er_number":"ER2024003","project_name":"E-Commerce Platform","project_type":"software","classification":"web","description":"Full-featured e-commerce platform with payment gateway integration and inventory management.","submission_datetime":"2025-10-16 12:08:54","status":"completed","priority1":"high","assigned_to":null,"completion_date":null,"created_at":"2025-10-16 12:08:54","updated_at":"2025-10-16 12:08:54","title":null,"content":null}
+]
+}
+,{"type":"table","name":"bookmark","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"comment_likes","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"deleted_ideas","database":"ictmu6ya_ideanest","data":
+[
+{"id":"1","original_idea_id":"3","user_id":"1","project_name":"AI-Powered Study Assistant","description":"An intelligent study assistant that helps students learn more effectively using machine learning algorithms.","deletion_reason":"no","deleted_by_admin":"1","deleted_at":"2025-10-16 20:15:06"}
+]
+}
+,{"type":"table","name":"denial_projects","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"idea_activity_log","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"idea_bookmarks","database":"ictmu6ya_ideanest","data":
+[
+{"id":"1","idea_id":"4","user_id":"4","created_at":"2025-10-16 19:23:52"}
+]
+}
+,{"type":"table","name":"idea_collaborations","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"idea_comments","database":"ictmu6ya_ideanest","data":
+[
+{"id":"1","idea_id":"1","user_id":"1","parent_id":null,"comment":"This is a great idea! I would love to collaborate.","created_at":"2025-10-16 19:54:50","updated_at":"2025-10-16 19:54:50"},
+{"id":"2","idea_id":"1","user_id":"1","parent_id":"1","comment":"Thanks for the feedback!","created_at":"2025-10-16 19:54:50","updated_at":"2025-10-16 19:54:50"},
+{"id":"3","idea_id":"5","user_id":"1","parent_id":null,"comment":"hello","created_at":"2025-10-16 19:57:29","updated_at":"2025-10-16 19:57:29"},
+{"id":"4","idea_id":"4","user_id":"1","parent_id":null,"comment":"hello","created_at":"2025-10-16 20:00:04","updated_at":"2025-10-16 20:00:04"},
+{"id":"5","idea_id":"4","user_id":"4","parent_id":null,"comment":"hi","created_at":"2025-10-16 20:03:12","updated_at":"2025-10-16 20:03:12"}
+]
+}
+,{"type":"table","name":"idea_followers","database":"ictmu6ya_ideanest","data":
+[
+{"id":"3","idea_id":"4","user_id":"4","notify_comments":"1","notify_updates":"1","followed_at":"2025-10-16 19:50:32"}
+]
+}
+,{"type":"table","name":"idea_likes","database":"ictmu6ya_ideanest","data":
+[
+{"id":"3","idea_id":"4","user_id":"1","created_at":"2025-10-16 18:33:54"},
+{"id":"4","idea_id":"5","user_id":"1","created_at":"2025-10-16 18:38:06"},
+{"id":"5","idea_id":"4","user_id":"4","created_at":"2025-10-16 19:23:40"},
+{"id":"6","idea_id":"5","user_id":"4","created_at":"2025-10-16 19:32:42"}
+]
+}
+,{"type":"table","name":"idea_ratings","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"idea_reports","database":"ictmu6ya_ideanest","data":
+[
+{"id":"1","idea_id":"3","reporter_id":"1","report_type":"Spam","description":"","created_at":"2025-10-16 12:56:38","status":"resolved"}
+]
+}
+,{"type":"table","name":"idea_shares","database":"ictmu6ya_ideanest","data":
+[
+{"id":"1","idea_id":"4","user_id":"4","platform":"whatsapp","shared_at":"2025-10-16 19:22:55"}
+]
+}
+,{"type":"table","name":"idea_tags","database":"ictmu6ya_ideanest","data":
+[
+{"id":"1","tag_name":"Machine Learning","tag_slug":"machine-learning","tag_color":"#8b5cf6","created_at":"2025-10-16 19:20:03"},
+{"id":"2","tag_name":"Web Development","tag_slug":"web-development","tag_color":"#3b82f6","created_at":"2025-10-16 19:20:03"},
+{"id":"3","tag_name":"Mobile App","tag_slug":"mobile-app","tag_color":"#10b981","created_at":"2025-10-16 19:20:03"},
+{"id":"4","tag_name":"IoT","tag_slug":"iot","tag_color":"#f59e0b","created_at":"2025-10-16 19:20:03"},
+{"id":"5","tag_name":"Blockchain","tag_slug":"blockchain","tag_color":"#ef4444","created_at":"2025-10-16 19:20:03"},
+{"id":"6","tag_name":"AI","tag_slug":"ai","tag_color":"#ec4899","created_at":"2025-10-16 19:20:03"},
+{"id":"7","tag_name":"Data Science","tag_slug":"data-science","tag_color":"#06b6d4","created_at":"2025-10-16 19:20:03"},
+{"id":"8","tag_name":"Cybersecurity","tag_slug":"cybersecurity","tag_color":"#f97316","created_at":"2025-10-16 19:20:03"}
+]
+}
+,{"type":"table","name":"idea_tag_relations","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"idea_views","database":"ictmu6ya_ideanest","data":
+[
+{"id":"1","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:45:29"},
+{"id":"2","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:45:29"},
+{"id":"4","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:45:30"},
+{"id":"5","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:45:30"},
+{"id":"6","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:45:37"},
+{"id":"7","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:45:37"},
+{"id":"9","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:45:37"},
+{"id":"10","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:45:37"},
+{"id":"11","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:49:35"},
+{"id":"13","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:49:35"},
+{"id":"14","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:49:35"},
+{"id":"15","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:49:35"},
+{"id":"16","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:03"},
+{"id":"18","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:03"},
+{"id":"19","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:04"},
+{"id":"20","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:04"},
+{"id":"21","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:06"},
+{"id":"22","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:06"},
+{"id":"24","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:07"},
+{"id":"25","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:07"},
+{"id":"26","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:08"},
+{"id":"27","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:08"},
+{"id":"29","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:09"},
+{"id":"30","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:09"},
+{"id":"31","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:13"},
+{"id":"32","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:13"},
+{"id":"34","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:13"},
+{"id":"35","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:13"},
+{"id":"36","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:30"},
+{"id":"37","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:30"},
+{"id":"39","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:30"},
+{"id":"40","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:30"},
+{"id":"41","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:32"},
+{"id":"42","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:32"},
+{"id":"44","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:33"},
+{"id":"45","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:33"},
+{"id":"46","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:59"},
+{"id":"47","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:50:59"},
+{"id":"49","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:51:00"},
+{"id":"50","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:51:00"},
+{"id":"51","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:51:19"},
+{"id":"52","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:51:19"},
+{"id":"54","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:51:20"},
+{"id":"55","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:51:20"},
+{"id":"56","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:54:41"},
+{"id":"57","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:54:41"},
+{"id":"59","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:54:41"},
+{"id":"60","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:54:41"},
+{"id":"61","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:55:29"},
+{"id":"62","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:55:29"},
+{"id":"63","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:55:30"},
+{"id":"64","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:55:30"},
+{"id":"66","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:21"},
+{"id":"67","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:22"},
+{"id":"68","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:22"},
+{"id":"70","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:22"},
+{"id":"71","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:23"},
+{"id":"72","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:23"},
+{"id":"73","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:23"},
+{"id":"75","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:23"},
+{"id":"76","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:29"},
+{"id":"77","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:29"},
+{"id":"79","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:29"},
+{"id":"80","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:29"},
+{"id":"81","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:36"},
+{"id":"83","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:36"},
+{"id":"84","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:44"},
+{"id":"85","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:44"},
+{"id":"87","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:45"},
+{"id":"88","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:57:45"},
+{"id":"89","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:59:57"},
+{"id":"90","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:59:57"},
+{"id":"91","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:59:57"},
+{"id":"93","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 19:59:57"},
+{"id":"94","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:05"},
+{"id":"95","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:05"},
+{"id":"97","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:05"},
+{"id":"98","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:05"},
+{"id":"99","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:11"},
+{"id":"100","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:11"},
+{"id":"102","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:12"},
+{"id":"103","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:12"},
+{"id":"104","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:27"},
+{"id":"105","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:27"},
+{"id":"107","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:28"},
+{"id":"108","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:28"},
+{"id":"109","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:53"},
+{"id":"111","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:53"},
+{"id":"112","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:53"},
+{"id":"113","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:53"},
+{"id":"114","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:54"},
+{"id":"116","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:54"},
+{"id":"117","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:54"},
+{"id":"118","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:55"},
+{"id":"119","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:56"},
+{"id":"120","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:56"},
+{"id":"122","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:56"},
+{"id":"123","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:00:57"},
+{"id":"124","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:01:07"},
+{"id":"125","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:01:07"},
+{"id":"126","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:01:07"},
+{"id":"128","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:01:07"},
+{"id":"129","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:02:36"},
+{"id":"130","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:02:36"},
+{"id":"132","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:02:36"},
+{"id":"133","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:02:37"},
+{"id":"134","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:03:03"},
+{"id":"135","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:03:03"},
+{"id":"137","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:03:03"},
+{"id":"138","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:03:04"},
+{"id":"139","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:03:12"},
+{"id":"140","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:03:12"},
+{"id":"142","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:03:12"},
+{"id":"143","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:03:12"},
+{"id":"144","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:04:51"},
+{"id":"146","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:04:51"},
+{"id":"147","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:04:51"},
+{"id":"148","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:04:51"},
+{"id":"149","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:04:57"},
+{"id":"150","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:04:57"},
+{"id":"152","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:04:57"},
+{"id":"153","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:04:58"},
+{"id":"154","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:05:04"},
+{"id":"155","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:05:05"},
+{"id":"156","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:05:05"},
+{"id":"158","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:05:05"},
+{"id":"159","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:05:07"},
+{"id":"160","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:06:28"},
+{"id":"162","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:06:28"},
+{"id":"163","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:06:28"},
+{"id":"164","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:06:28"},
+{"id":"165","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:07:12"},
+{"id":"166","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:07:12"},
+{"id":"168","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:07:12"},
+{"id":"169","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:07:12"},
+{"id":"170","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:08:12"},
+{"id":"171","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:08:12"},
+{"id":"173","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:08:12"},
+{"id":"174","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:08:12"},
+{"id":"175","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:08:14"},
+{"id":"176","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:08:14"},
+{"id":"178","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:08:15"},
+{"id":"180","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:08:15"},
+{"id":"181","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:08:16"},
+{"id":"182","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:08:18"},
+{"id":"183","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:08:18"},
+{"id":"185","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:08:30"},
+{"id":"186","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:08:30"},
+{"id":"187","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:09:15"},
+{"id":"188","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:09:15"},
+{"id":"190","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:09:15"},
+{"id":"191","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:09:15"},
+{"id":"192","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:09:38"},
+{"id":"193","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:09:39"},
+{"id":"194","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:09:39"},
+{"id":"195","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:09:40"},
+{"id":"196","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:09:42"},
+{"id":"197","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:09:42"},
+{"id":"199","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:10:32"},
+{"id":"201","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:10:32"},
+{"id":"202","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:10:34"},
+{"id":"203","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:10:34"},
+{"id":"204","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:11:44"},
+{"id":"205","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:11:44"},
+{"id":"207","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:11:44"},
+{"id":"208","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:11:44"},
+{"id":"209","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:12:30"},
+{"id":"210","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:12:30"},
+{"id":"212","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:12:30"},
+{"id":"213","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:12:30"},
+{"id":"214","idea_id":"4","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:13:46"},
+{"id":"215","idea_id":"5","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:13:46"},
+{"id":"217","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:13:46"},
+{"id":"218","idea_id":"2","user_id":"4","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:13:56"},
+{"id":"219","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:14:29"},
+{"id":"220","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:14:29"},
+{"id":"221","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:14:32"},
+{"id":"222","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:14:32"},
+{"id":"223","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:14:33"},
+{"id":"224","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:14:33"},
+{"id":"226","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:14:34"},
+{"id":"227","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:14:34"},
+{"id":"228","idea_id":"5","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:14:41"},
+{"id":"229","idea_id":"4","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:14:41"},
+{"id":"231","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:14:42"},
+{"id":"232","idea_id":"2","user_id":"1","ip_address":null,"user_agent":null,"viewed_at":"2025-10-16 20:14:42"}
+]
+}
+,{"type":"table","name":"idea_warnings","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"login","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"mentoring_sessions","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"mentors","database":"ictmu6ya_ideanest","data":
+[
+{"id":"2","user_id":"6","specialization":"Web Development","experience_years":"3","max_students":"5","current_students":"0","bio":"Web Development","linkedin_url":null,"github_url":null,"created_at":"2025-10-16 20:29:16"}
+]
+}
+,{"type":"table","name":"mentor_activity_logs","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"mentor_email_logs","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"mentor_email_queue","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"mentor_email_stats","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"mentor_project_access","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"mentor_requests","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"mentor_student_pairs","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"notification_counters","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"notification_logs","database":"ictmu6ya_ideanest","data":
+[
+{"id":"1","type":"new_user_notification","user_id":"1","project_id":null,"status":"failed","created_at":"2025-09-27 10:47:06","email_to":"ideanest.ict@gmail.com","email_subject":"New User Registration - IdeaNest","email_body":null,"error_message":"Email notifications are disabled"},
+{"id":"2","type":"new_user_notification","user_id":"4","project_id":null,"status":"failed","created_at":"2025-10-16 18:42:54","email_to":"ideanest.ict@gmail.com","email_subject":"New User Registration - IdeaNest","email_body":null,"error_message":"Email notifications are disabled"}
+]
+}
+,{"type":"table","name":"notification_templates","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"projects","database":"ictmu6ya_ideanest","data":
+[
+{"id":"1","user_id":"1","project_name":"vivek","project_type":"software","classification":null,"project_category":"education","difficulty_level":"beginner","development_time":"2-3 months","team_size":"1","target_audience":"me","project_goals":"hello","challenges_faced":"me","future_enhancements":"me","github_repo":"http:\/\/localhost\/IdeaNest\/user\/forms\/new_project_add.php","live_demo_url":"https:\/\/localhost\/IdeaNest\/user\/forms\/new_project_add.ph","project_license":"MIT","keywords":"web app","contact_email":"viveksinhchavda@gmail.com","social_links":"V","description":"hello","language":"flutter , dart , firebase","image_path":null,"video_path":null,"code_file_path":null,"instruction_file_path":null,"presentation_file_path":null,"additional_files_path":null,"submission_date":"2025-10-16 07:22:20","status":"approved","title":null},
+{"id":"2","user_id":"1","project_name":"vivek 2","project_type":"hardware","classification":"iot","project_category":"education","difficulty_level":"expert","development_time":"1-2 weeks","team_size":"1","target_audience":"ghbjnk","project_goals":"cgvhb jn","challenges_faced":"vbn m","future_enhancements":"fghj","github_repo":"https:\/\/github.com\/Abhaypadariya\/Import-and-Export-Analysis-and-Recommendation","live_demo_url":"https:\/\/voicematcher.streamlit.app\/","project_license":"Apache-2.0","keywords":"machine learning","contact_email":"viveksinhchavda@gmail.com","social_links":"hb","description":"gfhjkl","language":"flutter , dart , firebase","image_path":null,"video_path":null,"code_file_path":null,"instruction_file_path":null,"presentation_file_path":null,"additional_files_path":null,"submission_date":"2025-10-16 07:31:58","status":"approved","title":null}
+]
+}
+,{"type":"table","name":"project_comments","database":"ictmu6ya_ideanest","data":
+[
+{"id":"1","project_id":"2","user_id":"6fqe3jb5laaur0ltbjos6r06ud","user_name":"Vivek","comment_text":"hi","parent_comment_id":null,"created_at":"2025-10-16 11:43:18","updated_at":"2025-10-16 11:43:18","is_deleted":"0"},
+{"id":"2","project_id":"2","user_id":"qjek8foua2sfpk4popik55bmgd","user_name":"Vivek","comment_text":"hi","parent_comment_id":null,"created_at":"2025-10-16 18:35:30","updated_at":"2025-10-16 18:35:30","is_deleted":"0"}
+]
+}
+,{"type":"table","name":"project_likes","database":"ictmu6ya_ideanest","data":
+[
+{"id":"5","project_id":"2","user_id":"6fqe3jb5laaur0ltbjos6r06ud","created_at":"2025-10-16 11:43:23"},
+{"id":"6","project_id":"1","user_id":"6fqe3jb5laaur0ltbjos6r06ud","created_at":"2025-10-16 11:43:27"},
+{"id":"7","project_id":"2","user_id":"qjek8foua2sfpk4popik55bmgd","created_at":"2025-10-16 18:35:33"}
+]
+}
+,{"type":"table","name":"realtime_notifications","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"register","database":"ictmu6ya_ideanest","data":
+[
+{"id":"1","name":"Vivek","email":"viveksinhchavda@gmail.com","enrollment_number":"92200133026","gr_number":"119486","password":"$2y$10$feM86hXmBoWO7ThecWQifulVl6RzSrzwiCvGTPd8ZtHLd9TeyKChu","about":"","phone_no":"09104231590","department":"ICT","passout_year":"2026","user_image":"","google_id":"116644441139882349952","email_notifications":"1","last_notification_sent":null,"github_token":null,"role":"student","expertise":null,"mentor_rating":"0.00","is_available":"1","github_username":"Vivekchavda1374","github_profile_url":"https:\/\/github.com\/Vivekchavda1374","github_repos_count":"46","github_last_sync":"2025-10-16 10:45:38"},
+{"id":"2","name":"vivek","email":"chavdaviveksinh1374@gmail.com","enrollment_number":"MEN406","gr_number":"MEN406","password":"$2y$10$BxJ7DWVwxoPSQAmILcNbq.546c\/d2TcH0vKs8dBYA4nz8bJkO5UUG","about":"Web Development","phone_no":null,"department":"Mentor","passout_year":"2024","user_image":"","google_id":null,"email_notifications":"1","last_notification_sent":null,"github_token":null,"role":"student","expertise":"Web Development","mentor_rating":"0.00","is_available":"1","github_username":null,"github_profile_url":null,"github_repos_count":"0","github_last_sync":null},
+{"id":"4","name":"Vivek Chavda","email":"vivekcchavda@gmail.com","enrollment_number":"92200133041","gr_number":"119485","password":"$2y$10$JmTj0edpdo9LrDkU9b4BguOyHh0HQ0bNgk.IQjcj\/5J2bqaWp9DZy","about":"HI","phone_no":"09104231590","department":"ICT","passout_year":"2026","user_image":"","google_id":"108130850710477451760","email_notifications":"1","last_notification_sent":null,"github_token":null,"role":"student","expertise":null,"mentor_rating":"0.00","is_available":"1","github_username":null,"github_profile_url":null,"github_repos_count":"0","github_last_sync":null},
+{"id":"6","name":"Vivek Chavda","email":"viveksinhchavda639@gmail.com","enrollment_number":"MEN718","gr_number":"MEN718","password":"$2y$10$Ebz4rBKi0GMyn1KCuUPEJO40DX8AjVj1ifD8f5\/cu.JZFHNSHoMNC","about":"Web Development","phone_no":null,"department":"Mentor","passout_year":"2024","user_image":"","google_id":null,"email_notifications":"1","last_notification_sent":null,"github_token":null,"role":"mentor","expertise":"Web Development","mentor_rating":"0.00","is_available":"1","github_username":null,"github_profile_url":null,"github_repos_count":"0","github_last_sync":null}
+]
+}
+,{"type":"table","name":"removed_user","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"student_email_preferences","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"subadmins","database":"ictmu6ya_ideanest","data":
+[
+{"id":"2","email":"test@example.com","password":"$2y$12$ntX3z3O.xEl7IjkkJV\/DS.Don1zVLBpExgRNiBYgM3XPiu6TdWBbS","first_name":"Test","last_name":"Subadmin","phone":null,"department":"IT","position":"Manager","specialization":null,"domains":null,"experience_years":"0","bio":null,"avatar":null,"status":"active","email_verified":"0","last_login":null,"created_at":"2025-10-14 23:46:59","updated_at":"2025-10-14 23:46:59"},
+{"id":"3","email":"vivek.chavda119486@marwadiuniversity.ac.in","password":"$2y$10$sIO6v\/pryS9KFKCD8T5xmem4IClUaCwnVsZQLcUL4yKYiJdnS7UQe","first_name":"Vivek","last_name":"Chavda","phone":"09104231590","department":"ICT","position":"Student","specialization":"Web","domains":"IoT Projects","experience_years":"1","bio":"hi","avatar":null,"status":"active","email_verified":"0","last_login":null,"created_at":"2025-10-16 09:40:15","updated_at":"2025-10-16 11:07:51"}
+]
+}
+,{"type":"table","name":"subadmin_activities","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"subadmin_classification_requests","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"subadmin_permissions","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"subadmin_sessions","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"support_tickets","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"support_ticket_replies","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"temp_project_ownership","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"users","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+,{"type":"table","name":"user_activity_log","database":"ictmu6ya_ideanest","data":
+[
+
+]
+}
+]
