@@ -1,5 +1,11 @@
 <?php
-// Enable error reporting for debugging
+// Start output buffering to prevent header errors
+ob_start();
+
+// Start session
+session_start();
+
+// Enable error reporting for debugging (after session)
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -10,8 +16,6 @@ include "project_notification.php";
 // Site name
 $site_name = "IdeaNest Admin";
 $current_page = "dashboard";
-// Start session
-session_start();
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
@@ -153,7 +157,7 @@ function approveProject($project_id, $conn)
                 'include_project_details' => true
         ];
 
-        sendProjectStatusEmail($project_id, 'approved', '', $email_options);
+        sendProjectStatusEmail($project_id, 'approved', '', null, $email_options);
 
         // Redirect back to admin with success message
         header("Location: admin.php?message=Project approved successfully");
@@ -238,7 +242,7 @@ function rejectProject($project_id, $rejection_reason, $conn)
                 'include_project_details' => true
         ];
 
-        sendProjectStatusEmail($project_id, 'rejected', $rejection_reason, $email_options);
+        sendProjectStatusEmail($project_id, 'rejected', $rejection_reason, null, $email_options);
 
         // Redirect back to admin with success message
         header("Location: admin.php?message=Project rejected successfully");
