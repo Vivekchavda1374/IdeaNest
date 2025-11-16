@@ -1806,13 +1806,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 </form>
                             </div>
 
-                            <!-- Edit Button for Owners -->
-                            <?php if ($project['is_owner']) : ?>
-                                <a href="edit_project.php?id=<?php echo $project['id']; ?>"
-                                   class="btn btn-warning btn-sm">
-                                    <i class="fas fa-edit me-1"></i>Edit Project
-                                </a>
-                            <?php endif; ?>
+
                         </div>
                     </div>
                 </div>
@@ -2208,6 +2202,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
                                 <!-- Quick Actions in Modal Footer -->
                                 <form method="POST" action="all_projects.php" style="display:inline;">
+                                    <?php echo getCSRFField(); ?>
                                     <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
                                     <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
                                     <input type="hidden" name="page" value="<?php echo $current_page_num; ?>">
@@ -2220,6 +2215,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 </form>
 
                                 <form method="POST" action="all_projects.php" style="display:inline;">
+                                    <?php echo getCSRFField(); ?>
                                     <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
                                     <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
                                     <input type="hidden" name="page" value="<?php echo $current_page_num; ?>">
@@ -2230,11 +2226,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                     </button>
                                 </form>
 
-                                <?php if ($project['is_owner']) : ?>
-                                    <a href="edit_project.php?id=<?php echo $project['id']; ?>" class="btn btn-primary">
-                                        <i class="fas fa-edit me-2"></i>Edit Project
-                                    </a>
-                                <?php endif; ?>
+
                             </div>
                         </div>
                     </div>
@@ -2255,6 +2247,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 <!-- Comment Form -->
                                 <div class="comment-form mb-4">
                                     <form method="post">
+                                        <?php echo getCSRFField(); ?>
                                         <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
                                         <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
                                         <input type="hidden" name="page" value="<?php echo $current_page_num; ?>">
@@ -2305,6 +2298,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                             </div>
                                             <div class="comment-actions">
                                                 <form method="POST" action="all_projects.php" style="display:inline;">
+                                                    <?php echo getCSRFField(); ?>
                                                     <input type="hidden" name="comment_id" value="<?php echo $comment['id']; ?>">
                                                     <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
                                                     <input type="hidden" name="page" value="<?php echo $current_page_num; ?>">
@@ -2384,6 +2378,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                                         </div>
                                                         <div class="comment-actions">
                                                             <form method="POST" action="all_projects.php" style="display:inline;">
+                                                                <?php echo getCSRFField(); ?>
                                                                 <input type="hidden" name="comment_id" value="<?php echo $reply['id']; ?>">
                                                                 <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
                                                                 <input type="hidden" name="page" value="<?php echo $current_page_num; ?>">

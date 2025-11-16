@@ -23,12 +23,17 @@ try {
     $conn = null;
 }
 
+// Load required includes
+require_once dirname(__DIR__) . '/includes/csrf.php';
+require_once dirname(__DIR__) . '/includes/validation.php';
+
 // Load email functionality only if available
 try {
     require_once dirname(__DIR__) . "/includes/autoload_simple.php";
     $phpmailer_available = true;
 } catch (Exception $e) {
     $phpmailer_available = false;
+    error_log("Autoload failed: " . $e->getMessage());
 }
 
 if (!$error_message && isset($conn)) {
@@ -80,54 +85,89 @@ if (!$error_message && isset($conn)) {
 
 // Handle mentor request submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && !$error_message) {
-    $mentor_id = $_POST['mentor_id'];
-    $project_id = $_POST['project_id'] ?? null;
-    $message = $_POST['message'];
-
-    // Check if request already exists
-    $check_query = "SELECT id FROM mentor_requests WHERE student_id = ? AND mentor_id = ? AND status = 'pending'";
-    $check_stmt = $conn->prepare($check_query);
-    $check_stmt->bind_param("ii", $user_id, $mentor_id);
-    $check_stmt->execute();
-
-    if ($check_stmt->get_result()->num_rows == 0) {
-        try {
-            $insert_query = "INSERT INTO mentor_requests (student_id, mentor_id, project_id, message) VALUES (?, ?, ?, ?)";
-            $insert_stmt = $conn->prepare($insert_query);
-            $insert_stmt->bind_param("iiis", $user_id, $mentor_id, $project_id, $message);
-            $insert_stmt->execute();
-
-            $success_message = "Mentor request sent successfully!";
-            
-            try {
-                // Get mentor details
-                $details_query = "SELECT r1.name as student_name, r2.name as mentor_name, r2.email as mentor_email
-                                 FROM register r1, register r2
-                                 WHERE r1.id = ? AND r2.id = ?";
-                $details_stmt = $conn->prepare($details_query);
-                $details_stmt->bind_param("ii", $user_id, $mentor_id);
-                $details_stmt->execute();
-                $details = $details_stmt->get_result()->fetch_assoc();
-
-                $mailer = new SMTPMailer();
-                $subject = 'New Mentorship Request - IdeaNest';
-                $body = "<h2>New Mentorship Request</h2>
-                <p>Dear {$details['mentor_name']},</p>
-                <p>You have received a new mentorship request from <strong>{$details['student_name']}</strong>.</p>
-                <p><strong>Message:</strong></p>
-                <p style='background: #f5f5f5; padding: 15px; border-radius: 5px;'>{$message}</p>
-                <p>Best regards,<br>The IdeaNest Team</p>";
-                $mailer->send($details['mentor_email'], $subject, $body);
-                $success_message .= " The mentor has been notified via email.";
-            } catch (Exception $e) {
-                // Email failed, but request was saved
-            }
-
-        } catch (Exception $e) {
-            $error_message = "Failed to send request. Please try again.";
-        }
+    // Verify CSRF token
+    if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+        $error_message = "Invalid security token. Please try again.";
     } else {
-        $error_message = "You already have a pending request with this mentor.";
+        $mentor_id = intval($_POST['mentor_id']);
+        $project_id = !empty($_POST['project_id']) ? intval($_POST['project_id']) : null;
+        $message = trim($_POST['message']);
+        
+        // Validate inputs
+        if (empty($mentor_id) || empty($message)) {
+            $error_message = "Please fill in all required fields.";
+        } elseif (strlen($message) < 10) {
+            $error_message = "Message must be at least 10 characters long.";
+        } else {
+
+            // Check if request already exists
+            $check_query = "SELECT id FROM mentor_requests WHERE student_id = ? AND mentor_id = ? AND status = 'pending'";
+            $check_stmt = $conn->prepare($check_query);
+            
+            if (!$check_stmt) {
+                $error_message = "Database error: " . $conn->error;
+            } else {
+                $check_stmt->bind_param("ii", $user_id, $mentor_id);
+                $check_stmt->execute();
+                $check_result = $check_stmt->get_result();
+
+                if ($check_result->num_rows == 0) {
+                    try {
+                        $insert_query = "INSERT INTO mentor_requests (student_id, mentor_id, project_id, message) VALUES (?, ?, ?, ?)";
+                        $insert_stmt = $conn->prepare($insert_query);
+                        
+                        if (!$insert_stmt) {
+                            throw new Exception("Failed to prepare insert statement: " . $conn->error);
+                        }
+                        
+                        $insert_stmt->bind_param("iiis", $user_id, $mentor_id, $project_id, $message);
+                        
+                        if (!$insert_stmt->execute()) {
+                            throw new Exception("Failed to execute insert: " . $insert_stmt->error);
+                        }
+
+                        $success_message = "Mentor request sent successfully!";
+                        
+                        // Try to send email notification
+                        if ($phpmailer_available) {
+                            try {
+                                // Get mentor details
+                                $details_query = "SELECT r1.name as student_name, r2.name as mentor_name, r2.email as mentor_email
+                                                 FROM register r1, register r2
+                                                 WHERE r1.id = ? AND r2.id = ?";
+                                $details_stmt = $conn->prepare($details_query);
+                                $details_stmt->bind_param("ii", $user_id, $mentor_id);
+                                $details_stmt->execute();
+                                $details = $details_stmt->get_result()->fetch_assoc();
+
+                                if ($details) {
+                                    $mailer = new SMTPMailer();
+                                    $subject = 'New Mentorship Request - IdeaNest';
+                                    $body = "<h2>New Mentorship Request</h2>
+                                    <p>Dear {$details['mentor_name']},</p>
+                                    <p>You have received a new mentorship request from <strong>{$details['student_name']}</strong>.</p>
+                                    <p><strong>Message:</strong></p>
+                                    <p style='background: #f5f5f5; padding: 15px; border-radius: 5px;'>" . htmlspecialchars($message) . "</p>
+                                    <p>Best regards,<br>The IdeaNest Team</p>";
+                                    $mailer->send($details['mentor_email'], $subject, $body);
+                                    $success_message .= " The mentor has been notified via email.";
+                                }
+                            } catch (Exception $e) {
+                                // Email failed, but request was saved
+                                error_log("Email notification failed: " . $e->getMessage());
+                            }
+                        }
+
+                    } catch (Exception $e) {
+                        $error_message = "Failed to send request: " . $e->getMessage();
+                        error_log("Mentor request error: " . $e->getMessage());
+                    }
+                } else {
+                    $error_message = "You already have a pending request with this mentor.";
+                }
+                $check_stmt->close();
+            }
+        }
     }
 }
 
@@ -255,7 +295,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
     <div class="modal fade" id="requestModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form method="POST">
+                <form method="POST" id="mentorRequestForm">
+                    <?php echo getCSRFField(); ?>
                     <div class="modal-header">
                         <h5 class="modal-title">Send Mentor Request</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -300,6 +341,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const requestModal = document.getElementById('requestModal');
+            const mentorRequestForm = document.getElementById('mentorRequestForm');
+            const messageField = document.getElementById('message');
+            
             requestModal.addEventListener('show.bs.modal', function(event) {
                 const button = event.relatedTarget;
                 const mentorId = button.getAttribute('data-mentor-id');
@@ -307,7 +351,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
                 
                 document.getElementById('mentorId').value = mentorId;
                 document.getElementById('mentorName').textContent = mentorName;
+                
+                // Reset form
+                messageField.value = '';
+                messageField.classList.remove('is-invalid');
             });
+            
+            // Form validation
+            if (mentorRequestForm) {
+                mentorRequestForm.addEventListener('submit', function(e) {
+                    const message = messageField.value.trim();
+                    
+                    if (message.length < 10) {
+                        e.preventDefault();
+                        messageField.classList.add('is-invalid');
+                        
+                        let feedback = messageField.nextElementSibling;
+                        if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+                            feedback = document.createElement('div');
+                            feedback.className = 'invalid-feedback';
+                            messageField.parentNode.appendChild(feedback);
+                        }
+                        feedback.textContent = 'Message must be at least 10 characters long.';
+                        return false;
+                    }
+                    
+                    messageField.classList.remove('is-invalid');
+                });
+                
+                messageField.addEventListener('input', function() {
+                    if (this.value.trim().length >= 10) {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            }
         });
     </script>
 </body>
