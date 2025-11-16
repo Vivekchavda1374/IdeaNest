@@ -1,38 +1,93 @@
 <?php
-
 /**
- * Enhanced CSRF Protection
+ * CSRF Protection System
+ * Comprehensive Cross-Site Request Forgery protection
  */
 
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-function generateCSRFToken()
-{
-    if (!isset($_SESSION["csrf_token"])) {
-        $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
+class CSRFProtection {
+    private static $tokenName = 'csrf_token';
+    private static $sessionKey = 'csrf_tokens';
+    
+    /**
+     * Generate CSRF token
+     */
+    public static function generateToken() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        $token = bin2hex(random_bytes(32));
+        $_SESSION[self::$sessionKey][$token] = time();
+        
+        // Clean old tokens (older than 1 hour)
+        self::cleanOldTokens();
+        
+        return $token;
     }
-    return $_SESSION["csrf_token"];
-}
-
-function validateCSRFToken($token)
-{
-    return isset($_SESSION["csrf_token"]) && hash_equals($_SESSION["csrf_token"], $token);
-}
-
-function getCSRFField()
-{
-    $token = generateCSRFToken();
-    return "<input type=\"hidden\" name=\"csrf_token\" value=\"" . htmlspecialchars($token) . "\">";
-}
-
-function requireCSRF()
-{
-    if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        if (!isset($_POST["csrf_token"]) || !validateCSRFToken($_POST["csrf_token"])) {
+    
+    /**
+     * Validate CSRF token
+     */
+    public static function validateToken($token) {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        if (!isset($_SESSION[self::$sessionKey][$token])) {
+            return false;
+        }
+        
+        // Check if token is not expired (1 hour)
+        if (time() - $_SESSION[self::$sessionKey][$token] > 3600) {
+            unset($_SESSION[self::$sessionKey][$token]);
+            return false;
+        }
+        
+        // Remove token after use (one-time use)
+        unset($_SESSION[self::$sessionKey][$token]);
+        return true;
+    }
+    
+    /**
+     * Get token from request
+     */
+    public static function getTokenFromRequest() {
+        return $_POST[self::$tokenName] ?? $_GET[self::$tokenName] ?? null;
+    }
+    
+    /**
+     * Generate hidden input field
+     */
+    public static function getHiddenField() {
+        $token = self::generateToken();
+        return '<input type="hidden" name="' . self::$tokenName . '" value="' . htmlspecialchars($token) . '">';
+    }
+    
+    /**
+     * Verify request has valid CSRF token
+     */
+    public static function verifyRequest() {
+        $token = self::getTokenFromRequest();
+        if (!$token || !self::validateToken($token)) {
             http_response_code(403);
-            die("CSRF token validation failed");
+            die('CSRF token validation failed');
+        }
+    }
+    
+    /**
+     * Clean old tokens
+     */
+    private static function cleanOldTokens() {
+        if (!isset($_SESSION[self::$sessionKey])) {
+            $_SESSION[self::$sessionKey] = [];
+            return;
+        }
+        
+        $currentTime = time();
+        foreach ($_SESSION[self::$sessionKey] as $token => $timestamp) {
+            if ($currentTime - $timestamp > 3600) {
+                unset($_SESSION[self::$sessionKey][$token]);
+            }
         }
     }
 }
