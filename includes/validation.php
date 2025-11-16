@@ -1,71 +1,112 @@
 <?php
-
 /**
- * Enhanced Input Sanitization
+ * Input Validation and Sanitization System
+ * Comprehensive input security for all user data
  */
-function sanitizeInput($input, $type = "string")
-{
-    if (is_array($input)) {
-        return array_map(function ($item) use ($type) {
-            return sanitizeInput($item, $type);
-        }, $input);
+
+class InputValidator {
+    
+    /**
+     * Sanitize string input
+     */
+    public static function sanitizeString($input, $allowHtml = false) {
+        if ($input === null) return '';
+        
+        $input = trim($input);
+        if (!$allowHtml) {
+            $input = strip_tags($input);
+        }
+        return htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
     }
-
-    $input = trim($input);
-
-    switch ($type) {
-        case "email":
-            return filter_var($input, FILTER_SANITIZE_EMAIL);
-        case "url":
-            return filter_var($input, FILTER_SANITIZE_URL);
-        case "int":
-            return filter_var($input, FILTER_SANITIZE_NUMBER_INT);
-        case "float":
-            return filter_var($input, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-        case "html":
-            return htmlspecialchars($input, ENT_QUOTES | ENT_HTML5, "UTF-8");
-        default:
-            return htmlspecialchars(strip_tags($input), ENT_QUOTES | ENT_HTML5, "UTF-8");
+    
+    /**
+     * Validate and sanitize email
+     */
+    public static function validateEmail($email) {
+        $email = filter_var(trim($email), FILTER_SANITIZE_EMAIL);
+        return filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : false;
     }
-}
-
-function validateInput($input, $type, $required = false)
-{
-    if ($required && empty($input)) {
-        return ["valid" => false, "message" => "Field is required"];
+    
+    /**
+     * Validate integer
+     */
+    public static function validateInt($input, $min = null, $max = null) {
+        $int = filter_var($input, FILTER_VALIDATE_INT);
+        if ($int === false) return false;
+        
+        if ($min !== null && $int < $min) return false;
+        if ($max !== null && $int > $max) return false;
+        
+        return $int;
     }
-
-    if (empty($input) && !$required) {
-        return ["valid" => true, "value" => ""];
+    
+    /**
+     * Validate URL
+     */
+    public static function validateUrl($url) {
+        return filter_var($url, FILTER_VALIDATE_URL);
     }
-
-    switch ($type) {
-        case "email":
-            $valid = filter_var($input, FILTER_VALIDATE_EMAIL);
-            return ["valid" => $valid !== false, "value" => $valid, "message" => $valid ? "" : "Invalid email format"];
-        case "url":
-            $valid = filter_var($input, FILTER_VALIDATE_URL);
-            return ["valid" => $valid !== false, "value" => $valid, "message" => $valid ? "" : "Invalid URL format"];
-        case "int":
-            $valid = filter_var($input, FILTER_VALIDATE_INT);
-            return ["valid" => $valid !== false, "value" => $valid, "message" => $valid ? "" : "Invalid number"];
-        default:
-            return ["valid" => true, "value" => sanitizeInput($input, $type)];
+    
+    /**
+     * Sanitize filename
+     */
+    public static function sanitizeFilename($filename) {
+        $filename = preg_replace('/[^a-zA-Z0-9._-]/', '', $filename);
+        return substr($filename, 0, 255);
     }
-}
-
-function logSecurityEvent($event, $details = "", $severity = "INFO")
-{
-    $logDir = __DIR__ . "/../logs";
-    if (!is_dir($logDir)) {
-        mkdir($logDir, 0755, true);
+    
+    /**
+     * Validate file upload
+     */
+    public static function validateFileUpload($file, $allowedTypes = [], $maxSize = 10485760) {
+        if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
+            return false;
+        }
+        
+        if ($file['size'] > $maxSize) {
+            return false;
+        }
+        
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+        
+        if (!empty($allowedTypes) && !in_array($mimeType, $allowedTypes)) {
+            return false;
+        }
+        
+        return true;
     }
-
-    $logEntry = date("Y-m-d H:i:s") . " [$severity] $event";
-    if ($details) {
-        $logEntry .= " - $details";
+    
+    /**
+     * Sanitize SQL input (for prepared statements)
+     */
+    public static function sanitizeForDB($input) {
+        return trim(strip_tags($input));
     }
-    $logEntry .= "\n";
-
-    file_put_contents("$logDir/security.log", $logEntry, FILE_APPEND | LOCK_EX);
+    
+    /**
+     * Validate password strength
+     */
+    public static function validatePassword($password) {
+        if (strlen($password) < 8) return false;
+        if (!preg_match('/[A-Z]/', $password)) return false;
+        if (!preg_match('/[a-z]/', $password)) return false;
+        if (!preg_match('/[0-9]/', $password)) return false;
+        return true;
+    }
+    
+    /**
+     * Sanitize array recursively
+     */
+    public static function sanitizeArray($array) {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $array[$key] = self::sanitizeArray($value);
+            } else {
+                $array[$key] = self::sanitizeString($value);
+            }
+        }
+        return $array;
+    }
 }
