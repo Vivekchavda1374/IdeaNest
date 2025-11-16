@@ -645,6 +645,11 @@ if (isset($conn)) {
                 </div>
             <?php endif; ?>
 
+            <div class="alert alert-warning" role="alert" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1)); border-color: var(--warning-color); color: #92400e;">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <strong>Important Notice:</strong> Once you submit your project, you will NOT be able to edit it after approval. Please review all information carefully before submitting.
+            </div>
+
             <div class="user-info">
                 <h4><i class="fas fa-user me-2"></i>Welcome, <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?>!</h4>
                 <p><i class="fas fa-id-badge me-2"></i>User ID: <?php echo htmlspecialchars($_SESSION['user_id']); ?></p>
