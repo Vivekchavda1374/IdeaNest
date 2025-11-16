@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Oct 03, 2025 at 10:48 AM
+-- Generation Time: Oct 26, 2025 at 05:24 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -57,7 +57,15 @@ CREATE TABLE `admin_approved_projects` (
   `additional_files_path` varchar(255) DEFAULT NULL,
   `submission_date` timestamp NULL DEFAULT current_timestamp(),
   `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending'
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `admin_approved_projects`
+--
+
+INSERT INTO `admin_approved_projects` (`id`, `user_id`, `project_name`, `project_type`, `classification`, `project_category`, `difficulty_level`, `development_time`, `team_size`, `target_audience`, `project_goals`, `challenges_faced`, `future_enhancements`, `github_repo`, `live_demo_url`, `project_license`, `keywords`, `contact_email`, `social_links`, `description`, `language`, `image_path`, `video_path`, `code_file_path`, `instruction_file_path`, `presentation_file_path`, `additional_files_path`, `submission_date`, `status`) VALUES
+(1, '1', 'vivek', 'software', NULL, 'education', 'beginner', '2-3 months', '1', 'me', 'hello', 'me', 'me', 'http://localhost/IdeaNest/user/forms/new_project_add.php', 'https://localhost/IdeaNest/user/forms/new_project_add.ph', 'MIT', 'web app', 'viveksinhchavda@gmail.com', 'V', 'hello', 'flutter , dart , firebase', NULL, NULL, NULL, NULL, NULL, NULL, '2025-10-16 01:52:20', 'approved'),
+(2, '1', 'vivek 2', 'hardware', 'iot', 'education', 'expert', '1-2 weeks', '1', 'ghbjnk', 'cgvhb jn', 'vbn m', 'fghj', 'https://github.com/Abhaypadariya/Import-and-Export-Analysis-and-Recommendation', 'https://voicematcher.streamlit.app/', 'Apache-2.0', 'machine learning', 'viveksinhchavda@gmail.com', 'hb', 'gfhjkl', 'flutter , dart , firebase', NULL, NULL, NULL, NULL, NULL, NULL, '2025-10-16 02:01:58', 'approved');
 
 -- --------------------------------------------------------
 
@@ -73,6 +81,13 @@ CREATE TABLE `admin_logs` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `admin_logs`
+--
+
+INSERT INTO `admin_logs` (`id`, `action`, `details`, `admin_id`, `created_at`, `timestamp`) VALUES
+(1, 'mentor_removed', 'Removed mentor: vivek (chavdaviveksinh1374@gmail.com)', 1, '2025-10-16 14:45:25', '2025-10-16 14:45:25');
 
 -- --------------------------------------------------------
 
@@ -113,6 +128,16 @@ CREATE TABLE `blog` (
   `title` varchar(255) DEFAULT NULL,
   `content` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `blog`
+--
+
+INSERT INTO `blog` (`id`, `user_id`, `er_number`, `project_name`, `project_type`, `classification`, `description`, `submission_datetime`, `status`, `priority1`, `assigned_to`, `completion_date`, `created_at`, `updated_at`, `title`, `content`) VALUES
+(1, 1, '92200133026', 'viv', 'hardware', 'iot', 'ghjerfwkeqdkl', '2025-10-16 11:48:26', 'pending', 'low', '1', '2025-11-01', '2025-10-16 06:18:26', '2025-10-16 06:18:26', NULL, NULL),
+(2, 1, '92200133052', 'hello', 'hardware', 'embedded', 'vbn,m.efwvfd', '2025-10-16 11:55:54', 'in_progress', 'low', '2', '2025-10-31', '2025-10-16 06:25:54', '2025-10-16 06:25:54', NULL, NULL),
+(4, 1, 'ER2024002', 'Smart Home Automation System', 'hardware', 'iot', 'IoT-based home automation system with voice control and mobile app integration.', '2025-10-16 12:08:44', 'in_progress', 'medium', NULL, NULL, '2025-10-16 06:38:44', '2025-10-16 06:38:44', NULL, NULL),
+(5, 1, 'ER2024003', 'E-Commerce Platform', 'software', 'web', 'Full-featured e-commerce platform with payment gateway integration and inventory management.', '2025-10-16 12:08:54', 'completed', 'high', NULL, NULL, '2025-10-16 06:38:54', '2025-10-16 06:38:54', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -158,6 +183,13 @@ CREATE TABLE `deleted_ideas` (
   `deleted_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `deleted_ideas`
+--
+
+INSERT INTO `deleted_ideas` (`id`, `original_idea_id`, `user_id`, `project_name`, `description`, `deletion_reason`, `deleted_by_admin`, `deleted_at`) VALUES
+(1, 3, 1, 'AI-Powered Study Assistant', 'An intelligent study assistant that helps students learn more effectively using machine learning algorithms.', 'no', 1, '2025-10-16 14:45:06');
+
 -- --------------------------------------------------------
 
 --
@@ -196,7 +228,61 @@ CREATE TABLE `denial_projects` (
   `status` varchar(50) DEFAULT NULL,
   `rejection_date` datetime DEFAULT current_timestamp(),
   `rejection_reason` text DEFAULT NULL
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `idea_activity_log`
+--
+
+CREATE TABLE `idea_activity_log` (
+  `id` int(11) NOT NULL,
+  `idea_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `activity_type` enum('created','updated','deleted','liked','unliked','commented','bookmarked','unbookmarked','shared','viewed','rated') NOT NULL,
+  `activity_data` text DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `idea_bookmarks`
+--
+
+CREATE TABLE `idea_bookmarks` (
+  `id` int(11) NOT NULL,
+  `idea_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `idea_bookmarks`
+--
+
+INSERT INTO `idea_bookmarks` (`id`, `idea_id`, `user_id`, `created_at`) VALUES
+(1, 4, 4, '2025-10-16 13:53:52');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `idea_collaborations`
+--
+
+CREATE TABLE `idea_collaborations` (
+  `id` int(11) NOT NULL,
+  `idea_id` int(11) NOT NULL,
+  `requester_id` int(11) NOT NULL,
+  `owner_id` int(11) NOT NULL,
+  `message` text DEFAULT NULL,
+  `status` enum('pending','accepted','rejected') DEFAULT 'pending',
+  `role` varchar(50) DEFAULT 'contributor',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -208,10 +294,44 @@ CREATE TABLE `idea_comments` (
   `id` int(11) NOT NULL,
   `idea_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
+  `parent_id` int(11) DEFAULT NULL,
   `comment` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `idea_comments`
+--
+
+INSERT INTO `idea_comments` (`id`, `idea_id`, `user_id`, `parent_id`, `comment`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, NULL, 'This is a great idea! I would love to collaborate.', '2025-10-16 14:24:50', '2025-10-16 14:24:50'),
+(2, 1, 1, 1, 'Thanks for the feedback!', '2025-10-16 14:24:50', '2025-10-16 14:24:50'),
+(3, 5, 1, NULL, 'hello', '2025-10-16 14:27:29', '2025-10-16 14:27:29'),
+(4, 4, 1, NULL, 'hello', '2025-10-16 14:30:04', '2025-10-16 14:30:04'),
+(5, 4, 4, NULL, 'hi', '2025-10-16 14:33:12', '2025-10-16 14:33:12');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `idea_followers`
+--
+
+CREATE TABLE `idea_followers` (
+  `id` int(11) NOT NULL,
+  `idea_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `notify_comments` tinyint(1) DEFAULT 1,
+  `notify_updates` tinyint(1) DEFAULT 1,
+  `followed_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `idea_followers`
+--
+
+INSERT INTO `idea_followers` (`id`, `idea_id`, `user_id`, `notify_comments`, `notify_updates`, `followed_at`) VALUES
+(3, 4, 4, 1, 1, '2025-10-16 14:20:32');
 
 -- --------------------------------------------------------
 
@@ -224,6 +344,32 @@ CREATE TABLE `idea_likes` (
   `idea_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `idea_likes`
+--
+
+INSERT INTO `idea_likes` (`id`, `idea_id`, `user_id`, `created_at`) VALUES
+(3, 4, 1, '2025-10-16 13:03:54'),
+(4, 5, 1, '2025-10-16 13:08:06'),
+(5, 4, 4, '2025-10-16 13:53:40'),
+(6, 5, 4, '2025-10-16 14:02:42');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `idea_ratings`
+--
+
+CREATE TABLE `idea_ratings` (
+  `id` int(11) NOT NULL,
+  `idea_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `rating` tinyint(1) NOT NULL CHECK (`rating` >= 1 and `rating` <= 5),
+  `review_text` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -241,6 +387,302 @@ CREATE TABLE `idea_reports` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `status` enum('pending','reviewed','resolved') DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `idea_reports`
+--
+
+INSERT INTO `idea_reports` (`id`, `idea_id`, `reporter_id`, `report_type`, `description`, `created_at`, `status`) VALUES
+(1, 3, 1, 'Spam', '', '2025-10-16 07:26:38', 'resolved');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `idea_shares`
+--
+
+CREATE TABLE `idea_shares` (
+  `id` int(11) NOT NULL,
+  `idea_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `platform` enum('twitter','facebook','linkedin','whatsapp','copy','other') NOT NULL DEFAULT 'other',
+  `shared_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `idea_shares`
+--
+
+INSERT INTO `idea_shares` (`id`, `idea_id`, `user_id`, `platform`, `shared_at`) VALUES
+(1, 4, 4, 'whatsapp', '2025-10-16 13:52:55');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `idea_statistics`
+-- (See below for the actual view)
+--
+CREATE TABLE `idea_statistics` (
+`id` int(11)
+,`project_name` varchar(100)
+,`user_id` int(11)
+,`submission_datetime` datetime
+,`total_likes` bigint(21)
+,`total_comments` bigint(21)
+,`total_views` bigint(21)
+,`total_shares` bigint(21)
+,`total_bookmarks` bigint(21)
+,`average_rating` decimal(7,4)
+,`total_ratings` bigint(21)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `idea_tags`
+--
+
+CREATE TABLE `idea_tags` (
+  `id` int(11) NOT NULL,
+  `tag_name` varchar(50) NOT NULL,
+  `tag_slug` varchar(50) NOT NULL,
+  `tag_color` varchar(7) DEFAULT '#6366f1',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `idea_tags`
+--
+
+INSERT INTO `idea_tags` (`id`, `tag_name`, `tag_slug`, `tag_color`, `created_at`) VALUES
+(1, 'Machine Learning', 'machine-learning', '#8b5cf6', '2025-10-16 13:50:03'),
+(2, 'Web Development', 'web-development', '#3b82f6', '2025-10-16 13:50:03'),
+(3, 'Mobile App', 'mobile-app', '#10b981', '2025-10-16 13:50:03'),
+(4, 'IoT', 'iot', '#f59e0b', '2025-10-16 13:50:03'),
+(5, 'Blockchain', 'blockchain', '#ef4444', '2025-10-16 13:50:03'),
+(6, 'AI', 'ai', '#ec4899', '2025-10-16 13:50:03'),
+(7, 'Data Science', 'data-science', '#06b6d4', '2025-10-16 13:50:03'),
+(8, 'Cybersecurity', 'cybersecurity', '#f97316', '2025-10-16 13:50:03');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `idea_tag_relations`
+--
+
+CREATE TABLE `idea_tag_relations` (
+  `id` int(11) NOT NULL,
+  `idea_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `idea_views`
+--
+
+CREATE TABLE `idea_views` (
+  `id` int(11) NOT NULL,
+  `idea_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `viewed_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `idea_views`
+--
+
+INSERT INTO `idea_views` (`id`, `idea_id`, `user_id`, `ip_address`, `user_agent`, `viewed_at`) VALUES
+(1, 5, 1, NULL, NULL, '2025-10-16 14:15:29'),
+(2, 4, 1, NULL, NULL, '2025-10-16 14:15:29'),
+(4, 2, 1, NULL, NULL, '2025-10-16 14:15:30'),
+(5, 2, 1, NULL, NULL, '2025-10-16 14:15:30'),
+(6, 5, 1, NULL, NULL, '2025-10-16 14:15:37'),
+(7, 4, 1, NULL, NULL, '2025-10-16 14:15:37'),
+(9, 2, 1, NULL, NULL, '2025-10-16 14:15:37'),
+(10, 2, 1, NULL, NULL, '2025-10-16 14:15:37'),
+(11, 5, 1, NULL, NULL, '2025-10-16 14:19:35'),
+(13, 4, 1, NULL, NULL, '2025-10-16 14:19:35'),
+(14, 2, 1, NULL, NULL, '2025-10-16 14:19:35'),
+(15, 2, 1, NULL, NULL, '2025-10-16 14:19:35'),
+(16, 5, 1, NULL, NULL, '2025-10-16 14:20:03'),
+(18, 4, 1, NULL, NULL, '2025-10-16 14:20:03'),
+(19, 2, 1, NULL, NULL, '2025-10-16 14:20:04'),
+(20, 2, 1, NULL, NULL, '2025-10-16 14:20:04'),
+(21, 5, 1, NULL, NULL, '2025-10-16 14:20:06'),
+(22, 4, 1, NULL, NULL, '2025-10-16 14:20:06'),
+(24, 2, 1, NULL, NULL, '2025-10-16 14:20:07'),
+(25, 2, 1, NULL, NULL, '2025-10-16 14:20:07'),
+(26, 5, 1, NULL, NULL, '2025-10-16 14:20:08'),
+(27, 4, 1, NULL, NULL, '2025-10-16 14:20:08'),
+(29, 2, 1, NULL, NULL, '2025-10-16 14:20:09'),
+(30, 2, 1, NULL, NULL, '2025-10-16 14:20:09'),
+(31, 5, 1, NULL, NULL, '2025-10-16 14:20:13'),
+(32, 4, 1, NULL, NULL, '2025-10-16 14:20:13'),
+(34, 2, 1, NULL, NULL, '2025-10-16 14:20:13'),
+(35, 2, 1, NULL, NULL, '2025-10-16 14:20:13'),
+(36, 5, 4, NULL, NULL, '2025-10-16 14:20:30'),
+(37, 4, 4, NULL, NULL, '2025-10-16 14:20:30'),
+(39, 2, 4, NULL, NULL, '2025-10-16 14:20:30'),
+(40, 2, 4, NULL, NULL, '2025-10-16 14:20:30'),
+(41, 4, 4, NULL, NULL, '2025-10-16 14:20:32'),
+(42, 5, 4, NULL, NULL, '2025-10-16 14:20:32'),
+(44, 2, 4, NULL, NULL, '2025-10-16 14:20:33'),
+(45, 2, 4, NULL, NULL, '2025-10-16 14:20:33'),
+(46, 5, 1, NULL, NULL, '2025-10-16 14:20:59'),
+(47, 4, 1, NULL, NULL, '2025-10-16 14:20:59'),
+(49, 2, 1, NULL, NULL, '2025-10-16 14:21:00'),
+(50, 2, 1, NULL, NULL, '2025-10-16 14:21:00'),
+(51, 5, 1, NULL, NULL, '2025-10-16 14:21:19'),
+(52, 4, 1, NULL, NULL, '2025-10-16 14:21:19'),
+(54, 2, 1, NULL, NULL, '2025-10-16 14:21:20'),
+(55, 2, 1, NULL, NULL, '2025-10-16 14:21:20'),
+(56, 5, 1, NULL, NULL, '2025-10-16 14:24:41'),
+(57, 2, 1, NULL, NULL, '2025-10-16 14:24:41'),
+(59, 2, 1, NULL, NULL, '2025-10-16 14:24:41'),
+(60, 4, 1, NULL, NULL, '2025-10-16 14:24:41'),
+(61, 5, 1, NULL, NULL, '2025-10-16 14:25:29'),
+(62, 4, 1, NULL, NULL, '2025-10-16 14:25:29'),
+(63, 2, 1, NULL, NULL, '2025-10-16 14:25:30'),
+(64, 2, 1, NULL, NULL, '2025-10-16 14:25:30'),
+(66, 5, 1, NULL, NULL, '2025-10-16 14:27:21'),
+(67, 4, 1, NULL, NULL, '2025-10-16 14:27:22'),
+(68, 2, 1, NULL, NULL, '2025-10-16 14:27:22'),
+(70, 2, 1, NULL, NULL, '2025-10-16 14:27:22'),
+(71, 5, 1, NULL, NULL, '2025-10-16 14:27:23'),
+(72, 4, 1, NULL, NULL, '2025-10-16 14:27:23'),
+(73, 2, 1, NULL, NULL, '2025-10-16 14:27:23'),
+(75, 2, 1, NULL, NULL, '2025-10-16 14:27:23'),
+(76, 5, 1, NULL, NULL, '2025-10-16 14:27:29'),
+(77, 4, 1, NULL, NULL, '2025-10-16 14:27:29'),
+(79, 2, 1, NULL, NULL, '2025-10-16 14:27:29'),
+(80, 2, 1, NULL, NULL, '2025-10-16 14:27:29'),
+(81, 5, 1, NULL, NULL, '2025-10-16 14:27:36'),
+(83, 4, 1, NULL, NULL, '2025-10-16 14:27:36'),
+(84, 5, 1, NULL, NULL, '2025-10-16 14:27:44'),
+(85, 4, 1, NULL, NULL, '2025-10-16 14:27:44'),
+(87, 2, 1, NULL, NULL, '2025-10-16 14:27:45'),
+(88, 2, 1, NULL, NULL, '2025-10-16 14:27:45'),
+(89, 5, 1, NULL, NULL, '2025-10-16 14:29:57'),
+(90, 4, 1, NULL, NULL, '2025-10-16 14:29:57'),
+(91, 2, 1, NULL, NULL, '2025-10-16 14:29:57'),
+(93, 2, 1, NULL, NULL, '2025-10-16 14:29:57'),
+(94, 5, 1, NULL, NULL, '2025-10-16 14:30:05'),
+(95, 4, 1, NULL, NULL, '2025-10-16 14:30:05'),
+(97, 2, 1, NULL, NULL, '2025-10-16 14:30:05'),
+(98, 2, 1, NULL, NULL, '2025-10-16 14:30:05'),
+(99, 5, 1, NULL, NULL, '2025-10-16 14:30:11'),
+(100, 4, 1, NULL, NULL, '2025-10-16 14:30:11'),
+(102, 2, 1, NULL, NULL, '2025-10-16 14:30:12'),
+(103, 2, 1, NULL, NULL, '2025-10-16 14:30:12'),
+(104, 5, 1, NULL, NULL, '2025-10-16 14:30:27'),
+(105, 4, 1, NULL, NULL, '2025-10-16 14:30:27'),
+(107, 2, 1, NULL, NULL, '2025-10-16 14:30:28'),
+(108, 2, 1, NULL, NULL, '2025-10-16 14:30:28'),
+(109, 5, 1, NULL, NULL, '2025-10-16 14:30:53'),
+(111, 4, 1, NULL, NULL, '2025-10-16 14:30:53'),
+(112, 2, 1, NULL, NULL, '2025-10-16 14:30:53'),
+(113, 2, 1, NULL, NULL, '2025-10-16 14:30:53'),
+(114, 5, 1, NULL, NULL, '2025-10-16 14:30:54'),
+(116, 4, 1, NULL, NULL, '2025-10-16 14:30:54'),
+(117, 2, 1, NULL, NULL, '2025-10-16 14:30:54'),
+(118, 2, 1, NULL, NULL, '2025-10-16 14:30:55'),
+(119, 5, 1, NULL, NULL, '2025-10-16 14:30:56'),
+(120, 4, 1, NULL, NULL, '2025-10-16 14:30:56'),
+(122, 2, 1, NULL, NULL, '2025-10-16 14:30:56'),
+(123, 2, 1, NULL, NULL, '2025-10-16 14:30:57'),
+(124, 5, 1, NULL, NULL, '2025-10-16 14:31:07'),
+(125, 4, 1, NULL, NULL, '2025-10-16 14:31:07'),
+(126, 2, 1, NULL, NULL, '2025-10-16 14:31:07'),
+(128, 2, 1, NULL, NULL, '2025-10-16 14:31:07'),
+(129, 5, 1, NULL, NULL, '2025-10-16 14:32:36'),
+(130, 4, 1, NULL, NULL, '2025-10-16 14:32:36'),
+(132, 2, 1, NULL, NULL, '2025-10-16 14:32:36'),
+(133, 2, 1, NULL, NULL, '2025-10-16 14:32:37'),
+(134, 5, 4, NULL, NULL, '2025-10-16 14:33:03'),
+(135, 4, 4, NULL, NULL, '2025-10-16 14:33:03'),
+(137, 2, 4, NULL, NULL, '2025-10-16 14:33:03'),
+(138, 2, 4, NULL, NULL, '2025-10-16 14:33:04'),
+(139, 5, 4, NULL, NULL, '2025-10-16 14:33:12'),
+(140, 4, 4, NULL, NULL, '2025-10-16 14:33:12'),
+(142, 2, 4, NULL, NULL, '2025-10-16 14:33:12'),
+(143, 2, 4, NULL, NULL, '2025-10-16 14:33:12'),
+(144, 5, 4, NULL, NULL, '2025-10-16 14:34:51'),
+(146, 4, 4, NULL, NULL, '2025-10-16 14:34:51'),
+(147, 2, 4, NULL, NULL, '2025-10-16 14:34:51'),
+(148, 2, 4, NULL, NULL, '2025-10-16 14:34:51'),
+(149, 5, 4, NULL, NULL, '2025-10-16 14:34:57'),
+(150, 4, 4, NULL, NULL, '2025-10-16 14:34:57'),
+(152, 2, 4, NULL, NULL, '2025-10-16 14:34:57'),
+(153, 2, 4, NULL, NULL, '2025-10-16 14:34:58'),
+(154, 4, 4, NULL, NULL, '2025-10-16 14:35:04'),
+(155, 4, 4, NULL, NULL, '2025-10-16 14:35:05'),
+(156, 5, 4, NULL, NULL, '2025-10-16 14:35:05'),
+(158, 2, 4, NULL, NULL, '2025-10-16 14:35:05'),
+(159, 2, 4, NULL, NULL, '2025-10-16 14:35:07'),
+(160, 5, 4, NULL, NULL, '2025-10-16 14:36:28'),
+(162, 4, 4, NULL, NULL, '2025-10-16 14:36:28'),
+(163, 2, 4, NULL, NULL, '2025-10-16 14:36:28'),
+(164, 2, 4, NULL, NULL, '2025-10-16 14:36:28'),
+(165, 5, 4, NULL, NULL, '2025-10-16 14:37:12'),
+(166, 4, 4, NULL, NULL, '2025-10-16 14:37:12'),
+(168, 2, 4, NULL, NULL, '2025-10-16 14:37:12'),
+(169, 2, 4, NULL, NULL, '2025-10-16 14:37:12'),
+(170, 5, 4, NULL, NULL, '2025-10-16 14:38:12'),
+(171, 4, 4, NULL, NULL, '2025-10-16 14:38:12'),
+(173, 2, 4, NULL, NULL, '2025-10-16 14:38:12'),
+(174, 2, 4, NULL, NULL, '2025-10-16 14:38:12'),
+(175, 5, 4, NULL, NULL, '2025-10-16 14:38:14'),
+(176, 4, 4, NULL, NULL, '2025-10-16 14:38:14'),
+(178, 5, 4, NULL, NULL, '2025-10-16 14:38:15'),
+(180, 4, 4, NULL, NULL, '2025-10-16 14:38:15'),
+(181, 4, 4, NULL, NULL, '2025-10-16 14:38:16'),
+(182, 5, 4, NULL, NULL, '2025-10-16 14:38:18'),
+(183, 4, 4, NULL, NULL, '2025-10-16 14:38:18'),
+(185, 2, 4, NULL, NULL, '2025-10-16 14:38:30'),
+(186, 2, 4, NULL, NULL, '2025-10-16 14:38:30'),
+(187, 5, 4, NULL, NULL, '2025-10-16 14:39:15'),
+(188, 4, 4, NULL, NULL, '2025-10-16 14:39:15'),
+(190, 2, 4, NULL, NULL, '2025-10-16 14:39:15'),
+(191, 2, 4, NULL, NULL, '2025-10-16 14:39:15'),
+(192, 4, 4, NULL, NULL, '2025-10-16 14:39:38'),
+(193, 4, 4, NULL, NULL, '2025-10-16 14:39:39'),
+(194, 4, 4, NULL, NULL, '2025-10-16 14:39:39'),
+(195, 4, 4, NULL, NULL, '2025-10-16 14:39:40'),
+(196, 5, 4, NULL, NULL, '2025-10-16 14:39:42'),
+(197, 4, 4, NULL, NULL, '2025-10-16 14:39:42'),
+(199, 5, 4, NULL, NULL, '2025-10-16 14:40:32'),
+(201, 4, 4, NULL, NULL, '2025-10-16 14:40:32'),
+(202, 2, 4, NULL, NULL, '2025-10-16 14:40:34'),
+(203, 2, 4, NULL, NULL, '2025-10-16 14:40:34'),
+(204, 5, 4, NULL, NULL, '2025-10-16 14:41:44'),
+(205, 4, 4, NULL, NULL, '2025-10-16 14:41:44'),
+(207, 2, 4, NULL, NULL, '2025-10-16 14:41:44'),
+(208, 2, 4, NULL, NULL, '2025-10-16 14:41:44'),
+(209, 5, 4, NULL, NULL, '2025-10-16 14:42:30'),
+(210, 4, 4, NULL, NULL, '2025-10-16 14:42:30'),
+(212, 2, 4, NULL, NULL, '2025-10-16 14:42:30'),
+(213, 2, 4, NULL, NULL, '2025-10-16 14:42:30'),
+(214, 4, 4, NULL, NULL, '2025-10-16 14:43:46'),
+(215, 5, 4, NULL, NULL, '2025-10-16 14:43:46'),
+(217, 2, 4, NULL, NULL, '2025-10-16 14:43:46'),
+(218, 2, 4, NULL, NULL, '2025-10-16 14:43:56'),
+(219, 5, 1, NULL, NULL, '2025-10-16 14:44:29'),
+(220, 4, 1, NULL, NULL, '2025-10-16 14:44:29'),
+(221, 5, 1, NULL, NULL, '2025-10-16 14:44:32'),
+(222, 4, 1, NULL, NULL, '2025-10-16 14:44:32'),
+(223, 4, 1, NULL, NULL, '2025-10-16 14:44:33'),
+(224, 5, 1, NULL, NULL, '2025-10-16 14:44:33'),
+(226, 2, 1, NULL, NULL, '2025-10-16 14:44:34'),
+(227, 2, 1, NULL, NULL, '2025-10-16 14:44:34'),
+(228, 5, 1, NULL, NULL, '2025-10-16 14:44:41'),
+(229, 4, 1, NULL, NULL, '2025-10-16 14:44:41'),
+(231, 2, 1, NULL, NULL, '2025-10-16 14:44:42'),
+(232, 2, 1, NULL, NULL, '2025-10-16 14:44:42');
 
 -- --------------------------------------------------------
 
@@ -306,6 +748,13 @@ CREATE TABLE `mentors` (
   `github_url` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `mentors`
+--
+
+INSERT INTO `mentors` (`id`, `user_id`, `specialization`, `experience_years`, `max_students`, `current_students`, `bio`, `linkedin_url`, `github_url`, `created_at`) VALUES
+(2, 6, 'Web Development', 3, 5, 0, 'Web Development', NULL, NULL, '2025-10-16 14:59:16');
 
 -- --------------------------------------------------------
 
@@ -470,7 +919,8 @@ CREATE TABLE `notification_logs` (
 --
 
 INSERT INTO `notification_logs` (`id`, `type`, `user_id`, `project_id`, `status`, `created_at`, `email_to`, `email_subject`, `email_body`, `error_message`) VALUES
-(1, 'new_user_notification', 1, NULL, 'failed', '2025-09-27 05:17:06', 'ideanest.ict@gmail.com', 'New User Registration - IdeaNest', NULL, 'Email notifications are disabled');
+(1, 'new_user_notification', 1, NULL, 'failed', '2025-09-27 05:17:06', 'ideanest.ict@gmail.com', 'New User Registration - IdeaNest', NULL, 'Email notifications are disabled'),
+(2, 'new_user_notification', 4, NULL, 'failed', '2025-10-16 13:12:54', 'ideanest.ict@gmail.com', 'New User Registration - IdeaNest', NULL, 'Email notifications are disabled');
 
 -- --------------------------------------------------------
 
@@ -526,7 +976,15 @@ CREATE TABLE `projects` (
   `submission_date` timestamp NULL DEFAULT current_timestamp(),
   `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
   `title` varchar(255) DEFAULT NULL
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `projects`
+--
+
+INSERT INTO `projects` (`id`, `user_id`, `project_name`, `project_type`, `classification`, `project_category`, `difficulty_level`, `development_time`, `team_size`, `target_audience`, `project_goals`, `challenges_faced`, `future_enhancements`, `github_repo`, `live_demo_url`, `project_license`, `keywords`, `contact_email`, `social_links`, `description`, `language`, `image_path`, `video_path`, `code_file_path`, `instruction_file_path`, `presentation_file_path`, `additional_files_path`, `submission_date`, `status`, `title`) VALUES
+(1, 1, 'vivek', 'software', NULL, 'education', 'beginner', '2-3 months', '1', 'me', 'hello', 'me', 'me', 'http://localhost/IdeaNest/user/forms/new_project_add.php', 'https://localhost/IdeaNest/user/forms/new_project_add.ph', 'MIT', 'web app', 'viveksinhchavda@gmail.com', 'V', 'hello', 'flutter , dart , firebase', NULL, NULL, NULL, NULL, NULL, NULL, '2025-10-16 01:52:20', 'approved', NULL),
+(2, 1, 'vivek 2', 'hardware', 'iot', 'education', 'expert', '1-2 weeks', '1', 'ghbjnk', 'cgvhb jn', 'vbn m', 'fghj', 'https://github.com/Abhaypadariya/Import-and-Export-Analysis-and-Recommendation', 'https://voicematcher.streamlit.app/', 'Apache-2.0', 'machine learning', 'viveksinhchavda@gmail.com', 'hb', 'gfhjkl', 'flutter , dart , firebase', NULL, NULL, NULL, NULL, NULL, NULL, '2025-10-16 02:01:58', 'approved', NULL);
 
 -- --------------------------------------------------------
 
@@ -546,6 +1004,14 @@ CREATE TABLE `project_comments` (
   `is_deleted` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `project_comments`
+--
+
+INSERT INTO `project_comments` (`id`, `project_id`, `user_id`, `user_name`, `comment_text`, `parent_comment_id`, `created_at`, `updated_at`, `is_deleted`) VALUES
+(1, 2, '6fqe3jb5laaur0ltbjos6r06ud', 'Vivek', 'hi', NULL, '2025-10-16 06:13:18', '2025-10-16 06:13:18', 0),
+(2, 2, 'qjek8foua2sfpk4popik55bmgd', 'Vivek', 'hi', NULL, '2025-10-16 13:05:30', '2025-10-16 13:05:30', 0);
+
 -- --------------------------------------------------------
 
 --
@@ -558,6 +1024,15 @@ CREATE TABLE `project_likes` (
   `user_id` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `project_likes`
+--
+
+INSERT INTO `project_likes` (`id`, `project_id`, `user_id`, `created_at`) VALUES
+(5, 2, '6fqe3jb5laaur0ltbjos6r06ud', '2025-10-16 06:13:23'),
+(6, 1, '6fqe3jb5laaur0ltbjos6r06ud', '2025-10-16 06:13:27'),
+(7, 2, 'qjek8foua2sfpk4popik55bmgd', '2025-10-16 13:05:33');
 
 -- --------------------------------------------------------
 
@@ -613,7 +1088,10 @@ CREATE TABLE `register` (
 --
 
 INSERT INTO `register` (`id`, `name`, `email`, `enrollment_number`, `gr_number`, `password`, `about`, `phone_no`, `department`, `passout_year`, `user_image`, `google_id`, `email_notifications`, `last_notification_sent`, `github_token`, `role`, `expertise`, `mentor_rating`, `is_available`, `github_username`, `github_profile_url`, `github_repos_count`, `github_last_sync`) VALUES
-(1, 'Vivek', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$feM86hXmBoWO7ThecWQifulVl6RzSrzwiCvGTPd8ZtHLd9TeyKChu', '', '09104231590', 'ICT', '2026', '', '116644441139882349952', 1, NULL, NULL, 'student', NULL, 0.00, 1, NULL, NULL, 0, NULL);
+(1, 'Vivek', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$feM86hXmBoWO7ThecWQifulVl6RzSrzwiCvGTPd8ZtHLd9TeyKChu', '', '09104231590', 'ICT', '2026', '', '116644441139882349952', 1, NULL, NULL, 'student', NULL, 0.00, 1, 'Vivekchavda1374', 'https://github.com/Vivekchavda1374', 46, '2025-10-16 05:15:38'),
+(2, 'vivek', 'chavdaviveksinh1374@gmail.com', 'MEN406', 'MEN406', '$2y$10$BxJ7DWVwxoPSQAmILcNbq.546c/d2TcH0vKs8dBYA4nz8bJkO5UUG', 'Web Development', NULL, 'Mentor', '2024', '', NULL, 1, NULL, NULL, 'student', 'Web Development', 0.00, 1, NULL, NULL, 0, NULL),
+(4, 'Vivek Chavda', 'vivekcchavda@gmail.com', '92200133041', '119485', '$2y$10$JmTj0edpdo9LrDkU9b4BguOyHh0HQ0bNgk.IQjcj/5J2bqaWp9DZy', 'HI', '09104231590', 'ICT', '2026', '', '108130850710477451760', 1, NULL, NULL, 'student', NULL, 0.00, 1, NULL, NULL, 0, NULL),
+(6, 'Vivek Chavda', 'viveksinhchavda639@gmail.com', 'MEN718', 'MEN718', '$2y$10$Ebz4rBKi0GMyn1KCuUPEJO40DX8AjVj1ifD8f5/cu.JZFHNSHoMNC', 'Web Development', NULL, 'Mentor', '2024', '', NULL, 1, NULL, NULL, 'mentor', 'Web Development', 0.00, 1, NULL, NULL, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -656,21 +1134,48 @@ CREATE TABLE `subadmins` (
   `id` int(11) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `name` varchar(100) DEFAULT NULL,
-  `domain` varchar(100) DEFAULT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `department` varchar(100) DEFAULT NULL,
+  `position` varchar(100) DEFAULT NULL,
+  `specialization` text DEFAULT NULL,
   `domains` text DEFAULT NULL,
-  `profile_complete` tinyint(1) DEFAULT 0,
-  `status` enum('active','inactive') DEFAULT 'active',
+  `experience_years` int(3) DEFAULT 0,
+  `bio` text DEFAULT NULL,
+  `avatar` varchar(255) DEFAULT NULL,
+  `status` enum('active','inactive','suspended') DEFAULT 'active',
+  `email_verified` tinyint(1) DEFAULT 0,
+  `last_login` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `last_login` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `subadmins`
 --
 
-INSERT INTO `subadmins` (`id`, `email`, `password`, `name`, `domain`, `domains`, `profile_complete`, `status`, `created_at`, `last_login`) VALUES
-(5, 'vivek.chavda119486@marwadiuniversity.ac.in', '$2y$10$viI9wnQ7orbtt1kHJa5TPO1G8nntixlFI7f0DhdK2vy7ODV3Xrrtm', NULL, NULL, NULL, 0, 'active', '2025-10-03 08:38:57', NULL);
+INSERT INTO `subadmins` (`id`, `email`, `password`, `first_name`, `last_name`, `phone`, `department`, `position`, `specialization`, `domains`, `experience_years`, `bio`, `avatar`, `status`, `email_verified`, `last_login`, `created_at`, `updated_at`) VALUES
+(2, 'test@example.com', '$2y$12$ntX3z3O.xEl7IjkkJV/DS.Don1zVLBpExgRNiBYgM3XPiu6TdWBbS', 'Test', 'Subadmin', NULL, 'IT', 'Manager', NULL, NULL, 0, NULL, NULL, 'active', 0, NULL, '2025-10-14 18:16:59', '2025-10-14 18:16:59'),
+(3, 'vivek.chavda119486@marwadiuniversity.ac.in', '$2y$10$sIO6v/pryS9KFKCD8T5xmem4IClUaCwnVsZQLcUL4yKYiJdnS7UQe', 'Vivek', 'Chavda', '09104231590', 'ICT', 'Student', 'Web', 'IoT Projects', 1, 'hi', NULL, 'active', 0, NULL, '2025-10-16 04:10:15', '2025-10-16 05:37:51');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `subadmin_activities`
+--
+
+CREATE TABLE `subadmin_activities` (
+  `id` int(11) NOT NULL,
+  `subadmin_id` int(11) NOT NULL,
+  `activity_type` varchar(50) NOT NULL,
+  `description` text NOT NULL,
+  `target_type` varchar(50) DEFAULT NULL,
+  `target_id` int(11) DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -682,10 +1187,45 @@ CREATE TABLE `subadmin_classification_requests` (
   `id` int(11) NOT NULL,
   `subadmin_id` int(11) NOT NULL,
   `requested_domains` text DEFAULT NULL,
-  `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
-  `request_date` timestamp NOT NULL DEFAULT current_timestamp(),
-  `decision_date` timestamp NULL DEFAULT NULL,
-  `admin_comment` varchar(255) DEFAULT NULL
+  `status` enum('pending','approved','rejected') DEFAULT 'pending',
+  `admin_comment` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `subadmin_permissions`
+--
+
+CREATE TABLE `subadmin_permissions` (
+  `id` int(11) NOT NULL,
+  `subadmin_id` int(11) NOT NULL,
+  `permission_type` enum('project_review','user_management','content_moderation','analytics','settings') NOT NULL,
+  `permission_level` enum('read','write','admin') DEFAULT 'read',
+  `granted_by` int(11) DEFAULT NULL,
+  `granted_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `expires_at` timestamp NULL DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `subadmin_sessions`
+--
+
+CREATE TABLE `subadmin_sessions` (
+  `id` int(11) NOT NULL,
+  `subadmin_id` int(11) NOT NULL,
+  `session_token` varchar(255) NOT NULL,
+  `ip_address` varchar(45) NOT NULL,
+  `user_agent` text DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `expires_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `last_activity` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -696,23 +1236,13 @@ CREATE TABLE `subadmin_classification_requests` (
 
 CREATE TABLE `support_tickets` (
   `id` int(11) NOT NULL,
-  `ticket_number` varchar(20) NOT NULL,
   `subadmin_id` int(11) NOT NULL,
-  `subadmin_name` varchar(100) NOT NULL,
-  `subadmin_email` varchar(255) NOT NULL,
   `subject` varchar(255) NOT NULL,
-  `category` enum('technical','account','project','bug_report','feature_request','other') NOT NULL,
-  `priority` enum('low','medium','high','urgent') NOT NULL,
   `message` text NOT NULL,
-  `status` enum('open','in_progress','resolved','closed') NOT NULL DEFAULT 'open',
-  `admin_response` text DEFAULT NULL,
-  `admin_id` int(11) DEFAULT NULL,
-  `admin_name` varchar(100) DEFAULT NULL,
+  `status` enum('open','in_progress','resolved','closed') DEFAULT 'open',
+  `priority` enum('low','medium','high') DEFAULT 'medium',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `resolved_at` timestamp NULL DEFAULT NULL,
-  `closed_at` timestamp NULL DEFAULT NULL,
-  `attachments` text DEFAULT NULL
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -724,9 +1254,7 @@ CREATE TABLE `support_tickets` (
 CREATE TABLE `support_ticket_replies` (
   `id` int(11) NOT NULL,
   `ticket_id` int(11) NOT NULL,
-  `sender_type` enum('admin','subadmin') NOT NULL,
-  `sender_name` varchar(100) NOT NULL,
-  `sender_email` varchar(255) NOT NULL,
+  `user_type` enum('admin','subadmin') NOT NULL,
   `message` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -742,6 +1270,23 @@ CREATE TABLE `temp_project_ownership` (
   `user_session` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `trending_ideas`
+-- (See below for the actual view)
+--
+CREATE TABLE `trending_ideas` (
+`id` int(11)
+,`project_name` varchar(100)
+,`classification` varchar(50)
+,`project_type` enum('software','hardware')
+,`recent_likes` bigint(21)
+,`recent_comments` bigint(21)
+,`recent_views` bigint(21)
+,`engagement_score` bigint(24)
+);
 
 -- --------------------------------------------------------
 
@@ -774,6 +1319,24 @@ CREATE TABLE `user_activity_log` (
   `user_agent` text DEFAULT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `idea_statistics`
+--
+DROP TABLE IF EXISTS `idea_statistics`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `idea_statistics`  AS SELECT `b`.`id` AS `id`, `b`.`project_name` AS `project_name`, `b`.`user_id` AS `user_id`, `b`.`submission_datetime` AS `submission_datetime`, count(distinct `il`.`id`) AS `total_likes`, count(distinct `ic`.`id`) AS `total_comments`, count(distinct `iv`.`id`) AS `total_views`, count(distinct `ish`.`id`) AS `total_shares`, count(distinct `ib`.`id`) AS `total_bookmarks`, avg(`ir`.`rating`) AS `average_rating`, count(distinct `ir`.`id`) AS `total_ratings` FROM ((((((`blog` `b` left join `idea_likes` `il` on(`b`.`id` = `il`.`idea_id`)) left join `idea_comments` `ic` on(`b`.`id` = `ic`.`idea_id`)) left join `idea_views` `iv` on(`b`.`id` = `iv`.`idea_id`)) left join `idea_shares` `ish` on(`b`.`id` = `ish`.`idea_id`)) left join `idea_bookmarks` `ib` on(`b`.`id` = `ib`.`idea_id`)) left join `idea_ratings` `ir` on(`b`.`id` = `ir`.`idea_id`)) GROUP BY `b`.`id` ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `trending_ideas`
+--
+DROP TABLE IF EXISTS `trending_ideas`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `trending_ideas`  AS SELECT `b`.`id` AS `id`, `b`.`project_name` AS `project_name`, `b`.`classification` AS `classification`, `b`.`project_type` AS `project_type`, count(distinct `il`.`id`) AS `recent_likes`, count(distinct `ic`.`id`) AS `recent_comments`, count(distinct `iv`.`id`) AS `recent_views`, count(distinct `il`.`id`) * 3 + count(distinct `ic`.`id`) * 5 + count(distinct `iv`.`id`) AS `engagement_score` FROM (((`blog` `b` left join `idea_likes` `il` on(`b`.`id` = `il`.`idea_id` and `il`.`created_at` >= current_timestamp() - interval 7 day)) left join `idea_comments` `ic` on(`b`.`id` = `ic`.`idea_id` and `ic`.`created_at` >= current_timestamp() - interval 7 day)) left join `idea_views` `iv` on(`b`.`id` = `iv`.`idea_id` and `iv`.`viewed_at` >= current_timestamp() - interval 7 day)) GROUP BY `b`.`id` HAVING `engagement_score` > 0 ORDER BY count(distinct `il`.`id`) * 3 + count(distinct `ic`.`id`) * 5 + count(distinct `iv`.`id`) DESC ;
 
 --
 -- Indexes for dumped tables
@@ -853,14 +1416,51 @@ ALTER TABLE `denial_projects`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `idea_activity_log`
+--
+ALTER TABLE `idea_activity_log`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_activity_log_idea` (`idea_id`),
+  ADD KEY `idx_activity_log_user` (`user_id`),
+  ADD KEY `idx_activity_log_type` (`activity_type`),
+  ADD KEY `idx_activity_log_date` (`created_at`);
+
+--
+-- Indexes for table `idea_bookmarks`
+--
+ALTER TABLE `idea_bookmarks`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_bookmark` (`idea_id`,`user_id`),
+  ADD KEY `idx_idea_bookmarks_idea_id` (`idea_id`),
+  ADD KEY `idx_idea_bookmarks_user_id` (`user_id`);
+
+--
+-- Indexes for table `idea_collaborations`
+--
+ALTER TABLE `idea_collaborations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_collaborations_idea` (`idea_id`),
+  ADD KEY `idx_collaborations_requester` (`requester_id`),
+  ADD KEY `idx_collaborations_owner` (`owner_id`),
+  ADD KEY `idx_collaborations_status` (`status`);
+
+--
 -- Indexes for table `idea_comments`
 --
 ALTER TABLE `idea_comments`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_idea_comments_idea_id` (`idea_id`),
   ADD KEY `idx_idea_comments_user_id` (`user_id`),
-  ADD KEY `idx_idea_comments_created_at` (`created_at`),
-  ADD KEY `idx_comments_count` (`idea_id`);
+  ADD KEY `idx_idea_comments_parent_id` (`parent_id`);
+
+--
+-- Indexes for table `idea_followers`
+--
+ALTER TABLE `idea_followers`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_follower` (`idea_id`,`user_id`),
+  ADD KEY `idx_idea_followers_idea` (`idea_id`),
+  ADD KEY `idx_idea_followers_user` (`user_id`);
 
 --
 -- Indexes for table `idea_likes`
@@ -870,13 +1470,58 @@ ALTER TABLE `idea_likes`
   ADD UNIQUE KEY `unique_like` (`idea_id`,`user_id`),
   ADD KEY `idx_idea_likes_idea_id` (`idea_id`),
   ADD KEY `idx_idea_likes_user_id` (`user_id`),
-  ADD KEY `idx_likes_count` (`idea_id`);
+  ADD KEY `idx_likes_count` (`idea_id`),
+  ADD KEY `idx_likes_user_date` (`user_id`,`created_at`);
+
+--
+-- Indexes for table `idea_ratings`
+--
+ALTER TABLE `idea_ratings`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_rating` (`idea_id`,`user_id`),
+  ADD KEY `idx_idea_ratings_idea` (`idea_id`),
+  ADD KEY `idx_idea_ratings_user` (`user_id`);
 
 --
 -- Indexes for table `idea_reports`
 --
 ALTER TABLE `idea_reports`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `idea_shares`
+--
+ALTER TABLE `idea_shares`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_idea_shares_idea_id` (`idea_id`),
+  ADD KEY `idx_idea_shares_user_id` (`user_id`),
+  ADD KEY `idx_idea_shares_platform` (`platform`);
+
+--
+-- Indexes for table `idea_tags`
+--
+ALTER TABLE `idea_tags`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_tag_name` (`tag_name`),
+  ADD UNIQUE KEY `unique_tag_slug` (`tag_slug`);
+
+--
+-- Indexes for table `idea_tag_relations`
+--
+ALTER TABLE `idea_tag_relations`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_idea_tag` (`idea_id`,`tag_id`),
+  ADD KEY `idx_idea_tag_relations_idea` (`idea_id`),
+  ADD KEY `idx_idea_tag_relations_tag` (`tag_id`);
+
+--
+-- Indexes for table `idea_views`
+--
+ALTER TABLE `idea_views`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_idea_views_idea_id` (`idea_id`),
+  ADD KEY `idx_idea_views_user_id` (`user_id`),
+  ADD KEY `idx_idea_views_date` (`viewed_at`);
 
 --
 -- Indexes for table `idea_warnings`
@@ -1076,7 +1721,19 @@ ALTER TABLE `student_email_preferences`
 --
 ALTER TABLE `subadmins`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `email` (`email`),
+  ADD KEY `idx_email` (`email`),
+  ADD KEY `idx_status` (`status`),
+  ADD KEY `idx_department` (`department`);
+
+--
+-- Indexes for table `subadmin_activities`
+--
+ALTER TABLE `subadmin_activities`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_subadmin_id` (`subadmin_id`),
+  ADD KEY `idx_activity_type` (`activity_type`),
+  ADD KEY `idx_created_at` (`created_at`);
 
 --
 -- Indexes for table `subadmin_classification_requests`
@@ -1086,23 +1743,38 @@ ALTER TABLE `subadmin_classification_requests`
   ADD KEY `subadmin_id` (`subadmin_id`);
 
 --
+-- Indexes for table `subadmin_permissions`
+--
+ALTER TABLE `subadmin_permissions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_subadmin_id` (`subadmin_id`),
+  ADD KEY `idx_permission_type` (`permission_type`),
+  ADD KEY `idx_is_active` (`is_active`);
+
+--
+-- Indexes for table `subadmin_sessions`
+--
+ALTER TABLE `subadmin_sessions`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `session_token` (`session_token`),
+  ADD KEY `idx_subadmin_id` (`subadmin_id`),
+  ADD KEY `idx_session_token` (`session_token`),
+  ADD KEY `idx_is_active` (`is_active`),
+  ADD KEY `idx_expires_at` (`expires_at`);
+
+--
 -- Indexes for table `support_tickets`
 --
 ALTER TABLE `support_tickets`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `ticket_number` (`ticket_number`),
-  ADD KEY `idx_subadmin_id` (`subadmin_id`),
-  ADD KEY `idx_status` (`status`),
-  ADD KEY `idx_priority` (`priority`),
-  ADD KEY `idx_category` (`category`),
-  ADD KEY `idx_ticket_number` (`ticket_number`);
+  ADD KEY `subadmin_id` (`subadmin_id`);
 
 --
 -- Indexes for table `support_ticket_replies`
 --
 ALTER TABLE `support_ticket_replies`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_ticket_id` (`ticket_id`);
+  ADD KEY `ticket_id` (`ticket_id`);
 
 --
 -- Indexes for table `temp_project_ownership`
@@ -1136,13 +1808,13 @@ ALTER TABLE `user_activity_log`
 -- AUTO_INCREMENT for table `admin_approved_projects`
 --
 ALTER TABLE `admin_approved_projects`
-  MODIFY `id` int(5) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `admin_logs`
 --
 ALTER TABLE `admin_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `admin_settings`
@@ -1154,7 +1826,7 @@ ALTER TABLE `admin_settings`
 -- AUTO_INCREMENT for table `blog`
 --
 ALTER TABLE `blog`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `bookmark`
@@ -1172,7 +1844,7 @@ ALTER TABLE `comment_likes`
 -- AUTO_INCREMENT for table `deleted_ideas`
 --
 ALTER TABLE `deleted_ideas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `denial_projects`
@@ -1181,22 +1853,76 @@ ALTER TABLE `denial_projects`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `idea_activity_log`
+--
+ALTER TABLE `idea_activity_log`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `idea_bookmarks`
+--
+ALTER TABLE `idea_bookmarks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `idea_collaborations`
+--
+ALTER TABLE `idea_collaborations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `idea_comments`
 --
 ALTER TABLE `idea_comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `idea_followers`
+--
+ALTER TABLE `idea_followers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `idea_likes`
 --
 ALTER TABLE `idea_likes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `idea_ratings`
+--
+ALTER TABLE `idea_ratings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `idea_reports`
 --
 ALTER TABLE `idea_reports`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `idea_shares`
+--
+ALTER TABLE `idea_shares`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `idea_tags`
+--
+ALTER TABLE `idea_tags`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `idea_tag_relations`
+--
+ALTER TABLE `idea_tag_relations`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `idea_views`
+--
+ALTER TABLE `idea_views`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=233;
 
 --
 -- AUTO_INCREMENT for table `idea_warnings`
@@ -1220,7 +1946,7 @@ ALTER TABLE `mentoring_sessions`
 -- AUTO_INCREMENT for table `mentors`
 --
 ALTER TABLE `mentors`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `mentor_activity_logs`
@@ -1274,7 +2000,7 @@ ALTER TABLE `notification_counters`
 -- AUTO_INCREMENT for table `notification_logs`
 --
 ALTER TABLE `notification_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `notification_templates`
@@ -1286,19 +2012,19 @@ ALTER TABLE `notification_templates`
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` int(5) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `project_comments`
 --
 ALTER TABLE `project_comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `project_likes`
 --
 ALTER TABLE `project_likes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `realtime_notifications`
@@ -1310,7 +2036,7 @@ ALTER TABLE `realtime_notifications`
 -- AUTO_INCREMENT for table `register`
 --
 ALTER TABLE `register`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `removed_user`
@@ -1328,13 +2054,31 @@ ALTER TABLE `student_email_preferences`
 -- AUTO_INCREMENT for table `subadmins`
 --
 ALTER TABLE `subadmins`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `subadmin_activities`
+--
+ALTER TABLE `subadmin_activities`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `subadmin_classification_requests`
 --
 ALTER TABLE `subadmin_classification_requests`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `subadmin_permissions`
+--
+ALTER TABLE `subadmin_permissions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `subadmin_sessions`
+--
+ALTER TABLE `subadmin_sessions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `support_tickets`
@@ -1383,11 +2127,33 @@ ALTER TABLE `comment_likes`
   ADD CONSTRAINT `comment_likes_ibfk_1` FOREIGN KEY (`comment_id`) REFERENCES `project_comments` (`id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `idea_comments`
+-- Constraints for table `idea_activity_log`
 --
-ALTER TABLE `idea_comments`
-  ADD CONSTRAINT `idea_comments_ibfk_1` FOREIGN KEY (`idea_id`) REFERENCES `blog` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `idea_comments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+ALTER TABLE `idea_activity_log`
+  ADD CONSTRAINT `fk_activity_log_idea` FOREIGN KEY (`idea_id`) REFERENCES `blog` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_activity_log_user` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `idea_bookmarks`
+--
+ALTER TABLE `idea_bookmarks`
+  ADD CONSTRAINT `fk_idea_bookmarks_idea` FOREIGN KEY (`idea_id`) REFERENCES `blog` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_idea_bookmarks_user` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `idea_collaborations`
+--
+ALTER TABLE `idea_collaborations`
+  ADD CONSTRAINT `fk_collaborations_idea` FOREIGN KEY (`idea_id`) REFERENCES `blog` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_collaborations_owner` FOREIGN KEY (`owner_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_collaborations_requester` FOREIGN KEY (`requester_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `idea_followers`
+--
+ALTER TABLE `idea_followers`
+  ADD CONSTRAINT `fk_idea_followers_idea` FOREIGN KEY (`idea_id`) REFERENCES `blog` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_idea_followers_user` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `idea_likes`
@@ -1395,6 +2161,34 @@ ALTER TABLE `idea_comments`
 ALTER TABLE `idea_likes`
   ADD CONSTRAINT `idea_likes_ibfk_1` FOREIGN KEY (`idea_id`) REFERENCES `blog` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `idea_likes_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `idea_ratings`
+--
+ALTER TABLE `idea_ratings`
+  ADD CONSTRAINT `fk_idea_ratings_idea` FOREIGN KEY (`idea_id`) REFERENCES `blog` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_idea_ratings_user` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `idea_shares`
+--
+ALTER TABLE `idea_shares`
+  ADD CONSTRAINT `fk_idea_shares_idea` FOREIGN KEY (`idea_id`) REFERENCES `blog` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_idea_shares_user` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `idea_tag_relations`
+--
+ALTER TABLE `idea_tag_relations`
+  ADD CONSTRAINT `fk_idea_tag_relations_idea` FOREIGN KEY (`idea_id`) REFERENCES `blog` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_idea_tag_relations_tag` FOREIGN KEY (`tag_id`) REFERENCES `idea_tags` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `idea_views`
+--
+ALTER TABLE `idea_views`
+  ADD CONSTRAINT `fk_idea_views_idea` FOREIGN KEY (`idea_id`) REFERENCES `blog` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_idea_views_user` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `idea_warnings`
@@ -1479,22 +2273,40 @@ ALTER TABLE `student_email_preferences`
   ADD CONSTRAINT `student_email_preferences_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `subadmin_activities`
+--
+ALTER TABLE `subadmin_activities`
+  ADD CONSTRAINT `subadmin_activities_ibfk_1` FOREIGN KEY (`subadmin_id`) REFERENCES `subadmins` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `subadmin_classification_requests`
 --
 ALTER TABLE `subadmin_classification_requests`
   ADD CONSTRAINT `subadmin_classification_requests_ibfk_1` FOREIGN KEY (`subadmin_id`) REFERENCES `subadmins` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `subadmin_permissions`
+--
+ALTER TABLE `subadmin_permissions`
+  ADD CONSTRAINT `subadmin_permissions_ibfk_1` FOREIGN KEY (`subadmin_id`) REFERENCES `subadmins` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `subadmin_sessions`
+--
+ALTER TABLE `subadmin_sessions`
+  ADD CONSTRAINT `subadmin_sessions_ibfk_1` FOREIGN KEY (`subadmin_id`) REFERENCES `subadmins` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `support_tickets`
 --
 ALTER TABLE `support_tickets`
-  ADD CONSTRAINT `fk_support_tickets_subadmin` FOREIGN KEY (`subadmin_id`) REFERENCES `subadmins` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `support_tickets_ibfk_1` FOREIGN KEY (`subadmin_id`) REFERENCES `subadmins` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `support_ticket_replies`
 --
 ALTER TABLE `support_ticket_replies`
-  ADD CONSTRAINT `fk_ticket_replies_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `support_tickets` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `support_ticket_replies_ibfk_1` FOREIGN KEY (`ticket_id`) REFERENCES `support_tickets` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
