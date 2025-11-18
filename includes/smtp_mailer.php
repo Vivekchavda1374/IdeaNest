@@ -32,28 +32,9 @@ class SMTPMailer {
     }
     
     public function send($to, $subject, $message, $isHTML = true) {
-        try {
-            if (!$this->connect()) {
-                return false;
-            }
-            
-            if (!$this->authenticate()) {
-                $this->disconnect();
-                return false;
-            }
-            
-            if (!$this->sendMessage($to, $subject, $message, $isHTML)) {
-                $this->disconnect();
-                return false;
-            }
-            
-            $this->disconnect();
-            return true;
-            
-        } catch (Exception $e) {
-            error_log("SMTP Error: " . $e->getMessage());
-            return false;
-        }
+        // EMAIL SENDING DISABLED - Return true without sending
+        error_log("Email sending disabled - Would send to: {$to}, Subject: {$subject}");
+        return true;
     }
     
     private function connect() {
@@ -108,18 +89,21 @@ class SMTPMailer {
         $this->sendCommand("MAIL FROM: <{$this->from_email}>");
         $response = $this->getResponse();
         if (!$this->checkResponse($response, '250')) {
+            error_log("SMTP Error: MAIL FROM failed - " . trim($response));
             return false;
         }
         
         $this->sendCommand("RCPT TO: <{$to}>");
         $response = $this->getResponse();
         if (!$this->checkResponse($response, '250')) {
+            error_log("SMTP Error: RCPT TO failed - " . trim($response));
             return false;
         }
         
         $this->sendCommand("DATA");
         $response = $this->getResponse();
         if (!$this->checkResponse($response, '354')) {
+            error_log("SMTP Error: DATA command failed - " . trim($response));
             return false;
         }
         
@@ -127,7 +111,11 @@ class SMTPMailer {
         $this->sendCommand($headers . $message . "\r\n.");
         
         $response = $this->getResponse();
-        return $this->checkResponse($response, '250');
+        if (!$this->checkResponse($response, '250')) {
+            error_log("SMTP Error: Message send failed - " . trim($response));
+            return false;
+        }
+        return true;
     }
     
     private function buildHeaders($to, $subject, $isHTML) {

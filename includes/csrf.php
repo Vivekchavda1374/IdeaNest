@@ -91,3 +91,24 @@ class CSRFProtection {
         }
     }
 }
+
+/**
+ * Helper function to get CSRF hidden field
+ */
+function getCSRFField() {
+    return CSRFProtection::getHiddenField();
+}
+
+/**
+ * Helper function to generate CSRF token
+ */
+function generateCSRFToken() {
+    return CSRFProtection::generateToken();
+}
+
+/**
+ * Helper function to validate CSRF token
+ */
+function validateCSRFToken($token) {
+    return CSRFProtection::validateToken($token);
+}
