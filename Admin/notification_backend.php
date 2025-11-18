@@ -54,7 +54,7 @@ function isNewUserNotificationsEnabled($conn)
 // Function to send email using simple mail function
 function sendNotificationEmail($to_email, $to_name, $subject, $html_body, $conn)
 {
-    $result = sendSMTPEmail($to_email, $subject, $html_body, $conn);
+    $result = sendSMTPEmail($to_email, $subject, $html_body);
     
     if ($result) {
         return ['success' => true, 'message' => 'Email sent successfully'];

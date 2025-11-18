@@ -335,7 +335,7 @@ if (isset($_POST['test_email'])) {
     $subject = 'Test Email from ' . $site_name . ' Settings - ' . date('Y-m-d H:i:s');
     $body = '<html><body style="font-family: Arial, sans-serif;"><h2>Test Email Configuration</h2><p>This is a test email to verify your email configuration is working properly.</p><p>Test sent at: ' . date('F j, Y, g:i a') . '</p></body></html>';
     
-    if (sendSMTPEmail($smtp_username, $subject, $body, $conn)) {
+    if (sendSMTPEmail($smtp_username, $subject, $body)) {
         $message = "Test email sent successfully! Check your inbox at: " . $smtp_username;
     } else {
         $error = "Test email failed. Please check your SMTP configuration.";

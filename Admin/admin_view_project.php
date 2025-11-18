@@ -126,8 +126,25 @@ function rejectProject($project_id, $rejection_reason, $conn) {
 
 function sendApprovalEmail($email, $name, $project_name, $conn) {
     try {
-        $emailHelper = new EmailHelper();
-        $emailHelper->sendProjectApprovalEmail($email, $project_name, 'approved');
+        // Try EmailHelper first
+        if (class_exists('EmailHelper')) {
+            $emailHelper = new EmailHelper();
+            $emailHelper->sendProjectApprovalEmail($email, $project_name, 'approved');
+        } elseif (class_exists('SMTPMailer')) {
+            // Fallback to SMTPMailer
+            $mailer = new SMTPMailer();
+            $subject = 'Project Approved - ' . $project_name;
+            $body = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+                <h2 style='color: #10b981;'>Project Approved! 🎉</h2>
+                <p>Dear {$name},</p>
+                <p>Congratulations! Your project <strong>{$project_name}</strong> has been approved by IdeaNest.</p>
+                <p>You can now view your approved project on your dashboard.</p>
+                <p>Best regards,<br>IdeaNest Team</p>
+            </div>";
+            $mailer->send($email, $subject, $body);
+        } else {
+            error_log('No email class available for approval email');
+        }
     } catch (Exception $e) {
         error_log('Approval email failed: ' . $e->getMessage());
     }
@@ -135,19 +152,25 @@ function sendApprovalEmail($email, $name, $project_name, $conn) {
 
 function sendRejectionEmail($email, $name, $project_name, $reason, $conn) {
     try {
-        $mailer = new SMTPMailer();
-        $subject = 'Project Review - ' . $project_name;
-        $body = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-            <h2 style='color: #ef4444;'>Project Review Update</h2>
-            <p>Dear {$name},</p>
-            <p>Thank you for submitting your project <strong>{$project_name}</strong> to IdeaNest.</p>
-            <p>After careful review, we need you to make some improvements before we can approve it.</p>
-            <h3>Feedback:</h3>
-            <p style='background: #f3f4f6; padding: 15px; border-left: 4px solid #ef4444;'>{$reason}</p>
-            <p>Please review the feedback and resubmit your project with the necessary improvements.</p>
-            <p>Best regards,<br>IdeaNest Team</p>
-        </div>";
-        $mailer->send($email, $subject, $body);
+        // Try SMTPMailer first
+        if (class_exists('SMTPMailer')) {
+            $mailer = new SMTPMailer();
+            $subject = 'Project Review - ' . $project_name;
+            $body = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+                <h2 style='color: #ef4444;'>Project Review Update</h2>
+                <p>Dear {$name},</p>
+                <p>Thank you for submitting your project <strong>{$project_name}</strong> to IdeaNest.</p>
+                <p>After careful review, we need you to make some improvements before we can approve it.</p>
+                <h3>Feedback:</h3>
+                <p style='background: #f3f4f6; padding: 15px; border-left: 4px solid #ef4444;'>{$reason}</p>
+                <p>Please review the feedback and resubmit your project with the necessary improvements.</p>
+                <p>Best regards,<br>IdeaNest Team</p>
+            </div>";
+            $mailer->send($email, $subject, $body);
+        } else {
+            // No email class available - just log
+            error_log('No email class available for rejection email to: ' . $email);
+        }
     } catch (Exception $e) {
         error_log('Rejection email failed: ' . $e->getMessage());
     }
@@ -309,8 +332,8 @@ $message = $_GET['message'] ?? '';
                                 <?php while($project = $projects_result->fetch_assoc()): ?>
                                 <tr>
                                     <td><?php echo $project['id']; ?></td>
-                                    <td><?php echo htmlspecialchars($project['project_name']); ?></td>
-                                    <td><?php echo htmlspecialchars($project['project_type']); ?></td>
+                                    <td><?php echo htmlspecialchars($project['project_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars($project['project_type'] ?? '', ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td>
                                         <span class="badge bg-<?php echo $project['status'] == 'pending' ? 'warning' : ($project['status'] == 'approved' ? 'success' : 'danger'); ?>">
                                             <?php echo ucfirst($project['status']); ?>
@@ -337,7 +360,7 @@ $message = $_GET['message'] ?? '';
                                     <div class="modal-dialog modal-xl">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title"><i class="fas fa-eye me-2"></i>Project Details - <?php echo htmlspecialchars($project['project_name']); ?></h5>
+                                                <h5 class="modal-title"><i class="fas fa-eye me-2"></i>Project Details - <?php echo htmlspecialchars($project['project_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?></h5>
                                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                             </div>
                                             <div class="modal-body">
@@ -347,43 +370,43 @@ $message = $_GET['message'] ?? '';
                                                             <h6><i class="fas fa-info-circle text-primary me-2"></i>Basic Information</h6>
                                                             <div class="row">
                                                                 <div class="col-md-6">
-                                                                    <p><strong>Type:</strong> <?php echo htmlspecialchars($project['project_type']); ?></p>
-                                                                    <p><strong>Classification:</strong> <?php echo htmlspecialchars($project['classification']); ?></p>
-                                                                    <p><strong>Category:</strong> <?php echo htmlspecialchars($project['project_category'] ?? ''); ?></p>
-                                                                    <p><strong>Language:</strong> <?php echo htmlspecialchars($project['language'] ?? ''); ?></p>
+                                                                    <p><strong>Type:</strong> <?php echo htmlspecialchars($project['project_type'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
+                                                                    <p><strong>Classification:</strong> <?php echo htmlspecialchars($project['classification'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
+                                                                    <p><strong>Category:</strong> <?php echo htmlspecialchars($project['project_category'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
+                                                                    <p><strong>Language:</strong> <?php echo htmlspecialchars($project['language'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
                                                                 </div>
                                                                 <div class="col-md-6">
-                                                                    <p><strong>Difficulty:</strong> <span class="badge bg-info"><?php echo htmlspecialchars($project['difficulty_level'] ?? ''); ?></span></p>
-                                                                    <p><strong>Team Size:</strong> <?php echo htmlspecialchars($project['team_size'] ?? ''); ?></p>
-                                                                    <p><strong>Development Time:</strong> <?php echo htmlspecialchars($project['development_time'] ?? ''); ?></p>
-                                                                    <p><strong>Target Audience:</strong> <?php echo htmlspecialchars($project['target_audience'] ?? ''); ?></p>
+                                                                    <p><strong>Difficulty:</strong> <span class="badge bg-info"><?php echo htmlspecialchars($project['difficulty_level'] ?? '', ENT_QUOTES, 'UTF-8'); ?></span></p>
+                                                                    <p><strong>Team Size:</strong> <?php echo htmlspecialchars($project['team_size'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
+                                                                    <p><strong>Development Time:</strong> <?php echo htmlspecialchars($project['development_time'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
+                                                                    <p><strong>Target Audience:</strong> <?php echo htmlspecialchars($project['target_audience'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         
                                                         <div class="project-detail-card card p-3 mb-3">
                                                             <h6><i class="fas fa-align-left text-success me-2"></i>Description</h6>
-                                                            <p><?php echo nl2br(htmlspecialchars($project['description'])); ?></p>
+                                                            <p><?php echo nl2br(htmlspecialchars($project['description'] ?? '', ENT_QUOTES, 'UTF-8')); ?></p>
                                                         </div>
                                                         
                                                         <?php if($project['project_goals']): ?>
                                                         <div class="project-detail-card card p-3 mb-3">
                                                             <h6><i class="fas fa-bullseye text-warning me-2"></i>Project Goals</h6>
-                                                            <p><?php echo nl2br(htmlspecialchars($project['project_goals'])); ?></p>
+                                                            <p><?php echo nl2br(htmlspecialchars($project['project_goals'] ?? '', ENT_QUOTES, 'UTF-8')); ?></p>
                                                         </div>
                                                         <?php endif; ?>
                                                         
                                                         <?php if($project['challenges_faced']): ?>
                                                         <div class="project-detail-card card p-3 mb-3">
                                                             <h6><i class="fas fa-exclamation-triangle text-danger me-2"></i>Challenges Faced</h6>
-                                                            <p><?php echo nl2br(htmlspecialchars($project['challenges_faced'])); ?></p>
+                                                            <p><?php echo nl2br(htmlspecialchars($project['challenges_faced'] ?? '', ENT_QUOTES, 'UTF-8')); ?></p>
                                                         </div>
                                                         <?php endif; ?>
                                                         
                                                         <?php if($project['future_enhancements']): ?>
                                                         <div class="project-detail-card card p-3 mb-3">
                                                             <h6><i class="fas fa-rocket text-info me-2"></i>Future Enhancements</h6>
-                                                            <p><?php echo nl2br(htmlspecialchars($project['future_enhancements'])); ?></p>
+                                                            <p><?php echo nl2br(htmlspecialchars($project['future_enhancements'] ?? '', ENT_QUOTES, 'UTF-8')); ?></p>
                                                         </div>
                                                         <?php endif; ?>
                                                     </div>
@@ -392,17 +415,17 @@ $message = $_GET['message'] ?? '';
                                                         <div class="card p-3 mb-3">
                                                             <h6><i class="fas fa-link text-primary me-2"></i>Links & Resources</h6>
                                                             <?php if($project['github_repo']): ?>
-                                                                <a href="<?php echo htmlspecialchars($project['github_repo']); ?>" target="_blank" class="file-link">
+                                                                <a href="<?php echo htmlspecialchars($project['github_repo'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="file-link">
                                                                     <i class="fab fa-github me-2"></i>GitHub Repository
                                                                 </a>
                                                             <?php endif; ?>
                                                             <?php if($project['live_demo_url']): ?>
-                                                                <a href="<?php echo htmlspecialchars($project['live_demo_url']); ?>" target="_blank" class="file-link">
+                                                                <a href="<?php echo htmlspecialchars($project['live_demo_url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="file-link">
                                                                     <i class="fas fa-external-link-alt me-2"></i>Live Demo
                                                                 </a>
                                                             <?php endif; ?>
                                                             <?php if($project['contact_email']): ?>
-                                                                <a href="mailto:<?php echo htmlspecialchars($project['contact_email']); ?>" class="file-link">
+                                                                <a href="mailto:<?php echo htmlspecialchars($project['contact_email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" class="file-link">
                                                                     <i class="fas fa-envelope me-2"></i>Contact Email
                                                                 </a>
                                                             <?php endif; ?>
@@ -411,12 +434,12 @@ $message = $_GET['message'] ?? '';
                                                         <div class="card p-3 mb-3">
                                                             <h6><i class="fas fa-file text-secondary me-2"></i>Project Files</h6>
                                                             <?php if($project['image_path']): ?>
-                                                                <a href="../user/<?php echo htmlspecialchars($project['image_path']); ?>" target="_blank" class="file-link">
-                                                                    <i class="fas fa-file-archive me-2"></i>Project Files (ZIP)
+                                                                <a href="../user/<?php echo htmlspecialchars($project['image_path'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="file-link">
+                                                                    <i class="fas fa-image me-2"></i>View Image
                                                                 </a>
                                                             <?php endif; ?>
-                                                            <?php if($project['video_path']): ?>
-                                                                <a href="../user/<?php echo htmlspecialchars($project['video_path']); ?>" target="_blank" class="file-link">
+                                                            <?php if(!empty($project['video_path'])): ?>
+                                                                <a href="../user/<?php echo htmlspecialchars($project['video_path'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="file-link">
                                                                     <i class="fas fa-video me-2"></i>Video
                                                                 </a>
                                                             <?php endif; ?>
