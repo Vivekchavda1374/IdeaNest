@@ -1,5 +1,10 @@
 <?php
 
+// Set XAMPP MySQL socket path for proper connection
+// Use XAMPP's socket location
+ini_set('mysqli.default_socket', '/opt/lampp/var/mysql/mysql.sock');
+ini_set('mysql.default_socket', '/opt/lampp/var/mysql/mysql.sock');
+
 // Load environment variables if .env file exists
 if (file_exists(__DIR__ . '/../../.env')) {
     $lines = file(__DIR__ . '/../../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);

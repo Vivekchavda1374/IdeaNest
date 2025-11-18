@@ -55,7 +55,7 @@ if ($_POST) {
         ";
 
         if (function_exists('sendSMTPEmail')) {
-            sendSMTPEmail($email, $name, $subject, $body);
+            sendSMTPEmail($email, $subject, $body);
         }
         $success = "Mentor added successfully! Credentials sent to email.";
     } catch (Exception $e) {

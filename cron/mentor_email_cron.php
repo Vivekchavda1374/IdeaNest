@@ -11,11 +11,19 @@
  * - Every Sunday at 9 AM: Weekly progress updates
  */
 
-require_once dirname(__DIR__) . '/includes/autoload_simple.php';
-require_once dirname(__DIR__) . '/Login/Login/db.php';
+// Define absolute project root for cron compatibility
+define('PROJECT_ROOT', dirname(dirname(__DIR__)));
+
+require_once PROJECT_ROOT . '/includes/autoload_simple.php';
+require_once PROJECT_ROOT . '/Login/Login/db.php';
+
+// Verify database connection
+if (!isset($conn) || $conn->connect_error) {
+    die("Database connection failed: " . ($conn->connect_error ?? 'Connection not established'));
+}
 
 // Log file for cron activities
-$log_file = dirname(__DIR__) . '/logs/mentor_email_cron.log';
+$log_file = PROJECT_ROOT . '/logs/mentor_email_cron.log';
 
 function logMessage($message)
 {

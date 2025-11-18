@@ -106,7 +106,7 @@ $logout_url = isset($logout_url) ? $logout_url : $web_base_path . "logout.php";
 
     </ul>
     <div class="sidebar-footer">
-        <a href="<?php echo $logout_url; ?>" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center" onclick="showPageLoading()">
+        <a href="<?php echo $logout_url; ?>" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center" onclick="showLoader('Logging out...')">
             <i class="bi bi-box-arrow-right me-2"></i> Logout
         </a>
     </div>
@@ -114,7 +114,9 @@ $logout_url = isset($logout_url) ? $logout_url : $web_base_path . "logout.php";
 
 <link rel="stylesheet" href="../assets/css/sidebar_admin.css">
 <link rel="stylesheet" href="../assets/css/loading.css">
+<link rel="stylesheet" href="../assets/css/loader.css">
 <script src="../assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
 <style>
 .sidebar-divider {
     margin: 15px 0 10px 0;

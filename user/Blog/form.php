@@ -89,9 +89,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
     <link rel="stylesheet" href="../../assets/css/index.css">
     <link rel="stylesheet" href="../../assets/css/layout_user.css">
+    <link rel="stylesheet" href="../../assets/css/loader.css">
     <style>
         /* Purple Theme CSS for Project Submission Portal - Compact & Centered */
         :root {
@@ -557,12 +559,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 margin-left: 0; /* Remove sidebar margin on mobile */
                 padding: 0.5rem 0;
                 align-items: flex-start;
+                padding-top: 80px; /* Account for mobile menu toggle */
             }
 
             .form-container {
                 max-width: 500px; /* Even smaller on mobile */
                 padding: 0 0.5rem;
-                margin-top: 4rem; /* Account for mobile menu toggle */
+                margin-top: 0; /* Remove extra margin since body has padding */
             }
         }
 
@@ -902,7 +905,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <i class="fas fa-undo me-2"></i>Reset Form
                         </button>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane me-2"></i>Submit Project
+                            <span class="btn-text"><i class="fas fa-paper-plane me-2"></i>Submit Project</span>
                         </button>
                     </div>
                 </form>
@@ -913,7 +916,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="../../assets/js/layout_user.js"></script>
+    <script src="../../assets/js/loader.js"></script>
+    <script>
+    // Mobile menu toggle functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        
+        if (mobileMenuToggle && sidebar) {
+            mobileMenuToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                sidebar.classList.toggle('open');
+                if (overlay) overlay.classList.toggle('active');
+                
+                const icon = this.querySelector('i');
+                if (icon) {
+                    icon.className = sidebar.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
+                }
+            });
+        }
+        
+        if (overlay) {
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+                const icon = mobileMenuToggle.querySelector('i');
+                if (icon) icon.className = 'fas fa-bars';
+            });
+        }
+    });
+    </script>
     <script>
     function updateClassifications() {
         const projectType = document.getElementById('projectType').value;

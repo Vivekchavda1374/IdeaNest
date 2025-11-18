@@ -74,9 +74,19 @@ if (!$error_message && isset($conn)) {
         $projects_query = "SELECT id, project_name FROM projects WHERE user_id = ?";
         $projects_stmt = $conn->prepare($projects_query);
         if ($projects_stmt) {
-            $projects_stmt->bind_param("i", $user_id);
-            $projects_stmt->execute();
-            $projects_result = $projects_stmt->get_result();
+            if (!$projects_stmt->bind_param("i", $user_id)) {
+                error_log("Failed to bind parameter in select_mentor: " . $projects_stmt->error);
+                $error_message = "Database error: " . $projects_stmt->error;
+            } elseif (!$projects_stmt->execute()) {
+                error_log("Failed to execute projects query: " . $projects_stmt->error);
+                $error_message = "Failed to fetch your projects: " . $projects_stmt->error;
+            } else {
+                $projects_result = $projects_stmt->get_result();
+                if (!$projects_result) {
+                    error_log("Failed to get result: " . $projects_stmt->error);
+                    $error_message = "Failed to get project results: " . $projects_stmt->error;
+                }
+            }
         } else {
             $error_message = "Failed to prepare projects query: " . $conn->error;
         }

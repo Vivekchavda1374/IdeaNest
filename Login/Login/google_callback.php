@@ -82,9 +82,12 @@ try {
             ]);
         } else {
             // Create new user with Google data
-            $stmt = $conn->prepare("INSERT INTO register (name, email, password, google_id) VALUES (?, ?, ?, ?)");
+            $role = 'student'; // Default role
+            $enrollment_number = null; // Will be filled by user
+            $department = null; // Will be filled by user
+            $stmt = $conn->prepare("INSERT INTO register (name, email, password, google_id, email_notifications, role, enrollment_number, department) VALUES (?, ?, ?, ?, 1, ?, ?, ?)");
             $dummy_password = password_hash('google_auth_' . $google_id, PASSWORD_DEFAULT);
-            $stmt->bind_param("ssss", $name, $email, $dummy_password, $google_id);
+            $stmt->bind_param("sssssss", $name, $email, $dummy_password, $google_id, $role, $enrollment_number, $department);
 
             if ($stmt->execute()) {
                 $user_id = $conn->insert_id;
@@ -93,12 +96,16 @@ try {
                 $_SESSION['user_name'] = $name;
                 $_SESSION['is_admin'] = false;
                 $_SESSION['google_new_user'] = true;
+                $_SESSION['google_email'] = $email;
+
+                error_log("New Google user created: ID=$user_id, Email=$email");
 
                 echo json_encode([
                     'success' => true,
                     'redirect' => '../../user/user_profile_setting.php?google_setup=1'
                 ]);
             } else {
+                error_log('Failed to create Google user: ' . $stmt->error);
                 echo json_encode([
                     'success' => false,
                     'message' => 'Failed to create user account'

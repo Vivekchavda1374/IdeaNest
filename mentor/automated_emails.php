@@ -1,7 +1,37 @@
 <?php
 
-require_once '../Login/Login/db.php';
-require_once 'email_system.php';
+// Use absolute path resolution to work with cron jobs from any directory
+if (!defined('PROJECT_ROOT')) {
+    define('PROJECT_ROOT', dirname(dirname(__DIR__)));
+}
+
+// Require database connection with proper error handling
+try {
+    if (!file_exists(PROJECT_ROOT . '/Login/Login/db.php')) {
+        throw new Exception("Database file not found: " . PROJECT_ROOT . '/Login/Login/db.php');
+    }
+    require_once PROJECT_ROOT . '/Login/Login/db.php';
+} catch (Exception $e) {
+    error_log("Failed to load database: " . $e->getMessage());
+    throw new Exception("Failed to load database: " . $e->getMessage());
+}
+
+// Require email system
+try {
+    if (!file_exists(PROJECT_ROOT . '/mentor/email_system.php')) {
+        throw new Exception("Email system file not found");
+    }
+    require_once PROJECT_ROOT . '/mentor/email_system.php';
+} catch (Exception $e) {
+    error_log("Failed to load email system: " . $e->getMessage());
+    throw new Exception("Failed to load email system: " . $e->getMessage());
+}
+
+// Verify database connection
+if (!isset($conn) || !$conn || $conn->connect_error) {
+    error_log("Database connection failed in automated_emails.php");
+    throw new Exception("Database connection failed");
+}
 
 class AutomatedMentorEmails
 {
@@ -38,7 +68,7 @@ class AutomatedMentorEmails
                 'meeting_link' => $session['meeting_link']
             ];
 
-            if ($email_system->sendSessionReminder($session['student_id'], $session_data)) {
+            if ($email_system->sendSessionInvitation($session['student_id'], $session_data)) {
                 // Mark reminder as sent
                 $update_query = "UPDATE mentoring_sessions SET reminder_sent = 1 WHERE id = ?";
                 $update_stmt = $this->conn->prepare($update_query);
