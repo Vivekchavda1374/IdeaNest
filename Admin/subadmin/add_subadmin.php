@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && !isset($_
                     $subject = 'Welcome to IdeaNest - Subadmin Access';
                     $body = "<h3>Welcome to IdeaNest!</h3><p>Your subadmin account has been created.</p><ul><li><b>Login ID:</b> $email</li><li><b>Password:</b> $plain_password</li></ul><p>Please log in and change your password after first login.</p>";
                     
-                    if (sendSMTPEmail($email, $subject, $body, $conn)) {
+                    if (sendSMTPEmail($email, $subject, $body)) {
                         $message = "Subadmin added successfully and credentials sent to $email.";
                     } else {
                         $error = "Subadmin added, but email could not be sent.";
@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_subadmin']) &&
                 // Send notification email to removed subadmin
                 $subject = 'IdeaNest - Subadmin Access Revoked';
                 $body = "<h3>Access Revoked</h3><p>Your subadmin access to IdeaNest has been revoked.</p><p><strong>Reason:</strong> " . htmlspecialchars($removal_reason) . "</p><p>If you have any questions, please contact the administrator.</p>";
-                sendSMTPEmail($subadmin_email, $subject, $body, $conn);
+                sendSMTPEmail($subadmin_email, $subject, $body);
             } catch (Exception $e) {
                 // Rollback on error
                 $conn->rollback();

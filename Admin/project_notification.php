@@ -90,7 +90,7 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $s
     }
 
     // Send email using simple SMTP
-    if (sendSMTPEmail($user_email, $subject, $message, $conn)) {
+    if (sendSMTPEmail($user_email, $subject, $message)) {
         return ['success' => true, 'message' => 'Email has been sent successfully'];
     } else {
         return ['success' => false, 'message' => 'Email could not be sent'];
