@@ -34,8 +34,10 @@ if ($is_in_subdirectory) {
     <!-- CSS -->
     <link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/layout_user.css">
     <link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/loading.css">
+    <link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/loader.css">
     <!-- JavaScript -->
     <script src="<?php echo $basePath; ?>../assets/js/loading.js"></script>
+    <script src="<?php echo $basePath; ?>../assets/js/loader.js"></script>
     <script src="<?php echo $basePath; ?>../assets/js/layout_user.js" defer></script>
 </head>
 <body>
@@ -132,7 +134,7 @@ if ($is_in_subdirectory) {
                 <i class="fas fa-cog nav-icon"></i>
                 <span class="nav-text">Settings</span>
             </a>
-            <a href="<?php echo $basePath; ?>../Login/Login/logout.php" class="nav-item" onclick="showPageLoading()">
+            <a href="<?php echo $basePath; ?>../Login/Login/logout.php" class="nav-item" onclick="showLoader('Logging out...')">
                 <i class="fas fa-sign-out-alt nav-icon"></i>
                 <span class="nav-text">Logout</span>
             </a>

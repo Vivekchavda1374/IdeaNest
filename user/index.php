@@ -49,7 +49,7 @@ $my_approved_projects = 0;
 
 if (isset($conn) && $user_db_id) {
     $stmt = $conn->prepare("SELECT COUNT(*) FROM bookmark WHERE user_id = ?");
-    $stmt->bind_param("s", $user_id);
+    $stmt->bind_param("i", $user_db_id);
     $stmt->execute();
     $stmt->bind_result($bookmark_count);
     $stmt->fetch();
