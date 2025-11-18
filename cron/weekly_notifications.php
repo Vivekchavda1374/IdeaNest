@@ -1,7 +1,16 @@
 <?php
 
-require_once __DIR__ . '/../Login/Login/db.php';
-require_once __DIR__ . '/../includes/simple_smtp.php';
+// Define absolute project root for cron compatibility
+define('PROJECT_ROOT', dirname(dirname(__DIR__)));
+
+// Use absolute paths for cron jobs
+require_once PROJECT_ROOT . '/Login/Login/db.php';
+require_once PROJECT_ROOT . '/includes/simple_smtp.php';
+
+// Verify paths exist
+if (!file_exists(PROJECT_ROOT . '/Login/Login/db.php')) {
+    die("Cannot find database configuration at: " . PROJECT_ROOT . '/Login/Login/db.php');
+}
 
 // Check database connection
 if (!isset($conn) || $conn->connect_error) {
@@ -71,7 +80,7 @@ function sendWeeklyNotification($user, $conn)
     $subject = 'Weekly Digest - New Projects & Ideas on IdeaNest';
     $body = generateEmailTemplate($user, $projects, $ideas);
 
-    if (sendSMTPEmail($user['email'], $subject, $body, $conn)) {
+    if (sendSMTPEmail($user['email'], $subject, $body)) {
         // Update last notification sent
         $update_query = "UPDATE register SET last_notification_sent = NOW() WHERE id = ?";
         $update_stmt = $conn->prepare($update_query);
