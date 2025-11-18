@@ -89,6 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - IdeaNest</title>
     <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
+    <link rel="stylesheet" href="../../assets/css/loader.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
@@ -102,7 +103,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         label { display: block; margin-bottom: 5px; color: #555; font-size: 14px; }
         input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
         input:focus { outline: none; border-color: #6366f1; }
-        button { width: 100%; padding: 12px; background: #6366f1; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        button { width: 100%; padding: 12px; background: #6366f1; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-top: 10px; position: relative; }
         button:hover { background: #5558e3; }
         .links { text-align: center; margin-top: 20px; font-size: 14px; }
         .links a { color: #6366f1; text-decoration: none; }
@@ -135,7 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="password" name="password" required>
             </div>
             <?= getCSRFField() ?>
-            <button type="submit">Sign In</button>
+            <button type="submit"><span class="btn-text">Sign In</span></button>
         </form>
 
         <div class="divider">OR</div>
@@ -152,9 +153,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
 
+    <script src="../../assets/js/loader.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
     function handleCredentialResponse(response) {
+        showLoader('Signing in with Google...');
         fetch('google_auth.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -162,8 +165,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         })
         .then(r => r.json())
         .then(data => {
-            if (data.success) window.location.href = data.redirect;
-            else alert('Login failed: ' + data.message);
+            if (data.success) {
+                showLoader('Redirecting...');
+                window.location.href = data.redirect;
+            } else {
+                hideLoader();
+                alert('Login failed: ' + data.message);
+            }
+        })
+        .catch(() => {
+            hideLoader();
+            alert('Login failed. Please try again.');
         });
     }
     </script>
