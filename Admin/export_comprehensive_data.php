@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once '../Login/Login/db.php';
 
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
@@ -11,7 +13,10 @@ $export_type = $_GET['type'] ?? 'csv';
 
 // Function to check if table exists
 function tableExists($conn, $tableName) {
-    $result = $conn->query("SHOW TABLES LIKE '$tableName'");
+    $stmt = $conn->prepare("SHOW TABLES LIKE ?");
+$stmt->bind_param("s", $tableName);
+$stmt->execute();
+$result = $stmt->get_result();
     return $result && $result->num_rows > 0;
 }
 

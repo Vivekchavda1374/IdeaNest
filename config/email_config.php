@@ -14,10 +14,10 @@ if (file_exists(__DIR__ . '/../.env')) {
 $email_config = [
     'smtp_host' => $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com',
     'smtp_port' => $_ENV['SMTP_PORT'] ?? 587,
-    'smtp_username' => $_ENV['SMTP_USERNAME'] ?? 'ideanest.ict@gmail.com',
-    'smtp_password' => $_ENV['SMTP_PASSWORD'] ?? 'luou xlhs ojuw auvx',
+    'smtp_username' => $_ENV['SMTP_USERNAME'] ?? '',
+    'smtp_password' => $_ENV['SMTP_PASSWORD'] ?? '',
     'smtp_secure' => $_ENV['SMTP_SECURE'] ?? 'tls',
-    'from_email' => $_ENV['FROM_EMAIL'] ?? 'ideanest.ict@gmail.com',
+    'from_email' => $_ENV['FROM_EMAIL'] ?? '',
     'from_name' => $_ENV['FROM_NAME'] ?? 'IdeaNest',
     
     // SSL options for production

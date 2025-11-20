@@ -131,7 +131,12 @@ try {
     ];
 
     foreach ($tables_to_check as $key => $table) {
-        $check_result = $conn->query("SELECT COUNT(*) as count FROM $table");
+        // Validate table name against whitelist
+$allowed_tables = ['register', 'projects', 'admin_approved_projects', 'blog', 'mentors', 'subadmins'];
+if (!in_array($table, $allowed_tables)) {
+    continue; // Skip invalid table names
+}
+$check_result = $conn->query("SELECT COUNT(*) as count FROM `" . $conn->real_escape_string($table) . "`");
         $additional_stats[$key] = $check_result ? $check_result->fetch_assoc()['count'] : 0;
     }
 } catch (Exception $e) {

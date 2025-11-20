@@ -1,5 +1,9 @@
 <?php
+// Configure session settings
+ini_set('session.cookie_lifetime', 86400);
+ini_set('session.cookie_path', '/');
 session_start();
+
 if (!isset($_SESSION['subadmin_logged_in']) || !$_SESSION['subadmin_logged_in']) {
     header("Location: ../../Login/Login/login.php");
     exit();
@@ -7,6 +11,7 @@ if (!isset($_SESSION['subadmin_logged_in']) || !$_SESSION['subadmin_logged_in'])
 
 include_once "../../Login/Login/db.php";
 require_once "sidebar_subadmin.php"; // Include the layout file
+require_once "../../includes/notification_helper.php"; // Notification system
 
 $subadmin_id = $_SESSION['subadmin_id'];
 
@@ -132,63 +137,34 @@ if (!empty($domains)) {
     $matched_classifications = array_unique($matched_classifications);
 }
 
-// Fetch pending projects matching subadmin's expertise
-if (!empty($matched_classifications)) {
-    $placeholders = str_repeat('?,', count($matched_classifications) - 1) . '?';
-    $stmt = $conn->prepare("SELECT * FROM projects WHERE status = 'pending' AND classification IN ($placeholders)");
-    $stmt->bind_param(str_repeat('s', count($matched_classifications)), ...$matched_classifications);
+// Fetch projects matching subadmin's domain (only pending projects)
+if (!empty($classifications)) {
+    // Build WHERE clause for domain matching
+    $where_conditions = [];
+    foreach ($classifications as $classification) {
+        $where_conditions[] = "classification LIKE ?";
+    }
+    $where_clause = implode(' OR ', $where_conditions);
+    
+    $sql = "SELECT * FROM projects WHERE status = 'pending' AND ($where_clause) ORDER BY submission_date DESC";
+    $stmt = $conn->prepare($sql);
+    
+    // Bind parameters
+    $types = str_repeat('s', count($classifications));
+    $params = array_map(function($c) { return "%$c%"; }, $classifications);
+    $stmt->bind_param($types, ...$params);
+    
     $stmt->execute();
     $result = $stmt->get_result();
     $stmt->close();
 } else {
+    // No domains assigned - show empty result
     $result = $conn->query("SELECT * FROM projects WHERE 1=0");
 }
 
 
 
-function sendApprovalEmail($email, $name, $project_name, $conn) {
-    try {
-        require_once dirname(__DIR__, 2) . '/includes/smtp_mailer.php';
-        $mailer = new SMTPMailer();
-        $subject = 'Project Approved - ' . $project_name;
-        $message = "
-        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-            <h2 style='color: #10b981;'>🎉 Congratulations! Your Project Has Been Approved</h2>
-            <p>Dear {$name},</p>
-            <p>We are pleased to inform you that your project <strong>{$project_name}</strong> has been approved by our review team.</p>
-            <p>Your project is now live on IdeaNest and visible to the community.</p>
-            <p>Thank you for your contribution!</p>
-            <p>Best regards,<br>IdeaNest Team</p>
-        </div>";
-        return $mailer->send($email, $subject, $message);
-    } catch (Exception $e) {
-        error_log('Approval email failed: ' . $e->getMessage());
-        return false;
-    }
-}
-
-function sendRejectionEmail($email, $name, $project_name, $reason, $conn) {
-    try {
-        require_once dirname(__DIR__, 2) . '/includes/smtp_mailer.php';
-        $mailer = new SMTPMailer();
-        $subject = 'Project Review - ' . $project_name;
-        $message = "
-        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-            <h2 style='color: #ef4444;'>Project Review Update</h2>
-            <p>Dear {$name},</p>
-            <p>Thank you for submitting your project <strong>{$project_name}</strong> to IdeaNest.</p>
-            <p>After careful review, we need you to make some improvements before we can approve it.</p>
-            <h3>Feedback:</h3>
-            <p style='background: #f3f4f6; padding: 15px; border-left: 4px solid #ef4444;'>{$reason}</p>
-            <p>Please review the feedback and resubmit your project with the necessary improvements.</p>
-            <p>Best regards,<br>IdeaNest Team</p>
-        </div>";
-        return $mailer->send($email, $subject, $message);
-    } catch (Exception $e) {
-        error_log('Rejection email failed: ' . $e->getMessage());
-        return false;
-    }
-}
+// Email functions removed - no emails sent on approval/rejection for faster processing
 
 // Handle approve/reject actions
 $action_message = '';
@@ -239,8 +215,11 @@ if (isset($_POST['action']) && isset($_POST['project_id'])) {
             }
             $stmt->close();
             
-            sendApprovalEmail($project_data['email'], $project_data['name'], $project_data['project_name'], $conn);
-            $action_message = "Project approved successfully and email sent";
+            // Create notification for user
+            $notifier = new NotificationHelper($conn);
+            $notifier->notifyProjectApproved($project_data['user_id'], $project_id, $project_data['project_name']);
+            
+            $action_message = "Project approved successfully!";
         } else {
             // Move to denial_projects
             $stmt = $conn->prepare("INSERT INTO denial_projects (user_id, project_name, project_type, classification, project_category, difficulty_level, development_time, team_size, target_audience, project_goals, challenges_faced, future_enhancements, github_repo, live_demo_url, project_license, keywords, contact_email, social_links, description, language, image_path, video_path, code_file_path, instruction_file_path, presentation_file_path, additional_files_path, submission_date, status, rejection_date, rejection_reason) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'rejected', NOW(), ?)");
@@ -269,8 +248,11 @@ if (isset($_POST['action']) && isset($_POST['project_id'])) {
             }
             $stmt->close();
             
-            sendRejectionEmail($project_data['email'], $project_data['name'], $project_data['project_name'], $rejection_reason, $conn);
-            $action_message = "Project rejected and email sent";
+            // Create notification for user
+            $notifier = new NotificationHelper($conn);
+            $notifier->notifyProjectRejected($project_data['user_id'], $project_id, $project_data['project_name'], $rejection_reason);
+            
+            $action_message = "Project rejected successfully!";
         }
         
         $conn->commit();
@@ -589,7 +571,7 @@ while ($row = $result->fetch_assoc()) {
                                             Reason for Rejection <span class="text-danger">*</span>
                                         </label>
                                         <textarea class="form-control" name="rejection_reason" id="rejection_reason<?php echo $row['id']; ?>" rows="4" placeholder="Please provide a detailed reason..." required></textarea>
-                                        <div class="form-text">This will be sent to the project submitter via email.</div>
+                                        <div class="form-text">This will be recorded for future reference.</div>
                                     </div>
                                 </div>
                                 <div class="modal-footer">

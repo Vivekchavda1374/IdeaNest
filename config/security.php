@@ -1,179 +1,229 @@
 <?php
-// Security configuration for IdeaNest Production
-// Domain: https://ictmu.in/hcd/IdeaNest/
+/**
+ * Security Configuration and Helper Functions
+ * Centralized security management for IdeaNest
+ */
 
-// Load environment variables
-if (file_exists(__DIR__ . '/../.env')) {
-    $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
-            list($key, $value) = explode('=', $line, 2);
-            $_ENV[trim($key)] = trim($value);
+class SecurityManager {
+    
+    /**
+     * Generate CSRF Token
+     */
+    public static function generateCSRFToken() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        if (!isset($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+        
+        return $_SESSION['csrf_token'];
+    }
+    
+    /**
+     * Verify CSRF Token
+     */
+    public static function verifyCSRFToken($token) {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        if (!isset($_SESSION['csrf_token'])) {
+            return false;
+        }
+        
+        return hash_equals($_SESSION['csrf_token'], $token);
+    }
+    
+    /**
+     * Sanitize Input
+     */
+    public static function sanitizeInput($data) {
+        if (is_array($data)) {
+            return array_map([self::class, 'sanitizeInput'], $data);
+        }
+        
+        $data = trim($data);
+        $data = stripslashes($data);
+        $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
+        
+        return $data;
+    }
+    
+    /**
+     * Validate File Upload
+     */
+    public static function validateFileUpload($file, $allowedTypes = [], $maxSize = 10485760) {
+        $errors = [];
+        
+        // Check if file was uploaded
+        if (!isset($file['error']) || is_array($file['error'])) {
+            $errors[] = 'Invalid file upload';
+            return ['valid' => false, 'errors' => $errors];
+        }
+        
+        // Check for upload errors
+        switch ($file['error']) {
+            case UPLOAD_ERR_OK:
+                break;
+            case UPLOAD_ERR_INI_SIZE:
+            case UPLOAD_ERR_FORM_SIZE:
+                $errors[] = 'File size exceeds limit';
+                return ['valid' => false, 'errors' => $errors];
+            case UPLOAD_ERR_NO_FILE:
+                $errors[] = 'No file uploaded';
+                return ['valid' => false, 'errors' => $errors];
+            default:
+                $errors[] = 'Unknown upload error';
+                return ['valid' => false, 'errors' => $errors];
+        }
+        
+        // Check file size
+        if ($file['size'] > $maxSize) {
+            $errors[] = 'File size exceeds ' . ($maxSize / 1048576) . 'MB limit';
+        }
+        
+        // Check MIME type
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($file['tmp_name']);
+        
+        if (!empty($allowedTypes) && !in_array($mimeType, $allowedTypes)) {
+            $errors[] = 'Invalid file type. Allowed: ' . implode(', ', $allowedTypes);
+        }
+        
+        // Check file extension
+        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $allowedExtensions = [
+            'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 
+            'zip', 'rar', 'mp4', 'avi', 'mov', 'txt', 'ppt', 'pptx'
+        ];
+        
+        if (!in_array($extension, $allowedExtensions)) {
+            $errors[] = 'Invalid file extension';
+        }
+        
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors,
+            'mime_type' => $mimeType,
+            'extension' => $extension
+        ];
+    }
+    
+    /**
+     * Encrypt Data
+     */
+    public static function encrypt($data, $key = null) {
+        if ($key === null) {
+            $key = $_ENV['ENCRYPTION_KEY'] ?? 'default_encryption_key_change_this';
+        }
+        
+        $cipher = "AES-256-CBC";
+        $ivLength = openssl_cipher_iv_length($cipher);
+        $iv = openssl_random_pseudo_bytes($ivLength);
+        
+        $encrypted = openssl_encrypt($data, $cipher, $key, 0, $iv);
+        
+        return base64_encode($encrypted . '::' . $iv);
+    }
+    
+    /**
+     * Decrypt Data
+     */
+    public static function decrypt($data, $key = null) {
+        if ($key === null) {
+            $key = $_ENV['ENCRYPTION_KEY'] ?? 'default_encryption_key_change_this';
+        }
+        
+        $cipher = "AES-256-CBC";
+        
+        list($encrypted, $iv) = explode('::', base64_decode($data), 2);
+        
+        return openssl_decrypt($encrypted, $cipher, $key, 0, $iv);
+    }
+    
+    /**
+     * Prevent Session Fixation
+     */
+    public static function regenerateSession() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        session_regenerate_id(true);
+    }
+    
+    /**
+     * Set Security Headers
+     */
+    public static function setSecurityHeaders() {
+        header('X-Frame-Options: DENY');
+        header('X-Content-Type-Options: nosniff');
+        header('X-XSS-Protection: 1; mode=block');
+        header('Referrer-Policy: strict-origin-when-cross-origin');
+        header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
+        
+        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+            header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
         }
     }
-}
-
-// Production session security settings
-ini_set('session.cookie_httponly', 1);
-ini_set('session.use_only_cookies', 1);
-ini_set('session.cookie_secure', ($_ENV['APP_ENV'] === 'production') ? 1 : 0);
-ini_set('session.cookie_samesite', $_ENV['SESSION_SAMESITE'] ?? 'Strict');
-ini_set('session.name', 'IDEANEST_SESSID');
-
-// Set session timeout (30 minutes)
-ini_set('session.gc_maxlifetime', 1800);
-ini_set('session.cookie_lifetime', 1800);
-
-// Prevent session fixation
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-    if (!isset($_SESSION['initiated'])) {
-        session_regenerate_id(true);
-        $_SESSION['initiated'] = true;
-    }
-}
-
-// Production security headers
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: DENY');
-header('X-XSS-Protection: 1; mode=block');
-header('Referrer-Policy: strict-origin-when-cross-origin');
-header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-
-// Enhanced Content Security Policy for production
-$csp = "default-src 'self'; ";
-$csp .= "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://accounts.google.com https://ictmu.in https://cdn.jsdelivr.net; ";
-$csp .= "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; ";
-$csp .= "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; ";
-$csp .= "img-src 'self' data: https: https://ictmu.in; ";
-$csp .= "connect-src 'self' https://api.github.com https://ictmu.in; ";
-$csp .= "frame-src https://accounts.google.com;";
-header("Content-Security-Policy: $csp");
-
-// Production error reporting settings
-if (($_ENV['APP_ENV'] ?? 'development') === 'production') {
-    error_reporting(0);
-    ini_set('display_errors', 0);
-    ini_set('log_errors', 1);
-    ini_set('error_log', __DIR__ . '/../logs/error.log');
     
-    // Create logs directory if it doesn't exist
-    if (!is_dir(__DIR__ . '/../logs')) {
-        mkdir(__DIR__ . '/../logs', 0755, true);
-    }
-} else {
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-}
-
-// File upload security
-ini_set('file_uploads', 1);
-ini_set('upload_max_filesize', '50M');
-ini_set('post_max_size', '50M');
-ini_set('max_execution_time', 60);
-ini_set('memory_limit', '256M');
-
-// Database security
-ini_set('mysql.default_socket', '');
-
-// Disable dangerous functions for production
-if (function_exists('ini_set')) {
-    ini_set('allow_url_fopen', 0);
-    ini_set('allow_url_include', 0);
-}
-
-// Enhanced CSRF Protection
-function generateCSRFToken() {
-    if (empty($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    }
-    return $_SESSION['csrf_token'];
-}
-
-function validateCSRFToken($token) {
-    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
-}
-
-// Enhanced input sanitization
-function sanitizeInput($input) {
-    if (is_array($input)) {
-        return array_map('sanitizeInput', $input);
-    }
-    return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
-}
-
-// Enhanced file upload validation
-function validateFileUpload($file, $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'zip', 'mp4', 'avi', 'mov']) {
-    if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
-        return false;
-    }
-    
-    $fileInfo = pathinfo($file['name']);
-    $extension = strtolower($fileInfo['extension']);
-    
-    if (!in_array($extension, $allowedTypes)) {
-        return false;
-    }
-    
-    if ($file['size'] > 50 * 1024 * 1024) { // 50MB limit
-        return false;
-    }
-    
-    // Check MIME type
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeType = finfo_file($finfo, $file['tmp_name']);
-    finfo_close($finfo);
-    
-    $allowedMimes = [
-        'image/jpeg', 'image/png', 'image/gif',
-        'application/pdf', 'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/zip', 'video/mp4', 'video/avi', 'video/quicktime'
-    ];
-    
-    return in_array($mimeType, $allowedMimes);
-}
-
-// Enhanced rate limiting
-function checkRateLimit($identifier, $maxAttempts = 5, $timeWindow = 300) {
-    $key = 'rate_limit_' . hash('sha256', $identifier);
-    
-    if (!isset($_SESSION[$key])) {
-        $_SESSION[$key] = ['count' => 0, 'time' => time()];
-    }
-    
-    $data = $_SESSION[$key];
-    
-    if (time() - $data['time'] > $timeWindow) {
-        $_SESSION[$key] = ['count' => 1, 'time' => time()];
+    /**
+     * Rate Limiting
+     */
+    public static function checkRateLimit($identifier, $maxAttempts = 5, $timeWindow = 300) {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        $key = 'rate_limit_' . $identifier;
+        
+        if (!isset($_SESSION[$key])) {
+            $_SESSION[$key] = [
+                'attempts' => 1,
+                'first_attempt' => time()
+            ];
+            return true;
+        }
+        
+        $data = $_SESSION[$key];
+        $timePassed = time() - $data['first_attempt'];
+        
+        // Reset if time window passed
+        if ($timePassed > $timeWindow) {
+            $_SESSION[$key] = [
+                'attempts' => 1,
+                'first_attempt' => time()
+            ];
+            return true;
+        }
+        
+        // Check if limit exceeded
+        if ($data['attempts'] >= $maxAttempts) {
+            return false;
+        }
+        
+        // Increment attempts
+        $_SESSION[$key]['attempts']++;
         return true;
     }
     
-    if ($data['count'] >= $maxAttempts) {
-        return false;
-    }
-    
-    $_SESSION[$key]['count']++;
-    return true;
-}
-
-// Production URL helper
-function getBaseUrl() {
-    return $_ENV['APP_URL'] ?? 'https://ictmu.in/hcd/IdeaNest';
-}
-
-// Secure redirect function
-function secureRedirect($url) {
-    $baseUrl = getBaseUrl();
-    if (strpos($url, 'http') === 0) {
-        if (strpos($url, $baseUrl) !== 0) {
-            $url = $baseUrl;
+    /**
+     * Validate File Path (Prevent Directory Traversal)
+     */
+    public static function validateFilePath($path, $baseDir) {
+        $realBase = realpath($baseDir);
+        $realPath = realpath($path);
+        
+        if ($realPath === false || strpos($realPath, $realBase) !== 0) {
+            return false;
         }
-    } else {
-        $url = $baseUrl . '/' . ltrim($url, '/');
+        
+        return true;
     }
-    header('Location: ' . $url);
-    exit;
 }
 
+// Set security headers on every request
+SecurityManager::setSecurityHeaders();
 ?>

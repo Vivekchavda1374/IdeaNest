@@ -15,11 +15,18 @@ if ($user_id == 0) {
 // Handle like toggle
 if (isset($_POST['toggle_like']) && $user_id > 0) {
     $idea_id = (int)$_POST['idea_id'];
-    $check = $conn->query("SELECT id FROM idea_likes WHERE idea_id=$idea_id AND user_id=$user_id");
+    $stmt = $conn->prepare("SELECT id FROM idea_likes WHERE idea_id=? AND user_id=?");
+$stmt->bind_param("ii", $idea_id, $user_id);
+$stmt->execute();
+$check = $stmt->get_result();
     if ($check && $check->num_rows > 0) {
-        $conn->query("DELETE FROM idea_likes WHERE idea_id=$idea_id AND user_id=$user_id");
+        $stmt = $conn->prepare("DELETE FROM idea_likes WHERE idea_id=? AND user_id=?");
+        $stmt->bind_param("ii", $idea_id, $user_id);
+        $stmt->execute();
     } else {
-        $conn->query("INSERT INTO idea_likes (idea_id, user_id) VALUES ($idea_id, $user_id)");
+        $stmt = $conn->prepare("INSERT INTO idea_likes (idea_id, user_id) VALUES (?, ?)");
+        $stmt->bind_param("ii", $idea_id, $user_id);
+        $stmt->execute();
     }
     header("Location: " . $_SERVER['PHP_SELF'] . "?" . http_build_query($_GET));
     exit;

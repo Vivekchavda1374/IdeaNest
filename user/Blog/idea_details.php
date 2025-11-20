@@ -33,7 +33,10 @@ if (!$result || $result->num_rows === 0) {
 $idea = $result->fetch_assoc();
 
 // Get tags
-$tags_result = $conn->query("SELECT t.tag_name, t.tag_color FROM idea_tag_relations tr JOIN idea_tags t ON tr.tag_id=t.id WHERE tr.idea_id=$idea_id");
+$stmt = $conn->prepare("SELECT t.tag_name, t.tag_color FROM idea_tag_relations tr JOIN idea_tags t ON tr.tag_id=t.id WHERE tr.idea_id=?");
+$stmt->bind_param("i", $idea_id);
+$stmt->execute();
+$tags_result = $stmt->get_result();
 $tags = $tags_result ? $tags_result->fetch_all(MYSQLI_ASSOC) : [];
 
 // Get recent activity
