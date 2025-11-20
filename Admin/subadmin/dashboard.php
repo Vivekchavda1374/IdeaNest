@@ -1,6 +1,21 @@
 <?php
+// Configure session settings
+ini_set('session.cookie_lifetime', 86400);
+ini_set('session.cookie_path', '/');
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_samesite', 'Lax');
+if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+    ini_set('session.cookie_secure', 1);
+}
+
 session_start();
+
+// Debug logging (remove after testing)
+error_log("SubAdmin Dashboard Access - Session ID: " . session_id());
+error_log("SubAdmin Session Data: " . print_r($_SESSION, true));
+
 if (!isset($_SESSION['subadmin_logged_in']) || !$_SESSION['subadmin_logged_in']) {
+    error_log("SubAdmin NOT logged in - redirecting to login");
     header("Location: ../../Login/Login/login.php");
     exit();
 }

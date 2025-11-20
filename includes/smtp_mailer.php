@@ -23,18 +23,46 @@ class SMTPMailer {
     }
     
     private function loadDefaultConfig() {
-        $this->host = 'smtp.gmail.com';
-        $this->port = 587;
-        $this->username = 'ideanest.ict@gmail.com';
-        $this->password = 'luou xlhs ojuw auvx';
-        $this->from_email = 'ideanest.ict@gmail.com';
-        $this->from_name = 'IdeaNest';
+        // Load from environment variables
+        $this->host = $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com';
+        $this->port = $_ENV['SMTP_PORT'] ?? 587;
+        $this->username = $_ENV['SMTP_USERNAME'] ?? '';
+        $this->password = $_ENV['SMTP_PASSWORD'] ?? '';
+        $this->from_email = $_ENV['FROM_EMAIL'] ?? '';
+        $this->from_name = $_ENV['FROM_NAME'] ?? 'IdeaNest';
+        
+        // Log warning if credentials are missing
+        if (empty($this->username) || empty($this->password)) {
+            error_log("SMTP: Credentials not configured in .env file");
+        }
     }
     
     public function send($to, $subject, $message, $isHTML = true) {
-        // EMAIL SENDING DISABLED - Return true without sending
-        error_log("Email sending disabled - Would send to: {$to}, Subject: {$subject}");
-        return true;
+        try {
+            if (!$this->connect()) {
+                error_log("SMTP: Failed to connect to {$this->host}:{$this->port}");
+                return false;
+            }
+            
+            if (!$this->authenticate()) {
+                error_log("SMTP: Authentication failed for {$this->username}");
+                $this->disconnect();
+                return false;
+            }
+            
+            if (!$this->sendMessage($to, $subject, $message, $isHTML)) {
+                error_log("SMTP: Failed to send message to {$to}");
+                $this->disconnect();
+                return false;
+            }
+            
+            $this->disconnect();
+            error_log("SMTP: Email sent successfully to {$to}");
+            return true;
+        } catch (Exception $e) {
+            error_log("SMTP Error: " . $e->getMessage());
+            return false;
+        }
     }
     
     private function connect() {
@@ -175,11 +203,11 @@ function sendEmailWithConfig($to, $subject, $message, $conn = null) {
 
 function getEmailConfig($conn = null) {
     return [
-        'host' => 'smtp.gmail.com',
-        'port' => 587,
-        'username' => 'ideanest.ict@gmail.com',
-        'password' => 'luou xlhs ojuw auvx',
-        'from_email' => 'ideanest.ict@gmail.com',
-        'from_name' => 'IdeaNest'
+        'host' => $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com',
+        'port' => $_ENV['SMTP_PORT'] ?? 587,
+        'username' => $_ENV['SMTP_USERNAME'] ?? '',
+        'password' => $_ENV['SMTP_PASSWORD'] ?? '',
+        'from_email' => $_ENV['FROM_EMAIL'] ?? '',
+        'from_name' => $_ENV['FROM_NAME'] ?? 'IdeaNest'
     ];
 }

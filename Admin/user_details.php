@@ -54,7 +54,7 @@ if ($user['role'] === 'mentor') {
 
 // Handle status update
 if ($_POST['action'] ?? '' == 'update_status') {
-    $new_status = $_POST['status'];
+    $$new_status = post_param('status');
     $update_query = "UPDATE users SET status = ? WHERE id = ?";
     $stmt = $conn->prepare($update_query);
     $stmt->bind_param("si", $new_status, $user_id);

@@ -13,13 +13,32 @@ class SecureDB {
     public static function getConnection() {
         if (self::$connection === null) {
             try {
-                $host = "localhost";
-                $user = "ictmu6ya_ideanest";
-                $pass = "ictmu6ya_ideanest";
-                $dbname = "ictmu6ya_ideanest";
+                // Load environment variables if available
+                if (file_exists(__DIR__ . '/../.env')) {
+                    $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                    foreach ($lines as $line) {
+                        if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+                            list($key, $value) = explode('=', $line, 2);
+                            $_ENV[trim($key)] = trim($value);
+                        }
+                    }
+                }
+                
+                $host = $_ENV['DB_HOST'] ?? "localhost";
+                $user = $_ENV['DB_USERNAME'] ?? "ictmu6ya_ideanest";
+                $pass = $_ENV['DB_PASSWORD'] ?? "ictmu6ya_ideanest";
+                $dbname = $_ENV['DB_NAME'] ?? "ictmu6ya_ideanest";
+                
+                // Build DSN with socket support for XAMPP
+                $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
+                
+                // Add socket path for development environment
+                if (($_ENV['APP_ENV'] ?? 'production') === 'development' && file_exists('/opt/lampp/var/mysql/mysql.sock')) {
+                    $dsn = "mysql:unix_socket=/opt/lampp/var/mysql/mysql.sock;dbname=$dbname;charset=utf8mb4";
+                }
                 
                 self::$connection = new PDO(
-                    "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
+                    $dsn,
                     $user,
                     $pass,
                     [

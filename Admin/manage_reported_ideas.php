@@ -1,7 +1,14 @@
 <?php
 require_once '../config/config.php';
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Production-safe error reporting
+if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    error_reporting(E_ALL);
+}
 
 session_start();
 require_once '../Login/Login/db.php';
@@ -68,7 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Update report status
             if ($report_id > 0) {
-                $conn->query("UPDATE idea_reports SET status = 'reviewed' WHERE id = $report_id");
+                $stmt = $conn->prepare("UPDATE idea_reports SET status = 'reviewed' WHERE id = ?");
+$stmt->bind_param("i", $report_id);
+$stmt->execute();
             }
 
             $success_msg = $email_sent ? "Warning email sent successfully!" : "Warning logged but email failed to send.";

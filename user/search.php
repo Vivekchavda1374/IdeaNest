@@ -1,8 +1,15 @@
 <?php
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// Production-safe error reporting
+if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    error_reporting(E_ALL);
+}
 
 // Include the index.css for consistent styling
 echo '<link rel="stylesheet" href="../assets/css/index.css">';

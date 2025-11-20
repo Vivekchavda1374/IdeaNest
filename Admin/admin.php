@@ -1,13 +1,22 @@
 <?php
+require_once __DIR__ . '/../includes/html_helpers.php';
 // Start output buffering to prevent header errors
 ob_start();
 
 // Start session
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Enable error reporting for debugging (after session)
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Production-safe error reporting (after session)
+if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    error_reporting(E_ALL);
+}
 
 // Database connection
 include "../Login/Login/db.php";
@@ -1201,14 +1210,14 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
     <!-- Alert Messages -->
     <?php if ($message) : ?>
         <div class="alert alert-success alert-banner alert-dismissible fade show" role="alert">
-            <?php echo htmlspecialchars($message); ?>
+            <?php echo safe_html($message); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
 
     <?php if ($error) : ?>
         <div class="alert alert-danger alert-banner alert-dismissible fade show" role="alert">
-            <?php echo htmlspecialchars($error); ?>
+            <?php echo safe_html($error); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
@@ -1218,7 +1227,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         <div class="card mb-4 project-card">
             <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
                 <h5 class="card-title mb-0">
-                    <i class="bi bi-eye me-2"></i>Project Details: <?php echo htmlspecialchars($project['project_name']); ?>
+                    <i class="bi bi-eye me-2"></i>Project Details: <?php echo safe_html($project['project_name']); ?>
                 </h5>
                 <a href="admin.php" class="btn btn-light btn-sm">
                     <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
@@ -1231,41 +1240,41 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                         <h6 class="text-primary mb-3"><i class="bi bi-info-circle me-2"></i>Basic Information</h6>
 
                         <div class="project-detail-label">Project Name:</div>
-                        <div class="project-detail-value"><?php echo htmlspecialchars($project['project_name']); ?></div>
+                        <div class="project-detail-value"><?php echo safe_html($project['project_name']); ?></div>
 
                         <div class="project-detail-label">Project Type:</div>
                         <div class="project-detail-value">
-                            <span class="badge bg-primary"><?php echo htmlspecialchars($project['project_type']); ?></span>
+                            <span class="badge bg-primary"><?php echo safe_html($project['project_type']); ?></span>
                         </div>
 
                         <div class="project-detail-label">Classification:</div>
-                        <div class="project-detail-value"><?php echo htmlspecialchars($project['classification']); ?></div>
+                        <div class="project-detail-value"><?php echo safe_html($project['classification']); ?></div>
 
                         <?php if (!empty($project['project_category'])) : ?>
                             <div class="project-detail-label">Project Category:</div>
-                            <div class="project-detail-value"><?php echo htmlspecialchars($project['project_category']); ?></div>
+                            <div class="project-detail-value"><?php echo safe_html($project['project_category']); ?></div>
                         <?php endif; ?>
 
                         <?php if (!empty($project['difficulty_level'])) : ?>
                             <div class="project-detail-label">Difficulty Level:</div>
                             <div class="project-detail-value">
-                                <span class="difficulty-badge difficulty-<?php echo htmlspecialchars($project['difficulty_level']); ?>">
-                                    <?php echo ucfirst(htmlspecialchars($project['difficulty_level'])); ?>
+                                <span class="difficulty-badge difficulty-<?php echo safe_html($project['difficulty_level']); ?>">
+                                    <?php echo ucfirst(safe_html($project['difficulty_level'])); ?>
                                 </span>
                             </div>
                         <?php endif; ?>
 
                         <div class="project-detail-label">Language/Technology:</div>
-                        <div class="project-detail-value"><?php echo htmlspecialchars($project['language']); ?></div>
+                        <div class="project-detail-value"><?php echo safe_html($project['language']); ?></div>
 
                         <?php if (!empty($project['development_time'])) : ?>
                             <div class="project-detail-label">Development Time:</div>
-                            <div class="project-detail-value"><?php echo htmlspecialchars($project['development_time']); ?></div>
+                            <div class="project-detail-value"><?php echo safe_html($project['development_time']); ?></div>
                         <?php endif; ?>
 
                         <?php if (!empty($project['team_size'])) : ?>
                             <div class="project-detail-label">Team Size:</div>
-                            <div class="project-detail-value"><?php echo htmlspecialchars($project['team_size']); ?></div>
+                            <div class="project-detail-value"><?php echo safe_html($project['team_size']); ?></div>
                         <?php endif; ?>
                     </div>
 
@@ -1294,22 +1303,22 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                         <div class="project-detail-label">Status:</div>
                         <div class="project-detail-value">
                                 <span class="badge bg-<?php echo $project['status'] == 'pending' ? 'warning' : ($project['status'] == 'approved' ? 'success' : 'danger'); ?>">
-                                    <?php echo ucfirst(htmlspecialchars($project['status'])); ?>
+                                    <?php echo ucfirst(safe_html($project['status'])); ?>
                                 </span>
                         </div>
 
                         <?php if (!empty($project['contact_email'])) : ?>
                             <div class="project-detail-label">Contact Email:</div>
                             <div class="project-detail-value">
-                                <a href="mailto:<?php echo htmlspecialchars($project['contact_email']); ?>" class="text-primary">
-                                    <?php echo htmlspecialchars($project['contact_email']); ?>
+                                <a href="mailto:<?php echo safe_html($project['contact_email']); ?>" class="text-primary">
+                                    <?php echo safe_html($project['contact_email']); ?>
                                 </a>
                             </div>
                         <?php endif; ?>
 
                         <?php if (!empty($project['project_license'])) : ?>
                             <div class="project-detail-label">License:</div>
-                            <div class="project-detail-value"><?php echo htmlspecialchars($project['project_license']); ?></div>
+                            <div class="project-detail-value"><?php echo safe_html($project['project_license']); ?></div>
                         <?php endif; ?>
 
                         <?php if (!empty($project['keywords'])) : ?>
@@ -1322,7 +1331,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                         $keyword = trim($keyword);
                                         if (!empty($keyword)) :
                                             ?>
-                                            <span class="project-tag"><?php echo htmlspecialchars($keyword); ?></span>
+                                            <span class="project-tag"><?php echo safe_html($keyword); ?></span>
                                         <?php endif;
                                     endforeach; ?>
                                 </div>
@@ -1337,26 +1346,26 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                         <h6 class="text-info mb-3"><i class="bi bi-card-text me-2"></i>Project Description & Goals</h6>
 
                         <div class="project-detail-label">Description:</div>
-                        <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['description'])); ?></div>
+                        <div class="project-detail-value"><?php echo nl2br(safe_html($project['description'])); ?></div>
 
                         <?php if (!empty($project['target_audience'])) : ?>
                             <div class="project-detail-label">Target Audience:</div>
-                            <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['target_audience'])); ?></div>
+                            <div class="project-detail-value"><?php echo nl2br(safe_html($project['target_audience'])); ?></div>
                         <?php endif; ?>
 
                         <?php if (!empty($project['project_goals'])) : ?>
                             <div class="project-detail-label">Project Goals:</div>
-                            <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['project_goals'])); ?></div>
+                            <div class="project-detail-value"><?php echo nl2br(safe_html($project['project_goals'])); ?></div>
                         <?php endif; ?>
 
                         <?php if (!empty($project['challenges_faced'])) : ?>
                             <div class="project-detail-label">Challenges Faced:</div>
-                            <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['challenges_faced'])); ?></div>
+                            <div class="project-detail-value"><?php echo nl2br(safe_html($project['challenges_faced'])); ?></div>
                         <?php endif; ?>
 
                         <?php if (!empty($project['future_enhancements'])) : ?>
                             <div class="project-detail-label">Future Enhancements:</div>
-                            <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['future_enhancements'])); ?></div>
+                            <div class="project-detail-value"><?php echo nl2br(safe_html($project['future_enhancements'])); ?></div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -1369,49 +1378,49 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                         <?php if (!empty($project['image_path'])) : ?>
                             <div class="project-detail-label">Project Image:</div>
                             <div class="project-detail-value">
-                                <img src="<?php echo htmlspecialchars($project['image_path']); ?>" alt="Project Image" class="img-fluid mb-3" style="max-height: 300px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                <img src="<?php echo safe_html($project['image_path']); ?>" alt="Project Image" class="img-fluid mb-3" style="max-height: 300px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                             </div>
                         <?php endif; ?>
 
                         <div class="project-files">
                             <?php if (!empty($project['video_path'])) : ?>
-                                <a href="<?php echo htmlspecialchars($project['video_path']); ?>" class="file-link btn btn-outline-primary" target="_blank">
+                                <a href="<?php echo safe_html($project['video_path']); ?>" class="file-link btn btn-outline-primary" target="_blank">
                                     <i class="bi bi-play-circle"></i> View Video
                                 </a>
                             <?php endif; ?>
 
                             <?php if (!empty($project['code_file_path'])) : ?>
-                                <a href="<?php echo htmlspecialchars($project['code_file_path']); ?>" class="file-link btn btn-outline-success" target="_blank">
+                                <a href="<?php echo safe_html($project['code_file_path']); ?>" class="file-link btn btn-outline-success" target="_blank">
                                     <i class="bi bi-code-slash"></i> Download Code
                                 </a>
                             <?php endif; ?>
 
                             <?php if (!empty($project['instruction_file_path'])) : ?>
-                                <a href="<?php echo htmlspecialchars($project['instruction_file_path']); ?>" class="file-link btn btn-outline-info" target="_blank">
+                                <a href="<?php echo safe_html($project['instruction_file_path']); ?>" class="file-link btn btn-outline-info" target="_blank">
                                     <i class="bi bi-file-text"></i> View Instructions
                                 </a>
                             <?php endif; ?>
 
                             <?php if (!empty($project['presentation_file_path'])) : ?>
-                                <a href="<?php echo htmlspecialchars($project['presentation_file_path']); ?>" class="file-link btn btn-outline-warning" target="_blank">
+                                <a href="<?php echo safe_html($project['presentation_file_path']); ?>" class="file-link btn btn-outline-warning" target="_blank">
                                     <i class="bi bi-file-earmark-slides"></i> View Presentation
                                 </a>
                             <?php endif; ?>
 
                             <?php if (!empty($project['additional_files_path'])) : ?>
-                                <a href="<?php echo htmlspecialchars($project['additional_files_path']); ?>" class="file-link btn btn-outline-secondary" target="_blank">
+                                <a href="<?php echo safe_html($project['additional_files_path']); ?>" class="file-link btn btn-outline-secondary" target="_blank">
                                     <i class="bi bi-file-earmark-zip"></i> Additional Files
                                 </a>
                             <?php endif; ?>
 
                             <?php if (!empty($project['github_repo'])) : ?>
-                                <a href="<?php echo htmlspecialchars($project['github_repo']); ?>" class="file-link btn btn-outline-dark" target="_blank">
+                                <a href="<?php echo safe_html($project['github_repo']); ?>" class="file-link btn btn-outline-dark" target="_blank">
                                     <i class="bi bi-github"></i> GitHub Repository
                                 </a>
                             <?php endif; ?>
 
                             <?php if (!empty($project['live_demo_url'])) : ?>
-                                <a href="<?php echo htmlspecialchars($project['live_demo_url']); ?>" class="file-link btn btn-outline-primary" target="_blank">
+                                <a href="<?php echo safe_html($project['live_demo_url']); ?>" class="file-link btn btn-outline-primary" target="_blank">
                                     <i class="bi bi-globe"></i> Live Demo
                                 </a>
                             <?php endif; ?>
@@ -1419,7 +1428,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
 
                         <?php if (!empty($project['social_links'])) : ?>
                             <div class="project-detail-label mt-3">Social Links:</div>
-                            <div class="project-detail-value"><?php echo nl2br(htmlspecialchars($project['social_links'])); ?></div>
+                            <div class="project-detail-value"><?php echo nl2br(safe_html($project['social_links'])); ?></div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -1595,11 +1604,11 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                             <h5 class="card-title mb-0"><i class="bi bi-graph-up me-2"></i>Project Activity</h5>
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <?php echo htmlspecialchars($selected_time_range); ?>
+                                    <?php echo safe_html($selected_time_range); ?>
                                 </button>
                                 <ul class="dropdown-menu">
                                     <?php foreach ($time_ranges as $range) : ?>
-                                        <li><a class="dropdown-item <?php echo $range == $selected_time_range ? 'active' : ''; ?>" href="?time_range=<?php echo urlencode($range); ?>"><?php echo htmlspecialchars($range); ?></a></li>
+                                        <li><a class="dropdown-item <?php echo $range == $selected_time_range ? 'active' : ''; ?>" href="?time_range=<?php echo urlencode($range); ?>"><?php echo safe_html($range); ?></a></li>
                                     <?php endforeach; ?>
                                 </ul>
                             </div>
@@ -1617,11 +1626,11 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                             <h5 class="card-title mb-0"><i class="bi bi-pie-chart me-2"></i>Project Categories</h5>
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <?php echo htmlspecialchars($selected_category_range); ?>
+                                    <?php echo safe_html($selected_category_range); ?>
                                 </button>
                                 <ul class="dropdown-menu">
                                     <?php foreach ($category_ranges as $range) : ?>
-                                        <li><a class="dropdown-item <?php echo $range == $selected_category_range ? 'active' : ''; ?>" href="?category_range=<?php echo urlencode($range); ?>"><?php echo htmlspecialchars($range); ?></a></li>
+                                        <li><a class="dropdown-item <?php echo $range == $selected_category_range ? 'active' : ''; ?>" href="?category_range=<?php echo urlencode($range); ?>"><?php echo safe_html($range); ?></a></li>
                                     <?php endforeach; ?>
                                 </ul>
                             </div>
@@ -1653,9 +1662,9 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                             <i class="bi bi-<?php echo $activity['type'] == 'primary' ? 'plus-circle' : ($activity['type'] == 'success' ? 'check-circle' : 'x-circle-fill'); ?>"></i>
                                         </div>
                                         <div class="activity-content">
-                                            <h6 class="activity-title"><?php echo htmlspecialchars($activity['title']); ?></h6>
-                                            <p class="activity-text"><?php echo htmlspecialchars($activity['description']); ?></p>
-                                            <span class="activity-time"><?php echo htmlspecialchars($activity['time_ago']); ?></span>
+                                            <h6 class="activity-title"><?php echo safe_html($activity['title']); ?></h6>
+                                            <p class="activity-text"><?php echo safe_html($activity['description']); ?></p>
+                                            <span class="activity-time"><?php echo safe_html($activity['time_ago']); ?></span>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -1705,26 +1714,26 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                                             <i class="bi bi-<?php echo $project['icon']; ?>" style="font-size: 1.25rem; color: #4361ee;"></i>
                                                         </div>
                                                         <div>
-                                                            <h6 class="mb-0"><?php echo htmlspecialchars($project['name']); ?></h6>
-                                                            <small class="text-muted"><?php echo htmlspecialchars($project['submitted_by']); ?></small>
+                                                            <h6 class="mb-0"><?php echo safe_html($project['name']); ?></h6>
+                                                            <small class="text-muted"><?php echo safe_html($project['submitted_by']); ?></small>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <span class="badge bg-light text-dark"><?php echo htmlspecialchars($project['type']); ?></span>
+                                                    <span class="badge bg-light text-dark"><?php echo safe_html($project['type']); ?></span>
                                                 </td>
                                                 <td>
                                                     <div class="project-meta">
                                                         <?php if ($project['category']) : ?>
-                                                            <div><strong>Category:</strong> <?php echo htmlspecialchars($project['category']); ?></div>
+                                                            <div><strong>Category:</strong> <?php echo safe_html($project['category']); ?></div>
                                                         <?php endif; ?>
                                                         <?php if ($project['dev_time']) : ?>
-                                                            <div><strong>Dev Time:</strong> <?php echo htmlspecialchars($project['dev_time']); ?></div>
+                                                            <div><strong>Dev Time:</strong> <?php echo safe_html($project['dev_time']); ?></div>
                                                         <?php endif; ?>
                                                         <?php if ($project['team_size']) : ?>
-                                                            <div><strong>Team:</strong> <?php echo htmlspecialchars($project['team_size']); ?></div>
+                                                            <div><strong>Team:</strong> <?php echo safe_html($project['team_size']); ?></div>
                                                         <?php endif; ?>
-                                                        <div><strong>Tech:</strong> <?php echo htmlspecialchars($project['technologies']); ?></div>
+                                                        <div><strong>Tech:</strong> <?php echo safe_html($project['technologies']); ?></div>
                                                     </div>
                                                 </td>
                                                 <td>
@@ -1738,7 +1747,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                                 </td>
                                                 <td>
                                                             <span class="badge bg-<?php echo $project['status_class']; ?>">
-                                                                <?php echo htmlspecialchars($project['status']); ?>
+                                                                <?php echo safe_html($project['status']); ?>
                                                             </span>
                                                 </td>
                                                 <td>

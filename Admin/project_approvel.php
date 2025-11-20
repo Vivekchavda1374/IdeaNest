@@ -2,6 +2,8 @@
 require_once '../config/config.php';
 // Database connection
 include "../Login/Login/db.php";
+// Notification helper
+require_once '../includes/notification_helper.php';
 
 // Start session if not already started
 if (session_status() == PHP_SESSION_NONE) {
@@ -67,10 +69,147 @@ if (isset($_POST['toggle_bookmark'])) {
     }
 }
 
-// Include notification backend
-include "notification_backend.php";
+// Handle bulk project approval
+if (isset($_POST['bulk_approve'])) {
+    $project_ids = $_POST['project_ids'] ?? [];
+    $approved_count = 0;
+    $failed_count = 0;
 
-// Handle project approval
+    if (!empty($project_ids)) {
+        foreach ($project_ids as $project_id) {
+            $project_id = (int)$project_id;
+
+            // Get the project data
+            $get_project_sql = "SELECT * FROM projects WHERE id = $project_id";
+            $project_result = $conn->query($get_project_sql);
+
+            if ($project_result && $project_result->num_rows > 0) {
+                $project = $project_result->fetch_assoc();
+
+                // Escape data for SQL
+                $project_name = $conn->real_escape_string($project['project_name']);
+                $project_type = $conn->real_escape_string($project['project_type']);
+                $classification = $conn->real_escape_string($project['classification']);
+                $description = $conn->real_escape_string($project['description']);
+                $language = $conn->real_escape_string($project['language']);
+                $image_path = $conn->real_escape_string($project['image_path']);
+                $video_path = $conn->real_escape_string($project['video_path']);
+                $code_file_path = $conn->real_escape_string($project['code_file_path']);
+                $instruction_file_path = $conn->real_escape_string($project['instruction_file_path']);
+                $submission_date = $conn->real_escape_string($project['submission_date']);
+
+                // Insert into admin_approved_projects
+                $insert_sql = "INSERT INTO admin_approved_projects 
+                              (project_name, project_type, classification, description, language, 
+                               image_path, video_path, code_file_path, instruction_file_path, submission_date) 
+                              VALUES 
+                              ('$project_name', '$project_type', '$classification', 
+                               '$description', '$language', '$image_path', 
+                               '$video_path', '$code_file_path', '$instruction_file_path', 
+                               '$submission_date')";
+
+                if ($conn->query($insert_sql) === true) {
+                    // Delete from projects table
+                    $delete_sql = "DELETE FROM projects WHERE id = $project_id";
+                    if ($conn->query($delete_sql) === true) {
+                        // Create notification for user
+                        if (isset($project['user_id'])) {
+                            $notifier = new NotificationHelper($conn);
+                            $notifier->notifyProjectApproved($project['user_id'], $project_id, $project['project_name']);
+                        }
+                        $approved_count++;
+                    } else {
+                        $failed_count++;
+                    }
+                } else {
+                    $failed_count++;
+                }
+            }
+        }
+
+        if ($approved_count > 0) {
+            echo "<div class='alert alert-success shadow-sm'>
+                    <div class='d-flex align-items-center'>
+                        <i class='bi bi-check-circle-fill me-2'></i>
+                        <strong>Success!</strong> {$approved_count} project(s) approved successfully!
+                    </div>
+                  </div>";
+        }
+        if ($failed_count > 0) {
+            echo "<div class='alert alert-warning shadow-sm'>
+                    <div class='d-flex align-items-center'>
+                        <i class='bi bi-exclamation-triangle-fill me-2'></i>
+                        <strong>Warning!</strong> {$failed_count} project(s) failed to approve.
+                    </div>
+                  </div>";
+        }
+    } else {
+        echo "<div class='alert alert-info shadow-sm'>
+                <div class='d-flex align-items-center'>
+                    <i class='bi bi-info-circle me-2'></i>
+                    <strong>Info!</strong> No projects selected for approval.
+                </div>
+              </div>";
+    }
+}
+
+// Handle bulk project rejection
+if (isset($_POST['bulk_reject'])) {
+    $project_ids = $_POST['project_ids'] ?? [];
+    $rejection_reason = trim($_POST['bulk_rejection_reason'] ?? 'Project does not meet our criteria.');
+    $rejected_count = 0;
+    $failed_count = 0;
+
+    if (!empty($project_ids)) {
+        foreach ($project_ids as $project_id) {
+            $project_id = (int)$project_id;
+
+            // Get project data before deletion
+            $get_project_sql = "SELECT * FROM projects WHERE id = $project_id";
+            $project_result = $conn->query($get_project_sql);
+            $project = $project_result->fetch_assoc();
+
+            // Delete from projects table
+            $delete_sql = "DELETE FROM projects WHERE id = $project_id";
+            if ($conn->query($delete_sql) === true) {
+                // Create notification for user
+                if ($project && isset($project['user_id'])) {
+                    $notifier = new NotificationHelper($conn);
+                    $notifier->notifyProjectRejected($project['user_id'], $project_id, $project['project_name'], $rejection_reason);
+                }
+                $rejected_count++;
+            } else {
+                $failed_count++;
+            }
+        }
+
+        if ($rejected_count > 0) {
+            echo "<div class='alert alert-warning shadow-sm'>
+                    <div class='d-flex align-items-center'>
+                        <i class='bi bi-exclamation-triangle-fill me-2'></i>
+                        <strong>Projects Rejected!</strong> {$rejected_count} project(s) removed from pending list.
+                    </div>
+                  </div>";
+        }
+        if ($failed_count > 0) {
+            echo "<div class='alert alert-danger shadow-sm'>
+                    <div class='d-flex align-items-center'>
+                        <i class='bi bi-x-circle-fill me-2'></i>
+                        <strong>Error!</strong> {$failed_count} project(s) failed to reject.
+                    </div>
+                  </div>";
+        }
+    } else {
+        echo "<div class='alert alert-info shadow-sm'>
+                <div class='d-flex align-items-center'>
+                    <i class='bi bi-info-circle me-2'></i>
+                    <strong>Info!</strong> No projects selected for rejection.
+                </div>
+              </div>";
+    }
+}
+
+// Handle single project approval
 if (isset($_POST['approve_project'])) {
     $project_id = (int)$_POST['project_id'];
 
@@ -81,50 +220,42 @@ if (isset($_POST['approve_project'])) {
     if ($project_result->num_rows > 0) {
         $project = $project_result->fetch_assoc();
 
+        // Escape data for SQL
+        $project_name = $conn->real_escape_string($project['project_name']);
+        $project_type = $conn->real_escape_string($project['project_type']);
+        $classification = $conn->real_escape_string($project['classification']);
+        $description = $conn->real_escape_string($project['description']);
+        $language = $conn->real_escape_string($project['language']);
+        $image_path = $conn->real_escape_string($project['image_path']);
+        $video_path = $conn->real_escape_string($project['video_path']);
+        $code_file_path = $conn->real_escape_string($project['code_file_path']);
+        $instruction_file_path = $conn->real_escape_string($project['instruction_file_path']);
+        $submission_date = $conn->real_escape_string($project['submission_date']);
+
         // Insert into admin_approved_projects
         $insert_sql = "INSERT INTO admin_approved_projects 
                       (project_name, project_type, classification, description, language, 
                        image_path, video_path, code_file_path, instruction_file_path, submission_date) 
                       VALUES 
-                      ('{$project['project_name']}', '{$project['project_type']}', '{$project['classification']}', 
-                       '{$project['description']}', '{$project['language']}', '{$project['image_path']}', 
-                       '{$project['video_path']}', '{$project['code_file_path']}', '{$project['instruction_file_path']}', 
-                       '{$project['submission_date']}')";
+                      ('$project_name', '$project_type', '$classification', 
+                       '$description', '$language', '$image_path', 
+                       '$video_path', '$code_file_path', '$instruction_file_path', 
+                       '$submission_date')";
 
         if ($conn->query($insert_sql) === true) {
             // Delete from projects table
             $delete_sql = "DELETE FROM projects WHERE id = $project_id";
             if ($conn->query($delete_sql) === true) {
-                // Send approval email notification
-                $email_result = sendProjectApprovalEmail($project_id, $conn);
-
-
-                // Log the notification
-                $email_to = $project['email'] ?? '';
-                $email_subject = "Congratulations! Your Project \"{$project['project_name']}\" Has Been Approved";
-                $error_message = $email_result['success'] ? null : $email_result['message'];
-                logNotification(
-                    'project_approval',
-                    $project['user_id'],
-                    $conn,
-                    $email_result['success'] ? 'sent' : 'failed',
-                    $project_id,
-                    $email_to,
-                    $email_subject,
-                    $error_message
-                );
-
-                $email_message = '';
-                if ($email_result['success']) {
-                    $email_message = " Email notification sent to user.";
-                } else {
-                    $email_message = " Email notification failed: " . $email_result['message'];
+                // Create notification for user
+                if (isset($project['user_id'])) {
+                    $notifier = new NotificationHelper($conn);
+                    $notifier->notifyProjectApproved($project['user_id'], $project_id, $project['project_name']);
                 }
-
+                
                 echo "<div class='alert alert-success shadow-sm'>
                         <div class='d-flex align-items-center'>
                             <i class='bi bi-check-circle-fill me-2'></i>
-                            <strong>Success!</strong> Project approved and moved to approved projects!" . $email_message . "
+                            <strong>Success!</strong> Project approved and moved to approved projects!
                         </div>
                       </div>";
             } else {
@@ -146,61 +277,38 @@ if (isset($_POST['approve_project'])) {
     }
 }
 
-// Handle project rejection
+// Handle single project rejection
 if (isset($_POST['reject_project'])) {
     $project_id = (int)$_POST['project_id'];
     $rejection_reason = trim($_POST['rejection_reason'] ?? 'Project does not meet our criteria.');
 
-    // Get the project data before deletion
+    // Get project data before deletion
     $get_project_sql = "SELECT * FROM projects WHERE id = $project_id";
     $project_result = $conn->query($get_project_sql);
+    $project = $project_result->fetch_assoc();
 
-    if ($project_result->num_rows > 0) {
-        $project = $project_result->fetch_assoc();
-
-        // Delete from projects table
-        $delete_sql = "DELETE FROM projects WHERE id = $project_id";
-        if ($conn->query($delete_sql) === true) {
-            // Send rejection email notification
-            $email_result = sendProjectRejectionEmail($project_id, $rejection_reason, $conn);
-
-
-            // Log the notification
-            $email_to = $project['email'] ?? '';
-            $email_subject = "Important Update About Your Project \"{$project['project_name']}\"";
-            $error_message = $email_result['success'] ? null : $email_result['message'];
-            logNotification(
-                'project_rejection',
-                $project['user_id'],
-                $conn,
-                $email_result['success'] ? 'sent' : 'failed',
-                $project_id,
-                $email_to,
-                $email_subject,
-                $error_message
-            );
-
-            $email_message = '';
-            if ($email_result['success']) {
-                $email_message = " Email notification sent to user.";
-            } else {
-                $email_message = " Email notification failed: " . $email_result['message'];
-            }
-
-            echo "<div class='alert alert-warning shadow-sm'>
-                    <div class='d-flex align-items-center'>
-                        <i class='bi bi-exclamation-triangle-fill me-2'></i>
-                        <strong>Project Rejected!</strong> Project removed from pending list." . $email_message . "
-                    </div>
-                  </div>";
-        } else {
-            echo "<div class='alert alert-danger shadow-sm'>
-                    <div class='d-flex align-items-center'>
-                        <i class='bi bi-exclamation-triangle-fill me-2'></i>
-                        <strong>Error!</strong> Failed to reject project: " . $conn->error . "
-                    </div>
-                  </div>";
+    // Delete from projects table
+    $delete_sql = "DELETE FROM projects WHERE id = $project_id";
+    if ($conn->query($delete_sql) === true) {
+        // Create notification for user
+        if ($project && isset($project['user_id'])) {
+            $notifier = new NotificationHelper($conn);
+            $notifier->notifyProjectRejected($project['user_id'], $project_id, $project['project_name'], $rejection_reason);
         }
+        
+        echo "<div class='alert alert-warning shadow-sm'>
+                <div class='d-flex align-items-center'>
+                    <i class='bi bi-exclamation-triangle-fill me-2'></i>
+                    <strong>Project Rejected!</strong> Project removed from pending list.
+                </div>
+              </div>";
+    } else {
+        echo "<div class='alert alert-danger shadow-sm'>
+                <div class='d-flex align-items-center'>
+                    <i class='bi bi-exclamation-triangle-fill me-2'></i>
+                    <strong>Error!</strong> Failed to reject project: " . $conn->error . "
+                </div>
+              </div>";
     }
 }
 
@@ -263,18 +371,34 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
         <div class="tab-content" id="projectTabsContent">
             <!-- Pending Projects Tab -->
             <div class="tab-pane fade show active" id="pending-projects" role="tabpanel" aria-labelledby="pending-tab">
-                <h2 class="section-title">
-                    <i class="bi bi-hourglass me-2"></i>Pending Projects
-                    <small class="text-muted">(<?php echo $pending_count; ?> projects)</small>
-                </h2>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="section-title mb-0">
+                        <i class="bi bi-hourglass me-2"></i>Pending Projects
+                        <small class="text-muted">(<?php echo $pending_count; ?> projects)</small>
+                    </h2>
+                    <div class="bulk-actions" id="bulkActionsBar" style="display: none;">
+                        <button type="button" class="btn btn-success me-2" onclick="bulkApprove()">
+                            <i class="bi bi-check-lg me-1"></i>Approve Selected (<span id="selectedCount">0</span>)
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="openBulkRejectModal()">
+                            <i class="bi bi-x-lg me-1"></i>Reject Selected
+                        </button>
+                    </div>
+                </div>
 
                 <?php
                 if ($pending_result && $pending_result->num_rows > 0) {
+                    echo '<form method="post" id="bulkActionForm">';
                     while ($row = $pending_result->fetch_assoc()) {
                         ?>
                 <div class="project-card card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold"><?php echo htmlspecialchars($row["project_name"]); ?></h5>
+                        <div class="d-flex align-items-center">
+                            <input type="checkbox" class="form-check-input me-3 project-checkbox" 
+                                   name="project_ids[]" value="<?php echo $row["id"]; ?>" 
+                                   onchange="updateBulkActions()" style="width: 20px; height: 20px; cursor: pointer;">
+                            <h5 class="mb-0 fw-bold"><?php echo htmlspecialchars($row["project_name"]); ?></h5>
+                        </div>
                         <span class="badge badge-pending">
                             <i class="bi bi-hourglass me-1"></i>
                             Pending Approval
@@ -365,6 +489,7 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
                 </div>
                         <?php
                     }
+                    echo '</form>';
                 } else {
                     ?>
                 <div class="empty-projects">
@@ -492,7 +617,7 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
         </div>
     </div>
 
-    <!-- Rejection Modal -->
+    <!-- Single Rejection Modal -->
     <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -524,6 +649,38 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
         </div>
     </div>
 
+    <!-- Bulk Rejection Modal -->
+    <div class="modal fade" id="bulkRejectModal" tabindex="-1" aria-labelledby="bulkRejectModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="bulkRejectModalLabel">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Bulk Reject Projects
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Warning!</strong> You are about to reject <strong id="bulkRejectCount">0</strong> project(s).
+                    </div>
+                    <div class="mb-3">
+                        <label for="bulk_rejection_reason" class="form-label">Rejection Reason (Optional):</label>
+                        <textarea class="form-control" id="bulk_rejection_reason" rows="4" 
+                                  placeholder="Please provide a reason for rejection..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmBulkReject()">
+                        <i class="bi bi-x-lg me-1"></i> Reject Selected Projects
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
@@ -532,6 +689,99 @@ $approved_count = $approved_result ? $approved_result->num_rows : 0;
             document.getElementById('rejectProjectName').textContent = projectName;
             var modal = new bootstrap.Modal(document.getElementById('rejectModal'));
             modal.show();
+        }
+
+        function updateBulkActions() {
+            const checkboxes = document.querySelectorAll('.project-checkbox:checked');
+            const count = checkboxes.length;
+            const bulkActionsBar = document.getElementById('bulkActionsBar');
+            const selectedCount = document.getElementById('selectedCount');
+            
+            if (count > 0) {
+                bulkActionsBar.style.display = 'block';
+                selectedCount.textContent = count;
+            } else {
+                bulkActionsBar.style.display = 'none';
+            }
+        }
+
+        function bulkApprove() {
+            const checkboxes = document.querySelectorAll('.project-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('Please select at least one project to approve.');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to approve ${checkboxes.length} project(s)?`)) {
+                const form = document.getElementById('bulkActionForm');
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'bulk_approve';
+                input.value = '1';
+                form.appendChild(input);
+                form.submit();
+            }
+        }
+
+        function openBulkRejectModal() {
+            const checkboxes = document.querySelectorAll('.project-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('Please select at least one project to reject.');
+                return;
+            }
+
+            document.getElementById('bulkRejectCount').textContent = checkboxes.length;
+            var modal = new bootstrap.Modal(document.getElementById('bulkRejectModal'));
+            modal.show();
+        }
+
+        function confirmBulkReject() {
+            const form = document.getElementById('bulkActionForm');
+            const reason = document.getElementById('bulk_rejection_reason').value;
+            
+            // Add hidden inputs for bulk reject
+            const rejectInput = document.createElement('input');
+            rejectInput.type = 'hidden';
+            rejectInput.name = 'bulk_reject';
+            rejectInput.value = '1';
+            form.appendChild(rejectInput);
+
+            const reasonInput = document.createElement('input');
+            reasonInput.type = 'hidden';
+            reasonInput.name = 'bulk_rejection_reason';
+            reasonInput.value = reason;
+            form.appendChild(reasonInput);
+
+            form.submit();
+        }
+
+        // Select all functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add select all checkbox if needed
+            const pendingTab = document.getElementById('pending-projects');
+            if (pendingTab && document.querySelectorAll('.project-checkbox').length > 0) {
+                const header = pendingTab.querySelector('.section-title');
+                if (header) {
+                    const selectAllDiv = document.createElement('div');
+                    selectAllDiv.className = 'form-check d-inline-block ms-3';
+                    selectAllDiv.innerHTML = `
+                        <input type="checkbox" class="form-check-input" id="selectAll" 
+                               onchange="toggleSelectAll(this)" style="width: 18px; height: 18px; cursor: pointer;">
+                        <label class="form-check-label ms-1" for="selectAll" style="cursor: pointer;">
+                            Select All
+                        </label>
+                    `;
+                    header.appendChild(selectAllDiv);
+                }
+            }
+        });
+
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('.project-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+            });
+            updateBulkActions();
         }
     </script>
 </body>
