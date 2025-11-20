@@ -1,7 +1,13 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
+// Production-safe error reporting
+if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+}
 ini_set('error_log', '../../logs/forgot_password_errors.log');
 
 session_start();

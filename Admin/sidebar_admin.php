@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/html_helpers.php';
 // sidebar.php - Common Sidebar Component for Admin Panel
 
 // Get current page name to set active menu item
@@ -89,7 +90,7 @@ $logout_url = isset($logout_url) ? $logout_url : $web_base_path . "logout.php";
     <div class="sidebar-header">
         <a href="<?php echo $web_base_path; ?>admin.php" class="sidebar-brand">
             <i class="bi bi-lightbulb"></i>
-            <span><?php echo htmlspecialchars($site_name); ?></span>
+            <span><?php echo safe_html($site_name); ?></span>
         </a>
     </div>
     <ul class="sidebar-menu">

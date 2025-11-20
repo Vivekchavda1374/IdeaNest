@@ -1,10 +1,21 @@
 <?php
 require_once "../../includes/csrf.php";
+
+// Configure session for better persistence
+ini_set('session.cookie_lifetime', 86400); // 24 hours
+ini_set('session.cookie_path', '/');
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_samesite', 'Lax');
+if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+    ini_set('session.cookie_secure', 1);
+}
+
 session_start();
 include 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     requireCSRF();
+    validateCSRF();
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
 
@@ -127,6 +138,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php endif; ?>
 
         <form method="POST">
+                <?php echo generateCSRF(); ?>
             <div class="form-group">
                 <label>Email or Enrollment Number</label>
                 <input type="text" name="email" required autofocus>

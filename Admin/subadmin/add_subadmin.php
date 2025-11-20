@@ -1,15 +1,23 @@
 <?php
 
 
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Production-safe error reporting
+if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    error_reporting(E_ALL);
+}
 
 // Database connection
 include_once "../../Login/Login/db.php";
 
-// Simple SMTP email system
-require_once '../../includes/simple_smtp.php';
+// Load required classes
+require_once '../../includes/smtp_mailer.php';
+require_once '../../includes/credential_manager.php';
+require_once '../../includes/email_logger.php';
 
 // Initialize variables
 $message = '';
@@ -37,33 +45,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && !isset($_
         } else {
             $check_stmt->close();
 
-            // Generate random password
-            $plain_password = bin2hex(random_bytes(4)); // 8-character random password
+            // Generate random password (8 characters)
+            $plain_password = bin2hex(random_bytes(4));
             $hashed_password = password_hash($plain_password, PASSWORD_DEFAULT);
 
-            // Insert into database
-            $stmt = $conn->prepare("INSERT INTO subadmins (email, password, created_at) VALUES (?, ?, NOW())");
-
-            if ($stmt) {
+            try {
+                // Start transaction
+                $conn->begin_transaction();
+                
+                // Insert into database
+                $stmt = $conn->prepare("INSERT INTO subadmins (email, password, first_name, last_name, created_at) VALUES (?, ?, '', '', NOW())");
                 $stmt->bind_param("ss", $email, $hashed_password);
-
-                if ($stmt->execute()) {
-                    // Send email with credentials
-                    $subject = 'Welcome to IdeaNest - Subadmin Access';
-                    $body = "<h3>Welcome to IdeaNest!</h3><p>Your subadmin account has been created.</p><ul><li><b>Login ID:</b> $email</li><li><b>Password:</b> $plain_password</li></ul><p>Please log in and change your password after first login.</p>";
-                    
-                    if (sendSMTPEmail($email, $subject, $body)) {
-                        $message = "Subadmin added successfully and credentials sent to $email.";
-                    } else {
-                        $error = "Subadmin added, but email could not be sent.";
-                    }
-                } else {
-                    $error = "Failed to add subadmin. Please try again.";
-                }
-
+                $stmt->execute();
+                $subadmin_id = $conn->insert_id;
                 $stmt->close();
-            } else {
-                $error = "Database error occurred.";
+                
+                // Initialize managers
+                $credManager = new CredentialManager($conn);
+                $emailLogger = new EmailLogger($conn);
+                
+                // Store credentials FIRST (before sending email)
+                $credManager->storeCredentials('subadmin', $subadmin_id, $email, $plain_password, false);
+                
+                // Commit transaction
+                $conn->commit();
+                
+                // Now try to send email
+                $mailer = new SMTPMailer();
+                $subject = 'Welcome to IdeaNest - Subadmin Access';
+                $body = "
+                <html>
+                <head>
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+                        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+                        .credentials { background: white; padding: 20px; border-left: 4px solid #667eea; margin: 20px 0; }
+                    </style>
+                </head>
+                <body>
+                    <div class='container'>
+                        <div class='header'>
+                            <h1>Welcome to IdeaNest!</h1>
+                            <p>Your Subadmin Account Has Been Created</p>
+                        </div>
+                        <div class='content'>
+                            <p>Hello,</p>
+                            <p>Your subadmin account has been successfully created on IdeaNest platform.</p>
+                            
+                            <div class='credentials'>
+                                <h3>Your Login Credentials:</h3>
+                                <p><strong>Email:</strong> {$email}</p>
+                                <p><strong>Password:</strong> <code style='background: #f0f0f0; padding: 5px 10px; border-radius: 3px; font-size: 16px;'>{$plain_password}</code></p>
+                            </div>
+                            
+                            <p><strong>Important:</strong> Please change your password immediately after your first login for security purposes.</p>
+                            
+                            <p>Best regards,<br>The IdeaNest Team</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                ";
+                
+                $email_sent = $mailer->send($email, $subject, $body);
+                
+                // Update credential status
+                $credManager->updateEmailStatus('subadmin', $subadmin_id, $email_sent, $email_sent ? null : 'SMTP send failed');
+                
+                // Log email attempt
+                $emailLogger->logEmail($email, $subject, 'subadmin_welcome', $email_sent ? 'sent' : 'failed', $email_sent ? null : 'SMTP send failed');
+                
+                if ($email_sent) {
+                    $message = "Subadmin added successfully and credentials sent to {$email}.";
+                } else {
+                    $error = "Subadmin added successfully, but email could not be sent. Please use the 'View Credentials' option to retrieve the password.";
+                }
+                
+            } catch (Exception $e) {
+                // Rollback on error
+                $conn->rollback();
+                $error = "Failed to add subadmin: " . $e->getMessage();
+                error_log("Subadmin creation error: " . $e->getMessage());
             }
         }
     }
@@ -1351,7 +1415,11 @@ $active_tab = $_GET['tab'] ?? 'overview';
 
                                                                         <!-- Conversation History -->
                                                                         <?php
-                                                                        $replies_result = $conn->query("SELECT * FROM support_ticket_replies WHERE ticket_id = {$ticket['id']} ORDER BY created_at ASC");
+                                                                        $ticket_id = $ticket['id'];
+$stmt = $conn->prepare("SELECT * FROM support_ticket_replies WHERE ticket_id = ? ORDER BY created_at ASC");
+$stmt->bind_param("i", $ticket_id);
+$stmt->execute();
+$replies_result = $stmt->get_result();
                                                                         $replies = [];
                                                                         while ($reply = $replies_result->fetch_assoc()) {
                                                                             $replies[] = $reply;

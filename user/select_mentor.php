@@ -42,7 +42,10 @@ if (!$error_message && isset($conn)) {
     $required_tables = ['register', 'mentors', 'mentor_requests', 'projects'];
     
     foreach ($required_tables as $table) {
-        $check_table = $conn->query("SHOW TABLES LIKE '$table'");
+        $stmt = $conn->prepare("SHOW TABLES LIKE ?");
+$stmt->bind_param("s", $table);
+$stmt->execute();
+$check_table = $stmt->get_result();
         if (!$check_table || $check_table->num_rows == 0) {
             $tables_exist = false;
             break;

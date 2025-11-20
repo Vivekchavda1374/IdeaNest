@@ -1,7 +1,14 @@
 <?php
 require_once '../config/config.php';
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Production-safe error reporting
+if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    error_reporting(E_ALL);
+}
 
 session_start();
 include "../Login/Login/db.php";

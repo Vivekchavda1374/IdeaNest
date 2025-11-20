@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/html_helpers.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -367,13 +368,13 @@ if (empty($weekly_performance)) {
         <section class="welcome-section">
             <div class="welcome-content">
                 <div class="welcome-info">
-                    <div class="welcome-avatar"><?php echo htmlspecialchars($user_initial); ?></div>
+                    <div class="welcome-avatar"><?php echo safe_html($user_initial); ?></div>
                     <div class="welcome-text">
-                        <h1>Welcome back, <?php echo htmlspecialchars($user_name); ?>!</h1>
+                        <h1>Welcome back, <?php echo safe_html($user_name); ?>!</h1>
                         <p class="welcome-subtitle">Your innovation journey continues here</p>
                         <div class="user-email">
                             <i class="fas fa-envelope"></i>
-                            <span><?php echo htmlspecialchars($user_email); ?></span>
+                            <span><?php echo safe_html($user_email); ?></span>
                         </div>
                     </div>
                 </div>
@@ -623,7 +624,7 @@ if (empty($weekly_performance)) {
                                         </div>
                                         <div>
                                             <div class="chart-stat-value"><?php echo $classification['count']; ?></div>
-                                            <div class="chart-stat-label"><?php echo htmlspecialchars($classification['classification']); ?></div>
+                                            <div class="chart-stat-label"><?php echo safe_html($classification['classification']); ?></div>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
@@ -693,9 +694,9 @@ if (empty($weekly_performance)) {
                                                 <i class="fas fa-plus-circle text-success"></i>
                                             </div>
                                             <div class="activity-content">
-                                                <div class="activity-title"><?php echo htmlspecialchars($activity['project_name']); ?></div>
+                                                <div class="activity-title"><?php echo safe_html($activity['project_name']); ?></div>
                                                 <div class="activity-meta">
-                                                    <span class="activity-category"><?php echo htmlspecialchars($activity['classification']); ?></span>
+                                                    <span class="activity-category"><?php echo safe_html($activity['classification']); ?></span>
                                                     <span class="activity-date"><?php echo date('M d', strtotime($activity['submission_date'])); ?></span>
                                                 </div>
                                                 <div class="activity-status status-<?php echo $activity['status']; ?>">
@@ -731,7 +732,7 @@ if (empty($weekly_performance)) {
                             <div class="tech-list">
                                 <?php foreach (array_slice($tech_analysis, 0, 5) as $tech) : ?>
                                     <div class="tech-item">
-                                        <div class="tech-name"><?php echo htmlspecialchars($tech['language']); ?></div>
+                                        <div class="tech-name"><?php echo safe_html($tech['language']); ?></div>
                                         <div class="tech-bar">
                                             <div class="tech-progress" style="width: <?php echo $total_projects > 0 ? ($tech['count'] / $total_projects) * 100 : 0; ?>%"></div>
                                         </div>
@@ -763,7 +764,7 @@ if (empty($weekly_performance)) {
                                         $colors = ['#6366f1', '#8b5cf6', '#10b981', '#f59e0b'];
                                         echo $colors[$index % count($colors)];
                                         ?>;"></span>
-                                        <span class="type-label"><?php echo htmlspecialchars($type['project_type']); ?></span>
+                                        <span class="type-label"><?php echo safe_html($type['project_type']); ?></span>
                                         <span class="type-count"><?php echo $type['count']; ?></span>
                                     </div>
                                 <?php endforeach; ?>
@@ -841,7 +842,7 @@ if (empty($weekly_performance)) {
                                             <?php echo strtoupper(substr($contributor['submitter_name'], 0, 1)); ?>
                                         </div>
                                         <div class="contributor-info">
-                                            <div class="contributor-name"><?php echo htmlspecialchars($contributor['submitter_name']); ?></div>
+                                            <div class="contributor-name"><?php echo safe_html($contributor['submitter_name']); ?></div>
                                             <div class="contributor-stats">
                                                 <span class="stat-item">
                                                     <i class="fas fa-project-diagram"></i>

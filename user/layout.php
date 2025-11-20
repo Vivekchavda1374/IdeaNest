@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/html_helpers.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -58,9 +59,9 @@ if ($is_in_subdirectory) {
             <div class="sidebar-logo-text">IdeaNest</div>
         </div>
         <div class="sidebar-user">
-            <div class="sidebar-user-avatar"><?php echo htmlspecialchars($user_initial); ?></div>
+            <div class="sidebar-user-avatar"><?php echo safe_html($user_initial); ?></div>
             <div class="sidebar-user-info">
-                <h4><?php echo htmlspecialchars($user_name); ?></h4>
+                <h4><?php echo safe_html($user_name); ?></h4>
                 <p>Innovator</p>
             </div>
         </div>

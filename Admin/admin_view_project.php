@@ -1,6 +1,13 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Production-safe error reporting
+if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    error_reporting(E_ALL);
+}
 
 require_once dirname(__FILE__) . '/../includes/autoload_simple.php';
 include "../Login/Login/db.php";
@@ -18,14 +25,14 @@ $user_name = $_SESSION['user_name'] ?? "Admin";
 
 // Handle project actions
 if(isset($_POST['reject_submit'])) {
-    $project_id = $_POST['project_id'];
-    $rejection_reason = $_POST['rejection_reason'];
+    $$project_id = post_param('project_id');
+    $$rejection_reason = post_param('rejection_reason');
     rejectProject($project_id, $rejection_reason, $conn);
 }
 
 if(isset($_GET['action']) && isset($_GET['id'])) {
-    $project_id = $_GET['id'];
-    $action = $_GET['action'];
+    $$project_id = get_param('id');
+    $$action = get_param('action');
     
     if($action == 'approve') {
         approveProject($project_id, $conn);
@@ -444,12 +451,12 @@ $message = $_GET['message'] ?? '';
                                                                 </a>
                                                             <?php endif; ?>
                                                             <?php if($project['code_file_path']): ?>
-                                                                <a href="../user/<?php echo htmlspecialchars($project['code_file_path']); ?>" target="_blank" class="file-link">
+                                                                <a href="../user/<?php echo htmlspecialchars($project['code_file_path'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="file-link">
                                                                     <i class="fas fa-code me-2"></i>Source Code
                                                                 </a>
                                                             <?php endif; ?>
                                                             <?php if($project['presentation_file_path']): ?>
-                                                                <a href="../user/<?php echo htmlspecialchars($project['presentation_file_path']); ?>" target="_blank" class="file-link">
+                                                                <a href="../user/<?php echo htmlspecialchars($project['presentation_file_path'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="file-link">
                                                                     <i class="fas fa-presentation me-2"></i>Presentation
                                                                 </a>
                                                             <?php endif; ?>

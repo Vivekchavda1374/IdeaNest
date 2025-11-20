@@ -1,5 +1,9 @@
 <?php
+// Configure session settings
+ini_set('session.cookie_lifetime', 86400);
+ini_set('session.cookie_path', '/');
 session_start();
+
 if (!isset($_SESSION['subadmin_logged_in']) || !$_SESSION['subadmin_logged_in']) {
     header("Location: ../../Login/Login/login.php");
     exit();

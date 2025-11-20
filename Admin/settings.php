@@ -485,7 +485,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="smtp_password" class="form-label">SMTP Password</label>
-                                    <input type="password" class="form-control" id="smtp_password" name="smtp_password" value="<?php echo htmlspecialchars(getSetting($conn, 'smtp_password', 'luou xlhs ojuw auvx')); ?>" required>
+                                    <input type="password" class="form-control" id="smtp_password" name="smtp_password" value="<?php echo htmlspecialchars(getSetting($conn, 'smtp_password', $_ENV['SMTP_PASSWORD'] ?? '')); ?>" required>
                                 </div>
                             </div>
                         </div>
