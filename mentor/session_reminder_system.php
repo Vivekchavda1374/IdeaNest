@@ -97,7 +97,9 @@ class SessionReminderSystem {
                 .button { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
                 .footer { text-align: center; color: #666; font-size: 12px; margin-top: 20px; }
             </style>
-        </head>
+            <link rel="stylesheet" href="assets/css/loader.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
+</head>
         <body>
             <div class='container'>
                 <div class='header'>
@@ -152,7 +154,18 @@ class SessionReminderSystem {
                     </div>
                 </div>
             </div>
-        </body>
+        
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
+</body>
         </html>
         ";
         
@@ -220,7 +233,18 @@ class SessionReminderSystem {
                 " : "") . "
                 <p>See you soon!</p>
             </div>
-        </body>
+        
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
+</body>
         </html>
         ";
         
