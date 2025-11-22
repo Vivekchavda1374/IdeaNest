@@ -171,7 +171,9 @@ function createApprovedEmailContent($user_name, $project, $options, $subadmin_de
                 .content { padding: 15px !important; }
             }
         </style>
-    </head>
+        <link rel="stylesheet" href="assets/css/loader.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
+</head>
     <body>
         <div class="container">
             <div class="header">
@@ -207,7 +209,18 @@ function createApprovedEmailContent($user_name, $project, $options, $subadmin_de
                 <p>If you have any questions, please contact our support team at ' . $options['support_email'] . '</p>
             </div>
         </div>
-    </body>
+    
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
+</body>
     </html>';
 
     return $html;
@@ -282,7 +295,9 @@ function createRejectedEmailContent($user_name, $project, $rejection_reason, $op
                 .content { padding: 15px !important; }
             }
         </style>
-    </head>
+        <link rel="stylesheet" href="assets/css/loader.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
+</head>
     <body>
         <div class="container">
             <div class="header">
@@ -322,7 +337,18 @@ function createRejectedEmailContent($user_name, $project, $rejection_reason, $op
                 <p>If you have any questions, please contact our support team at ' . $options['support_email'] . '</p>
             </div>
         </div>
-    </body>
+    
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
+</body>
     </html>';
 
     return $html;
