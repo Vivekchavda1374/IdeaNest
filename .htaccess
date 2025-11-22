@@ -67,11 +67,12 @@ RewriteRule ^(.*)$ - [F,L]
     Deny from all
 </FilesMatch>
 
-# Enable HTTPS redirect (uncomment for production)
-# RewriteCond %{HTTPS} off
-# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# Enable HTTPS redirect for production
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} !^localhost [NC]
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# Custom error pages (adjust path if needed for localhost)
-ErrorDocument 403 /IdeaNest/error/403.html
-ErrorDocument 404 /IdeaNest/error/404.html
-ErrorDocument 500 /IdeaNest/error/500.html
+# Custom error pages
+ErrorDocument 403 /hcd/IdeaNest/error_pages/403.html
+ErrorDocument 404 /hcd/IdeaNest/error_pages/404.html
+ErrorDocument 500 /hcd/IdeaNest/error_pages/500.html
