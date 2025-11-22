@@ -95,6 +95,8 @@ $stats['avg_rating'] = $result['avg_rating'] ? round($result['avg_rating'], 1) :
         .session-card { border-left: 4px solid #007bff; }
         @media (max-width: 768px) { .main-content { margin-left: 0; } }
     </style>
+    <link rel="stylesheet" href="assets/css/loader.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
 </head>
 <body>
     <?php include 'sidebar_admin.php'; ?>
@@ -346,5 +348,16 @@ $stats['avg_rating'] = $result['avg_rating'] ? round($result['avg_rating'], 1) :
             }
         }
     </script>
+
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
 </body>
 </html>

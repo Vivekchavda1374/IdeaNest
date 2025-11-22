@@ -870,7 +870,9 @@ if (!$result) {
                font-weight: 500;
            }
        </style>
-    </head>
+        <link rel="stylesheet" href="assets/css/loader.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
+</head>
     <body>
 
     <?php include 'layout.php'  ?>
@@ -1185,7 +1187,18 @@ if (!$result) {
         });
     </script>
 
-    </body>
+    
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
+</body>
     </html>
 
 <?php

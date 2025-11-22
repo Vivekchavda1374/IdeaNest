@@ -83,7 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && !isset($_
                         .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
                         .credentials { background: white; padding: 20px; border-left: 4px solid #667eea; margin: 20px 0; }
                     </style>
-                </head>
+                    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
+</head>
                 <body>
                     <div class='container'>
                         <div class='header'>
@@ -105,7 +107,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && !isset($_
                             <p>Best regards,<br>The IdeaNest Team</p>
                         </div>
                     </div>
-                </body>
+                
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
+</body>
                 </html>
                 ";
                 
@@ -759,6 +772,8 @@ $active_tab = $_GET['tab'] ?? 'overview';
             }
         }
     </style>
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 
 <body class="bg-light">
@@ -1595,5 +1610,16 @@ $replies_result = $stmt->get_result();
         });
     });
 </script>
+
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 </html>

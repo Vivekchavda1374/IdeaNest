@@ -161,6 +161,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .links a:hover { text-decoration: underline; }
         .success-icon { text-align: center; font-size: 48px; color: #10b981; margin-bottom: 20px; }
     </style>
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
     <div class="container">
@@ -221,5 +223,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <a href="login.php">← Back to Login</a>
         </div>
     </div>
+
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 </html>

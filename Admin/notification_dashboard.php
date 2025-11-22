@@ -68,6 +68,8 @@ $weekly_stats_result = $conn->query($weekly_stats_query);
         .btn-success { background: #10b981; color: white; }
         .btn-warning { background: #f59e0b; color: white; }
     </style>
+    <link rel="stylesheet" href="assets/css/loader.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
 </head>
 <body>
     <div class="container">
@@ -166,5 +168,16 @@ $weekly_stats_result = $conn->query($weekly_stats_query);
             </table>
         </div>
     </div>
+
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
 </body>
 </html>
