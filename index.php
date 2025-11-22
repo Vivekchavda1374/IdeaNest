@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IdeaNest - Academic Project Management Platform</title>
     <link rel="icon" type="image/png" href="assets/image/fevicon.png">
-    <link rel="icon" type="image/png" href="assets/image/fevicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/loader.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
     <style>
         * {
             margin: 0;
@@ -1174,6 +1175,17 @@
         });
     });
 </script>
+
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
 
 </body>
 </html>

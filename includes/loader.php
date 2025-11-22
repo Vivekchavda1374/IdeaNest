@@ -1,27 +1,52 @@
 <?php
-// Universal Loader Include
-function includeLoader() {
-    echo '
-    <!-- Universal Loader CSS -->
-    <link rel="stylesheet" href="' . getLoaderPath() . 'assets/css/loader.css">
-    
-    <!-- Universal Loader JS -->
-    <script src="' . getLoaderPath() . 'assets/js/loader.js"></script>
-    ';
+/**
+ * Universal Loader Component
+ * Include this file in your pages to add loading functionality
+ */
+
+function render_loader() {
+    ?>
+    <!-- Universal Loader Overlay -->
+    <div id="universalLoader" class="loader-overlay">
+        <div class="loader">
+            <div class="loader-spinner"></div>
+            <div class="loader-text" id="loaderText">Loading...</div>
+        </div>
+    </div>
+    <?php
 }
 
-function getLoaderPath() {
-    $currentDir = basename(dirname($_SERVER['PHP_SELF']));
-    if ($currentDir === 'user' || $currentDir === 'IdeaNest') {
-        return './';
-    } elseif ($currentDir === 'Blog' || $currentDir === 'forms') {
-        return '../';
-    } elseif ($currentDir === 'Login') {
-        return '../';
-    } elseif ($currentDir === 'Admin') {
-        return '../';
+function include_loader_assets() {
+    ?>
+    <!-- Loader CSS -->
+    <link rel="stylesheet" href="<?php echo get_base_url(); ?>/assets/css/loader.css">
+    <link rel="stylesheet" href="<?php echo get_base_url(); ?>/assets/css/loading.css">
+    
+    <!-- Loader JavaScript -->
+    <script src="<?php echo get_base_url(); ?>/assets/js/loader.js"></script>
+    <script src="<?php echo get_base_url(); ?>/assets/js/loading.js"></script>
+    <?php
+}
+
+function get_base_url() {
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    $script = $_SERVER['SCRIPT_NAME'];
+    $path = dirname($script);
+    
+    // Remove trailing slash
+    $path = rtrim($path, '/');
+    
+    // Calculate base URL relative to project root
+    $base = $protocol . '://' . $host;
+    
+    // If we're in a subdirectory, adjust the path
+    if (strpos($path, '/Admin') !== false || strpos($path, '/user') !== false || strpos($path, '/mentor') !== false) {
+        $base .= substr($path, 0, strrpos($path, '/'));
     } else {
-        return '../../';
+        $base .= $path;
     }
+    
+    return $base;
 }
 ?>
