@@ -332,6 +332,8 @@ $year_in_college = $user['passout_year'] ? ($academic_year - $user['passout_year
         }
 
     </style>
+    <link rel="stylesheet" href="assets/css/loader.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
 </head>
 <body>
 <div class="main-content">
@@ -706,5 +708,16 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 </script>
+
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
 </body>
 </html>
