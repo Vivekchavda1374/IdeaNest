@@ -1600,6 +1600,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
             }
         }
     </style>
+    <link rel="stylesheet" href="assets/css/loader.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
 </head>
 <body>
 <div class="overlay" id="overlay"></div>
@@ -2764,5 +2766,16 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }, 5000);
     }
 </script>
+
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
 </body>
 </html>

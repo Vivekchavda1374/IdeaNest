@@ -632,6 +632,8 @@ if (isset($conn)) {
             }
         }
     </style>
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
 <?php include "../layout.php";?>
@@ -1072,6 +1074,17 @@ if (isset($conn)) {
 
 <script src="../../assets/js/layout_user.js"></script>
 <script src="../../assets/js/new_project_add.js"></script>
+
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 
 </html>
