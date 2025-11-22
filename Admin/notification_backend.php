@@ -122,7 +122,9 @@ function sendProjectApprovalEmail($project_id, $conn)
                 .content { padding: 15px !important; }
             }
         </style>
-    </head>
+        <link rel="stylesheet" href="assets/css/loader.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
+</head>
     <body>
         <div class="container">
             <div class="header">
@@ -171,7 +173,18 @@ function sendProjectApprovalEmail($project_id, $conn)
                 <p>If you have any questions, please contact our support team at ' . $support_email . '</p>
             </div>
         </div>
-    </body>
+    
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
+</body>
     </html>';
 
     return sendNotificationEmail($user_email, $user_name, $subject, $html_body, $conn);
@@ -237,7 +250,9 @@ function sendProjectRejectionEmail($project_id, $rejection_reason, $conn)
                 .content { padding: 15px !important; }
             }
         </style>
-    </head>
+        <link rel="stylesheet" href="assets/css/loader.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
+</head>
     <body>
         <div class="container">
             <div class="header">
@@ -290,7 +305,18 @@ function sendProjectRejectionEmail($project_id, $rejection_reason, $conn)
                 <p>If you have any questions, please contact our support team at ' . $support_email . '</p>
             </div>
         </div>
-    </body>
+    
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
+</body>
     </html>';
 
     return sendNotificationEmail($user_email, $user_name, $subject, $html_body, $conn);
@@ -345,7 +371,9 @@ function sendNewUserNotificationToAdmin($user_id, $conn)
                 .content { padding: 15px !important; }
             }
         </style>
-    </head>
+        <link rel="stylesheet" href="assets/css/loader.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
+</head>
     <body>
         <div class="container">
             <div class="header">
@@ -389,7 +417,18 @@ function sendNewUserNotificationToAdmin($user_id, $conn)
                 <p>This is an automated notification from the ' . $site_name . ' system.</p>
             </div>
         </div>
-    </body>
+    
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
+</body>
     </html>';
 
     return sendNotificationEmail($admin_email, 'Admin', $subject, $html_body, $conn);
