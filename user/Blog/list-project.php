@@ -271,6 +271,7 @@ if ($user_id > 0) {
     <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/ajax_notifications.css">
     <style>
         :root{--primary:#6366f1;--secondary:#8b5cf6;--success:#10b981;--warning:#f59e0b;--danger:#ef4444}
         body{background:#f8fafc;font-family:'Inter',sans-serif}
@@ -352,6 +353,8 @@ if ($user_id > 0) {
         
         @media(max-width:1024px){.main-content{margin-left:0;padding:1rem}.ideas-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,1fr)}}
     </style>
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
 <?php 
@@ -531,46 +534,52 @@ include '../layout.php';
                                 <i class="fas fa-edit"></i>
                             </a>
                         <?php else: ?>
-                            <form method="post" onclick="event.stopPropagation()">
-                                <input type="hidden" name="idea_id" value="<?= $idea['id'] ?>">
-                                <input type="hidden" name="toggle_like" value="1">
-                                <button type="submit" class="action-btn <?= $idea['is_liked']?'liked':'' ?>" <?= !$user_id?'disabled':'' ?> title="Like">
-                                    <i class="fas fa-heart"></i>
-                                </button>
-                            </form>
+                            <button class="action-btn like-btn <?= $idea['is_liked']?'liked':'' ?>" 
+                                    onclick="event.stopPropagation(); IdeaAjax.toggleLike(<?= $idea['id'] ?>)" 
+                                    <?= !$user_id?'disabled':'' ?> 
+                                    title="Like">
+                                <i class="fas fa-heart"></i>
+                            </button>
                         <?php endif; ?>
                         
-                        <form method="post" onclick="event.stopPropagation()">
-                            <input type="hidden" name="idea_id" value="<?= $idea['id'] ?>">
-                            <input type="hidden" name="toggle_bookmark" value="1">
-                            <button type="submit" class="action-btn <?= $idea['is_bookmarked']?'bookmarked':'' ?>" <?= !$user_id?'disabled':'' ?> title="Bookmark">
-                                <i class="fas fa-bookmark"></i>
-                            </button>
-                        </form>
+                        <button class="action-btn bookmark-btn <?= $idea['is_bookmarked']?'bookmarked':'' ?>" 
+                                onclick="event.stopPropagation(); IdeaAjax.toggleBookmark(<?= $idea['id'] ?>)" 
+                                <?= !$user_id?'disabled':'' ?> 
+                                title="Bookmark">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
                         
-                        <button class="action-btn" onclick="event.stopPropagation(); openShareModal(<?= $idea['id'] ?>, '<?= htmlspecialchars($idea['project_name']) ?>')" <?= !$user_id?'disabled':'' ?> title="Share">
+                        <button class="action-btn" 
+                                onclick="event.stopPropagation(); openShareModal(<?= $idea['id'] ?>, '<?= htmlspecialchars($idea['project_name']) ?>')" 
+                                <?= !$user_id?'disabled':'' ?> 
+                                title="Share">
                             <i class="fas fa-share"></i>
                         </button>
                         
                         <?php if(!$idea['is_owner']): ?>
-                        <form method="post" onclick="event.stopPropagation()">
-                            <input type="hidden" name="idea_id" value="<?= $idea['id'] ?>">
-                            <input type="hidden" name="toggle_follow" value="1">
-                            <button type="submit" class="action-btn <?= $idea['is_following']?'following':'' ?>" <?= !$user_id?'disabled':'' ?> title="Follow">
-                                <i class="fas fa-user-plus"></i>
-                            </button>
-                        </form>
+                        <button class="action-btn follow-btn <?= $idea['is_following']?'following':'' ?>" 
+                                onclick="event.stopPropagation(); IdeaAjax.toggleFollow(<?= $idea['id'] ?>)" 
+                                <?= !$user_id?'disabled':'' ?> 
+                                title="Follow">
+                            <i class="fas fa-user-plus"></i>
+                        </button>
                         <?php endif; ?>
                         
                         <?php if(!$idea['is_owner']): ?>
-                        <button class="action-btn" onclick="event.stopPropagation(); openReportModal(<?= $idea['id'] ?>, '<?= htmlspecialchars($idea['project_name']) ?>')" <?= !$user_id?'disabled':'' ?> title="Report">
+                        <button class="action-btn" 
+                                onclick="event.stopPropagation(); openReportModal(<?= $idea['id'] ?>, '<?= htmlspecialchars($idea['project_name']) ?>')" 
+                                <?= !$user_id?'disabled':'' ?> 
+                                title="Report">
                             <i class="fas fa-flag"></i>
                         </button>
                         <?php endif; ?>
                         
-                        <button class="action-btn" onclick="event.stopPropagation(); openIdeaModal(<?= $idea['id'] ?>)" <?= !$user_id?'disabled':'' ?> title="Comments">
+                        <button class="action-btn comment-btn" 
+                                onclick="event.stopPropagation(); openIdeaModal(<?= $idea['id'] ?>)" 
+                                <?= !$user_id?'disabled':'' ?> 
+                                title="Comments">
                             <i class="fas fa-comment"></i>
-                            <span class="ms-1"><?= $idea['total_comments'] ?></span>
+                            <span class="ms-1 count"><?= $idea['total_comments'] ?></span>
                         </button>
                     </div>
                 </div>
@@ -732,35 +741,14 @@ include '../layout.php';
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../../assets/js/idea_ajax.js"></script>
 <script>
+// Override base URL for AJAX handler
+IdeaAjax.baseUrl = 'ajax_idea_handler.php';
+
 let currentShareIdeaId = null;
 
-// Auto-track views when cards are visible
-document.addEventListener('DOMContentLoaded', function() {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const ideaId = entry.target.dataset.ideaId;
-                if (ideaId && <?= $user_id ?> > 0) {
-                    trackView(ideaId);
-                    observer.unobserve(entry.target);
-                }
-            }
-        });
-    }, { threshold: 0.5 });
-    
-    document.querySelectorAll('.idea-card').forEach(card => {
-        observer.observe(card);
-    });
-});
-
-function trackView(ideaId) {
-    fetch('', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: `track_view=1&idea_id=${ideaId}`
-    });
-}
+// View tracking is handled by idea_ajax.js automatically
 
 function openShareModal(ideaId, ideaName) {
     currentShareIdeaId = ideaId;
@@ -801,11 +789,7 @@ function shareOn(platform) {
 }
 
 function trackShare(platform) {
-    fetch('', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: `track_share=1&idea_id=${currentShareIdeaId}&platform=${platform}`
-    });
+    IdeaAjax.trackShare(currentShareIdeaId, platform);
 }
 
 function openIdeaModal(ideaId) {
@@ -823,58 +807,7 @@ function openIdeaModal(ideaId) {
         });
 }
 
-// Star rating functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const stars = document.querySelectorAll('.star-rating i');
-    stars.forEach((star, index) => {
-        star.addEventListener('click', function() {
-            const rating = this.dataset.rating;
-            const ideaId = document.querySelector('.modal.show')?.dataset.ideaId;
-            if (ideaId) {
-                submitRating(ideaId, rating);
-            }
-            
-            // Update visual state
-            stars.forEach((s, i) => {
-                s.classList.toggle('active', i < rating);
-            });
-        });
-    });
-});
-
-function submitRating(ideaId, rating) {
-    fetch('', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: `submit_rating=1&idea_id=${ideaId}&rating=${rating}`
-    }).then(() => location.reload());
-}
-
-function toggleCommentForm() {
-    const form = document.getElementById('commentForm');
-    if(form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
-}
-
-function toggleReplyForm(commentId) {
-    const form = document.getElementById('replyForm' + commentId);
-    if(form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
-}
-
-function submitComment(event) {
-    event.preventDefault();
-    const form = event.target;
-    const formData = new FormData(form);
-    
-    fetch('', {
-        method: 'POST',
-        body: new URLSearchParams(Object.fromEntries(formData)).toString() + '&submit_comment=1',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-    })
-    .then(r => r.json())
-    .then(data => {
-        if(data.success) location.reload();
-    });
-}
+// Star rating is handled by idea_ajax.js
 
 function openReportModal(ideaId, ideaName) {
     document.getElementById('reportIdeaId').value = ideaId;
@@ -885,33 +818,29 @@ function openReportModal(ideaId, ideaName) {
 function submitReport() {
     const form = document.getElementById('reportForm');
     const formData = new FormData(form);
+    const ideaId = document.getElementById('reportIdeaId').value;
+    const reason = formData.get('reason');
+    const description = formData.get('description');
     
-    fetch('', {
-        method: 'POST',
-        body: new URLSearchParams(Object.fromEntries(formData)).toString() + '&submit_report=1',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-    })
-    .then(r => r.text())
-    .then(text => {
-        try {
-            const data = JSON.parse(text);
-            if(data.success) {
-                bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
-                alert('Report submitted successfully. Thank you for helping keep our community safe.');
-            } else {
-                alert('Failed to submit report. Please try again.');
-            }
-        } catch(e) {
-            console.error('Response:', text);
-            alert('An error occurred. Please try again.');
+    IdeaAjax.submitReport(ideaId, reason, description, (response) => {
+        if (response.success) {
+            bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
+            form.reset();
         }
-    })
-    .catch(err => {
-        console.error('Error:', err);
-        alert('An error occurred. Please try again.');
     });
 }
 
 </script>
+
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 </html>
