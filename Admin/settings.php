@@ -333,7 +333,18 @@ if (isset($_POST['test_email'])) {
     $site_name = getSetting($conn, 'site_name', 'IdeaNest');
     
     $subject = 'Test Email from ' . $site_name . ' Settings - ' . date('Y-m-d H:i:s');
-    $body = '<html><body style="font-family: Arial, sans-serif;"><h2>Test Email Configuration</h2><p>This is a test email to verify your email configuration is working properly.</p><p>Test sent at: ' . date('F j, Y, g:i a') . '</p></body></html>';
+    $body = '<html><body style="font-family: Arial, sans-serif;"><h2>Test Email Configuration</h2><p>This is a test email to verify your email configuration is working properly.</p><p>Test sent at: ' . date('F j, Y, g:i a') . '</p>
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
+</body></html>';
     
     if (sendSMTPEmail($smtp_username, $subject, $body)) {
         $message = "Test email sent successfully! Check your inbox at: " . $smtp_username;
@@ -358,6 +369,8 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/setting.css">
+    <link rel="stylesheet" href="assets/css/loader.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
 </head>
 <body>
 <!-- Sidebar -->
@@ -678,5 +691,16 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
 <!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../assets/js/setting.js"></script>
+
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
 </body>
 </html>
