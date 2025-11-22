@@ -48,6 +48,8 @@ include 'layout.php';
         .status-rejected { color: #ef4444; }
         @media (max-width: 768px) { .main-content { margin-left: 0; } }
     </style>
+    <link rel="stylesheet" href="assets/css/loader.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
 </head>
 <body>
     <div class="main-content">
@@ -155,5 +157,16 @@ include 'layout.php';
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
 </body>
 </html>
