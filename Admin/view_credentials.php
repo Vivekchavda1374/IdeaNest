@@ -66,6 +66,8 @@ $failed_emails = $emailLogger->getFailedEmails(20);
             padding: 20px;
         }
     </style>
+    <link rel="stylesheet" href="assets/css/loader.css">
+    <link rel="stylesheet" href="assets/css/loading.css">
 </head>
 <body>
 <?php include 'sidebar_admin.php'; ?>
@@ -234,5 +236,16 @@ $failed_emails = $emailLogger->getFailedEmails(20);
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Universal Loader -->
+<div id="universalLoader" class="loader-overlay">
+    <div class="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Loading...</div>
+    </div>
+</div>
+
+<script src="assets/js/loader.js"></script>
+<script src="assets/js/loading.js"></script>
 </body>
 </html>
