@@ -1,11 +1,12 @@
 <?php
+/**
+ * Database Connection Configuration
+ * Supports both development and production environments
+ */
 
-// Set XAMPP MySQL socket path for proper connection (only for local development)
-// Use XAMPP's socket location
-if (($_ENV['APP_ENV'] ?? 'production') === 'development') {
-    ini_set('mysqli.default_socket', '/opt/lampp/var/mysql/mysql.sock');
-    ini_set('mysql.default_socket', '/opt/lampp/var/mysql/mysql.sock');
-    ini_set('pdo_mysql.default_socket', '/opt/lampp/var/mysql/mysql.sock');
+// Load production configuration if in production
+if (file_exists(__DIR__ . '/../../config/production.php')) {
+    require_once __DIR__ . '/../../config/production.php';
 }
 
 // Load environment variables if .env file exists

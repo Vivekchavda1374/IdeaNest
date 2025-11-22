@@ -101,6 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Login - IdeaNest</title>
     <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
     <link rel="stylesheet" href="../../assets/css/loader.css">
+    <link rel="stylesheet" href="../../assets/css/loading.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
@@ -165,7 +166,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
 
+    <!-- Universal Loader -->
+    <div id="universalLoader" class="loader-overlay">
+        <div class="loader">
+            <div class="loader-spinner"></div>
+            <div class="loader-text" id="loaderText">Loading...</div>
+        </div>
+    </div>
+
     <script src="../../assets/js/loader.js"></script>
+    <script src="../../assets/js/loading.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
     function handleCredentialResponse(response) {
