@@ -243,29 +243,20 @@ foreach ($all_comments as $comment) {
 <script>
 document.getElementById('ideaDetailModal').dataset.ideaId = '<?= $idea_id ?>';
 
-function toggleCommentForm() {
-    const form = document.getElementById('commentForm');
-    form.style.display = form.style.display === 'none' ? 'block' : 'none';
-}
-
-function toggleReplyForm(commentId) {
-    const form = document.getElementById('replyForm' + commentId);
-    form.style.display = form.style.display === 'none' ? 'block' : 'none';
-}
-
 function submitComment(event) {
     event.preventDefault();
     const form = event.target;
-    const formData = new FormData(form);
+    const comment = form.querySelector('[name="comment"]').value.trim();
+    const ideaId = <?= $idea_id ?>;
     
-    fetch('list-project.php', {
-        method: 'POST',
-        body: new URLSearchParams(Object.fromEntries(formData)).toString() + '&submit_comment=1',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-    })
-    .then(r => r.json())
-    .then(data => {
-        if(data.success) {
+    if (!comment) {
+        alert('Please enter a comment');
+        return;
+    }
+    
+    IdeaAjax.addComment(ideaId, comment, null, (response) => {
+        if (response.success) {
+            // Reload the modal content to show new comment
             location.reload();
         }
     });
@@ -274,16 +265,17 @@ function submitComment(event) {
 function submitReply(event, parentId) {
     event.preventDefault();
     const form = event.target;
-    const formData = new FormData(form);
+    const comment = form.querySelector('[name="comment"]').value.trim();
+    const ideaId = <?= $idea_id ?>;
     
-    fetch('list-project.php', {
-        method: 'POST',
-        body: new URLSearchParams(Object.fromEntries(formData)).toString() + '&submit_comment=1',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-    })
-    .then(r => r.json())
-    .then(data => {
-        if(data.success) {
+    if (!comment) {
+        alert('Please enter a reply');
+        return;
+    }
+    
+    IdeaAjax.addComment(ideaId, comment, parentId, (response) => {
+        if (response.success) {
+            // Reload the modal content to show new reply
             location.reload();
         }
     });
