@@ -1,4 +1,12 @@
 <?php
+// Set security headers before any output
+if (!headers_sent()) {
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: DENY');
+    header('X-XSS-Protection: 1; mode=block');
+    header('Upgrade-Insecure-Requests: 1');
+}
+
 require_once "../../includes/csrf.php";
 
 // Configure session for better persistence
