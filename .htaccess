@@ -1,12 +1,22 @@
 # Security Configuration for IdeaNest
 RewriteEngine On
 
-# Security Headers
+# Security Headers - Block all insecure content
 Header always set X-Content-Type-Options nosniff
 Header always set X-Frame-Options DENY
 Header always set X-XSS-Protection "1; mode=block"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
-Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;"
+Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+
+# Force HTTPS for all mixed content
+Header always set Upgrade-Insecure-Requests "1"
+
+# HSTS - Enforce HTTPS
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+# Disable auto_prepend and auto_append to prevent script injection
+php_flag auto_prepend_file off
+php_flag auto_append_file off
 
 # Hide sensitive files
 <Files ".env">
@@ -67,12 +77,25 @@ RewriteRule ^(.*)$ - [F,L]
     Deny from all
 </FilesMatch>
 
-# Enable HTTPS redirect for production
+# Enable HTTPS redirect for production (force all traffic to HTTPS)
 RewriteCond %{HTTPS} off
 RewriteCond %{HTTP_HOST} !^localhost [NC]
+RewriteCond %{HTTP_HOST} !^127\.0\.0\.1 [NC]
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+# Block insecure external scripts and injection attempts
+RewriteCond %{HTTP_REFERER} directfwd\.com [NC,OR]
+RewriteCond %{HTTP_REFERER} jsinit [NC,OR]
+RewriteCond %{HTTP_REFERER} jspark [NC,OR]
+RewriteCond %{QUERY_STRING} directfwd [NC,OR]
+RewriteCond %{QUERY_STRING} jsinit [NC]
+RewriteRule ^(.*)$ - [F,L]
+
+# Block requests to known injection domains
+RewriteCond %{HTTP_HOST} ^(cdn\.jsinit\.directfwd\.com|.*\.directfwd\.com)$ [NC]
+RewriteRule ^(.*)$ - [F,L]
+
 # Custom error pages
-ErrorDocument 403 /hcd/IdeaNest/error_pages/403.html
-ErrorDocument 404 /hcd/IdeaNest/error_pages/404.html
-ErrorDocument 500 /hcd/IdeaNest/error_pages/500.html
+ErrorDocument 403 /error_pages/403.html
+ErrorDocument 404 /error_pages/404.html
+ErrorDocument 500 /error_pages/500.html
