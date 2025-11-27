@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/security_init.php';
 // user/edit_project.php
 // Production-safe error reporting
 if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {

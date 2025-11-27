@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/security_init.php';
 // Process form submission
 session_start();
 require_once '../../includes/csrf.php';

@@ -1,5 +1,5 @@
 <?php
-
+require_once __DIR__ . '/../includes/security_init.php';
 session_start();
 include 'db.php';
 

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/security_init.php';
 // layout.php - Main layout template
 function renderLayout($title, $content, $activePage = '')
 {
