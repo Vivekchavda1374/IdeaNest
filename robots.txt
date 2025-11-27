@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /config/
+Disallow: /includes/
+Disallow: /logs/
+Disallow: /vendor/
+Disallow: /backups/
+Disallow: /db/
+Disallow: /.git/
+Disallow: /tests/
+Allow: /

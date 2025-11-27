@@ -1,8 +1,15 @@
+<?php
+// Prevent any script injection
+ob_start();
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; block-all-mixed-content">
     <title>IdeaNest - Academic Project Management Platform</title>
     <link rel="icon" type="image/png" href="assets/image/fevicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
