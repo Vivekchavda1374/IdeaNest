@@ -1,5 +1,5 @@
 <?php
-
+require_once __DIR__ . '/../includes/security_init.php';
 /**
  * GitHub API Endpoint
  * Handles GitHub integration requests

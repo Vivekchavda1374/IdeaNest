@@ -1,5 +1,5 @@
 <?php
-
+require_once __DIR__ . '/../includes/security_init.php';
 // Include the database configuration file
 //require_once 'con.php';
 

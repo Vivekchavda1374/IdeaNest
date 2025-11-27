@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/security_init.php';
 // Set security headers before any output
 if (!headers_sent()) {
     header('X-Content-Type-Options: nosniff');

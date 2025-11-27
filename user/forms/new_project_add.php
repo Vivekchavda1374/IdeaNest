@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/security_init.php';
 // Start session at the beginning of the script
 session_start();
 

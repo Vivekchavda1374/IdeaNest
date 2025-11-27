@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/security_init.php';
 require_once __DIR__ . '/../includes/html_helpers.php';
 // Start output buffering to prevent header errors
 ob_start();

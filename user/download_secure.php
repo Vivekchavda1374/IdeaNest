@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/security_init.php';
 /**
  * Secure File Download Handler
  * Replaces the old download.php with security improvements

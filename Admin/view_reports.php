@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/security_init.php';
 session_start();
 require_once '../config/config.php';
 

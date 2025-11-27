@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/security_init.php';
 function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '')
 {
     ?>
