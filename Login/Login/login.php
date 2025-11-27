@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/security_init.php';
+require_once __DIR__ . '/../../includes/security_init.php';
 // Set security headers before any output
 if (!headers_sent()) {
     header('X-Content-Type-Options: nosniff');
@@ -23,8 +23,7 @@ session_start();
 include 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    requireCSRF();
-    validateCSRF();
+    CSRFProtection::verifyRequest();
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
 
@@ -120,10 +119,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .alert { padding: 12px; margin-bottom: 20px; border-radius: 4px; font-size: 14px; }
         .alert-error { background: #fee; color: #c33; border: 1px solid #fcc; }
         .alert-success { background: #efe; color: #3c3; border: 1px solid #cfc; }
-        .form-group { margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; position: relative; }
         label { display: block; margin-bottom: 5px; color: #555; font-size: 14px; }
         input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
         input:focus { outline: none; border-color: #6366f1; }
+        .password-toggle { position: absolute; right: 10px; top: 32px; cursor: pointer; color: #666; user-select: none; }
+        .password-toggle:hover { color: #333; }
         button { width: 100%; padding: 12px; background: #6366f1; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-top: 10px; position: relative; }
         button:hover { background: #5558e3; }
         .links { text-align: center; margin-top: 20px; font-size: 14px; }
@@ -148,16 +149,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php endif; ?>
 
         <form method="POST">
-                <?php echo generateCSRF(); ?>
+            <?= getCSRFField() ?>
             <div class="form-group">
                 <label>Email or Enrollment Number</label>
                 <input type="text" name="email" required autofocus>
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" name="password" required>
+                <input type="password" name="password" id="password" required>
+                <span class="password-toggle" onclick="togglePassword()">👁️</span>
             </div>
-            <?= getCSRFField() ?>
             <button type="submit"><span class="btn-text">Sign In</span></button>
         </form>
 
@@ -187,6 +188,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <script src="../../assets/js/loading.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.querySelector('.password-toggle');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.textContent = '🙈';
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.textContent = '👁️';
+        }
+    }
+
     function handleCredentialResponse(response) {
         showLoader('Signing in with Google...');
         fetch('google_auth.php', {
