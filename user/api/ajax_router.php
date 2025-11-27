@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/security_init.php';
 /**
  * AJAX Router - Central handler for all AJAX requests
  * Routes requests to appropriate handlers without full page reload

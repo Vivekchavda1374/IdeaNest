@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/security_init.php';
 /**
  * Database Connection Configuration
  * Supports both development and production environments

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/security_init.php';
 /**
  * Session Reminder System
  * Automated email reminders for upcoming mentoring sessions

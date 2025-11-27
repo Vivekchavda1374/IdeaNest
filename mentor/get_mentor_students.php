@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/security_init.php';
 /**
  * Unified Mentor Student Retrieval
  * This file provides a single source of truth for getting mentor's students
