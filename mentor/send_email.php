@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 session_start();
 require_once '../Login/Login/db.php';
 require_once 'mentor_layout.php';
@@ -179,5 +179,5 @@ function sendEmail(form, action) {
 </script>
 ';
 
-renderLayout($content, 'Email Management', $additionalCSS, $additionalJS);
+renderLayout('Email Management', $content, $additionalCSS, $additionalJS);
 ?>

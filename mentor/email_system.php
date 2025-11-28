@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 require_once dirname(__DIR__) . "/includes/autoload_simple.php";
 
 require_once '../Login/Login/db.php';
@@ -166,7 +166,7 @@ class MentorEmailSystem
                 
                 <p style='text-align: center; margin: 30px 0;'>
 
-                    <a href='https://ictmu.in/hcd/IdeaNest/user/dashboard.php' style='background: #8b5cf6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;'>Get Started</a>
+                    <a href='http://localhost/IdeaNest/user/dashboard.php' style='background: #8b5cf6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;'>Get Started</a>
 
                 </p>
                 
