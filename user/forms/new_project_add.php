@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/security_init.php';
+require_once __DIR__ . '/../../includes/security_init.php';
 // Start session at the beginning of the script
 session_start();
 
@@ -276,6 +276,8 @@ if (isset($conn)) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/layout_user.css">
+    <link rel="stylesheet" href="../assets/css/educational-ui.css">
+    <link rel="stylesheet" href="../assets/css/educational-forms.css">
 
     <style>
         :root {
@@ -314,14 +316,14 @@ if (isset($conn)) {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg-secondary);
             color: var(--text-primary);
-            line-height: 1.6;
-            font-size: 14px;
+            line-height: 1.5;
+            font-size: 13px;
             overflow-x: hidden;
         }
 
         .main-content {
             margin-left: 280px;
-            padding: 2rem;
+            padding: 1rem;
             min-height: 100vh;
             background: var(--bg-secondary);
             transition: margin-left 0.3s ease;
@@ -330,16 +332,16 @@ if (isset($conn)) {
         @media (max-width: 1024px) {
             .main-content {
                 margin-left: 0;
-                padding: 1.5rem;
+                padding: 0.75rem;
             }
         }
 
         .form-container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
             background: var(--bg-primary);
-            border-radius: 1.5rem;
-            box-shadow: var(--shadow-xl);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
             overflow: hidden;
             border: 1px solid var(--border-color);
         }
@@ -348,7 +350,7 @@ if (isset($conn)) {
             background: var(--gradient-primary);
             color: white;
             text-align: center;
-            padding: 3rem 2rem;
+            padding: 1.5rem 1rem;
             position: relative;
             overflow: hidden;
         }
@@ -365,97 +367,99 @@ if (isset($conn)) {
         }
 
         .form-header h1 {
-            font-size: 2.25rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            margin: 0 0 0.5rem 0;
+            margin: 0 0 0.25rem 0;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .form-header p {
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             opacity: 0.9;
             margin: 0;
         }
 
         .form-body {
-            padding: 2.5rem;
+            padding: 1.5rem;
         }
 
         .user-info {
             background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
-            padding: 2rem;
-            border-radius: 1rem;
-            border-left: 4px solid var(--primary-color);
-            margin-bottom: 2rem;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border-left: 3px solid var(--primary-color);
+            margin-bottom: 1rem;
             box-shadow: var(--shadow-sm);
         }
 
         .user-info h4 {
             color: var(--text-primary);
-            font-weight: 700;
-            margin: 0 0 0.5rem 0;
-            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+            font-size: 1rem;
         }
 
         .user-info p {
             color: var(--text-secondary);
-            font-size: 1rem;
+            font-size: 0.85rem;
             margin: 0;
             font-weight: 500;
         }
 
         .form-section {
-            margin-bottom: 2rem;
-            padding: 2rem;
+            margin-bottom: 1.25rem;
+            padding: 1.25rem;
             background: var(--bg-tertiary);
-            border-radius: 1rem;
-            border-left: 4px solid var(--primary-color);
+            border-radius: 0.75rem;
+            border-left: 3px solid var(--primary-color);
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border-color);
         }
 
         .form-section h3 {
             color: var(--primary-color);
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1rem;
             display: flex;
             align-items: center;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .form-section h3 i {
             background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-            width: 40px;
-            height: 40px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 1rem;
+            margin-right: 0.75rem;
             color: var(--primary-color);
+            font-size: 0.85rem;
         }
 
         .form-label {
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 0.75rem;
-            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
         }
 
         .form-label i {
-            margin-right: 0.5rem;
+            margin-right: 0.4rem;
             color: var(--primary-color);
+            font-size: 0.8rem;
         }
 
         .form-control, .form-select {
-            border: 2px solid var(--border-color);
-            border-radius: 0.75rem;
-            padding: 0.75rem 1rem;
-            font-size: 0.95rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             background: var(--bg-primary);
             color: var(--text-primary);
@@ -470,10 +474,10 @@ if (isset($conn)) {
         .btn-primary {
             background: var(--gradient-primary);
             border: none;
-            padding: 1rem 2rem;
+            padding: 0.75rem 1.5rem;
             font-weight: 600;
-            border-radius: 0.75rem;
-            font-size: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: var(--shadow-md);
         }
@@ -504,30 +508,30 @@ if (isset($conn)) {
 
         .text-danger { color: var(--danger-color) !important; }
         .hidden { display: none !important; }
-        .mb-3 { margin-bottom: 1rem; }
-        .mb-2 { margin-bottom: 0.5rem; }
-        .mb-4 { margin-bottom: 1.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-2 { margin-bottom: 0.4rem; }
+        .mb-4 { margin-bottom: 1rem; }
 
         /* Grid system */
-        .row { display: flex; flex-wrap: wrap; margin: -0.75rem; }
-        .col-md-6 { flex: 1; padding: 0.75rem; min-width: 0; }
-        .col-md-4 { flex: 0 0 33.333333%; padding: 0.75rem; }
-        .col-md-8 { flex: 0 0 66.666667%; padding: 0.75rem; }
+        .row { display: flex; flex-wrap: wrap; margin: -0.5rem; }
+        .col-md-6 { flex: 1; padding: 0.5rem; min-width: 0; }
+        .col-md-4 { flex: 0 0 33.333333%; padding: 0.5rem; }
+        .col-md-8 { flex: 0 0 66.666667%; padding: 0.5rem; }
 
         @media (max-width: 768px) {
-            .col-md-6, .col-md-4, .col-md-8 { flex: 0 0 100%; }
-            .form-body { padding: 1.5rem; }
-            .form-section { padding: 1.5rem; }
-            .form-header { padding: 2rem 1.5rem; }
-            .form-header h1 { font-size: 1.75rem; }
+            .col-md-6, .col-md-4, .col-md-8 { flex: 0 0 100%; padding: 0.25rem; }
+            .form-body { padding: 1rem; }
+            .form-section { padding: 1rem; }
+            .form-header { padding: 1rem; }
+            .form-header h1 { font-size: 1.25rem; }
         }
 
         /* File upload styling */
         .file-upload-container {
             background: var(--bg-primary);
-            border: 2px dashed var(--border-color);
-            border-radius: 1rem;
-            padding: 1.5rem;
+            border: 1px dashed var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
             text-align: center;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
@@ -547,18 +551,18 @@ if (isset($conn)) {
         }
 
         .file-upload-info {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
-            margin-top: 0.5rem;
+            margin-top: 0.25rem;
             font-weight: 500;
         }
 
         /* Alert styles */
         .alert {
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem;
-            border-radius: 1rem;
-            font-size: 0.95rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
             font-weight: 500;
             border: 1px solid;
             display: flex;
@@ -585,10 +589,10 @@ if (isset($conn)) {
         /* Category group styling */
         .category-group {
             background: var(--bg-primary);
-            padding: 1.5rem;
-            border-radius: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
             border: 1px solid var(--border-color);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         /* Modal styling */
@@ -613,28 +617,94 @@ if (isset($conn)) {
         /* Responsive improvements */
         @media (max-width: 480px) {
             .main-content {
-                padding: 1rem;
+                padding: 0.5rem;
             }
 
             .form-header {
-                padding: 1.5rem 1rem;
+                padding: 1rem 0.75rem;
             }
 
             .form-header h1 {
-                font-size: 1.5rem;
+                font-size: 1.2rem;
+            }
+
+            .form-header p {
+                font-size: 0.8rem;
             }
 
             .form-body {
-                padding: 1rem;
+                padding: 0.75rem;
+            }
+
+            .form-section {
+                padding: 0.75rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .form-section h3 {
+                font-size: 0.9rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .form-label {
+                font-size: 0.8rem;
+                margin-bottom: 0.4rem;
+            }
+
+            .form-control, .form-select {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+            }
+
+            .btn-primary {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.85rem;
+            }
+
+            .user-info {
+                padding: 0.75rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .user-info h4 {
+                font-size: 0.9rem;
+            }
+
+            .user-info p {
+                font-size: 0.8rem;
+            }
+
+            .alert {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.8rem;
+            }
+
+            .file-upload-container {
+                padding: 0.75rem;
+            }
+
+            .file-upload-info {
+                font-size: 0.65rem;
+            }
+        }
+
+        /* Tablet responsiveness */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .form-container {
+                max-width: 700px;
             }
 
             .form-section {
                 padding: 1rem;
             }
+
+            .form-header {
+                padding: 1.25rem 1rem;
+            }
         }
     </style>
-    <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
+    <link rel="stylesheet" href="../../assets/css/loader.css">
+    <link rel="stylesheet" href="../../assets/css/loading.css">
 </head>
 <body>
 <?php include "../layout.php";?>
@@ -1075,6 +1145,7 @@ if (isset($conn)) {
 
 <script src="../../assets/js/layout_user.js"></script>
 <script src="../../assets/js/new_project_add.js"></script>
+<script src="../assets/js/educational-ui.js" defer></script>
 
 <!-- Universal Loader -->
 <div id="universalLoader" class="loader-overlay">
@@ -1084,8 +1155,8 @@ if (isset($conn)) {
     </div>
 </div>
 
-<script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
+<script src="../../assets/js/loader.js"></script>
+<script src="../../assets/js/loading.js"></script>
 </body>
 
 </html>
