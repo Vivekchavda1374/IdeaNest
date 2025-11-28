@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 require_once __DIR__ . '/../includes/html_helpers.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -355,8 +355,15 @@ if (empty($weekly_performance)) {
     <!-- Add Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="../assets/css/index.css">
-    <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/layout_user.css">
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
+    <link rel="stylesheet" href="assets/css/educational-ui.css">
+    <!-- JavaScript -->
+    <script src="../assets/js/loading.js"></script>
+    <script src="../assets/js/loader.js"></script>
+    <script src="../assets/js/layout_user.js" defer></script>
+    <script src="assets/js/educational-ui.js" defer></script>
 </head>
 <body>
 <?php include 'layout.php'; ?>
@@ -1674,7 +1681,7 @@ window.showNotification = showNotification;
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 </html>

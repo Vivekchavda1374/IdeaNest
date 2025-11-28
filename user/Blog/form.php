@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/security_init.php';
+require_once __DIR__ . '/../../includes/security_init.php';
 // Process form submission
 session_start();
 require_once '../../includes/csrf.php';
@@ -95,6 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="../../assets/css/index.css">
     <link rel="stylesheet" href="../../assets/css/layout_user.css">
     <link rel="stylesheet" href="../../assets/css/loader.css">
+    <link rel="stylesheet" href="../../assets/css/loading.css">
     <style>
         /* Purple Theme CSS for Project Submission Portal - Compact & Centered */
         :root {
@@ -918,6 +919,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/loader.js"></script>
+    <script src="../../assets/js/loading.js"></script>
     <script>
     // Mobile menu toggle functionality
     document.addEventListener('DOMContentLoaded', function() {
