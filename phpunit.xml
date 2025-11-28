@@ -42,7 +42,7 @@
         <env name="DB_HOST" value="localhost"/>
         <env name="DB_USER" value="root"/>
         <env name="DB_PASS" value=""/>
-        <env name="DB_NAME" value="ideanest_test"/>
+        <env name="DB_NAME" value="ictmu6ya_ideanest_test"/>
         <env name="GITHUB_TEST_USER" value="octocat"/>
     </php>
 </phpunit>
