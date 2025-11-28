@@ -13,7 +13,7 @@ class CompleteWorkflowTest extends TestCase
     protected function setUp(): void
     {
         $this->client = new Client();
-        $this->baseUrl = 'https://ictmu.in/hcd/IdeaNest';
+        $this->baseUrl = 'http://localhost/IdeaNest';
     }
 
     public function testStudentRegistrationToProjectSubmission()

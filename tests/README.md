@@ -24,7 +24,7 @@ composer install
 
 ### 2. Setup Test Database
 ```bash
-mysql -u ictmu6ya_ideanest -p -e "CREATE DATABASE ideanest_test;"
+mysql -u ictmu6ya_ideanest -p -e "CREATE DATABASE ictmu6ya_ideanest_test;"
 ```
 
 ### 3. Run All Tests
@@ -131,7 +131,7 @@ Set in `phpunit.xml` or environment:
 - `DB_HOST` - Test database host (default: localhost)
 - `DB_USER` - Test database user (default: root)
 - `DB_PASS` - Test database password (default: empty)
-- `DB_NAME` - Test database name (default: ideanest_test)
+- `DB_NAME` - Test database name (default: ictmu6ya_ideanest_test)
 - `GITHUB_TEST_USER` - GitHub username for API tests (default: octocat)
 
 ### Test Database
