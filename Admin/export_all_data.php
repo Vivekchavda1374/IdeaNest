@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -149,8 +149,8 @@ if ($export_type === 'csv') {
             .no-print { display: none; }
         }
     </style>
-    <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
     <div class="container-fluid p-4">
@@ -288,7 +288,7 @@ if ($export_type === 'csv') {
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 </html>
