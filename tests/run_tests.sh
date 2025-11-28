@@ -31,7 +31,7 @@ fi
 
 # Create test database
 echo -e "${BLUE}Setting up test database...${NC}"
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS ideanest_test;" 2>/dev/null || echo "Database setup skipped (manual setup required)"
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS ictmu6ya_ideanest_test;" 2>/dev/null || echo "Database setup skipped (manual setup required)"
 
 # Check if PHPUnit is available before running tests
 if [ -f "vendor/bin/phpunit" ]; then

@@ -9,7 +9,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 define('TEST_DB_HOST', $_ENV['DB_HOST'] ?? 'localhost');
 define('TEST_DB_USER', $_ENV['DB_USER'] ?? 'root');
 define('TEST_DB_PASS', $_ENV['DB_PASS'] ?? '');
-define('TEST_DB_NAME', $_ENV['DB_NAME'] ?? 'ideanest_test');
+define('TEST_DB_NAME', $_ENV['DB_NAME'] ?? 'ictmu6ya_ideanest_test');
 
 // Create test database connection
 function getTestConnection() {
