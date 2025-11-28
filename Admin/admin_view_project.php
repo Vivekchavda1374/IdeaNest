@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 // Production-safe error reporting
 if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
     error_reporting(E_ALL);
@@ -11,6 +11,7 @@ if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
 }
 
 require_once dirname(__FILE__) . '/../includes/autoload_simple.php';
+require_once dirname(__FILE__) . '/../includes/html_helpers.php';
 include "../Login/Login/db.php";
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -26,14 +27,20 @@ $user_name = $_SESSION['user_name'] ?? "Admin";
 
 // Handle project actions
 if(isset($_POST['reject_submit'])) {
-    $$project_id = post_param('project_id');
-    $$rejection_reason = post_param('rejection_reason');
-    rejectProject($project_id, $rejection_reason, $conn);
+    $project_id = post_param('project_id');
+    $rejection_reason = post_param('rejection_reason');
+    
+    if($project_id && $rejection_reason) {
+        rejectProject($project_id, $rejection_reason, $conn);
+    } else {
+        header("Location: admin_view_project.php?error=Missing required fields");
+        exit;
+    }
 }
 
 if(isset($_GET['action']) && isset($_GET['id'])) {
-    $$project_id = get_param('id');
-    $$action = get_param('action');
+    $project_id = get_param('id');
+    $action = get_param('action');
     
     if($action == 'approve') {
         approveProject($project_id, $conn);
@@ -288,8 +295,8 @@ $message = $_GET['message'] ?? '';
             background-color: rgba(239, 68, 68, 0.1);
         }
     </style>
-    <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
     <?php include 'sidebar_admin.php'; ?>
@@ -555,6 +562,18 @@ $message = $_GET['message'] ?? '';
             const rejectForms = document.querySelectorAll('form[method="post"]');
             rejectForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
+                    const rejectionReason = this.querySelector('textarea[name="rejection_reason"]');
+                    if (rejectionReason && !rejectionReason.value.trim()) {
+                        e.preventDefault();
+                        alert('Please provide a rejection reason.');
+                        return false;
+                    }
+                    
+                    if (!confirm('Are you sure you want to reject this project?')) {
+                        e.preventDefault();
+                        return false;
+                    }
+                    
                     const submitBtn = this.querySelector('.reject-btn');
                     if (submitBtn) {
                         setButtonLoading(submitBtn, true, 'Rejecting...');
@@ -573,7 +592,7 @@ $message = $_GET['message'] ?? '';
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 </html>
