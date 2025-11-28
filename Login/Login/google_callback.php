@@ -1,12 +1,12 @@
 <?php
-require_once __DIR__ . '/../includes/security_init.php';
+require_once __DIR__ . '/../../includes/security_init.php';
 session_start();
 include 'db.php';
 require_once 'google_config.php';
 
 // Set proper headers for production
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: https://ictmu.in');
+header('Access-Control-Allow-Origin: http://localhost');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 

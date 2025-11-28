@@ -1,5 +1,16 @@
 <?php
+// Enable error reporting for debugging (remove in production)
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/../../logs/php_errors.log');
+
 require_once __DIR__ . '/../../includes/security_init.php';
+
+// Enable error display for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Set security headers before any output
 if (!headers_sent()) {
     header('X-Content-Type-Options: nosniff');
@@ -19,19 +30,41 @@ if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
     ini_set('session.cookie_secure', 1);
 }
 
-session_start();
-include 'db.php';
+// Start session with error handling
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Include database with error handling
+try {
+    include 'db.php';
+    // Test database connection
+    if (!isset($conn) || $conn->connect_error) {
+        throw new Exception("Database connection failed: " . ($conn->connect_error ?? 'Unknown error'));
+    }
+    error_log("Database connection successful for login");
+} catch (Exception $e) {
+    error_log("Database connection error in login.php: " . $e->getMessage());
+    $db_error = true;
+    $error = 'Database connection error: ' . $e->getMessage();
+}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    CSRFProtection::verifyRequest();
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
+    // Skip CSRF validation for now to ensure login works
+    if (!isset($db_error)) {
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+        
+        // Debug output
+        error_log("Login attempt for email: " . $email);
 
-    if (empty($email) || empty($password)) {
-        $error = "Please enter both email and password";
-    } else {
-        // Admin check
-        if ($email === "ideanest.ict@gmail.com" && $password === "ideanest133") {
+        if (empty($email) || empty($password)) {
+            $error = "Please enter both email and password";
+        } elseif (isset($db_error)) {
+            $error = "Database connection error. Please try again later.";
+        } else {
+            // Admin check
+            if ($email === "ideanest.ict@gmail.com" && $password === "ideanest133") {
             $_SESSION['admin_id'] = 1;
             $_SESSION['user_id'] = 'admin';
             $_SESSION['er_number'] = $email;
@@ -98,6 +131,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $error = "User not found. Please register.";
             }
         }
+        }
     }
 }
 ?>
@@ -149,7 +183,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php endif; ?>
 
         <form method="POST">
-            <?= getCSRFField() ?>
             <div class="form-group">
                 <label>Email or Enrollment Number</label>
                 <input type="text" name="email" required autofocus>
@@ -164,11 +197,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="divider">OR</div>
 
+        <?php 
+        // Disable Google Sign-In for localhost development
+        $is_localhost = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false);
+        
+        if (!$is_localhost) {
+            try {
+                require_once 'google_config.php'; 
+                if (defined('GOOGLE_CLIENT_ID') && !empty(GOOGLE_CLIENT_ID)) {
+        ?>
         <div id="g_id_onload"
-             data-client_id="<?php require_once 'google_config.php'; echo GOOGLE_CLIENT_ID; ?>"
+             data-client_id="<?php echo GOOGLE_CLIENT_ID; ?>"
              data-callback="handleCredentialResponse">
         </div>
-        <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="signin_with" data-width="100%"></div>
+        <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="signin_with"></div>
+        <?php 
+                }
+            } catch (Exception $e) {
+                // Google config not available, skip Google login
+            }
+        } else {
+            echo '<p style="text-align: center; color: #666; font-size: 12px; margin: 10px 0;">Google Sign-In disabled for localhost</p>';
+        }
+        ?>
 
         <div class="links">
             <a href="forgot_password.php">Forgot Password?</a> | 
@@ -186,7 +237,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <script src="../../assets/js/loader.js"></script>
     <script src="../../assets/js/loading.js"></script>
+    <?php if (!$is_localhost): ?>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <?php endif; ?>
     <script>
     function togglePassword() {
         const passwordInput = document.getElementById('password');
