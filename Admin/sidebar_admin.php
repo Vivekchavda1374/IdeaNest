@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 require_once __DIR__ . '/../includes/html_helpers.php';
 // sidebar.php - Common Sidebar Component for Admin Panel
 
