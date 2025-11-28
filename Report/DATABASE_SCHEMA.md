@@ -445,8 +445,8 @@ ORDER BY m.success_rate DESC, available_slots DESC;
 // Database configuration for optimal performance
 $dbConfig = [
     'host' => 'localhost', // Database host - keep as localhost for database connection
-    'dbname' => 'ideanest',
-    'username' => 'ideanest_user',
+    'dbname' => 'ictmu6ya_ideanest',
+    'username' => 'ictmu6ya_ideanest',
     'password' => 'secure_password',
     'charset' => 'utf8mb4',
     'options' => [

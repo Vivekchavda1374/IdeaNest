@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 /**
  * Report Dashboard - Analytics and Report Generation
  * IdeaNest System
