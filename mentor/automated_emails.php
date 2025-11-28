@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 // Use absolute path resolution to work with cron jobs from any directory
 if (!defined('PROJECT_ROOT')) {
     define('PROJECT_ROOT', dirname(dirname(__DIR__)));
