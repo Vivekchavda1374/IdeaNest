@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 require_once '../config/config.php';
 // Production-safe error reporting
 if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
@@ -18,6 +18,23 @@ require_once '../Login/Login/db.php';
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     header("Location: ../Login/Login/login.php");
     exit();
+}
+
+// Ensure idea_reports table exists
+$table_check = $conn->query("SHOW TABLES LIKE 'idea_reports'");
+if ($table_check->num_rows == 0) {
+    $create_table_sql = "CREATE TABLE `idea_reports` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `idea_id` int(11) NOT NULL,
+        `reporter_id` int(11) NOT NULL,
+        `report_type` varchar(50) NOT NULL,
+        `description` text DEFAULT NULL,
+        `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+        `status` enum('pending','reviewed','resolved') DEFAULT 'pending',
+        PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
+    
+    $conn->query($create_table_sql);
 }
 
 // Handle actions
@@ -48,18 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p><strong>Reason:</strong> $warning_reason</p>
                 <p>Please review and modify your content to comply with our community guidelines. Failure to address this issue may result in content removal.</p>
                 <p>Best regards,<br>IdeaNest Admin Team</p>
-            
-<!-- Universal Loader -->
-<div id="universalLoader" class="loader-overlay">
-    <div class="loader">
-        <div class="loader-spinner"></div>
-        <div class="loader-text" id="loaderText">Loading...</div>
-    </div>
-</div>
-
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
-</body>
+            </body>
             </html>";
 
             $headers = "MIME-Version: 1.0\r\n";
@@ -153,14 +159,22 @@ $reported_ideas_query = "
         r.email as user_email,
         reporter.name as reporter_name
     FROM idea_reports ir
-    JOIN blog b ON ir.idea_id = b.id
-    JOIN register r ON b.user_id = r.id
-    JOIN register reporter ON ir.reporter_id = reporter.id
+    LEFT JOIN blog b ON ir.idea_id = b.id
+    LEFT JOIN register r ON b.user_id = r.id
+    LEFT JOIN register reporter ON ir.reporter_id = reporter.id
     WHERE ir.status IN ('pending', 'reviewed')
     ORDER BY ir.created_at DESC
 ";
 
 $reported_ideas = $conn->query($reported_ideas_query);
+
+// Debug: Check for SQL errors
+if (!$reported_ideas) {
+    error_log("SQL Error in manage_reported_ideas.php: " . $conn->error);
+    if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
+        echo "SQL Error: " . $conn->error;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -173,8 +187,8 @@ $reported_ideas = $conn->query($reported_ideas_query);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/admin_dashboard.css">
-    <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
     <!-- Simple Admin Header -->
@@ -378,7 +392,7 @@ $reported_ideas = $conn->query($reported_ideas_query);
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 </html>
