@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 session_start();
 require_once '../Login/Login/db.php';
 require_once 'mentor_layout.php';
@@ -11,66 +11,88 @@ if (!isset($_SESSION['mentor_id'])) {
 
 $mentor_id = $_SESSION['mentor_id'];
 
-// Get upcoming sessions using mentor requests
+// Get upcoming sessions - use UNION to check both mentor_student_pairs and mentor_requests
 $upcoming_query = "SELECT ms.*, r.name as student_name, p.project_name,
-                   TIMESTAMPDIFF(HOUR, NOW(), ms.session_date) as hours_until
+                   TIMESTAMPDIFF(HOUR, NOW(), ms.session_date) as hours_until,
+                   'pair' as source_type
+                   FROM mentoring_sessions ms
+                   JOIN mentor_student_pairs msp ON ms.pair_id = msp.id
+                   JOIN register r ON msp.student_id = r.id
+                   LEFT JOIN projects p ON msp.project_id = p.id
+                   WHERE msp.mentor_id = ? AND ms.status = 'scheduled' AND ms.session_date >= NOW()
+                   
+                   UNION
+                   
+                   SELECT ms.*, r.name as student_name, p.project_name,
+                   TIMESTAMPDIFF(HOUR, NOW(), ms.session_date) as hours_until,
+                   'request' as source_type
                    FROM mentoring_sessions ms
                    JOIN mentor_requests mr ON ms.pair_id = mr.id
                    JOIN register r ON mr.student_id = r.id
                    LEFT JOIN projects p ON mr.project_id = p.id
                    WHERE mr.mentor_id = ? AND mr.status = 'accepted' AND ms.status = 'scheduled' AND ms.session_date >= NOW()
-                   ORDER BY ms.session_date ASC";
+                   
+                   ORDER BY session_date ASC";
+
 $stmt = $conn->prepare($upcoming_query);
-$stmt->bind_param("i", $mentor_id);
+$stmt->bind_param("ii", $mentor_id, $mentor_id);
 $stmt->execute();
 $upcoming = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// If no sessions found, try with mentor_student_pairs
-if (empty($upcoming)) {
-    $upcoming_query = "SELECT ms.*, r.name as student_name, p.project_name,
-                       TIMESTAMPDIFF(HOUR, NOW(), ms.session_date) as hours_until
-                       FROM mentoring_sessions ms
-                       JOIN mentor_student_pairs msp ON ms.pair_id = msp.id
-                       JOIN register r ON msp.student_id = r.id
-                       LEFT JOIN projects p ON msp.project_id = p.id
-                       WHERE msp.mentor_id = ? AND ms.status = 'scheduled' AND ms.session_date >= NOW()
-                       ORDER BY ms.session_date ASC";
-    $stmt = $conn->prepare($upcoming_query);
-    $stmt->bind_param("i", $mentor_id);
-    $stmt->execute();
-    $upcoming = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-}
-
-// Get completed sessions using mentor requests
-$completed_query = "SELECT ms.*, r.name as student_name, p.project_name
+// Get completed sessions - use UNION to check both sources
+$completed_query = "SELECT ms.*, r.name as student_name, p.project_name,
+                    'pair' as source_type
+                    FROM mentoring_sessions ms
+                    JOIN mentor_student_pairs msp ON ms.pair_id = msp.id
+                    JOIN register r ON msp.student_id = r.id
+                    LEFT JOIN projects p ON msp.project_id = p.id
+                    WHERE msp.mentor_id = ? AND ms.status = 'completed'
+                    
+                    UNION
+                    
+                    SELECT ms.*, r.name as student_name, p.project_name,
+                    'request' as source_type
                     FROM mentoring_sessions ms
                     JOIN mentor_requests mr ON ms.pair_id = mr.id
                     JOIN register r ON mr.student_id = r.id
                     LEFT JOIN projects p ON mr.project_id = p.id
                     WHERE mr.mentor_id = ? AND mr.status = 'accepted' AND ms.status = 'completed'
-                    ORDER BY ms.session_date DESC LIMIT 10";
+                    
+                    ORDER BY session_date DESC LIMIT 10";
+
 $stmt = $conn->prepare($completed_query);
-$stmt->bind_param("i", $mentor_id);
+$stmt->bind_param("ii", $mentor_id, $mentor_id);
 $stmt->execute();
 $completed = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// If no completed sessions found, try with mentor_student_pairs
-if (empty($completed)) {
-    $completed_query = "SELECT ms.*, r.name as student_name, p.project_name
-                        FROM mentoring_sessions ms
-                        JOIN mentor_student_pairs msp ON ms.pair_id = msp.id
-                        JOIN register r ON msp.student_id = r.id
-                        LEFT JOIN projects p ON msp.project_id = p.id
-                        WHERE msp.mentor_id = ? AND ms.status = 'completed'
-                        ORDER BY ms.session_date DESC LIMIT 10";
-    $stmt = $conn->prepare($completed_query);
-    $stmt->bind_param("i", $mentor_id);
-    $stmt->execute();
-    $completed = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-}
+// Get all sessions for debugging (can be removed later)
+$all_sessions_query = "SELECT ms.*, r.name as student_name
+                       FROM mentoring_sessions ms
+                       JOIN mentor_student_pairs msp ON ms.pair_id = msp.id
+                       JOIN register r ON msp.student_id = r.id
+                       WHERE msp.mentor_id = ?
+                       ORDER BY ms.created_at DESC";
+$stmt = $conn->prepare($all_sessions_query);
+$stmt->bind_param("i", $mentor_id);
+$stmt->execute();
+$all_sessions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 ob_start();
 ?>
+
+<!-- Debug Info (Remove after testing) -->
+<?php if (!empty($all_sessions)) : ?>
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <strong>Debug:</strong> Found <?= count($all_sessions) ?> total session(s) in database for mentor ID <?= $mentor_id ?>
+            <br>Upcoming: <?= count($upcoming) ?>, Completed: <?= count($completed) ?>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+<!-- End Debug Info -->
+
 
 <div class="row mb-4">
     <div class="col-12">
@@ -220,11 +242,13 @@ ob_start();
                 <h5 class="modal-title">Schedule New Session</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="schedule_session.php">
+            <form id="scheduleSessionForm">
                 <div class="modal-body">
+                    <div id="sessionAlert" class="alert d-none" role="alert"></div>
+                    
                     <div class="mb-3">
                         <label class="form-label">Student</label>
-                        <select class="form-select" name="pair_id" required>
+                        <select class="form-select" id="pair_id" name="pair_id" required>
                             <option value="">Select Student</option>
                             <?php
                             // Try mentor_requests first
@@ -258,11 +282,11 @@ ob_start();
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Date & Time</label>
-                        <input type="datetime-local" class="form-control" name="session_date" required>
+                        <input type="datetime-local" class="form-control" id="session_date" name="session_date" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Duration (minutes)</label>
-                        <select class="form-select" name="duration">
+                        <select class="form-select" id="duration" name="duration">
                             <option value="30">30 minutes</option>
                             <option value="60" selected>1 hour</option>
                             <option value="90">1.5 hours</option>
@@ -271,16 +295,19 @@ ob_start();
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Notes</label>
-                        <textarea class="form-control" name="notes" rows="3"></textarea>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Add any notes or agenda for this session..."></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Meeting Link</label>
-                        <input type="url" class="form-control" name="meeting_link" placeholder="https://meet.google.com/...">
+                        <input type="url" class="form-control" id="meeting_link" name="meeting_link" placeholder="https://meet.google.com/...">
+                        <small class="text-muted">Optional: Add a video call link for the session</small>
                     </div>
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Schedule Session</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-calendar-plus me-1"></i>Schedule Session
+                    </button>
                 </div>
             </form>
         </div>
@@ -288,13 +315,96 @@ ob_start();
 </div>
 
 <script>
+// Handle session scheduling form
+document.getElementById('scheduleSessionForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitBtn = document.getElementById('submitBtn');
+    const alertDiv = document.getElementById('sessionAlert');
+    const originalBtnText = submitBtn.innerHTML;
+    
+    // Disable button and show loading
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Scheduling...';
+    alertDiv.classList.add('d-none');
+    
+    // Get form data
+    const formData = {
+        pair_id: document.getElementById('pair_id').value,
+        session_date: document.getElementById('session_date').value.replace('T', ' ') + ':00',
+        duration: document.getElementById('duration').value,
+        notes: document.getElementById('notes').value,
+        meeting_link: document.getElementById('meeting_link').value
+    };
+    
+    try {
+        const response = await fetch('schedule_session.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Show success message
+            alertDiv.className = 'alert alert-success';
+            alertDiv.innerHTML = `<i class="fas fa-check-circle me-2"></i>${data.message || 'Session scheduled successfully!'}`;
+            alertDiv.classList.remove('d-none');
+            
+            // Reset form
+            document.getElementById('scheduleSessionForm').reset();
+            
+            // Reload page after 1.5 seconds
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            // Show error message
+            alertDiv.className = 'alert alert-danger';
+            alertDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${data.error || 'Failed to schedule session'}`;
+            if (data.debug) {
+                alertDiv.innerHTML += `<br><small>${data.debug}</small>`;
+            }
+            alertDiv.classList.remove('d-none');
+            
+            // Re-enable button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alertDiv.className = 'alert alert-danger';
+        alertDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>Network error. Please try again.`;
+        alertDiv.classList.remove('d-none');
+        
+        // Re-enable button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+    }
+});
+
 function markCompleted(sessionId) {
     if (confirm('Mark this session as completed?')) {
         fetch('update_session.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({session_id: sessionId, status: 'completed'})
-        }).then(() => location.reload());
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + (data.error || 'Failed to update session'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Network error. Please try again.');
+        });
     }
 }
 
@@ -304,9 +414,31 @@ function cancelSession(sessionId) {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({session_id: sessionId, status: 'cancelled'})
-        }).then(() => location.reload());
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + (data.error || 'Failed to cancel session'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Network error. Please try again.');
+        });
     }
 }
+
+// Set minimum datetime to now
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('session_date');
+    if (dateInput) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        dateInput.min = now.toISOString().slice(0, 16);
+    }
+});
 </script>
 
 <?php
