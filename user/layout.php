@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 require_once __DIR__ . '/../includes/html_helpers.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -26,23 +26,223 @@ if ($is_in_subdirectory) {
     $basePath = './';
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IdeaNest</title>
-    <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
-    <!-- CSS -->
-    <link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/layout_user.css">
-    <link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/loading.css">
-    <link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/loader.css">
-    <!-- JavaScript -->
-    <script src="<?php echo $basePath; ?>../assets/js/loading.js"></script>
-    <script src="<?php echo $basePath; ?>../assets/js/loader.js"></script>
-    <script src="<?php echo $basePath; ?>../assets/js/layout_user.js" defer></script>
-</head>
-<body>
+
+<!-- Layout Styles and Scripts -->
+<link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/layout_user.css">
+<link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/loading.css">
+<link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/loader.css">
+<link rel="stylesheet" href="<?php echo $basePath; ?>assets/css/educational-ui.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<!-- Fallback styles for layout -->
+<style>
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 280px;
+    height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    z-index: 1000;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+    padding: 2rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.sidebar-logo-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.sidebar-logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+}
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sidebar-user-avatar {
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.sidebar-user-info h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.sidebar-user-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.sidebar-nav {
+    padding: 1rem 0;
+}
+
+.nav-section {
+    margin-bottom: 1.5rem;
+}
+
+.nav-section-title {
+    padding: 0 1.5rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-decoration: none;
+}
+
+.nav-item.active {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border-left-color: white;
+}
+
+.nav-icon {
+    width: 20px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.nav-text {
+    font-weight: 500;
+}
+
+.mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1001;
+    background: #667eea;
+    color: white;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    .mobile-menu-toggle {
+        display: block;
+    }
+    
+    .overlay.active {
+        display: block;
+    }
+}
+
+/* Main content adjustment */
+.main-content {
+    margin-left: 280px;
+    min-height: 100vh;
+    background: #f8fafc;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+}
+</style>
+
+<script src="<?php echo $basePath; ?>../assets/js/loading.js"></script>
+<script src="<?php echo $basePath; ?>../assets/js/loader.js"></script>
+<script src="<?php echo $basePath; ?>../assets/js/layout_user.js" defer></script>
+
+<!-- Fallback JavaScript for mobile menu -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    
+    if (mobileToggle && sidebar && overlay) {
+        mobileToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+        
+        overlay.addEventListener('click', function() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+    }
+});
+</script>
 <!-- Mobile Menu Toggle Button -->
 <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu">
     <i class="fas fa-bars"></i>
@@ -143,5 +343,3 @@ if ($is_in_subdirectory) {
         </div>
     </nav>
 </aside>
-</body>
-</html>
