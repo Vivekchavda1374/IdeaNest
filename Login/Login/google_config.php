@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/security_init.php';
+require_once __DIR__ . '/../../includes/security_init.php';
 // Load environment variables if .env file exists
 if (file_exists(__DIR__ . '/../../.env')) {
     $lines = file(__DIR__ . '/../../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -11,21 +11,21 @@ if (file_exists(__DIR__ . '/../../.env')) {
     }
 }
 
-// Google OAuth Configuration for Production
-// Production domain: https://ictmu.in/hcd/IdeaNest/
+// Google OAuth Configuration for Development
+// Development domain: http://localhost/IdeaNest/
 
 define('GOOGLE_CLIENT_ID', $_ENV['GOOGLE_CLIENT_ID'] ?? '');
 define('GOOGLE_CLIENT_SECRET', $_ENV['GOOGLE_CLIENT_SECRET'] ?? '');
 
-// Production OAuth Settings
-define('GOOGLE_REDIRECT_URI', 'https://ictmu.in/hcd/IdeaNest/Login/Login/google_callback.php');
+// Development OAuth Settings
+define('GOOGLE_REDIRECT_URI', 'http://localhost/IdeaNest/Login/Login/google_callback.php');
 define('GOOGLE_SCOPE', 'email profile');
 
-// Production authorized origins that need to be added to Google Console:
-// - https://ictmu.in
-// - https://ictmu.in/hcd/IdeaNest
+// Development authorized origins that need to be added to Google Console:
+// - http://localhost
+// - http://localhost/IdeaNest
 // 
 // Authorized redirect URIs:
-// - https://ictmu.in/hcd/IdeaNest/Login/Login/google_callback.php
+// - http://localhost/IdeaNest/Login/Login/google_callback.php
 
 
