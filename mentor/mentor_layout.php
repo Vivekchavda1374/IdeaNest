@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+// Fixed path to security_init.php
+require_once __DIR__ . '/../includes/security_init.php';
 function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '')
 {
     ?>
@@ -9,7 +10,7 @@ function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '')
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title><?= htmlspecialchars($title) ?> - Mentor Portal</title>
-    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
+    <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
 
         <!-- Bootstrap 5 -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -177,8 +178,8 @@ function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '')
 
             <?= $additionalCSS ?>
         </style>
-        <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+        <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
     <body>
     <!-- Sidebar -->
@@ -327,8 +328,8 @@ function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '')
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
     </html>
     <?php
