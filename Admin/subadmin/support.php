@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/security_init.php';
+require_once __DIR__ . '/../../includes/security_init.php';
 // Configure session settings
 ini_set('session.cookie_lifetime', 86400);
 ini_set('session.cookie_path', '/');

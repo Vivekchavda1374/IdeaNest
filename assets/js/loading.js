@@ -1,4 +1,5 @@
 // Loading Component JavaScript
+if (typeof LoadingManager === 'undefined') {
 class LoadingManager {
     constructor() {
         this.activeLoaders = new Set();
@@ -140,3 +141,4 @@ if (typeof module !== 'undefined' && module.exports) {
 // Make available globally
 window.LoadingManager = LoadingManager;
 window.loadingManager = loadingManager;
+}

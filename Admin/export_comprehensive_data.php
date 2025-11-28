@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -244,8 +244,8 @@ if ($export_type === 'csv') {
     <title>Comprehensive Data Export</title>
     <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
     <div class="container mt-4">
@@ -263,7 +263,7 @@ if ($export_type === 'csv') {
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 </html>

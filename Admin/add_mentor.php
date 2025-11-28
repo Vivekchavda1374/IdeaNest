@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -102,8 +102,6 @@ if ($_POST) {
                         .credentials { background: white; padding: 20px; border-left: 4px solid #667eea; margin: 20px 0; }
                         .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
                     </style>
-                    <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
 </head>
                 <body>
                     <div class='container'>
@@ -127,18 +125,7 @@ if ($_POST) {
                             <p>Best regards,<br>The IdeaNest Team</p>
                         </div>
                     </div>
-                
-<!-- Universal Loader -->
-<div id="universalLoader" class="loader-overlay">
-    <div class="loader">
-        <div class="loader-spinner"></div>
-        <div class="loader-text" id="loaderText">Loading...</div>
-    </div>
-</div>
-
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
-</body>
+                </body>
                 </html>
                 ";
 
@@ -173,11 +160,11 @@ if ($_POST) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Mentor - IdeaNest Admin</title>
-    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
+    <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
 <?php include 'sidebar_admin.php'; ?>
@@ -266,7 +253,7 @@ if ($_POST) {
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 </html>

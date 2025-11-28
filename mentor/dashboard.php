@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 // Production-safe error reporting
 if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
     ini_set('display_errors', 1);
@@ -112,10 +112,12 @@ try {
 // Get smart pairing suggestions - using existing database
 $suggested_students = [];
 try {
+    // First try: Students with approved projects not yet paired
     $suggestions_query = "SELECT r.id, r.name, r.email, r.department,
                           p.project_name, p.classification, p.description, 
                           'Not specified' as expected_duration,
-                          2 as match_score
+                          3 as match_score,
+                          'approved_project' as source
                           FROM register r 
                           JOIN projects p ON r.id = p.user_id 
                           WHERE r.role = 'student' 
@@ -126,6 +128,66 @@ try {
     $stmt = $conn->prepare($suggestions_query);
     $stmt->execute();
     $suggested_students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    
+    // If no students with approved projects, try students with any projects
+    if (empty($suggested_students)) {
+        $suggestions_query = "SELECT r.id, r.name, r.email, r.department,
+                              p.project_name, p.classification, p.description, 
+                              'Not specified' as expected_duration,
+                              2 as match_score,
+                              'any_project' as source
+                              FROM register r 
+                              JOIN projects p ON r.id = p.user_id 
+                              WHERE r.role = 'student' 
+                              AND r.id NOT IN (SELECT student_id FROM mentor_student_pairs WHERE status = 'active')
+                              ORDER BY p.submission_date DESC
+                              LIMIT 6";
+        $stmt = $conn->prepare($suggestions_query);
+        $stmt->execute();
+        $suggested_students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+    
+    // If still no students, show students with pending mentor requests
+    if (empty($suggested_students)) {
+        $suggestions_query = "SELECT r.id, r.name, r.email, r.department,
+                              'General Mentorship' as project_name,
+                              r.department as classification,
+                              'Student seeking mentorship' as description,
+                              'Not specified' as expected_duration,
+                              1 as match_score,
+                              'mentor_request' as source
+                              FROM register r 
+                              JOIN mentor_requests mr ON r.id = mr.student_id
+                              WHERE r.role = 'student' 
+                              AND mr.mentor_id = ?
+                              AND mr.status = 'pending'
+                              AND r.id NOT IN (SELECT student_id FROM mentor_student_pairs WHERE status = 'active')
+                              ORDER BY mr.created_at DESC
+                              LIMIT 6";
+        $stmt = $conn->prepare($suggestions_query);
+        $stmt->bind_param("i", $mentor_id);
+        $stmt->execute();
+        $suggested_students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+    
+    // If STILL no students, show all unpaired students
+    if (empty($suggested_students)) {
+        $suggestions_query = "SELECT r.id, r.name, r.email, r.department,
+                              'No project yet' as project_name,
+                              r.department as classification,
+                              CONCAT('Student in ', r.department, ' department') as description,
+                              'Not specified' as expected_duration,
+                              1 as match_score,
+                              'all_students' as source
+                              FROM register r 
+                              WHERE r.role = 'student' 
+                              AND r.id NOT IN (SELECT student_id FROM mentor_student_pairs WHERE status = 'active')
+                              ORDER BY r.id DESC
+                              LIMIT 6";
+        $stmt = $conn->prepare($suggestions_query);
+        $stmt->execute();
+        $suggested_students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
 } catch (Exception $e) {
     error_log("Suggestions error: " . $e->getMessage());
     $suggested_students = [];

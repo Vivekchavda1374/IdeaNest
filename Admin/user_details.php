@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 session_start();
 require_once '../config/config.php';
 require_once '../Login/Login/db.php';
@@ -55,7 +55,7 @@ if ($user['role'] === 'mentor') {
 
 // Handle status update
 if ($_POST['action'] ?? '' == 'update_status') {
-    $$new_status = post_param('status');
+    $new_status = post_param('status');
     $update_query = "UPDATE users SET status = ? WHERE id = ?";
     $stmt = $conn->prepare($update_query);
     $stmt->bind_param("si", $new_status, $user_id);
@@ -84,8 +84,8 @@ if ($_POST['action'] ?? '' == 'update_status') {
         .timeline-item::before { content: ''; position: absolute; left: -25px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: #007bff; }
         @media (max-width: 768px) { .main-content { margin-left: 0; } }
     </style>
-    <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
     <?php include 'sidebar_admin.php'; ?>
@@ -303,7 +303,7 @@ if ($_POST['action'] ?? '' == 'update_status') {
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 </html>

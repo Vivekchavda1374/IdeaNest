@@ -1,22 +1,35 @@
 // Universal Loader JavaScript
+if (typeof Loader === 'undefined') {
 class Loader {
     constructor() {
+        // Check if auto-loader is disabled
+        if (window.DISABLE_AUTO_LOADER) {
+            return;
+        }
         this.createLoader();
     }
 
     createLoader() {
         if (document.getElementById('universalLoader')) return;
         
-        const loader = document.createElement('div');
-        loader.id = 'universalLoader';
-        loader.className = 'loader-overlay';
-        loader.innerHTML = `
-            <div class="loader">
-                <div class="loader-spinner"></div>
-                <div class="loader-text" id="loaderText">Loading...</div>
-            </div>
-        `;
-        document.body.appendChild(loader);
+        // Wait for DOM to be ready
+        if (document.body) {
+            const loader = document.createElement('div');
+            loader.id = 'universalLoader';
+            loader.className = 'loader-overlay';
+            loader.innerHTML = `
+                <div class="loader">
+                    <div class="loader-spinner"></div>
+                    <div class="loader-text" id="loaderText">Loading...</div>
+                </div>
+            `;
+            document.body.appendChild(loader);
+        } else {
+            // If body not ready, wait for DOMContentLoaded
+            document.addEventListener('DOMContentLoaded', () => {
+                this.createLoader();
+            });
+        }
     }
 
     show(text = 'Loading...') {
@@ -59,36 +72,50 @@ class Loader {
     }
 }
 
-// Global loader instance
-window.loader = new Loader();
+// Global loader instance (only if not disabled)
+if (!window.DISABLE_AUTO_LOADER) {
+    window.loader = new Loader();
 
-// Auto-show loader for form submissions
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle form submissions
-    document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            const submitBtn = form.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                loader.showButtonLoader(submitBtn);
+    // Auto-show loader for form submissions
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle form submissions
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn && window.loader) {
+                    window.loader.showButtonLoader(submitBtn);
+                }
+                if (window.loader) {
+                    window.loader.show('Submitting...');
+                }
+            });
+        });
+
+        // Handle navigation links
+        document.querySelectorAll('a[href]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.href && !this.href.includes('#') && !this.target && window.loader) {
+                    window.loader.show('Loading page...');
+                }
+            });
+        });
+
+        // Hide loader on page load
+        window.addEventListener('load', function() {
+            if (window.loader) {
+                window.loader.hide();
             }
-            loader.show('Submitting...');
         });
     });
-
-    // Handle navigation links
-    document.querySelectorAll('a[href]').forEach(link => {
-        link.addEventListener('click', function(e) {
-            if (this.href && !this.href.includes('#') && !this.target) {
-                loader.show('Loading page...');
-            }
-        });
-    });
-
-    // Hide loader on page load
-    window.addEventListener('load', function() {
-        loader.hide();
-    });
-});
+} else {
+    // Create dummy loader object for compatibility
+    window.loader = {
+        show: function() {},
+        hide: function() {},
+        showButtonLoader: function() {},
+        hideButtonLoader: function() {}
+    };
+}
 
 // Utility functions
 function showLoader(text) {
@@ -105,4 +132,5 @@ function showButtonLoader(button, text) {
 
 function hideButtonLoader(button) {
     window.loader.hideButtonLoader(button);
+}
 }

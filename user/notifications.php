@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 session_start();
 require_once '../config/config.php';
 require_once '../Login/Login/db.php';
@@ -268,8 +268,8 @@ $stats = $notifier->getStats($user_id);
             flex-wrap: wrap;
         }
     </style>
-    <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
     <div class="notification-container">
@@ -401,7 +401,7 @@ $stats = $notifier->getStats($user_id);
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 </html>

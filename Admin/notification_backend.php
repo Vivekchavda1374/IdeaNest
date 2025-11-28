@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 // Production-safe error reporting
 if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
     error_reporting(E_ALL);
@@ -95,7 +95,7 @@ function sendProjectApprovalEmail($project_id, $conn)
 
     $site_name = getSetting($conn, 'site_name', 'IdeaNest');
     $support_email = getSetting($conn, 'from_email', 'ideanest.ict@gmail.com');
-    $dashboard_url = getSetting($conn, 'site_url', 'https://ictmu.in/hcd/IdeaNest') . '/user/index.php';
+    $dashboard_url = getSetting($conn, 'site_url', 'http://localhost/IdeaNest') . '/user/index.php';
 
     $subject = "Congratulations! Your Project \"{$project_name}\" Has Been Approved";
 
@@ -122,8 +122,8 @@ function sendProjectApprovalEmail($project_id, $conn)
                 .content { padding: 15px !important; }
             }
         </style>
-        <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+        <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
     <body>
         <div class="container">
@@ -182,8 +182,8 @@ function sendProjectApprovalEmail($project_id, $conn)
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
     </html>';
 
@@ -222,7 +222,7 @@ function sendProjectRejectionEmail($project_id, $rejection_reason, $conn)
 
     $site_name = getSetting($conn, 'site_name', 'IdeaNest');
     $support_email = getSetting($conn, 'from_email', 'ideanest.ict@gmail.com');
-    $submission_url = getSetting($conn, 'site_url', 'https://ictmu.in/hcd/IdeaNest') . '/user/forms/new_project_add.php';
+    $submission_url = getSetting($conn, 'site_url', 'http://localhost/IdeaNest') . '/user/forms/new_project_add.php';
 
     $subject = "Important Update About Your Project \"{$project_name}\"";
 
@@ -250,8 +250,8 @@ function sendProjectRejectionEmail($project_id, $rejection_reason, $conn)
                 .content { padding: 15px !important; }
             }
         </style>
-        <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+        <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
     <body>
         <div class="container">
@@ -314,8 +314,8 @@ function sendProjectRejectionEmail($project_id, $rejection_reason, $conn)
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
     </html>';
 
@@ -371,8 +371,8 @@ function sendNewUserNotificationToAdmin($user_id, $conn)
                 .content { padding: 15px !important; }
             }
         </style>
-        <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+        <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
     <body>
         <div class="container">
@@ -426,8 +426,8 @@ function sendNewUserNotificationToAdmin($user_id, $conn)
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
     </html>';
 

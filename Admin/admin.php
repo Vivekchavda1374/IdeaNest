@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 require_once __DIR__ . '/../includes/html_helpers.php';
 // Start output buffering to prevent header errors
 ob_start();
@@ -80,7 +80,17 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
 if (isset($_POST['reject_submit'])) {
     $project_id = (int)$_POST['project_id'];
     $rejection_reason = trim($_POST['rejection_reason'] ?? '');
-    rejectProject($project_id, $rejection_reason, $conn);
+    
+    // Debug logging
+    error_log("Admin.php - Reject form submitted - Project ID: " . $project_id . ", Reason: " . $rejection_reason);
+    
+    if($project_id && $rejection_reason) {
+        rejectProject($project_id, $rejection_reason, $conn);
+    } else {
+        error_log("Admin.php - Missing project_id or rejection_reason");
+        header("Location: admin.php?error=Missing required fields");
+        exit;
+    }
 }
 
 // Enhanced function to approve a project with all columns
@@ -181,15 +191,72 @@ function approveProject($project_id, $conn)
 // Enhanced function to reject a project with all columns
 function rejectProject($project_id, $rejection_reason, $conn)
 {
+    error_log("rejectProject called with ID: $project_id, Reason: $rejection_reason");
+    
     // Get project details with all columns
     $query = "SELECT * FROM projects WHERE id = ?";
     $stmt = $conn->prepare($query);
+    if (!$stmt) {
+        error_log("Failed to prepare project query: " . $conn->error);
+        header("Location: admin.php?error=Database error occurred");
+        exit;
+    }
+    
     $stmt->bind_param("i", $project_id);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $project = $result->fetch_assoc();
+        $stmt->close();
+        
+        error_log("Project found: " . $project['project_name']);
+
+        // Ensure denial_projects table exists
+        $table_check = $conn->query("SHOW TABLES LIKE 'denial_projects'");
+        if ($table_check->num_rows == 0) {
+            error_log("denial_projects table does not exist, creating it...");
+            $create_table_sql = "CREATE TABLE `denial_projects` (
+                `id` int(11) NOT NULL AUTO_INCREMENT,
+                `user_id` int(11) DEFAULT NULL,
+                `project_name` varchar(255) DEFAULT NULL,
+                `project_type` varchar(100) DEFAULT NULL,
+                `classification` varchar(100) DEFAULT NULL,
+                `project_category` varchar(100) DEFAULT NULL,
+                `difficulty_level` enum('beginner','intermediate','advanced','expert') DEFAULT NULL,
+                `development_time` varchar(50) DEFAULT NULL,
+                `team_size` varchar(50) DEFAULT NULL,
+                `target_audience` text DEFAULT NULL,
+                `project_goals` text DEFAULT NULL,
+                `challenges_faced` text DEFAULT NULL,
+                `future_enhancements` text DEFAULT NULL,
+                `github_repo` varchar(255) DEFAULT NULL,
+                `live_demo_url` varchar(255) DEFAULT NULL,
+                `project_license` varchar(100) DEFAULT NULL,
+                `keywords` varchar(500) DEFAULT NULL,
+                `contact_email` varchar(255) DEFAULT NULL,
+                `social_links` text DEFAULT NULL,
+                `description` text DEFAULT NULL,
+                `language` varchar(100) DEFAULT NULL,
+                `image_path` varchar(255) DEFAULT NULL,
+                `video_path` varchar(255) DEFAULT NULL,
+                `code_file_path` varchar(255) DEFAULT NULL,
+                `instruction_file_path` varchar(255) DEFAULT NULL,
+                `presentation_file_path` varchar(255) DEFAULT NULL,
+                `additional_files_path` varchar(255) DEFAULT NULL,
+                `submission_date` datetime DEFAULT NULL,
+                `status` varchar(50) DEFAULT NULL,
+                `rejection_date` datetime DEFAULT current_timestamp(),
+                `rejection_reason` text DEFAULT NULL,
+                PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
+            
+            if (!$conn->query($create_table_sql)) {
+                error_log("Failed to create denial_projects table: " . $conn->error);
+                header("Location: admin.php?error=Database setup error");
+                exit;
+            }
+        }
 
         // Insert into rejection table with all columns
         $reject_query = "INSERT INTO denial_projects (
@@ -199,13 +266,19 @@ function rejectProject($project_id, $rejection_reason, $conn)
             keywords, contact_email, social_links, description, language,
             image_path, video_path, code_file_path, instruction_file_path,
             presentation_file_path, additional_files_path, submission_date, 
-            status, rejection_date, rejection_reason
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
+            status, rejection_reason
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $reject_stmt = $conn->prepare($reject_query);
+        if (!$reject_stmt) {
+            error_log("Failed to prepare rejection query: " . $conn->error);
+            header("Location: admin.php?error=Database query error");
+            exit;
+        }
+        
         $status = 'rejected';
         $reject_stmt->bind_param(
-            "sssssssssssssssssssssssssssss",
+            "issssssssssssssssssssssssssss",
             $project['user_id'],
             $project['project_name'],
             $project['project_type'],
@@ -237,27 +310,61 @@ function rejectProject($project_id, $rejection_reason, $conn)
             $rejection_reason
         );
 
-        $reject_stmt->execute();
+        if (!$reject_stmt->execute()) {
+            error_log("Failed to execute rejection query: " . $reject_stmt->error);
+            $reject_stmt->close();
+            header("Location: admin.php?error=Failed to save rejection");
+            exit;
+        }
+        
+        error_log("Project successfully inserted into denial_projects table");
+        $reject_stmt->close();
 
         // Update status in original projects table
         $update_query = "UPDATE projects SET status = 'rejected' WHERE id = ?";
         $update_stmt = $conn->prepare($update_query);
-        $update_stmt->bind_param("i", $project_id);
-        $update_stmt->execute();
+        if (!$update_stmt) {
+            error_log("Failed to prepare update query: " . $conn->error);
+        } else {
+            $update_stmt->bind_param("i", $project_id);
+            if (!$update_stmt->execute()) {
+                error_log("Failed to update project status: " . $update_stmt->error);
+            } else {
+                error_log("Project status updated to rejected");
+            }
+            $update_stmt->close();
+        }
 
         // Send email notification
         $email_options = [
-                'subject' => 'Important Update About Your Project "' . $project['project_name'] . '"',
-                'custom_text' => 'Our team is always available to help you improve your project. Feel free to reach out if you need guidance on addressing the issues mentioned.',
-                'include_project_details' => true
+            'subject' => 'Important Update About Your Project "' . $project['project_name'] . '"',
+            'custom_text' => 'Our team is always available to help you improve your project. Feel free to reach out if you need guidance on addressing the issues mentioned.',
+            'include_project_details' => true
         ];
 
-        sendProjectStatusEmail($project_id, 'rejected', $rejection_reason, null, $email_options);
-
-        // Redirect back to admin with success message
-        header("Location: admin.php?message=Project rejected successfully");
+        error_log("Attempting to send rejection email for project ID: " . $project_id);
+        error_log("SMTP Config: Host=" . ($_ENV['SMTP_HOST'] ?? 'not set') . ", Username=" . ($_ENV['SMTP_USERNAME'] ?? 'not set'));
+        
+        try {
+            $email_result = sendProjectStatusEmail($project_id, 'rejected', $rejection_reason, null, $email_options);
+            error_log("Email result: " . json_encode($email_result));
+            
+            if ($email_result && isset($email_result['success']) && $email_result['success']) {
+                error_log("Email sent successfully");
+                header("Location: admin.php?message=Project rejected and email sent successfully");
+            } else {
+                error_log("Email failed to send: " . ($email_result['message'] ?? 'Unknown error'));
+                header("Location: admin.php?message=Project rejected but email failed to send");
+            }
+        } catch (Exception $e) {
+            error_log("Email sending exception: " . $e->getMessage());
+            header("Location: admin.php?message=Project rejected but email failed to send");
+        }
+        
         exit;
     } else {
+        $stmt->close();
+        error_log("Project not found with ID: " . $project_id);
         header("Location: admin.php?error=Project not found");
         exit;
     }
@@ -781,7 +888,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IdeaNest Admin - Dashboard</title>
-    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
+    <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -1181,8 +1288,8 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             }
         }
     </style>
-    <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
 <!-- Sidebar -->
@@ -2020,25 +2127,53 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         
         // Function to open reject modal
         window.openRejectModal = function() {
-            const modal = new bootstrap.Modal(document.getElementById('rejectProjectModal'));
-            modal.show();
+            console.log('openRejectModal called');
+            const modalElement = document.getElementById('rejectProjectModal');
+            console.log('Modal element:', modalElement);
+            if (modalElement) {
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+            } else {
+                console.error('Reject modal not found');
+            }
         };
         
         // Handle dashboard reject buttons
         document.querySelectorAll('.reject-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
+                console.log('Reject button clicked');
                 const projectId = this.getAttribute('data-project-id');
-                document.getElementById('dashboardProjectId').value = projectId;
-                const modal = new bootstrap.Modal(document.getElementById('dashboardRejectModal'));
-                modal.show();
+                console.log('Project ID:', projectId);
+                
+                const projectIdInput = document.getElementById('dashboardProjectId');
+                if (projectIdInput) {
+                    projectIdInput.value = projectId;
+                    console.log('Project ID set in form');
+                } else {
+                    console.error('dashboardProjectId input not found');
+                }
+                
+                const modalElement = document.getElementById('dashboardRejectModal');
+                if (modalElement) {
+                    const modal = new bootstrap.Modal(modalElement);
+                    modal.show();
+                    console.log('Modal should be showing');
+                } else {
+                    console.error('dashboardRejectModal not found');
+                }
             });
         });
         
         // Handle dashboard rejection form
         const dashboardRejectForm = document.getElementById('dashboardRejectForm');
         if (dashboardRejectForm) {
+            console.log('Dashboard reject form found');
             dashboardRejectForm.addEventListener('submit', function(e) {
+                console.log('Dashboard reject form submitted');
                 const reason = document.getElementById('dashboard_rejection_reason').value.trim();
+                const projectId = document.getElementById('dashboardProjectId').value;
+                console.log('Reason:', reason, 'Project ID:', projectId);
+                
                 if (!reason) {
                     e.preventDefault();
                     alert('Please provide a rejection reason.');
@@ -2049,7 +2184,11 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                     e.preventDefault();
                     return false;
                 }
+                
+                console.log('Form validation passed, submitting...');
             });
+        } else {
+            console.error('Dashboard reject form not found');
         }
     });
 </script>
@@ -2062,7 +2201,7 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 </html>

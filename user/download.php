@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 // Include security configuration
 require_once dirname(__DIR__) . '/config/security.php';
 require_once dirname(__DIR__) . '/includes/error_handler.php';

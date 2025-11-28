@@ -360,8 +360,8 @@ sudo systemctl restart apache2
 ```bash
 # .env file configuration
 DB_HOST=localhost
-DB_NAME=ideanest
-DB_USER=ideanest_user
+DB_NAME=ictmu6ya_ideanest
+DB_USER=ictmu6ya_ideanest
 DB_PASS=secure_password
 
 GITHUB_CLIENT_ID=your_github_client_id
@@ -455,8 +455,8 @@ Header always set X-XSS-Protection "1; mode=block"
 composer install --dev
 
 # Setup test database
-mysql -u ictmu6ya_ideanest -p -e "CREATE DATABASE ideanest_test;"
-mysql -u ictmu6ya_ideanest -p ideanest_test < db/ideanest.sql
+mysql -u ictmu6ya_ideanest -p -e "CREATE DATABASE ictmu6ya_ideanest_test;"
+mysql -u ictmu6ya_ideanest -p ictmu6ya_ideanest_test < db/ictmu6ya_ideanest.sql
 
 # Run test suite
 ./tests/run_tests.sh

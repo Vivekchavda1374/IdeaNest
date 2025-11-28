@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/security_init.php';
+require_once __DIR__ . '/../../includes/security_init.php';
 // layout.php - Main layout template
 function renderLayout($title, $content, $activePage = '')
 {
@@ -19,10 +19,8 @@ function renderLayout($title, $content, $activePage = '')
         <!-- Google Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="../../assets/css/sidebar_subadmin.css">
+        <link rel="stylesheet" href="../../assets/css/loader.css">
         <link rel="stylesheet" href="../../assets/css/loading.css">
-
-        <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
     <body>
     <!-- Sidebar -->
@@ -143,8 +141,8 @@ function renderLayout($title, $content, $activePage = '')
     </div>
 </div>
 
-<script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
+<script src="../../assets/js/loader.js"></script>
+<script src="../../assets/js/loading.js"></script>
 </body>
     </html>
     <?php

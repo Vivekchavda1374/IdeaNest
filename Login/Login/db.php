@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/security_init.php';
+require_once __DIR__ . '/../../includes/security_init.php';
 /**
  * Database Connection Configuration
  * Supports both development and production environments
@@ -21,10 +21,12 @@ if (file_exists(__DIR__ . '/../../.env')) {
     }
 }
 
+
+
 // Database configuration with environment variable support
 $host = $_ENV['DB_HOST'] ?? "localhost";
-$user = $_ENV['DB_USERNAME'] ?? "ictmu6ya_ideanest";
-$pass = $_ENV['DB_PASSWORD'] ?? "ictmu6ya_ideanest";
+$user = $_ENV['DB_USERNAME'] ?? "root";
+$pass = $_ENV['DB_PASSWORD'] ?? "";
 $dbname = $_ENV['DB_NAME'] ?? "ictmu6ya_ideanest";
 
 // Create connection with error handling

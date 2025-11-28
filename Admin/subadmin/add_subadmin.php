@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/security_init.php';
+require_once __DIR__ . '/../../includes/security_init.php';
 // Production-safe error reporting
 if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
     error_reporting(E_ALL);
@@ -82,8 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && !isset($_
                         .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
                         .credentials { background: white; padding: 20px; border-left: 4px solid #667eea; margin: 20px 0; }
                     </style>
-                    <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
                 <body>
                     <div class='container'>
@@ -106,25 +104,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && !isset($_
                             <p>Best regards,<br>The IdeaNest Team</p>
                         </div>
                     </div>
-                
-<!-- Universal Loader -->
-<div id="universalLoader" class="loader-overlay">
-    <div class="loader">
-        <div class="loader-spinner"></div>
-        <div class="loader-text" id="loaderText">Loading...</div>
-    </div>
-</div>
-
-<script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
-</body>
+                </body>
                 </html>
                 ";
                 
                 $email_sent = $mailer->send($email, $subject, $body);
                 
+                // Convert boolean to integer for database
+                $email_sent_int = $email_sent ? 1 : 0;
+                
                 // Update credential status
-                $credManager->updateEmailStatus('subadmin', $subadmin_id, $email_sent, $email_sent ? null : 'SMTP send failed');
+                $credManager->updateEmailStatus('subadmin', $subadmin_id, $email_sent_int, $email_sent ? null : 'SMTP send failed');
                 
                 // Log email attempt
                 $emailLogger->logEmail($email, $subject, 'subadmin_welcome', $email_sent ? 'sent' : 'failed', $email_sent ? null : 'SMTP send failed');
@@ -771,8 +761,8 @@ $active_tab = $_GET['tab'] ?? 'overview';
             }
         }
     </style>
-    <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
+    <link rel="stylesheet" href="../../assets/css/loader.css">
+    <link rel="stylesheet" href="../../assets/css/loading.css">
 </head>
 
 <body class="bg-light">
@@ -1618,7 +1608,7 @@ $replies_result = $stmt->get_result();
     </div>
 </div>
 
-<script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
+<script src="../../assets/js/loader.js"></script>
+<script src="../../assets/js/loading.js"></script>
 </body>
 </html>

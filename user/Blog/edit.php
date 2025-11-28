@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/security_init.php';
+require_once __DIR__ . '/../../includes/security_init.php';
 // Start session to check user authentication
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -150,15 +150,280 @@ if ($id > 0) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Project | Project Management Portal</title>
-    <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
+    <title>Edit Project | IdeaNest</title>
+    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-    <link rel="stylesheet" href="../../assets/css/edit_idea.css">
-    <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
+    <link rel="stylesheet" href="../../assets/css/loader.css">
+    <link rel="stylesheet" href="../../assets/css/loading.css">
+    
+    <style>
+        :root {
+            --primary-purple: #8B5CF6;
+            --secondary-purple: #A78BFA;
+            --dark-purple: #7C3AED;
+            --light-purple: #C4B5FD;
+            --extra-light-purple: #EDE9FE;
+            --purple-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body {
+            background: var(--purple-gradient);
+            min-height: 100vh;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            padding: 20px 0;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-bottom: 2px solid var(--light-purple);
+            padding: 25px 30px;
+        }
+
+        .card-header h3 {
+            color: var(--dark-purple);
+            font-weight: 700;
+            margin: 0;
+            font-size: 1.75rem;
+        }
+
+        .card-header p {
+            color: var(--secondary-purple);
+            margin: 5px 0 0 0;
+            font-size: 0.95rem;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .project-metadata {
+            background: var(--extra-light-purple);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary-purple);
+        }
+
+        .project-metadata p {
+            margin: 8px 0;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .project-metadata .label {
+            font-weight: 600;
+            color: var(--dark-purple);
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-purple);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon-badge {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--purple-gradient);
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 10px 14px;
+            border: 1.5px solid #cbd5e0;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .priority1-selector, .status-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .priority1-selector label, .status-selector label {
+            flex: 1;
+            min-width: 100px;
+            text-align: center;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            border: 2px solid #e2e8f0;
+            background: white;
+        }
+
+        .priority1-selector input[type="radio"], .status-selector input[type="radio"] {
+            display: none;
+        }
+
+        .priority1-selector input:checked + label.priority1-low {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .priority1-selector input:checked + label.priority1-medium {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+
+        .priority1-selector input:checked + label.priority1-high {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .status-selector input:checked + label.status-pending {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+
+        .status-selector input:checked + label.status-in-progress {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e40af;
+        }
+
+        .status-selector input:checked + label.status-completed {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .status-selector input:checked + label.status-rejected {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .btn-primary {
+            background: var(--purple-gradient);
+            border: none;
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid var(--secondary-purple);
+            color: var(--secondary-purple);
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--secondary-purple);
+            color: white;
+        }
+
+        .submission-info {
+            background: var(--extra-light-purple);
+            border-left: 4px solid var(--primary-purple);
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--dark-purple);
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+        }
+
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 20px;
+            }
+            
+            .form-section {
+                padding: 15px;
+            }
+            
+            .priority1-selector label, .status-selector label {
+                min-width: 80px;
+                padding: 8px 10px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -387,8 +652,8 @@ if ($id > 0) {
     </div>
 </div>
 
-<script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
+<script src="../../assets/js/loader.js"></script>
+<script src="../../assets/js/loading.js"></script>
 </body>
 
 </html>

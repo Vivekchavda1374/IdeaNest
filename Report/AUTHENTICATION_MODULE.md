@@ -144,7 +144,7 @@ Login/Login/
 $host = "localhost"; // Database host - keep as localhost for database connection
 $username = "root";
 $password = "";
-$database = "ideanest";
+$database = "ictmu6ya_ideanest";
 
 // Connection with error handling
 try {

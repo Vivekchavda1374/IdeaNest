@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 session_start();
 require_once '../Login/Login/db.php';
 
@@ -179,8 +179,8 @@ $check_result = $conn->query("SELECT COUNT(*) as count FROM `" . $conn->real_esc
         .export-card { border-left: 4px solid #28a745; }
         @media (max-width: 768px) { .main-content { margin-left: 0; } }
     </style>
-    <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
     <?php include 'sidebar_admin.php'; ?>
@@ -364,7 +364,7 @@ $check_result = $conn->query("SELECT COUNT(*) as count FROM `" . $conn->real_esc
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 </html>

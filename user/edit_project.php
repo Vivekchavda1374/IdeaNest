@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 // user/edit_project.php
 // Production-safe error reporting
 if (($_ENV['APP_ENV'] ?? 'development') !== 'production') {
@@ -456,8 +456,8 @@ $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
             box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.1);
         }
     </style>
-    <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
 <!-- Sidebar -->
@@ -1010,7 +1010,7 @@ $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 </html>
