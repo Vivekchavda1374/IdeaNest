@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/security_init.php';
+require_once __DIR__ . '/../../includes/security_init.php';
 // Configure session settings
 ini_set('session.cookie_lifetime', 86400);
 ini_set('session.cookie_path', '/');
@@ -26,134 +26,105 @@ $stmt->close();
 
 // Build classification array from domains with proper mapping
 $classifications = [];
+$search_keywords = [];
+
 if (!empty($domains)) {
     $domain_list = array_map('trim', explode(',', $domains));
     
-    // Map domain names to classification values
+    // Map domain names to classification values and search keywords
     $domain_mapping = [
-        // Web domains
-        'Web Development' => 'Web',
-        'Web Application' => 'Web',
-        'Web' => 'Web',
+        // Web domains - map to "Web" and search for "web"
+        'Web Development' => ['classification' => 'Web', 'keywords' => ['web']],
+        'Web Application' => ['classification' => 'Web', 'keywords' => ['web']],
+        'Web' => ['classification' => 'Web', 'keywords' => ['web']],
         
         // Mobile domains
-        'Mobile Development' => 'Mobile',
-        'Mobile Application' => 'Mobile',
-        'Mobile' => 'Mobile',
+        'Mobile Development' => ['classification' => 'Mobile', 'keywords' => ['mobile']],
+        'Mobile Application' => ['classification' => 'Mobile', 'keywords' => ['mobile']],
+        'Mobile' => ['classification' => 'Mobile', 'keywords' => ['mobile']],
         
         // AI/ML domains
-        'AI/ML' => 'Artificial Intelligence & Machine Learning',
-        'AI & Machine Learning' => 'Artificial Intelligence & Machine Learning',
-        'Artificial Intelligence & Machine Learning' => 'Artificial Intelligence & Machine Learning',
-        'Data Science' => 'Data Science & Analytics',
-        'Data Science & Analytics' => 'Data Science & Analytics',
+        'AI/ML' => ['classification' => 'Artificial Intelligence & Machine Learning', 'keywords' => ['ai', 'ml', 'machine learning', 'artificial intelligence']],
+        'AI & Machine Learning' => ['classification' => 'Artificial Intelligence & Machine Learning', 'keywords' => ['ai', 'ml', 'machine learning']],
+        'Artificial Intelligence & Machine Learning' => ['classification' => 'Artificial Intelligence & Machine Learning', 'keywords' => ['ai', 'ml', 'machine learning']],
+        'Data Science' => ['classification' => 'Data Science & Analytics', 'keywords' => ['data science', 'analytics']],
+        'Data Science & Analytics' => ['classification' => 'Data Science & Analytics', 'keywords' => ['data science', 'analytics']],
         
         // Desktop domains
-        'Desktop Application' => 'Desktop',
-        'Desktop' => 'Desktop',
+        'Desktop Application' => ['classification' => 'Desktop', 'keywords' => ['desktop']],
+        'Desktop' => ['classification' => 'Desktop', 'keywords' => ['desktop']],
         
         // System Software
-        'System Software' => 'System Software',
-        'Cybersecurity' => 'Cybersecurity',
-        'Game Development' => 'Game Development',
+        'System Software' => ['classification' => 'System Software', 'keywords' => ['system']],
+        'Cybersecurity' => ['classification' => 'Cybersecurity', 'keywords' => ['cybersecurity', 'security']],
+        'Game Development' => ['classification' => 'Game Development', 'keywords' => ['game']],
         
         // IoT and Embedded
-        'IoT' => 'Embedded/IoT Software',
-        'IoT Projects' => 'Embedded/IoT Software',
-        'Internet of Things (IoT)' => 'Embedded/IoT Software',
-        'Embedded Systems' => 'Embedded/IoT Software',
-        'Embedded/IoT Software' => 'Embedded/IoT Software',
-        'Embedded' => 'Embedded/IoT Software',
-        'Sensor-Based Projects' => 'Embedded/IoT Software',
+        'IoT' => ['classification' => 'Embedded/IoT Software', 'keywords' => ['iot', 'embedded']],
+        'IoT Projects' => ['classification' => 'Embedded/IoT Software', 'keywords' => ['iot', 'embedded']],
+        'Internet of Things (IoT)' => ['classification' => 'Embedded/IoT Software', 'keywords' => ['iot', 'embedded']],
+        'Embedded Systems' => ['classification' => 'Embedded/IoT Software', 'keywords' => ['embedded', 'iot']],
+        'Embedded/IoT Software' => ['classification' => 'Embedded/IoT Software', 'keywords' => ['embedded', 'iot']],
+        'Embedded' => ['classification' => 'Embedded/IoT Software', 'keywords' => ['embedded', 'iot']],
+        'Sensor-Based Projects' => ['classification' => 'Embedded/IoT Software', 'keywords' => ['sensor', 'embedded', 'iot']],
         
         // Hardware domains
-        'Robotics' => 'Embedded/IoT Software',
-        'Automation' => 'Embedded/IoT Software',
-        'Communication Systems' => 'Embedded/IoT Software',
-        'Power Electronics' => 'Embedded/IoT Software',
-        'Wearable Technology' => 'Embedded/IoT Software',
-        'Mechatronics' => 'Embedded/IoT Software',
-        'Renewable Energy' => 'Embedded/IoT Software',
+        'Robotics' => ['classification' => 'Embedded/IoT Software', 'keywords' => ['robotics', 'robot']],
+        'Automation' => ['classification' => 'Embedded/IoT Software', 'keywords' => ['automation']],
+        'Communication Systems' => ['classification' => 'Embedded/IoT Software', 'keywords' => ['communication']],
+        'Power Electronics' => ['classification' => 'Embedded/IoT Software', 'keywords' => ['power', 'electronics']],
+        'Wearable Technology' => ['classification' => 'Embedded/IoT Software', 'keywords' => ['wearable']],
+        'Mechatronics' => ['classification' => 'Embedded/IoT Software', 'keywords' => ['mechatronics']],
+        'Renewable Energy' => ['classification' => 'Embedded/IoT Software', 'keywords' => ['renewable', 'energy']],
         
         // Cloud
-        'Cloud-Based Applications' => 'Cloud-Based Applications'
+        'Cloud-Based Applications' => ['classification' => 'Cloud-Based Applications', 'keywords' => ['cloud']]
     ];
     
     foreach ($domain_list as $domain) {
-        if (isset($domain_mapping[$domain])) {
-            $classifications[] = $domain_mapping[$domain];
+        $domain_trimmed = trim($domain);
+        if (isset($domain_mapping[$domain_trimmed])) {
+            $classifications[] = $domain_mapping[$domain_trimmed]['classification'];
+            $search_keywords = array_merge($search_keywords, $domain_mapping[$domain_trimmed]['keywords']);
         }
     }
     $classifications = array_unique($classifications);
-}
-
-// Map subadmin domains to project classification values (as stored in DB)
-$classification_map = [
-    'web' => ['web'],
-    'web development' => ['web'],
-    'web application' => ['web'],
-    'mobile' => ['mobile'],
-    'mobile development' => ['mobile'],
-    'mobile application' => ['mobile'],
-    'ai/ml' => ['ai_ml'],
-    'ai & machine learning' => ['ai_ml'],
-    'ai ml' => ['ai_ml'],
-    'desktop' => ['desktop'],
-    'desktop application' => ['desktop'],
-    'system software' => ['system'],
-    'system' => ['system'],
-    'embedded systems' => ['embedded', 'embedded_iot'],
-    'embedded' => ['embedded', 'embedded_iot'],
-    'iot' => ['iot', 'embedded_iot'],
-    'iot projects' => ['iot', 'embedded_iot'],
-    'robotics' => ['robotics'],
-    'automation' => ['automation'],
-    'sensor-based projects' => ['sensor'],
-    'sensor' => ['sensor'],
-    'communication systems' => ['communication'],
-    'communication' => ['communication'],
-    'power electronics' => ['power'],
-    'power' => ['power'],
-    'wearable technology' => ['wearable'],
-    'wearable' => ['wearable'],
-    'mechatronics' => ['mechatronics'],
-    'renewable energy' => ['renewable'],
-    'renewable' => ['renewable'],
-    'cybersecurity' => ['cybersecurity'],
-    'game development' => ['game'],
-    'game' => ['game'],
-    'data science' => ['data_science'],
-    'data science & analytics' => ['data_science']
-];
-
-$matched_classifications = [];
-if (!empty($domains)) {
-    $domain_list = array_map('trim', explode(',', $domains));
-    foreach ($domain_list as $domain) {
-        $domain_lower = strtolower($domain);
-        if (isset($classification_map[$domain_lower])) {
-            $matched_classifications = array_merge($matched_classifications, $classification_map[$domain_lower]);
-        }
-    }
-    $matched_classifications = array_unique($matched_classifications);
+    $search_keywords = array_unique($search_keywords);
 }
 
 // Fetch projects matching subadmin's domain (only pending projects)
-if (!empty($classifications)) {
-    // Build WHERE clause for domain matching
-    $where_conditions = [];
-    foreach ($classifications as $classification) {
-        $where_conditions[] = "classification LIKE ?";
+// Build classification matching using LIKE for flexible matching with keywords
+$where_conditions = [];
+$params = [];
+$types = '';
+
+if (!empty($search_keywords)) {
+    // Use the mapped keywords for better matching
+    foreach ($search_keywords as $keyword) {
+        $keyword_clean = strtolower(trim($keyword));
+        $where_conditions[] = "LOWER(classification) LIKE ?";
+        $params[] = "%$keyword_clean%";
+        $types .= 's';
     }
+} elseif (!empty($domains)) {
+    // Fallback to original domain names if no mapping found
+    $domain_list = array_map('trim', explode(',', $domains));
+    foreach ($domain_list as $domain) {
+        $domain_clean = strtolower(trim($domain));
+        $where_conditions[] = "LOWER(classification) LIKE ?";
+        $params[] = "%$domain_clean%";
+        $types .= 's';
+    }
+}
+
+if (!empty($where_conditions)) {
     $where_clause = implode(' OR ', $where_conditions);
-    
     $sql = "SELECT * FROM projects WHERE status = 'pending' AND ($where_clause) ORDER BY submission_date DESC";
     $stmt = $conn->prepare($sql);
     
-    // Bind parameters
-    $types = str_repeat('s', count($classifications));
-    $params = array_map(function($c) { return "%$c%"; }, $classifications);
-    $stmt->bind_param($types, ...$params);
+    if (!empty($params)) {
+        $stmt->bind_param($types, ...$params);
+    }
     
     $stmt->execute();
     $result = $stmt->get_result();
@@ -189,7 +160,7 @@ if (isset($_POST['action']) && isset($_POST['project_id'])) {
         }
         
         if ($action === 'approve') {
-            // Move to admin_approved_projects
+            // Move to admin_approved_projects (using all available project fields)
             $stmt = $conn->prepare("INSERT INTO admin_approved_projects (user_id, project_name, project_type, classification, project_category, difficulty_level, development_time, team_size, target_audience, project_goals, challenges_faced, future_enhancements, github_repo, live_demo_url, project_license, keywords, contact_email, social_links, description, language, image_path, video_path, code_file_path, instruction_file_path, presentation_file_path, additional_files_path, submission_date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')");
             $stmt->bind_param("issssssssssssssssssssssssss", 
                 $project_data['user_id'], $project_data['project_name'], $project_data['project_type'], 
@@ -222,7 +193,7 @@ if (isset($_POST['action']) && isset($_POST['project_id'])) {
             
             $action_message = "Project approved successfully!";
         } else {
-            // Move to denial_projects
+            // Move to denial_projects (using all available project fields)
             $stmt = $conn->prepare("INSERT INTO denial_projects (user_id, project_name, project_type, classification, project_category, difficulty_level, development_time, team_size, target_audience, project_goals, challenges_faced, future_enhancements, github_repo, live_demo_url, project_license, keywords, contact_email, social_links, description, language, image_path, video_path, code_file_path, instruction_file_path, presentation_file_path, additional_files_path, submission_date, status, rejection_date, rejection_reason) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'rejected', NOW(), ?)");
             $stmt->bind_param("isssssssssssssssssssssssssss", 
                 $project_data['user_id'], $project_data['project_name'], $project_data['project_type'], 
