@@ -47,7 +47,8 @@ $security_headers = [
     'X-XSS-Protection: 1; mode=block',
     'Referrer-Policy: strict-origin-when-cross-origin',
     'Permissions-Policy: geolocation=(), microphone=(), camera=()',
-    'Content-Security-Policy: upgrade-insecure-requests; default-src \'self\' https:; script-src \'self\' \'unsafe-inline\' https://cdnjs.cloudflare.com; style-src \'self\' \'unsafe-inline\' https://cdnjs.cloudflare.com; img-src \'self\' data: https:; font-src \'self\' https://cdnjs.cloudflare.com; connect-src \'self\' https:; frame-ancestors \'none\'; block-all-mixed-content;',
+    'Cross-Origin-Opener-Policy: same-origin-allow-popups',
+    'Content-Security-Policy: upgrade-insecure-requests; default-src \'self\' https:; script-src \'self\' \'unsafe-inline\' https://cdnjs.cloudflare.com https://accounts.google.com https://apis.google.com https://cdn.jsdelivr.net https://code.jquery.com; style-src \'self\' \'unsafe-inline\' https://cdnjs.cloudflare.com https://accounts.google.com https://fonts.googleapis.com https://cdn.jsdelivr.net; img-src \'self\' data: https:; font-src \'self\' https://cdnjs.cloudflare.com https://fonts.gstatic.com https://cdn.jsdelivr.net; connect-src \'self\' https: https://accounts.google.com; frame-ancestors \'none\'; block-all-mixed-content;',
 ];
 
 // Apply headers if not already sent
