@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
@@ -43,10 +43,9 @@ if (!$error_message && isset($conn)) {
     $required_tables = ['register', 'mentors', 'mentor_requests', 'projects'];
     
     foreach ($required_tables as $table) {
-        $stmt = $conn->prepare("SHOW TABLES LIKE ?");
-$stmt->bind_param("s", $table);
-$stmt->execute();
-$check_table = $stmt->get_result();
+        // Escape table name to prevent SQL injection
+        $escaped_table = $conn->real_escape_string($table);
+        $check_table = $conn->query("SHOW TABLES LIKE '$escaped_table'");
         if (!$check_table || $check_table->num_rows == 0) {
             $tables_exist = false;
             break;
@@ -113,73 +112,123 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
         } elseif (strlen($message) < 10) {
             $error_message = "Message must be at least 10 characters long.";
         } else {
-
-            // Check if request already exists
-            $check_query = "SELECT id FROM mentor_requests WHERE student_id = ? AND mentor_id = ? AND status = 'pending'";
-            $check_stmt = $conn->prepare($check_query);
+            // Verify mentor exists and is actually a mentor
+            $verify_mentor = "SELECT id FROM register WHERE id = ? AND role = 'mentor'";
+            $verify_stmt = $conn->prepare($verify_mentor);
             
-            if (!$check_stmt) {
+            if (!$verify_stmt) {
                 $error_message = "Database error: " . $conn->error;
+                error_log("Failed to prepare verify mentor query: " . $conn->error);
             } else {
-                $check_stmt->bind_param("ii", $user_id, $mentor_id);
-                $check_stmt->execute();
-                $check_result = $check_stmt->get_result();
-
-                if ($check_result->num_rows == 0) {
-                    try {
-                        $insert_query = "INSERT INTO mentor_requests (student_id, mentor_id, project_id, message) VALUES (?, ?, ?, ?)";
-                        $insert_stmt = $conn->prepare($insert_query);
-                        
-                        if (!$insert_stmt) {
-                            throw new Exception("Failed to prepare insert statement: " . $conn->error);
-                        }
-                        
-                        $insert_stmt->bind_param("iiis", $user_id, $mentor_id, $project_id, $message);
-                        
-                        if (!$insert_stmt->execute()) {
-                            throw new Exception("Failed to execute insert: " . $insert_stmt->error);
-                        }
-
-                        $success_message = "Mentor request sent successfully!";
-                        
-                        // Try to send email notification
-                        if ($phpmailer_available) {
-                            try {
-                                // Get mentor details
-                                $details_query = "SELECT r1.name as student_name, r2.name as mentor_name, r2.email as mentor_email
-                                                 FROM register r1, register r2
-                                                 WHERE r1.id = ? AND r2.id = ?";
-                                $details_stmt = $conn->prepare($details_query);
-                                $details_stmt->bind_param("ii", $user_id, $mentor_id);
-                                $details_stmt->execute();
-                                $details = $details_stmt->get_result()->fetch_assoc();
-
-                                if ($details) {
-                                    $mailer = new SMTPMailer();
-                                    $subject = 'New Mentorship Request - IdeaNest';
-                                    $body = "<h2>New Mentorship Request</h2>
-                                    <p>Dear {$details['mentor_name']},</p>
-                                    <p>You have received a new mentorship request from <strong>{$details['student_name']}</strong>.</p>
-                                    <p><strong>Message:</strong></p>
-                                    <p style='background: #f5f5f5; padding: 15px; border-radius: 5px;'>" . htmlspecialchars($message) . "</p>
-                                    <p>Best regards,<br>The IdeaNest Team</p>";
-                                    $mailer->send($details['mentor_email'], $subject, $body);
-                                    $success_message .= " The mentor has been notified via email.";
-                                }
-                            } catch (Exception $e) {
-                                // Email failed, but request was saved
-                                error_log("Email notification failed: " . $e->getMessage());
-                            }
-                        }
-
-                    } catch (Exception $e) {
-                        $error_message = "Failed to send request: " . $e->getMessage();
-                        error_log("Mentor request error: " . $e->getMessage());
-                    }
+                $verify_stmt->bind_param("i", $mentor_id);
+                $verify_stmt->execute();
+                $verify_result = $verify_stmt->get_result();
+                
+                if ($verify_result->num_rows == 0) {
+                    $error_message = "Invalid mentor selected.";
+                    error_log("Mentor ID $mentor_id not found or not a mentor");
                 } else {
-                    $error_message = "You already have a pending request with this mentor.";
+                    // Check if request already exists
+                    $check_query = "SELECT id FROM mentor_requests WHERE student_id = ? AND mentor_id = ? AND status = 'pending'";
+                    $check_stmt = $conn->prepare($check_query);
+                    
+                    if (!$check_stmt) {
+                        $error_message = "Database error: " . $conn->error;
+                        error_log("Failed to prepare check query: " . $conn->error);
+                    } else {
+                        $check_stmt->bind_param("ii", $user_id, $mentor_id);
+                        
+                        if (!$check_stmt->execute()) {
+                            $error_message = "Database error: " . $check_stmt->error;
+                            error_log("Failed to execute check query: " . $check_stmt->error);
+                        } else {
+                            $check_result = $check_stmt->get_result();
+
+                            if ($check_result->num_rows == 0) {
+                                // Begin transaction for data integrity
+                                $conn->begin_transaction();
+                                
+                                try {
+                                    $insert_query = "INSERT INTO mentor_requests (student_id, mentor_id, project_id, message, status) VALUES (?, ?, ?, ?, 'pending')";
+                                    $insert_stmt = $conn->prepare($insert_query);
+                                    
+                                    if (!$insert_stmt) {
+                                        throw new Exception("Failed to prepare insert statement: " . $conn->error);
+                                    }
+                                    
+                                    $insert_stmt->bind_param("iiis", $user_id, $mentor_id, $project_id, $message);
+                                    
+                                    if (!$insert_stmt->execute()) {
+                                        throw new Exception("Failed to execute insert: " . $insert_stmt->error);
+                                    }
+                                    
+                                    $request_id = $insert_stmt->insert_id;
+                                    
+                                    // Create notification for mentor
+                                    $notif_query = "INSERT INTO user_notifications (user_id, notification_type, title, message, related_id, related_type, action_url, icon, color) 
+                                                   VALUES (?, 'mentor_request', 'New Mentorship Request', ?, ?, 'mentor_request', '/mentor/view_requests.php', 'bi-person-plus', 'info')";
+                                    $notif_stmt = $conn->prepare($notif_query);
+                                    
+                                    if ($notif_stmt) {
+                                        $notif_message = "You have received a new mentorship request from a student.";
+                                        $notif_stmt->bind_param("isi", $mentor_id, $notif_message, $request_id);
+                                        $notif_stmt->execute();
+                                        $notif_stmt->close();
+                                    }
+                                    
+                                    // Commit transaction
+                                    $conn->commit();
+                                    
+                                    $success_message = "Mentor request sent successfully!";
+                                    error_log("Mentor request created successfully: Request ID $request_id, Student ID $user_id, Mentor ID $mentor_id");
+                                    
+                                    // Try to send email notification
+                                    if ($phpmailer_available) {
+                                        try {
+                                            // Get mentor details
+                                            $details_query = "SELECT r1.name as student_name, r2.name as mentor_name, r2.email as mentor_email
+                                                             FROM register r1, register r2
+                                                             WHERE r1.id = ? AND r2.id = ?";
+                                            $details_stmt = $conn->prepare($details_query);
+                                            $details_stmt->bind_param("ii", $user_id, $mentor_id);
+                                            $details_stmt->execute();
+                                            $details = $details_stmt->get_result()->fetch_assoc();
+
+                                            if ($details) {
+                                                $mailer = new SMTPMailer();
+                                                $subject = 'New Mentorship Request - IdeaNest';
+                                                $body = "<h2>New Mentorship Request</h2>
+                                                <p>Dear {$details['mentor_name']},</p>
+                                                <p>You have received a new mentorship request from <strong>{$details['student_name']}</strong>.</p>
+                                                <p><strong>Message:</strong></p>
+                                                <p style='background: #f5f5f5; padding: 15px; border-radius: 5px;'>" . htmlspecialchars($message) . "</p>
+                                                <p>Best regards,<br>The IdeaNest Team</p>";
+                                                $mailer->send($details['mentor_email'], $subject, $body);
+                                                $success_message .= " The mentor has been notified via email.";
+                                            }
+                                            $details_stmt->close();
+                                        } catch (Exception $e) {
+                                            // Email failed, but request was saved
+                                            error_log("Email notification failed: " . $e->getMessage());
+                                        }
+                                    }
+                                    
+                                    $insert_stmt->close();
+
+                                } catch (Exception $e) {
+                                    // Rollback transaction on error
+                                    $conn->rollback();
+                                    $error_message = "Failed to send request: " . $e->getMessage();
+                                    error_log("Mentor request error: " . $e->getMessage());
+                                }
+                            } else {
+                                $error_message = "You already have a pending request with this mentor.";
+                            }
+                            $check_stmt->close();
+                        }
+                    }
                 }
-                $check_stmt->close();
+                $verify_stmt->close();
             }
         }
     }
@@ -197,6 +246,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
     <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Prevent external loader from initializing -->
+    <script>
+        window.DISABLE_AUTO_LOADER = true;
+    </script>
+    
     <style>
         body { min-height: 100vh; }
         .main-content { margin-left: 280px; padding: 20px; }
@@ -207,8 +262,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
         .specialization-badge { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px; padding: 4px 12px; font-size: 0.8rem; }
         @media (max-width: 768px) { .main-content { margin-left: 0; } }
     </style>
-    <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
 </head>
 <?php include 'layout.php'; ?>
 <body>
@@ -354,8 +407,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Universal Loader -->
+    <div id="universalLoader" class="loader-overlay">
+        <div class="loader">
+            <div class="loader-spinner"></div>
+            <div class="loader-text" id="loaderText">Loading...</div>
+        </div>
+    </div>
+
     <script>
+        // Simple loader control
+        function showLoader(text = 'Loading...') {
+            const loader = document.getElementById('universalLoader');
+            const loaderText = document.getElementById('loaderText');
+            if (loader) {
+                if (loaderText) loaderText.textContent = text;
+                loader.style.display = 'flex';
+            }
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById('universalLoader');
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Hide loader on page load
+            hideLoader();
+            
             const requestModal = document.getElementById('requestModal');
             const mentorRequestForm = document.getElementById('mentorRequestForm');
             const messageField = document.getElementById('message');
@@ -373,7 +455,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
                 messageField.classList.remove('is-invalid');
             });
             
-            // Form validation
+            // Form validation and submission
             if (mentorRequestForm) {
                 mentorRequestForm.addEventListener('submit', function(e) {
                     const message = messageField.value.trim();
@@ -393,6 +475,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
                     }
                     
                     messageField.classList.remove('is-invalid');
+                    
+                    // Show loader on valid submission
+                    showLoader('Sending request...');
+                    
+                    // Disable submit button to prevent double submission
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+                    }
                 });
                 
                 messageField.addEventListener('input', function() {
@@ -402,17 +494,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
                 });
             }
         });
+
+        // Hide loader when page is fully loaded
+        window.addEventListener('load', function() {
+            hideLoader();
+        });
+
+        // Hide loader if page is shown from cache (back button)
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                hideLoader();
+            }
+        });
     </script>
 
-<!-- Universal Loader -->
-<div id="universalLoader" class="loader-overlay">
-    <div class="loader">
-        <div class="loader-spinner"></div>
-        <div class="loader-text" id="loaderText">Loading...</div>
-    </div>
-</div>
-
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+    <style>
+        #universalLoader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .loader {
+            text-align: center;
+        }
+        
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        .loader-text {
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </body>
 </html>
