@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 session_start();
 require_once '../Login/Login/db.php';
 require_once 'mentor_layout.php';
 
 if (!isset($_SESSION['mentor_id'])) {
-    header('Location: https://ictmu.in/hcd/IdeaNest/Login/Login/login.php');
+    header('Location: http://localhost/IdeaNest/Login/Login/login.php');
     exit;
 }
 
