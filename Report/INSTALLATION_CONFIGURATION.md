@@ -89,7 +89,7 @@ EXIT;
 cd /var/www/html/IdeaNest
 
 # Import database schema
-mysql -u ictmu6ya_ideanest -p ictmu6ya_ideanest < db/ideanest.sql
+mysql -u ictmu6ya_ideanest -p ictmu6ya_ideanest < db/ictmu6ya_ideanest.sql
 
 # Verify import
 mysql -u ictmu6ya_ideanest -p -e "USE ictmu6ya_ideanest; SHOW TABLES;"
@@ -152,7 +152,7 @@ nano .env
 # Database Configuration
 DB_HOST=localhost
 DB_NAME=ictmu6ya_ideanest
-DB_USER=ictmu6ya_ideanest
+DB_USERNAME=ictmu6ya_ideanest
 DB_PASS=secure_password_here
 DB_CHARSET=utf8mb4
 
@@ -199,8 +199,8 @@ ALLOWED_EXTENSIONS=jpg,jpeg,png,gif,pdf,zip,mp4,avi,mov,ppt,pptx,doc,docx
 // Edit Login/Login/db.php
 $host = $_ENV['DB_HOST'] ?? 'localhost';
 $dbname = $_ENV['DB_NAME'] ?? 'ictmu6ya_ideanest';
-$username = $_ENV['DB_USER'] ?? 'ictmu6ya_ideanest';
-$password = $_ENV['DB_PASS'] ?? 'secure_password_here';
+$username = $_ENV['DB_USERNAME'] ?? 'ictmu6ya_ideanest';
+$password = $_ENV['DB_PASSWORD'] ?? 'secure_password_here';
 $charset = $_ENV['DB_CHARSET'] ?? 'utf8mb4';
 
 try {

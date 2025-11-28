@@ -53,7 +53,7 @@ nano .env
 
 # 4. Database setup
 mysql -u ictmu6ya_ideanest -p -e "CREATE DATABASE ictmu6ya_ideanest;"
-mysql -u ictmu6ya_ideanest -p ictmu6ya_ideanest < db/ideanest.sql
+mysql -u ictmu6ya_ideanest -p ictmu6ya_ideanest < db/ictmu6ya_ideanest.sql
 
 # 5. Set permissions
 chmod 755 user/uploads/ user/forms/uploads/ logs/

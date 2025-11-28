@@ -21,8 +21,10 @@ class CredentialManager {
             VALUES (?, ?, ?, ?, ?, ?, 1)
         ");
         
+        // Convert boolean to integer for database
+        $email_sent_int = $email_sent ? 1 : 0;
         $sent_at = $email_sent ? date('Y-m-d H:i:s') : null;
-        $stmt->bind_param("sisssi", $user_type, $user_id, $email, $plain_password, $email_sent, $sent_at);
+        $stmt->bind_param("sisssi", $user_type, $user_id, $email, $plain_password, $email_sent_int, $sent_at);
         
         $result = $stmt->execute();
         $stmt->close();
@@ -34,6 +36,9 @@ class CredentialManager {
      * Update email status after sending attempt
      */
     public function updateEmailStatus($user_type, $user_id, $success, $error_message = null) {
+        // Ensure success is an integer
+        $success_int = $success ? 1 : 0;
+        
         $stmt = $this->conn->prepare("
             UPDATE temp_credentials 
             SET email_sent = ?, 
@@ -46,7 +51,7 @@ class CredentialManager {
             LIMIT 1
         ");
         
-        $stmt->bind_param("iissi", $success, $success, $error_message, $user_type, $user_id);
+        $stmt->bind_param("iissi", $success_int, $success_int, $error_message, $user_type, $user_id);
         $result = $stmt->execute();
         $stmt->close();
         
@@ -202,17 +207,19 @@ class CredentialManager {
     }
 }
 
-// Helper function to get base URL
-function getBaseUrl($path = '') {
-    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $base = $protocol . '://' . $host;
-    
-    // Remove script name from path if present
-    $script_dir = dirname($_SERVER['SCRIPT_NAME']);
-    if ($script_dir !== '/') {
-        $base .= $script_dir;
+// Helper function to get base URL (only declare if not already exists)
+if (!function_exists('getBaseUrl')) {
+    function getBaseUrl($path = '') {
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $base = $protocol . '://' . $host;
+        
+        // Remove script name from path if present
+        $script_dir = dirname($_SERVER['SCRIPT_NAME']);
+        if ($script_dir !== '/') {
+            $base .= $script_dir;
+        }
+        
+        return rtrim($base, '/') . '/' . ltrim($path, '/');
     }
-    
-    return rtrim($base, '/') . '/' . ltrim($path, '/');
 }
