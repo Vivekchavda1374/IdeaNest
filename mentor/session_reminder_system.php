@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 /**
  * Session Reminder System
  * Automated email reminders for upcoming mentoring sessions
@@ -98,8 +98,8 @@ class SessionReminderSystem {
                 .button { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
                 .footer { text-align: center; color: #666; font-size: 12px; margin-top: 20px; }
             </style>
-            <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+            <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
         <body>
             <div class='container'>
