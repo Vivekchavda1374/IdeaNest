@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 require_once '../config/config.php';
 
 // Production-safe error reporting
@@ -57,11 +57,11 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $s
         'include_project_details' => true,
         'custom_text' => '',
 
-        'smtp_host' => 'smtp.gmail.com',
-        'smtp_port' => 587,
-        'smtp_username' => 'ideanest.ict@gmail.com',
-        'smtp_password' => 'luou xlhs ojuw auvx',
-        'smtp_secure' => 'tls'
+        'smtp_host' => $_ENV['SMTP_HOST'] ?? 'smtp.gmail.com',
+        'smtp_port' => $_ENV['SMTP_PORT'] ?? 587,
+        'smtp_username' => $_ENV['SMTP_USERNAME'] ?? 'ideanest.ict@gmail.com',
+        'smtp_password' => $_ENV['SMTP_PASSWORD'] ?? 'luou xlhs ojuw auvx',
+        'smtp_secure' => $_ENV['SMTP_SECURE'] ?? 'tls'
     ];
 
     // Merge provided options with defaults
@@ -97,10 +97,25 @@ function sendProjectStatusEmail($project_id, $status, $rejection_reason = '', $s
     }
 
     // Send email using simple SMTP
-    if (sendSMTPEmail($user_email, $subject, $message)) {
-        return ['success' => true, 'message' => 'Email has been sent successfully'];
-    } else {
-        return ['success' => false, 'message' => 'Email could not be sent'];
+    error_log("Sending email to: " . $user_email . " with subject: " . $subject);
+    error_log("SMTP Configuration check:");
+    error_log("- Host: " . $options['smtp_host']);
+    error_log("- Port: " . $options['smtp_port']);
+    error_log("- Username: " . $options['smtp_username']);
+    error_log("- Password set: " . (!empty($options['smtp_password']) ? 'yes' : 'no'));
+    
+    try {
+        $email_sent = sendSMTPEmail($user_email, $subject, $message);
+        error_log("Email send result: " . ($email_sent ? 'success' : 'failed'));
+        
+        if ($email_sent) {
+            return ['success' => true, 'message' => 'Email has been sent successfully'];
+        } else {
+            return ['success' => false, 'message' => 'Email could not be sent - SMTP function returned false'];
+        }
+    } catch (Exception $e) {
+        error_log("Email sending exception: " . $e->getMessage());
+        return ['success' => false, 'message' => 'Email sending failed with exception: ' . $e->getMessage()];
     }
 }
 
@@ -172,8 +187,8 @@ function createApprovedEmailContent($user_name, $project, $options, $subadmin_de
                 .content { padding: 15px !important; }
             }
         </style>
-        <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+        <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
     <body>
         <div class="container">
@@ -219,8 +234,8 @@ function createApprovedEmailContent($user_name, $project, $options, $subadmin_de
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
     </html>';
 
@@ -296,8 +311,8 @@ function createRejectedEmailContent($user_name, $project, $rejection_reason, $op
                 .content { padding: 15px !important; }
             }
         </style>
-        <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+        <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
     <body>
         <div class="container">
@@ -347,8 +362,8 @@ function createRejectedEmailContent($user_name, $project, $rejection_reason, $op
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
     </html>';
 

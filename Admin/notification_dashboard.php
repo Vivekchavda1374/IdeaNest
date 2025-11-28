@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/security_init.php';
+require_once __DIR__ . '/../includes/security_init.php';
 session_start();
 require_once '../config/config.php';
 include '../Login/Login/db.php';
@@ -69,8 +69,8 @@ $weekly_stats_result = $conn->query($weekly_stats_query);
         .btn-success { background: #10b981; color: white; }
         .btn-warning { background: #f59e0b; color: white; }
     </style>
-    <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
+    <link rel="stylesheet" href="../assets/css/loader.css">
+    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
     <div class="container">
@@ -178,7 +178,7 @@ $weekly_stats_result = $conn->query($weekly_stats_query);
     </div>
 </div>
 
-<script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
+<script src="../assets/js/loader.js"></script>
+<script src="../assets/js/loading.js"></script>
 </body>
 </html>
