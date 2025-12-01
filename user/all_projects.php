@@ -102,9 +102,15 @@ $conn->query($create_temp_ownership);
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $filter_classification = isset($_GET['classification']) ? trim($_GET['classification']) : '';
 $filter_type = isset($_GET['type']) ? trim($_GET['type']) : '';
+$filter_difficulty = isset($_GET['difficulty']) ? trim($_GET['difficulty']) : '';
+$filter_dev_time = isset($_GET['dev_time']) ? trim($_GET['dev_time']) : '';
+$filter_team_size = isset($_GET['team_size']) ? trim($_GET['team_size']) : '';
+$filter_license = isset($_GET['license']) ? trim($_GET['license']) : '';
+$filter_language = isset($_GET['language']) ? trim($_GET['language']) : '';
 $view_filter = isset($_GET['view']) ? trim($_GET['view']) : 'all';
 $show_only_owned = ($view_filter === 'owned');
 $show_only_bookmarked = ($view_filter === 'bookmarked');
+$show_only_following = ($view_filter === 'following');
 
 // Pagination settings
 $projects_per_page = 9;
@@ -126,6 +132,10 @@ if ($show_only_owned) {
     $count_joins .= " INNER JOIN bookmark b ON ap.id = b.project_id AND b.user_id = ?";
     $count_params[] = $session_id;
     $count_types .= "s";
+} elseif ($show_only_following && $user_id) {
+    $count_joins .= " INNER JOIN user_follows uf ON CAST(ap.user_id AS UNSIGNED) = uf.following_id AND uf.follower_id = ?";
+    $count_params[] = $user_id;
+    $count_types .= "i";
 }
 
 $count_sql .= $count_joins . $count_conditions;
@@ -144,6 +154,32 @@ if ($filter_classification !== '') {
 if ($filter_type !== '') {
     $count_sql .= " AND ap.project_type = ?";
     $count_params[] = $filter_type;
+    $count_types .= "s";
+}
+if ($filter_difficulty !== '') {
+    $count_sql .= " AND ap.difficulty_level = ?";
+    $count_params[] = $filter_difficulty;
+    $count_types .= "s";
+}
+if ($filter_dev_time !== '') {
+    $count_sql .= " AND ap.development_time = ?";
+    $count_params[] = $filter_dev_time;
+    $count_types .= "s";
+}
+if ($filter_team_size !== '') {
+    $count_sql .= " AND ap.team_size = ?";
+    $count_params[] = $filter_team_size;
+    $count_types .= "s";
+}
+if ($filter_license !== '') {
+    $count_sql .= " AND ap.project_license = ?";
+    $count_params[] = $filter_license;
+    $count_types .= "s";
+}
+if ($filter_language !== '') {
+    $count_sql .= " AND LOWER(ap.language) LIKE LOWER(?)";
+    $lang_param = "%$filter_language%";
+    $count_params[] = $lang_param;
     $count_types .= "s";
 }
 
@@ -172,6 +208,7 @@ $sql = "SELECT ap.*,
         LEFT JOIN bookmark b ON ap.id = b.project_id AND b.user_id = ?
         LEFT JOIN temp_project_ownership tpo ON ap.id = tpo.project_id AND tpo.user_session = ?
         LEFT JOIN project_likes pl ON ap.id = pl.project_id AND pl.user_id = ?
+        LEFT JOIN user_follows uf ON CAST(ap.user_id AS UNSIGNED) = uf.following_id AND uf.follower_id = ?
         LEFT JOIN (
             SELECT project_id, COUNT(*) as total_likes 
             FROM project_likes 
@@ -186,14 +223,16 @@ $sql = "SELECT ap.*,
         ) user_stats ON ap.user_id = user_stats.user_id";
 
 $main_conditions = " WHERE 1=1";
-$params = [$session_id, $session_id, $session_id];
-$types = "sss";
+$params = [$session_id, $session_id, $session_id, $user_id];
+$types = "sssi";
 
 // Add view filter conditions
 if ($show_only_owned) {
     $main_conditions .= " AND tpo.project_id IS NOT NULL";
 } elseif ($show_only_bookmarked) {
     $main_conditions .= " AND b.project_id IS NOT NULL";
+} elseif ($show_only_following && $user_id) {
+    $main_conditions .= " AND uf.follower_id IS NOT NULL";
 }
 
 $sql .= $main_conditions;
@@ -212,6 +251,32 @@ if ($filter_classification !== '') {
 if ($filter_type !== '') {
     $sql .= " AND ap.project_type = ?";
     $params[] = $filter_type;
+    $types .= "s";
+}
+if ($filter_difficulty !== '') {
+    $sql .= " AND ap.difficulty_level = ?";
+    $params[] = $filter_difficulty;
+    $types .= "s";
+}
+if ($filter_dev_time !== '') {
+    $sql .= " AND ap.development_time = ?";
+    $params[] = $filter_dev_time;
+    $types .= "s";
+}
+if ($filter_team_size !== '') {
+    $sql .= " AND ap.team_size = ?";
+    $params[] = $filter_team_size;
+    $types .= "s";
+}
+if ($filter_license !== '') {
+    $sql .= " AND ap.project_license = ?";
+    $params[] = $filter_license;
+    $types .= "s";
+}
+if ($filter_language !== '') {
+    $sql .= " AND LOWER(ap.language) LIKE LOWER(?)";
+    $lang_param = "%$filter_language%";
+    $params[] = $lang_param;
     $types .= "s";
 }
 $sql .= " ORDER BY ap.submission_date DESC LIMIT ? OFFSET ?";
@@ -289,6 +354,19 @@ $bookmarked_count_stmt->bind_param("s", $session_id);
 $bookmarked_count_stmt->execute();
 $bookmarked_count = $bookmarked_count_stmt->get_result()->fetch_assoc()['total'];
 $bookmarked_count_stmt->close();
+
+// Get following count
+$following_count = 0;
+if ($user_id) {
+    $following_count_sql = "SELECT COUNT(*) as total FROM admin_approved_projects ap 
+                           INNER JOIN user_follows uf ON CAST(ap.user_id AS UNSIGNED) = uf.following_id 
+                           WHERE uf.follower_id = ?";
+    $following_count_stmt = $conn->prepare($following_count_sql);
+    $following_count_stmt->bind_param("i", $user_id);
+    $following_count_stmt->execute();
+    $following_count = $following_count_stmt->get_result()->fetch_assoc()['total'];
+    $following_count_stmt->close();
+}
 
 $all_count_sql = "SELECT COUNT(*) as total FROM admin_approved_projects";
 $all_count_stmt = $conn->prepare($all_count_sql);
@@ -439,6 +517,44 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         .fade-in-up {
             animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Loader Styles */
+        .loader-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader {
+            text-align: center;
+            color: white;
+        }
+
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        .loader-text {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         @keyframes fadeInUp {
@@ -927,6 +1043,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <span>Bookmarked</span>
                 <span class="filter-btn-count"><?php echo $bookmarked_count; ?></span>
             </a>
+            <?php if ($user_id): ?>
+            <a href="?<?php echo http_build_query(array_merge($_GET, ['view' => 'following', 'page' => 1])); ?>"
+               class="filter-btn <?php echo $view_filter === 'following' ? 'active' : ''; ?>">
+                <i class="fas fa-user-friends"></i>
+                <span>Following</span>
+                <span class="filter-btn-count"><?php echo $following_count; ?></span>
+            </a>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -934,59 +1058,142 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <div class="filter-form fade-in-up">
         <form method="get" class="row g-3 align-items-end">
             <input type="hidden" name="view" value="<?php echo htmlspecialchars($view_filter); ?>">
-            <div class="col-12 col-md-4">
-                <label for="search" class="form-label">Search Projects</label>
+            
+            <!-- Search -->
+            <div class="col-12 col-md-6 col-lg-4">
+                <label for="search" class="form-label"><i class="fas fa-search me-1"></i>Search Projects</label>
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="fas fa-search text-muted"></i>
                     </span>
                     <input type="text" class="form-control border-start-0 ps-0" id="search" name="search"
-                           placeholder="Search by name, description, type..."
+                           placeholder="Search by name, description..."
                            value="<?php echo htmlspecialchars($search); ?>">
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <label for="classification" class="form-label">Classification</label>
+            
+            <!-- Classification -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <label for="classification" class="form-label"><i class="fas fa-tag me-1"></i>Classification</label>
                 <select class="form-select" id="classification" name="classification">
-                    <option value="">All Classifications</option>
-                    <option value="Web Development" <?php if ($filter_classification === 'Web Development') {
-                        echo 'selected';
-                                                    } ?>>Web Development</option>
-                    <option value="Mobile App" <?php if ($filter_classification === 'Mobile App') {
-                        echo 'selected';
-                                               } ?>>Mobile App</option>
-                    <option value="Data Science" <?php if ($filter_classification === 'Data Science') {
-                        echo 'selected';
-                                                 } ?>>Data Science</option>
-                    <option value="AI/ML" <?php if ($filter_classification === 'AI/ML') {
-                        echo 'selected';
-                                          } ?>>AI/ML</option>
+                    <option value="">All</option>
+                    <option value="web" <?= $filter_classification === 'web' ? 'selected' : '' ?>>Web Development</option>
+                    <option value="mobile_app" <?= $filter_classification === 'mobile_app' ? 'selected' : '' ?>>Mobile App</option>
+                    <option value="data_science" <?= $filter_classification === 'data_science' ? 'selected' : '' ?>>Data Science</option>
+                    <option value="ai_ml" <?= $filter_classification === 'ai_ml' ? 'selected' : '' ?>>AI/ML</option>
+                    <option value="iot" <?= $filter_classification === 'iot' ? 'selected' : '' ?>>IoT</option>
+                    <option value="blockchain" <?= $filter_classification === 'blockchain' ? 'selected' : '' ?>>Blockchain</option>
+                    <option value="game_dev" <?= $filter_classification === 'game_dev' ? 'selected' : '' ?>>Game Development</option>
+                    <option value="cybersecurity" <?= $filter_classification === 'cybersecurity' ? 'selected' : '' ?>>Cybersecurity</option>
                 </select>
             </div>
-            <div class="col-6 col-md-3">
-                <label for="type" class="form-label">Project Type</label>
+            
+            <!-- Project Type -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <label for="type" class="form-label"><i class="fas fa-cube me-1"></i>Type</label>
                 <select class="form-select" id="type" name="type">
-                    <option value="">All Types</option>
-                    <option value="Frontend" <?php if ($filter_type === 'Frontend') {
-                        echo 'selected';
-                                             } ?>>Frontend</option>
-                    <option value="Backend" <?php if ($filter_type === 'Backend') {
-                        echo 'selected';
-                                            } ?>>Backend</option>
-                    <option value="Full Stack" <?php if ($filter_type === 'Full Stack') {
-                        echo 'selected';
-                                               } ?>>Full Stack</option>
-                    <option value="API" <?php if ($filter_type === 'API') {
-                        echo 'selected';
-                                        } ?>>API</option>
+                    <option value="">All</option>
+                    <option value="software" <?= $filter_type === 'software' ? 'selected' : '' ?>>Software</option>
+                    <option value="hardware" <?= $filter_type === 'hardware' ? 'selected' : '' ?>>Hardware</option>
+                    <option value="research" <?= $filter_type === 'research' ? 'selected' : '' ?>>Research</option>
                 </select>
             </div>
-            <div class="col-12 col-md-2 d-grid">
+            
+            <!-- Difficulty Level -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <label for="difficulty" class="form-label"><i class="fas fa-signal me-1"></i>Difficulty</label>
+                <select class="form-select" id="difficulty" name="difficulty">
+                    <option value="">All</option>
+                    <option value="beginner" <?= $filter_difficulty === 'beginner' ? 'selected' : '' ?>>Beginner</option>
+                    <option value="intermediate" <?= $filter_difficulty === 'intermediate' ? 'selected' : '' ?>>Intermediate</option>
+                    <option value="advanced" <?= $filter_difficulty === 'advanced' ? 'selected' : '' ?>>Advanced</option>
+                    <option value="expert" <?= $filter_difficulty === 'expert' ? 'selected' : '' ?>>Expert</option>
+                </select>
+            </div>
+            
+            <!-- Development Time -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <label for="dev_time" class="form-label"><i class="fas fa-clock me-1"></i>Dev Time</label>
+                <select class="form-select" id="dev_time" name="dev_time">
+                    <option value="">All</option>
+                    <option value="< 1 month" <?= $filter_dev_time === '< 1 month' ? 'selected' : '' ?>>< 1 month</option>
+                    <option value="1-2 months" <?= $filter_dev_time === '1-2 months' ? 'selected' : '' ?>>1-2 months</option>
+                    <option value="2-3 months" <?= $filter_dev_time === '2-3 months' ? 'selected' : '' ?>>2-3 months</option>
+                    <option value="3-6 months" <?= $filter_dev_time === '3-6 months' ? 'selected' : '' ?>>3-6 months</option>
+                    <option value="6+ months" <?= $filter_dev_time === '6+ months' ? 'selected' : '' ?>>6+ months</option>
+                </select>
+            </div>
+            
+            <!-- Team Size -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <label for="team_size" class="form-label"><i class="fas fa-users me-1"></i>Team Size</label>
+                <select class="form-select" id="team_size" name="team_size">
+                    <option value="">All</option>
+                    <option value="1" <?= $filter_team_size === '1' ? 'selected' : '' ?>>Solo (1)</option>
+                    <option value="2" <?= $filter_team_size === '2' ? 'selected' : '' ?>>2 members</option>
+                    <option value="3" <?= $filter_team_size === '3' ? 'selected' : '' ?>>3 members</option>
+                    <option value="4" <?= $filter_team_size === '4' ? 'selected' : '' ?>>4 members</option>
+                    <option value="5+" <?= $filter_team_size === '5+' ? 'selected' : '' ?>>5+ members</option>
+                </select>
+            </div>
+            
+            <!-- License -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <label for="license" class="form-label"><i class="fas fa-certificate me-1"></i>License</label>
+                <select class="form-select" id="license" name="license">
+                    <option value="">All</option>
+                    <option value="MIT" <?= $filter_license === 'MIT' ? 'selected' : '' ?>>MIT</option>
+                    <option value="GPL" <?= $filter_license === 'GPL' ? 'selected' : '' ?>>GPL</option>
+                    <option value="Apache-2.0" <?= $filter_license === 'Apache-2.0' ? 'selected' : '' ?>>Apache 2.0</option>
+                    <option value="BSD" <?= $filter_license === 'BSD' ? 'selected' : '' ?>>BSD</option>
+                    <option value="ISC" <?= $filter_license === 'ISC' ? 'selected' : '' ?>>ISC</option>
+                    <option value="Proprietary" <?= $filter_license === 'Proprietary' ? 'selected' : '' ?>>Proprietary</option>
+                </select>
+            </div>
+            
+            <!-- Language -->
+            <div class="col-6 col-md-4 col-lg-2">
+                <label for="language" class="form-label"><i class="fas fa-code me-1"></i>Language</label>
+                <input type="text" class="form-control" id="language" name="language"
+                       placeholder="e.g., Python, Java"
+                       value="<?php echo htmlspecialchars($filter_language); ?>">
+            </div>
+            
+            <!-- Buttons -->
+            <div class="col-6 col-md-4 col-lg-2 d-grid">
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-search me-2"></i>Filter
+                    <i class="fas fa-filter me-2"></i>Apply Filters
                 </button>
             </div>
+            <div class="col-6 col-md-4 col-lg-2 d-grid">
+                <a href="?view=<?= htmlspecialchars($view_filter) ?>" class="btn btn-outline-secondary">
+                    <i class="fas fa-redo me-2"></i>Reset
+                </a>
+            </div>
         </form>
+        
+        <!-- Active Filters Display -->
+        <?php
+        $active_filters = [];
+        if ($search) $active_filters[] = "Search: " . htmlspecialchars($search);
+        if ($filter_classification) $active_filters[] = "Classification: " . htmlspecialchars($filter_classification);
+        if ($filter_type) $active_filters[] = "Type: " . htmlspecialchars($filter_type);
+        if ($filter_difficulty) $active_filters[] = "Difficulty: " . htmlspecialchars($filter_difficulty);
+        if ($filter_dev_time) $active_filters[] = "Dev Time: " . htmlspecialchars($filter_dev_time);
+        if ($filter_team_size) $active_filters[] = "Team: " . htmlspecialchars($filter_team_size);
+        if ($filter_license) $active_filters[] = "License: " . htmlspecialchars($filter_license);
+        if ($filter_language) $active_filters[] = "Language: " . htmlspecialchars($filter_language);
+        
+        if (!empty($active_filters)): ?>
+        <div class="mt-3">
+            <small class="text-muted"><i class="fas fa-filter me-1"></i>Active Filters:</small>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+                <?php foreach ($active_filters as $filter): ?>
+                    <span class="badge bg-primary"><?= $filter ?></span>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 
     <!-- Alert Messages -->
@@ -1090,6 +1297,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         <i class="fas fa-user-plus"></i>
                     <?php elseif ($view_filter === 'bookmarked') : ?>
                         <i class="fas fa-bookmark"></i>
+                    <?php elseif ($view_filter === 'following') : ?>
+                        <i class="fas fa-user-friends"></i>
                     <?php else : ?>
                         <i class="fas fa-search"></i>
                     <?php endif; ?>
@@ -1100,6 +1309,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         echo 'No projects found in your collection';
                     } elseif ($view_filter === 'bookmarked') {
                         echo 'No bookmarked projects found';
+                    } elseif ($view_filter === 'following') {
+                        echo 'No projects from followed users';
                     } else {
                         echo 'No projects found';
                     }
@@ -1111,6 +1322,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         echo 'You haven\'t created any projects yet. Start by submitting your first project!';
                     } elseif ($view_filter === 'bookmarked') {
                         echo 'You haven\'t bookmarked any projects yet. Browse and bookmark interesting projects.';
+                    } elseif ($view_filter === 'following') {
+                        echo 'You\'re not following anyone yet, or they haven\'t created any projects. Start following users to see their projects here!';
                     } else {
                         echo 'No projects match your current filters. Try adjusting your search criteria.';
                     }
@@ -1342,6 +1555,241 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
     }
 
+    // AJAX Filter Form Submission
+    function handleFilterSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData);
+        
+        // Show loading
+        showLoader('Applying filters...');
+        
+        // Load projects with filters
+        loadProjects(params);
+    }
+
+    // AJAX Load Projects
+    async function loadProjects(params) {
+        try {
+            const csrfToken = getCSRFToken();
+            const data = {
+                action: 'load_projects',
+                csrf_token: csrfToken,
+                search: params.get('search') || '',
+                classification: params.get('classification') || '',
+                type: params.get('type') || '',
+                difficulty: params.get('difficulty') || '',
+                dev_time: params.get('dev_time') || '',
+                team_size: params.get('team_size') || '',
+                license: params.get('license') || '',
+                language: params.get('language') || '',
+                view: params.get('view') || 'all',
+                page: params.get('page') || 1
+            };
+            
+            const response = await fetch('ajax_project_actions.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Update CSRF token
+                if (result.new_token) {
+                    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                    if (csrfMeta) {
+                        csrfMeta.content = result.new_token;
+                    }
+                }
+                
+                // Render projects
+                renderProjects(result.projects);
+                
+                // Update pagination
+                updatePagination(result.current_page, result.total_pages, params);
+                
+                // Update URL without reload
+                const newUrl = window.location.pathname + '?' + params.toString();
+                window.history.pushState({}, '', newUrl);
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                hideLoader();
+            } else {
+                hideLoader();
+                console.error('Server error:', result.message);
+                showToast('<i class="fas fa-exclamation-circle me-2"></i>' + (result.message || 'An error occurred'), 'danger');
+            }
+        } catch (error) {
+            console.error('Error loading projects:', error);
+            hideLoader();
+            showToast('<i class="fas fa-exclamation-circle me-2"></i>An error occurred loading projects. Please refresh the page.', 'danger');
+        }
+    }
+
+    // Render Projects
+    function renderProjects(projects) {
+        const projectsList = document.querySelector('.projects-list');
+        
+        if (!projects || projects.length === 0) {
+            projectsList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h4>No Projects Found</h4>
+                    <p class="text-muted">No projects match your current filters. Try adjusting your search criteria.</p>
+                    <a href="?view=all" class="btn btn-primary mt-3">
+                        <i class="fas fa-th-large me-2"></i>View All Projects
+                    </a>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '<div class="row g-4">';
+        
+        projects.forEach(project => {
+            html += `
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="project-card">
+                        <div class="project-card-header">
+                            <h5 class="project-card-title">${escapeHtml(project.project_name)}</h5>
+                            <div class="project-badges">
+                                ${project.classification ? `<span class="badge badge-classification">${escapeHtml(project.classification)}</span>` : ''}
+                                ${project.project_type ? `<span class="badge badge-type">${escapeHtml(project.project_type)}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="project-card-body">
+                            <p class="project-description">${escapeHtml(project.description ? project.description.substring(0, 150) + '...' : '')}</p>
+                            <div class="project-meta">
+                                ${project.difficulty_level ? `<span><i class="fas fa-signal"></i> ${escapeHtml(project.difficulty_level)}</span>` : ''}
+                                ${project.development_time ? `<span><i class="fas fa-clock"></i> ${escapeHtml(project.development_time)}</span>` : ''}
+                                ${project.team_size ? `<span><i class="fas fa-users"></i> ${escapeHtml(project.team_size)}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="project-card-footer">
+                            <div class="project-actions">
+                                <button type="button" class="action-btn like-btn${project.is_liked ? ' liked' : ''}"
+                                        data-project-id="${project.id}"
+                                        data-action="like"
+                                        onclick="toggleLike(this)">
+                                    <i class="fas fa-heart"></i>
+                                    <span class="like-count">${project.total_likes}</span>
+                                </button>
+                                <button type="button" class="action-btn bookmark-btn${project.is_bookmarked ? ' bookmarked' : ''}"
+                                        data-project-id="${project.id}"
+                                        data-action="bookmark"
+                                        onclick="toggleBookmark(this)">
+                                    <i class="fas fa-bookmark"></i>
+                                    <span class="bookmark-text">${project.is_bookmarked ? 'Saved' : 'Save'}</span>
+                                </button>
+                            </div>
+                            <a href="view_idea.php?id=${project.id}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i>View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        projectsList.innerHTML = html;
+    }
+
+    // Update Pagination
+    function updatePagination(currentPage, totalPages, params) {
+        const paginationContainer = document.querySelector('.pagination-container');
+        if (!paginationContainer) return;
+        
+        let html = '<nav><ul class="pagination justify-content-center">';
+        
+        // Previous button
+        if (currentPage > 1) {
+            params.set('page', currentPage - 1);
+            html += `<li class="page-item"><a class="page-link" href="#" onclick="event.preventDefault(); loadProjectsPage(${currentPage - 1})">Previous</a></li>`;
+        }
+        
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === currentPage) {
+                html += `<li class="page-item active"><span class="page-link">${i}</span></li>`;
+            } else if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                html += `<li class="page-item"><a class="page-link" href="#" onclick="event.preventDefault(); loadProjectsPage(${i})">${i}</a></li>`;
+            } else if (i === currentPage - 3 || i === currentPage + 3) {
+                html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+            }
+        }
+        
+        // Next button
+        if (currentPage < totalPages) {
+            html += `<li class="page-item"><a class="page-link" href="#" onclick="event.preventDefault(); loadProjectsPage(${currentPage + 1})">Next</a></li>`;
+        }
+        
+        html += '</ul></nav>';
+        paginationContainer.innerHTML = html;
+    }
+
+    // Load Projects Page
+    function loadProjectsPage(page) {
+        const form = document.querySelector('.filter-form form');
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData);
+        params.set('page', page);
+        
+        showLoader('Loading page ' + page + '...');
+        loadProjects(params);
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Show Loader
+    function showLoader(message = 'Loading...') {
+        const loader = document.getElementById('universalLoader');
+        const loaderText = document.getElementById('loaderText');
+        if (loader) {
+            if (loaderText) loaderText.textContent = message;
+            loader.style.display = 'flex';
+        }
+    }
+
+    // Hide Loader
+    function hideLoader() {
+        const loader = document.getElementById('universalLoader');
+        if (loader) {
+            loader.style.display = 'none';
+        }
+    }
+
+    // AJAX View Filter Click
+    function handleViewFilterClick(event, view) {
+        event.preventDefault();
+        const form = document.querySelector('.filter-form form');
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData);
+        params.set('view', view);
+        params.set('page', 1);
+        
+        // Update active state
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        
+        showLoader('Loading ' + view + ' projects...');
+        loadProjects(params);
+    }
+
     // Initialize when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
         // Auto-hide alerts
@@ -1358,7 +1806,29 @@ $current_page = basename($_SERVER['PHP_SELF']);
             }, 4000);
         });
 
-        console.log('All projects page with AJAX initialized successfully');
+        // Attach AJAX to filter form - DISABLED for now to prevent styling issues
+        // Let filters work with normal page loads
+        /*
+        const filterForm = document.querySelector('.filter-form form');
+        if (filterForm) {
+            filterForm.addEventListener('submit', handleFilterSubmit);
+        }
+        */
+
+        // Attach AJAX to view filter buttons - DISABLED for now to prevent styling issues
+        // Let view filters work with normal page loads
+        /*
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const view = new URL(this.href).searchParams.get('view');
+                if (view) {
+                    handleViewFilterClick(e, view);
+                }
+            });
+        });
+        */
+
+        console.log('All projects page with comprehensive AJAX initialized successfully');
     });
 </script>
 
