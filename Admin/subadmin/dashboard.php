@@ -218,8 +218,8 @@ if (!empty($domains)) {
 if (!empty($where_conditions)) {
     $where_clause = implode(' OR ', $where_conditions);
     
-    // Total Projects count (pending)
-    $stmt = $conn->prepare("SELECT COUNT(*) FROM projects WHERE status = 'pending' AND ($where_clause)");
+    // Total Projects count (all statuses)
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM projects WHERE ($where_clause)");
     if (!empty($params)) {
         $stmt->bind_param($types, ...$params);
     }
@@ -229,10 +229,17 @@ if (!empty($where_conditions)) {
     $stmt->close();
     
     // Pending Tasks count
-    $pending_tasks_count = $assigned_projects_count;
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM projects WHERE status = 'pending' AND ($where_clause)");
+    if (!empty($params)) {
+        $stmt->bind_param($types, ...$params);
+    }
+    $stmt->execute();
+    $stmt->bind_result($pending_tasks_count);
+    $stmt->fetch();
+    $stmt->close();
     
-    // Approved Projects count (by this subadmin)
-    $stmt = $conn->prepare("SELECT COUNT(*) FROM admin_approved_projects WHERE ($where_clause)");
+    // Approved Projects count
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM projects WHERE status = 'approved' AND ($where_clause)");
     if (!empty($params)) {
         $stmt->bind_param($types, ...$params);
     }
@@ -241,8 +248,8 @@ if (!empty($where_conditions)) {
     $stmt->fetch();
     $stmt->close();
     
-    // Fetch recent pending projects
-    $stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE status = 'pending' AND ($where_clause) ORDER BY submission_date DESC LIMIT 5");
+    // Fetch recent projects (all statuses, prioritize pending)
+    $stmt = $conn->prepare("SELECT id, project_name, project_type, classification, description, status FROM projects WHERE ($where_clause) ORDER BY CASE status WHEN 'pending' THEN 1 WHEN 'approved' THEN 2 WHEN 'rejected' THEN 3 END, submission_date DESC LIMIT 5");
     if (!empty($params)) {
         $stmt->bind_param($types, ...$params);
     }
