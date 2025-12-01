@@ -16,19 +16,25 @@ if ($user_id == 0) {
 // Handle like toggle
 if (isset($_POST['toggle_like']) && $user_id > 0) {
     $idea_id = (int)$_POST['idea_id'];
+    
+    // Check if like already exists
     $stmt = $conn->prepare("SELECT id FROM idea_likes WHERE idea_id=? AND user_id=?");
-$stmt->bind_param("ii", $idea_id, $user_id);
-$stmt->execute();
-$check = $stmt->get_result();
+    $stmt->bind_param("ii", $idea_id, $user_id);
+    $stmt->execute();
+    $check = $stmt->get_result();
+    
     if ($check && $check->num_rows > 0) {
+        // Unlike - remove the like
         $stmt = $conn->prepare("DELETE FROM idea_likes WHERE idea_id=? AND user_id=?");
         $stmt->bind_param("ii", $idea_id, $user_id);
         $stmt->execute();
     } else {
-        $stmt = $conn->prepare("INSERT INTO idea_likes (idea_id, user_id) VALUES (?, ?)");
+        // Like - add the like (use INSERT IGNORE to prevent duplicates)
+        $stmt = $conn->prepare("INSERT IGNORE INTO idea_likes (idea_id, user_id) VALUES (?, ?)");
         $stmt->bind_param("ii", $idea_id, $user_id);
         $stmt->execute();
     }
+    
     header("Location: " . $_SERVER['PHP_SELF'] . "?" . http_build_query($_GET));
     exit;
 }
@@ -36,12 +42,23 @@ $check = $stmt->get_result();
 // Handle bookmark toggle
 if (isset($_POST['toggle_bookmark']) && $user_id > 0) {
     $idea_id = (int)$_POST['idea_id'];
-    $check = $conn->query("SELECT id FROM idea_bookmarks WHERE idea_id=$idea_id AND user_id=$user_id");
+    
+    $stmt = $conn->prepare("SELECT id FROM idea_bookmarks WHERE idea_id=? AND user_id=?");
+    $stmt->bind_param("ii", $idea_id, $user_id);
+    $stmt->execute();
+    $check = $stmt->get_result();
+    
     if ($check && $check->num_rows > 0) {
-        $conn->query("DELETE FROM idea_bookmarks WHERE idea_id=$idea_id AND user_id=$user_id");
+        $stmt = $conn->prepare("DELETE FROM idea_bookmarks WHERE idea_id=? AND user_id=?");
+        $stmt->bind_param("ii", $idea_id, $user_id);
+        $stmt->execute();
     } else {
-        $conn->query("INSERT INTO idea_bookmarks (idea_id, user_id) VALUES ($idea_id, $user_id)");
+        $stmt = $conn->prepare("INSERT INTO idea_bookmarks (idea_id, user_id) VALUES (?, ?)");
+        $stmt->bind_param("ii", $idea_id, $user_id);
+        $stmt->execute();
     }
+    $stmt->close();
+    
     header("Location: " . $_SERVER['PHP_SELF'] . "?" . http_build_query($_GET));
     exit;
 }
@@ -49,8 +66,13 @@ if (isset($_POST['toggle_bookmark']) && $user_id > 0) {
 // Handle share tracking
 if (isset($_POST['track_share']) && $user_id > 0) {
     $idea_id = (int)$_POST['idea_id'];
-    $platform = $conn->real_escape_string($_POST['platform'] ?? 'other');
-    $conn->query("INSERT INTO idea_shares (idea_id, user_id, platform) VALUES ($idea_id, $user_id, '$platform')");
+    $platform = $_POST['platform'] ?? 'other';
+    
+    $stmt = $conn->prepare("INSERT INTO idea_shares (idea_id, user_id, platform) VALUES (?, ?, ?)");
+    $stmt->bind_param("iis", $idea_id, $user_id, $platform);
+    $stmt->execute();
+    $stmt->close();
+    
     echo json_encode(['success' => true]);
     exit;
 }
@@ -60,7 +82,12 @@ if (isset($_POST['track_share']) && $user_id > 0) {
 // Handle view tracking
 if (isset($_POST['track_view']) && $user_id > 0) {
     $idea_id = (int)$_POST['idea_id'];
-    $conn->query("INSERT INTO idea_views (idea_id, user_id) VALUES ($idea_id, $user_id)");
+    
+    $stmt = $conn->prepare("INSERT INTO idea_views (idea_id, user_id) VALUES (?, ?)");
+    $stmt->bind_param("ii", $idea_id, $user_id);
+    $stmt->execute();
+    $stmt->close();
+    
     echo json_encode(['success' => true]);
     exit;
 }
@@ -68,12 +95,23 @@ if (isset($_POST['track_view']) && $user_id > 0) {
 // Handle follow toggle
 if (isset($_POST['toggle_follow']) && $user_id > 0) {
     $idea_id = (int)$_POST['idea_id'];
-    $check = $conn->query("SELECT id FROM idea_followers WHERE idea_id=$idea_id AND user_id=$user_id");
+    
+    $stmt = $conn->prepare("SELECT id FROM idea_followers WHERE idea_id=? AND user_id=?");
+    $stmt->bind_param("ii", $idea_id, $user_id);
+    $stmt->execute();
+    $check = $stmt->get_result();
+    
     if ($check && $check->num_rows > 0) {
-        $conn->query("DELETE FROM idea_followers WHERE idea_id=$idea_id AND user_id=$user_id");
+        $stmt = $conn->prepare("DELETE FROM idea_followers WHERE idea_id=? AND user_id=?");
+        $stmt->bind_param("ii", $idea_id, $user_id);
+        $stmt->execute();
     } else {
-        $conn->query("INSERT INTO idea_followers (idea_id, user_id) VALUES ($idea_id, $user_id)");
+        $stmt = $conn->prepare("INSERT INTO idea_followers (idea_id, user_id) VALUES (?, ?)");
+        $stmt->bind_param("ii", $idea_id, $user_id);
+        $stmt->execute();
     }
+    $stmt->close();
+    
     header("Location: " . $_SERVER['PHP_SELF'] . "?" . http_build_query($_GET));
     exit;
 }
@@ -82,9 +120,14 @@ if (isset($_POST['toggle_follow']) && $user_id > 0) {
 if (isset($_POST['submit_rating']) && $user_id > 0) {
     $idea_id = (int)$_POST['idea_id'];
     $rating = (int)$_POST['rating'];
+    
     if ($idea_id > 0 && $rating >= 1 && $rating <= 5) {
-        $conn->query("INSERT INTO idea_ratings (idea_id, user_id, rating) VALUES ($idea_id, $user_id, $rating) ON DUPLICATE KEY UPDATE rating=$rating");
+        $stmt = $conn->prepare("INSERT INTO idea_ratings (idea_id, user_id, rating) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE rating=?");
+        $stmt->bind_param("iiii", $idea_id, $user_id, $rating, $rating);
+        $stmt->execute();
+        $stmt->close();
     }
+    
     header("Location: " . $_SERVER['PHP_SELF'] . "?" . http_build_query($_GET));
     exit;
 }
@@ -92,15 +135,27 @@ if (isset($_POST['submit_rating']) && $user_id > 0) {
 // Handle comment submission
 if (isset($_POST['submit_comment']) && $user_id > 0) {
     $idea_id = (int)$_POST['idea_id'];
-    $parent_id = (int)($_POST['parent_id'] ?? 0) ?: NULL;
+    $parent_id = isset($_POST['parent_id']) && !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
     $comment = trim($_POST['comment'] ?? '');
     
     if ($idea_id > 0 && !empty($comment)) {
-        $comment = $conn->real_escape_string($comment);
-        $parent_sql = $parent_id ? $parent_id : 'NULL';
-        $conn->query("INSERT INTO idea_comments (idea_id, user_id, parent_id, comment) VALUES ($idea_id, $user_id, $parent_sql, '$comment')");
+        // Use prepared statement for security
+        $stmt = $conn->prepare("INSERT INTO idea_comments (idea_id, user_id, parent_id, comment) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("iiis", $idea_id, $user_id, $parent_id, $comment);
+        
+        if ($stmt->execute()) {
+            $_SESSION['comment_success'] = 'Comment posted successfully!';
+        } else {
+            $_SESSION['comment_error'] = 'Failed to post comment: ' . $stmt->error;
+            error_log("Idea comment insert failed: " . $stmt->error);
+        }
+        $stmt->close();
+    } else {
+        $_SESSION['comment_error'] = 'Comment cannot be empty.';
     }
-    echo json_encode(['success' => true]);
+    
+    // Redirect back to the same page with filters
+    header("Location: " . $_SERVER['PHP_SELF'] . "?" . http_build_query($_GET));
     exit;
 }
 
@@ -296,26 +351,37 @@ if ($user_id > 0) {
         
         .filter-section{background:white;padding:2rem;border-radius:1rem;box-shadow:0 4px 6px rgba(0,0,0,0.05);margin-bottom:2rem}
         .ideas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:2rem;margin-bottom:2rem}
-        .idea-card{background:white;border-radius:1rem;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.05);transition:all 0.3s;border:1px solid #e5e7eb;position:relative}
-        .idea-card:hover{transform:translateY(-8px);box-shadow:0 12px 24px rgba(99,102,241,0.15)}
+        .idea-card{background:white;border-radius:1rem;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.05);transition:all 0.3s ease;border:2px solid #e5e7eb;position:relative}
+        .idea-card::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,rgba(99,102,241,0.03),rgba(139,92,246,0.03));opacity:0;transition:opacity 0.3s ease;pointer-events:none;z-index:1}
+        .idea-card:hover{transform:translateY(-8px);box-shadow:0 16px 32px rgba(99,102,241,0.2);border-color:var(--primary)}
+        .idea-card:hover::before{opacity:1}
+        .idea-card:active{transform:translateY(-4px) scale(0.98);transition:all 0.1s ease}
+        .idea-card > *{position:relative;z-index:2}
         .lock-badge{position:absolute;top:1rem;right:1rem;background:#fbbf24;color:white;padding:0.25rem 0.75rem;border-radius:1rem;font-size:0.75rem;z-index:10}
         .trending-badge{position:absolute;top:1rem;left:1rem;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;padding:0.25rem 0.75rem;border-radius:1rem;font-size:0.75rem;z-index:10;animation:pulse 2s infinite}
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
         
-        .idea-card-header{padding:1.5rem;border-bottom:1px solid #f1f5f9}
-        .idea-title{font-size:1.25rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem}
+        .idea-card-header{padding:1.5rem;border-bottom:1px solid #f1f5f9;transition:background 0.3s ease}
+        .idea-card:hover .idea-card-header{background:linear-gradient(135deg,rgba(99,102,241,0.05),rgba(139,92,246,0.05))}
+        .idea-title{font-size:1.25rem;font-weight:700;color:#1e293b;margin-bottom:0.5rem;transition:color 0.3s ease}
+        .idea-card:hover .idea-title{color:var(--primary)}
         .idea-meta{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem}
         .badge-custom{padding:0.5rem 1rem;border-radius:2rem;font-size:0.85rem;font-weight:600}
         .badge-classification{background:linear-gradient(135deg,rgba(6,182,212,0.1),rgba(14,165,233,0.1));color:#0891b2;border:1px solid rgba(6,182,212,0.2)}
         .badge-type{background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(168,85,247,0.1));color:var(--secondary);border:1px solid rgba(139,92,246,0.2)}
         
-        .idea-card-body{padding:1.5rem}
-        .idea-description{color:#64748b;line-height:1.6;margin-bottom:1rem}
+        .idea-card-body{padding:1.5rem;position:relative}
+        .idea-card-body::after{content:'\f061';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;right:1.5rem;bottom:1rem;color:var(--primary);opacity:0;transform:translateX(-10px);transition:all 0.3s ease}
+        .idea-card:hover .idea-card-body::after{opacity:1;transform:translateX(0)}
+        .idea-description{color:#64748b;line-height:1.6;margin-bottom:1rem;transition:color 0.3s ease}
+        .idea-card:hover .idea-description{color:#475569}
         
         /* Stats Row */
-        .stats-row{display:flex;gap:1.5rem;padding:1rem 1.5rem;background:#f8fafc;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9}
-        .stat-item{display:flex;align-items:center;gap:0.5rem;color:#64748b;font-size:0.9rem}
-        .stat-item i{color:var(--primary)}
+        .stats-row{display:flex;gap:1.5rem;padding:1rem 1.5rem;background:#f8fafc;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;transition:background 0.3s ease}
+        .idea-card:hover .stats-row{background:#f1f5f9}
+        .stat-item{display:flex;align-items:center;gap:0.5rem;color:#64748b;font-size:0.9rem;font-weight:600;transition:all 0.3s ease}
+        .stat-item i{color:var(--primary);transition:transform 0.3s ease}
+        .idea-card:hover .stat-item i{transform:scale(1.1)}
         
         .idea-actions{display:grid;grid-template-columns:repeat(6,1fr);gap:0.5rem;padding:1rem 1.5rem;background:#f8fafc}
         .action-btn{padding:0.5rem;border:1px solid #e5e7eb;background:white;border-radius:0.5rem;cursor:pointer;transition:all 0.3s;font-size:0.9rem;display:flex;align-items:center;justify-content:center;gap:0.25rem}
@@ -369,7 +435,20 @@ include '../layout.php';
         <p class="mb-0 mt-2">Explore, collaborate, and innovate with our community</p>
     </div>
 
+    <!-- Success/Error Messages -->
+    <?php if (isset($_SESSION['comment_success'])): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i><?php echo htmlspecialchars($_SESSION['comment_success']); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <?php unset($_SESSION['comment_success']); endif; ?>
 
+    <?php if (isset($_SESSION['comment_error'])): ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i><?php echo htmlspecialchars($_SESSION['comment_error']); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <?php unset($_SESSION['comment_error']); endif; ?>
 
     <?php if($user_id > 0): ?>
     <div class="stats-grid">
@@ -472,7 +551,7 @@ include '../layout.php';
             <?php foreach($ideas as $idea): 
                 $is_trending = $idea['total_likes'] > 5 || $idea['total_comments'] > 3;
             ?>
-                <div class="idea-card" data-idea-id="<?= $idea['id'] ?>" onclick="openIdeaModal(<?= $idea['id'] ?>)" style="cursor:pointer">
+                <div class="idea-card" data-idea-id="<?= $idea['id'] ?>" onclick="window.location.href='idea_details.php?id=<?= $idea['id'] ?>'" style="cursor:pointer">
                     <?php if($is_trending): ?>
                         <span class="trending-badge"><i class="fas fa-fire me-1"></i>Trending</span>
                     <?php endif; ?>
@@ -576,10 +655,9 @@ include '../layout.php';
                         <?php endif; ?>
                         
                         <button class="action-btn comment-btn" 
-                                onclick="event.stopPropagation(); openIdeaModal(<?= $idea['id'] ?>)" 
-                                <?= !$user_id?'disabled':'' ?> 
-                                title="Comments">
-                            <i class="fas fa-comment"></i>
+                                onclick="event.stopPropagation(); window.location.href='idea_details.php?id=<?= $idea['id'] ?>'" 
+                                title="View Details">
+                            <i class="fas fa-eye"></i>
                             <span class="ms-1 count"><?= $idea['total_comments'] ?></span>
                         </button>
                     </div>
@@ -745,7 +823,233 @@ include '../layout.php';
 <script src="../../assets/js/idea_ajax.js"></script>
 <script>
 // Override base URL for AJAX handler
-IdeaAjax.baseUrl = 'ajax_idea_handler.php';
+if (typeof IdeaAjax !== 'undefined') {
+    IdeaAjax.baseUrl = 'ajax_idea_handler.php';
+}
+
+// Global functions for comment/reply forms (needed for modal content)
+window.toggleCommentForm = function() {
+    const form = document.getElementById('commentForm');
+    if (form) {
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+};
+
+window.toggleReplyForm = function(commentId) {
+    const form = document.getElementById('replyForm' + commentId);
+    if (form) {
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+};
+
+window.submitComment = function(event) {
+    event.preventDefault();
+    const form = event.target;
+    const commentTextarea = form.querySelector('[name="comment"]');
+    const comment = commentTextarea.value.trim();
+    const ideaId = window.currentIdeaId || document.getElementById('ideaDetailModal').dataset.ideaId;
+    
+    if (!comment) {
+        alert('Please enter a comment');
+        return;
+    }
+    
+    if (!ideaId) {
+        alert('Error: Idea ID not found');
+        return;
+    }
+    
+    // Disable form to prevent double submission
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    
+    // Submit via AJAX
+    const formData = new FormData();
+    formData.append('action', 'add_comment');
+    formData.append('idea_id', ideaId);
+    formData.append('comment', comment);
+    
+    fetch('ajax_idea_handler.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(response => {
+        if (response.success) {
+            // Clear the form
+            commentTextarea.value = '';
+            
+            // Reload the modal content to show new comment
+            fetch(`idea_details.php?id=${ideaId}`)
+                .then(r => r.text())
+                .then(html => {
+                    const modalBody = document.getElementById('ideaDetailBody');
+                    if (modalBody) {
+                        modalBody.innerHTML = html;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error reloading:', error);
+                    submitBtn.disabled = false;
+                });
+        } else {
+            alert(response.message || 'Failed to post comment');
+            submitBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to post comment. Please try again.');
+        submitBtn.disabled = false;
+    });
+};
+
+window.submitReply = function(event, parentId) {
+    event.preventDefault();
+    const form = event.target;
+    const commentTextarea = form.querySelector('[name="comment"]');
+    const comment = commentTextarea.value.trim();
+    const ideaId = window.currentIdeaId || document.getElementById('ideaDetailModal').dataset.ideaId;
+    
+    if (!comment) {
+        alert('Please enter a reply');
+        return;
+    }
+    
+    if (!ideaId) {
+        alert('Error: Idea ID not found');
+        return;
+    }
+    
+    // Disable form to prevent double submission
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    
+    // Submit via AJAX
+    const formData = new FormData();
+    formData.append('action', 'add_comment');
+    formData.append('idea_id', ideaId);
+    formData.append('parent_id', parentId);
+    formData.append('comment', comment);
+    
+    fetch('ajax_idea_handler.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(response => {
+        if (response.success) {
+            // Clear the form
+            commentTextarea.value = '';
+            
+            // Reload the modal content to show new reply
+            fetch(`idea_details.php?id=${ideaId}`)
+                .then(r => r.text())
+                .then(html => {
+                    const modalBody = document.getElementById('ideaDetailBody');
+                    if (modalBody) {
+                        modalBody.innerHTML = html;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error reloading:', error);
+                    submitBtn.disabled = false;
+                });
+        } else {
+            alert(response.message || 'Failed to post reply');
+            submitBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to post reply. Please try again.');
+        submitBtn.disabled = false;
+    });
+};
+
+// Star rating functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const starRating = document.getElementById('starRating');
+    if (starRating) {
+        const stars = starRating.querySelectorAll('.fa-star');
+        
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.dataset.rating);
+                // Try multiple ways to get the idea ID
+                const modalElement = document.getElementById('ideaDetailModal');
+                const ideaId = modalElement.dataset.ideaId || window.currentIdeaId;
+                
+                if (!ideaId) {
+                    alert('Please select an idea first');
+                    console.error('No idea ID found. Modal dataset:', modalElement.dataset, 'Window:', window.currentIdeaId);
+                    return;
+                }
+                
+                console.log('Submitting rating:', rating, 'for idea:', ideaId);
+                
+                // Submit rating
+                const formData = new FormData();
+                formData.append('action', 'submit_rating');
+                formData.append('idea_id', ideaId);
+                formData.append('rating', rating);
+                
+                fetch('ajax_idea_handler.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(response => {
+                    console.log('Rating response:', response);
+                    if (response.success) {
+                        // Update star display
+                        updateStars(rating);
+                        alert(`Thank you! You rated this idea ${rating} stars.`);
+                        
+                        // Reload modal content to show updated rating
+                        fetch(`idea_details.php?id=${ideaId}`)
+                            .then(r => r.text())
+                            .then(html => {
+                                const modalBody = document.getElementById('ideaDetailBody');
+                                if (modalBody) {
+                                    modalBody.innerHTML = html;
+                                }
+                            });
+                    } else {
+                        alert(response.message || 'Failed to submit rating');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to submit rating. Check console for details.');
+                });
+            });
+            
+            // Hover effect
+            star.addEventListener('mouseenter', function() {
+                const rating = parseInt(this.dataset.rating);
+                updateStars(rating);
+            });
+        });
+        
+        starRating.addEventListener('mouseleave', function() {
+            updateStars(0);
+        });
+    }
+    
+    function updateStars(rating) {
+        const stars = document.querySelectorAll('#starRating .fa-star');
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('text-warning');
+                star.classList.remove('text-muted');
+            } else {
+                star.classList.add('text-muted');
+                star.classList.remove('text-warning');
+            }
+        });
+    }
+});
 
 let currentShareIdeaId = null;
 
@@ -794,7 +1098,12 @@ function trackShare(platform) {
 }
 
 function openIdeaModal(ideaId) {
-    const modal = new bootstrap.Modal(document.getElementById('ideaDetailModal'));
+    const modalElement = document.getElementById('ideaDetailModal');
+    const modal = new bootstrap.Modal(modalElement);
+    
+    // IMPORTANT: Set the idea ID on the modal element
+    modalElement.dataset.ideaId = ideaId;
+    
     modal.show();
     
     // Load idea details

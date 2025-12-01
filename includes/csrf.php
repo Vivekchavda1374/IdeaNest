@@ -112,3 +112,9 @@ function generateCSRFToken() {
 function validateCSRFToken($token) {
     return CSRFProtection::validateToken($token);
 }
+/**
+ * Helper function to require CSRF validation
+ */
+function requireCSRF() {
+    CSRFProtection::verifyRequest();
+}
