@@ -24,21 +24,38 @@ try {
         case 'toggle_like':
             $idea_id = (int)$_POST['idea_id'];
             
+            // Check if like already exists
             $stmt = $conn->prepare("SELECT id FROM idea_likes WHERE idea_id=? AND user_id=?");
             $stmt->bind_param("ii", $idea_id, $user_id);
             $stmt->execute();
             $check = $stmt->get_result();
             
             if ($check && $check->num_rows > 0) {
+                // Unlike - remove the like
                 $stmt = $conn->prepare("DELETE FROM idea_likes WHERE idea_id=? AND user_id=?");
                 $stmt->bind_param("ii", $idea_id, $user_id);
                 $stmt->execute();
                 $liked = false;
             } else {
-                $stmt = $conn->prepare("INSERT INTO idea_likes (idea_id, user_id) VALUES (?, ?)");
+                // Like - add the like (use INSERT IGNORE to prevent duplicates)
+                $stmt = $conn->prepare("INSERT IGNORE INTO idea_likes (idea_id, user_id) VALUES (?, ?)");
                 $stmt->bind_param("ii", $idea_id, $user_id);
-                $stmt->execute();
-                $liked = true;
+                
+                if ($stmt->execute()) {
+                    // Check if row was actually inserted (affected_rows > 0)
+                    if ($stmt->affected_rows > 0) {
+                        $liked = true;
+                    } else {
+                        // Duplicate key - like already exists, so unlike it
+                        $stmt = $conn->prepare("DELETE FROM idea_likes WHERE idea_id=? AND user_id=?");
+                        $stmt->bind_param("ii", $idea_id, $user_id);
+                        $stmt->execute();
+                        $liked = false;
+                    }
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Failed to toggle like']);
+                    break;
+                }
             }
             
             // Get updated count
@@ -111,7 +128,7 @@ try {
             
         case 'add_comment':
             $idea_id = (int)$_POST['idea_id'];
-            $parent_id = isset($_POST['parent_id']) && !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : NULL;
+            $parent_id = isset($_POST['parent_id']) && !empty($_POST['parent_id']) ? (int)$_POST['parent_id'] : null;
             $comment = trim($_POST['comment'] ?? '');
             
             if (empty($comment)) {
@@ -119,20 +136,25 @@ try {
                 break;
             }
             
-            $comment_escaped = $conn->real_escape_string($comment);
-            $parent_sql = $parent_id ? $parent_id : 'NULL';
+            // Use prepared statement for security
+            $stmt = $conn->prepare("INSERT INTO idea_comments (idea_id, user_id, parent_id, comment) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("iiis", $idea_id, $user_id, $parent_id, $comment);
             
-            $result = $conn->query("INSERT INTO idea_comments (idea_id, user_id, parent_id, comment) VALUES ($idea_id, $user_id, $parent_sql, '$comment_escaped')");
-            
-            if ($result) {
-                $comment_id = $conn->insert_id;
+            if ($stmt->execute()) {
+                $comment_id = $stmt->insert_id;
                 
                 // Get user name
-                $user_result = $conn->query("SELECT name FROM register WHERE id=$user_id");
+                $user_stmt = $conn->prepare("SELECT name FROM register WHERE id=?");
+                $user_stmt->bind_param("i", $user_id);
+                $user_stmt->execute();
+                $user_result = $user_stmt->get_result();
                 $user_name = $user_result ? $user_result->fetch_assoc()['name'] : 'Unknown';
                 
                 // Get updated comment count
-                $count = $conn->query("SELECT COUNT(*) as count FROM idea_comments WHERE idea_id=$idea_id")->fetch_assoc()['count'];
+                $count_stmt = $conn->prepare("SELECT COUNT(*) as count FROM idea_comments WHERE idea_id=?");
+                $count_stmt->bind_param("i", $idea_id);
+                $count_stmt->execute();
+                $count = $count_stmt->get_result()->fetch_assoc()['count'];
                 
                 echo json_encode([
                     'success' => true,
@@ -143,7 +165,7 @@ try {
                     'count' => $count
                 ]);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Failed to add comment']);
+                echo json_encode(['success' => false, 'message' => 'Failed to add comment: ' . $stmt->error]);
             }
             break;
             
