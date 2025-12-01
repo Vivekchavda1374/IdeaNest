@@ -614,6 +614,32 @@ if (isset($conn)) {
             background: var(--bg-tertiary);
         }
 
+        /* Reviewer cards */
+        #reviewersSection .card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-color);
+        }
+
+        #reviewersSection .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+
+        #reviewersSection .card-body {
+            padding: 1rem;
+        }
+
+        #reviewersSection .card-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        #reviewersSection .card-text {
+            font-size: 0.8rem;
+        }
+
         /* Responsive improvements */
         @media (max-width: 480px) {
             .main-content {
@@ -1075,6 +1101,18 @@ if (isset($conn)) {
                                 <div class="file-upload-info">Max size: 20MB | Formats: ZIP, RAR, TAR, GZ</div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Assigned Reviewers Section -->
+                <div class="form-section" id="reviewersSection" style="display: none;">
+                    <h3><i class="fas fa-user-check me-2"></i>Assigned Reviewers</h3>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Based on your project classification, the following reviewers will be assigned to evaluate your project:
+                    </div>
+                    <div id="reviewersList" class="row g-3">
+                        <!-- Reviewers will be loaded dynamically -->
                     </div>
                 </div>
 
