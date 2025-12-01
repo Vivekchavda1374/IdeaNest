@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Nov 30, 2025 at 06:39 PM
+-- Generation Time: Dec 01, 2025 at 06:00 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -356,6 +356,13 @@ CREATE TABLE `idea_followers` (
   `notify_updates` tinyint(1) DEFAULT 1,
   `followed_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `idea_followers`
+--
+
+INSERT INTO `idea_followers` (`id`, `idea_id`, `user_id`, `notify_comments`, `notify_updates`, `followed_at`) VALUES
+(6, 1, 3, 1, 1, '2025-12-01 04:35:56');
 
 -- --------------------------------------------------------
 
@@ -1167,7 +1174,7 @@ CREATE TABLE `project_likes` (
 --
 
 INSERT INTO `project_likes` (`id`, `project_id`, `user_id`, `created_at`) VALUES
-(2, 2, '3', '2025-11-30 15:23:52');
+(7, 2, '3', '2025-12-01 04:21:46');
 
 -- --------------------------------------------------------
 
@@ -1489,13 +1496,78 @@ CREATE TABLE `user_activity_log` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `user_follows`
+--
+
+CREATE TABLE `user_follows` (
+  `id` int(11) NOT NULL,
+  `follower_id` int(11) NOT NULL COMMENT 'User who is following',
+  `following_id` int(11) NOT NULL COMMENT 'User being followed',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `notification_enabled` tinyint(1) DEFAULT 1 COMMENT 'Notify follower of new content'
+) ;
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `user_follow_feed`
+-- (See below for the actual view)
+--
+CREATE TABLE `user_follow_feed` (
+`content_type` varchar(16)
+,`content_id` int(11)
+,`user_id` decimal(20,0)
+,`title` varchar(255)
+,`description` mediumtext
+,`classification` varchar(100)
+,`project_type` varchar(50)
+,`created_at` datetime
+,`status` varchar(11)
+,`likes_count` bigint(21)
+,`comments_count` bigint(21)
+,`views_count` bigint(21)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_follow_notifications`
+--
+
+CREATE TABLE `user_follow_notifications` (
+  `id` int(11) NOT NULL,
+  `follower_id` int(11) NOT NULL COMMENT 'User who will receive notification',
+  `following_id` int(11) NOT NULL COMMENT 'User who created content',
+  `content_type` enum('project','idea','approved_project') NOT NULL,
+  `content_id` int(11) NOT NULL,
+  `is_read` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Notifications for followed users content';
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_follow_stats`
+--
+
+CREATE TABLE `user_follow_stats` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `followers_count` int(11) DEFAULT 0 COMMENT 'Number of followers',
+  `following_count` int(11) DEFAULT 0 COMMENT 'Number of users being followed',
+  `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Cached follower/following counts for performance';
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `user_notifications`
 --
 
 CREATE TABLE `user_notifications` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `notification_type` enum('project_approved','project_rejected','project_submitted','mentor_assigned','mentor_request','session_scheduled','general') NOT NULL,
+  `notification_type` enum('project_approved','project_rejected','project_submitted','mentor_assigned','mentor_request','session_scheduled','general','new_follower') NOT NULL,
   `title` varchar(255) NOT NULL,
   `message` text NOT NULL,
   `related_id` int(11) DEFAULT NULL COMMENT 'Project ID, Mentor ID, etc.',
@@ -1539,6 +1611,15 @@ DROP TABLE IF EXISTS `trending_ideas`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `trending_ideas`  AS SELECT `b`.`id` AS `id`, `b`.`project_name` AS `project_name`, `b`.`classification` AS `classification`, `b`.`project_type` AS `project_type`, count(distinct `il`.`id`) AS `recent_likes`, count(distinct `ic`.`id`) AS `recent_comments`, count(distinct `iv`.`id`) AS `recent_views`, count(distinct `il`.`id`) * 3 + count(distinct `ic`.`id`) * 5 + count(distinct `iv`.`id`) AS `engagement_score` FROM (((`blog` `b` left join `idea_likes` `il` on(`b`.`id` = `il`.`idea_id` and `il`.`created_at` >= current_timestamp() - interval 7 day)) left join `idea_comments` `ic` on(`b`.`id` = `ic`.`idea_id` and `ic`.`created_at` >= current_timestamp() - interval 7 day)) left join `idea_views` `iv` on(`b`.`id` = `iv`.`idea_id` and `iv`.`viewed_at` >= current_timestamp() - interval 7 day)) GROUP BY `b`.`id` HAVING `engagement_score` > 0 ORDER BY count(distinct `il`.`id`) * 3 + count(distinct `ic`.`id`) * 5 + count(distinct `iv`.`id`) DESC ;
 
+-- --------------------------------------------------------
+
+--
+-- Structure for view `user_follow_feed`
+--
+DROP TABLE IF EXISTS `user_follow_feed`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `user_follow_feed`  AS SELECT 'idea' AS `content_type`, `b`.`id` AS `content_id`, `b`.`user_id` AS `user_id`, `b`.`project_name` AS `title`, `b`.`description` AS `description`, `b`.`classification` AS `classification`, `b`.`project_type` AS `project_type`, `b`.`submission_datetime` AS `created_at`, `b`.`status` AS `status`, (select count(0) from `idea_likes` where `idea_likes`.`idea_id` = `b`.`id`) AS `likes_count`, (select count(0) from `idea_comments` where `idea_comments`.`idea_id` = `b`.`id`) AS `comments_count`, (select count(0) from `idea_views` where `idea_views`.`idea_id` = `b`.`id`) AS `views_count` FROM `blog` AS `b` WHERE `b`.`status` in ('pending','in_progress','completed')union all select 'project' AS `content_type`,`p`.`id` AS `content_id`,`p`.`user_id` AS `user_id`,`p`.`project_name` AS `title`,`p`.`description` AS `description`,`p`.`classification` AS `classification`,`p`.`project_type` AS `project_type`,`p`.`submission_date` AS `created_at`,`p`.`status` AS `status`,0 AS `likes_count`,0 AS `comments_count`,0 AS `views_count` from `projects` `p` where `p`.`status` = 'pending' union all select 'approved_project' AS `content_type`,`ap`.`id` AS `content_id`,cast(`ap`.`user_id` as unsigned) AS `user_id`,`ap`.`project_name` AS `title`,`ap`.`description` AS `description`,`ap`.`classification` AS `classification`,`ap`.`project_type` AS `project_type`,`ap`.`submission_date` AS `created_at`,`ap`.`status` AS `status`,0 AS `likes_count`,0 AS `comments_count`,0 AS `views_count` from `admin_approved_projects` `ap` where `ap`.`status` = 'approved'  ;
+
 --
 -- Indexes for dumped tables
 --
@@ -1557,7 +1638,8 @@ ALTER TABLE `admin_approved_projects`
   ADD KEY `idx_type_category_status` (`project_type`,`project_category`,`status`),
   ADD KEY `idx_difficulty_type` (`difficulty_level`,`project_type`),
   ADD KEY `idx_submission_status` (`submission_date`,`status`),
-  ADD KEY `idx_approved_projects_user` (`user_id`);
+  ADD KEY `idx_approved_projects_user` (`user_id`),
+  ADD KEY `idx_approved_user_date` (`user_id`,`submission_date`);
 
 --
 -- Indexes for table `admin_logs`
@@ -1585,7 +1667,8 @@ ALTER TABLE `blog`
   ADD KEY `idx_blog_status` (`status`),
   ADD KEY `idx_blog_priority` (`priority1`),
   ADD KEY `idx_blog_submission_date` (`submission_datetime`),
-  ADD KEY `idx_blog_title` (`title`);
+  ADD KEY `idx_blog_title` (`title`),
+  ADD KEY `idx_blog_user_date` (`user_id`,`submission_datetime`);
 
 --
 -- Indexes for table `bookmark`
@@ -1901,7 +1984,8 @@ ALTER TABLE `projects`
   ADD KEY `idx_status` (`status`),
   ADD KEY `idx_project_type` (`project_type`),
   ADD KEY `idx_projects_title` (`title`),
-  ADD KEY `idx_projects_user_status` (`user_id`,`status`);
+  ADD KEY `idx_projects_user_status` (`user_id`,`status`),
+  ADD KEY `idx_projects_user_date` (`user_id`,`submission_date`);
 
 --
 -- Indexes for table `project_likes`
@@ -2041,6 +2125,35 @@ ALTER TABLE `user_activity_log`
   ADD KEY `idx_timestamp` (`timestamp`);
 
 --
+-- Indexes for table `user_follows`
+--
+ALTER TABLE `user_follows`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_follow` (`follower_id`,`following_id`),
+  ADD KEY `idx_follower` (`follower_id`),
+  ADD KEY `idx_following` (`following_id`),
+  ADD KEY `idx_created_at` (`created_at`);
+
+--
+-- Indexes for table `user_follow_notifications`
+--
+ALTER TABLE `user_follow_notifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_follower_unread` (`follower_id`,`is_read`),
+  ADD KEY `idx_content` (`content_type`,`content_id`),
+  ADD KEY `idx_created_at` (`created_at`),
+  ADD KEY `fk_follow_notif_following` (`following_id`);
+
+--
+-- Indexes for table `user_follow_stats`
+--
+ALTER TABLE `user_follow_stats`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_stats` (`user_id`),
+  ADD KEY `idx_followers_count` (`followers_count`),
+  ADD KEY `idx_following_count` (`following_count`);
+
+--
 -- Indexes for table `user_notifications`
 --
 ALTER TABLE `user_notifications`
@@ -2083,7 +2196,7 @@ ALTER TABLE `blog`
 -- AUTO_INCREMENT for table `bookmark`
 --
 ALTER TABLE `bookmark`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `deleted_ideas`
@@ -2131,7 +2244,7 @@ ALTER TABLE `idea_comments`
 -- AUTO_INCREMENT for table `idea_followers`
 --
 ALTER TABLE `idea_followers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `idea_likes`
@@ -2287,7 +2400,7 @@ ALTER TABLE `projects`
 -- AUTO_INCREMENT for table `project_likes`
 --
 ALTER TABLE `project_likes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `realtime_notifications`
@@ -2372,6 +2485,24 @@ ALTER TABLE `users`
 --
 ALTER TABLE `user_activity_log`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `user_follows`
+--
+ALTER TABLE `user_follows`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `user_follow_notifications`
+--
+ALTER TABLE `user_follow_notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `user_follow_stats`
+--
+ALTER TABLE `user_follow_stats`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `user_notifications`
@@ -2570,6 +2701,26 @@ ALTER TABLE `support_tickets`
 --
 ALTER TABLE `support_ticket_replies`
   ADD CONSTRAINT `support_ticket_replies_ibfk_1` FOREIGN KEY (`ticket_id`) REFERENCES `support_tickets` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_follows`
+--
+ALTER TABLE `user_follows`
+  ADD CONSTRAINT `fk_user_follows_follower` FOREIGN KEY (`follower_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_user_follows_following` FOREIGN KEY (`following_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_follow_notifications`
+--
+ALTER TABLE `user_follow_notifications`
+  ADD CONSTRAINT `fk_follow_notif_follower` FOREIGN KEY (`follower_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_follow_notif_following` FOREIGN KEY (`following_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_follow_stats`
+--
+ALTER TABLE `user_follow_stats`
+  ADD CONSTRAINT `fk_user_follow_stats_user` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `user_notifications`
