@@ -327,11 +327,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         <div class="nav-section">
             <div class="nav-section-title">Account</div>
+            <a href="<?php echo $basePath; ?>chat/index.php" class="nav-item <?php echo ($current_page == 'index.php' && $current_dir == 'chat') ? 'active' : ''; ?>">
+                <i class="fas fa-comments nav-icon"></i>
+                <span class="nav-text">Messages</span>
+            </a>
             <a href="<?php echo $basePath; ?>user_profile_setting.php" class="nav-item <?php echo ($current_page == 'user_profile_setting.php') ? 'active' : ''; ?>">
                 <i class="fas fa-user nav-icon"></i>
                 <span class="nav-text">Profile</span>
             </a>
-
             <a href="<?php echo $basePath; ?>user_profile_setting.php" class="nav-item <?php echo ($current_page == 'user_profile_setting.php') ? 'active' : ''; ?>">
                 <i class="fas fa-cog nav-icon"></i>
                 <span class="nav-text">Settings</span>
