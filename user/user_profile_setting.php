@@ -257,6 +257,39 @@ $current_month = date('n');
 $academic_year = ($current_month >= 6) ? $current_year + 1 : $current_year;
 $year_in_college = $user['passout_year'] ? ($academic_year - $user['passout_year'] + 4) : 'N/A';
 
+// Get followers/following counts
+$follow_stats_query = "SELECT 
+    COALESCE(followers_count, 0) as followers,
+    COALESCE(following_count, 0) as following
+FROM user_follow_stats WHERE user_id = ?";
+$follow_stmt = $conn->prepare($follow_stats_query);
+$follow_stmt->bind_param("i", $user_id);
+$follow_stmt->execute();
+$follow_stats = $follow_stmt->get_result()->fetch_assoc();
+$followers_count = $follow_stats['followers'] ?? 0;
+$following_count = $follow_stats['following'] ?? 0;
+
+// Get followers list
+$followers_query = "SELECT r.id, r.name, r.email, r.department, r.user_image, uf.created_at as followed_since
+FROM user_follows uf
+JOIN register r ON uf.follower_id = r.id
+WHERE uf.following_id = ?
+ORDER BY uf.created_at DESC";
+$followers_stmt = $conn->prepare($followers_query);
+$followers_stmt->bind_param("i", $user_id);
+$followers_stmt->execute();
+$followers = $followers_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// Get following list
+$following_query = "SELECT r.id, r.name, r.email, r.department, r.user_image, uf.created_at as following_since
+FROM user_follows uf
+JOIN register r ON uf.following_id = r.id
+WHERE uf.follower_id = ?
+ORDER BY uf.created_at DESC";
+$following_stmt = $conn->prepare($following_query);
+$following_stmt->bind_param("i", $user_id);
+$following_stmt->execute();
+$following = $following_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 ?>
 
@@ -391,8 +424,100 @@ $year_in_college = $user['passout_year'] ? ($academic_year - $user['passout_year
                     <div class="stat-label">Ideas</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number"><?php echo $year_in_college; ?></div>
-                    <div class="stat-label">Month</div>
+                    <div class="stat-number"><?php echo $followers_count; ?></div>
+                    <div class="stat-label">Followers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number"><?php echo $following_count; ?></div>
+                    <div class="stat-label">Following</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Followers & Following Section -->
+        <div class="profile-section" style="margin-top: 2rem;">
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-users"></i>
+                    Followers & Following
+                </h3>
+                
+                <!-- Tabs -->
+                <div class="follow-tabs" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0;">
+                    <button type="button" class="follow-tab active" data-tab="followers" style="padding: 1rem 2rem; border: none; background: none; cursor: pointer; font-weight: 600; color: #6366f1; border-bottom: 3px solid #6366f1;">
+                        Followers (<?php echo $followers_count; ?>)
+                    </button>
+                    <button type="button" class="follow-tab" data-tab="following" style="padding: 1rem 2rem; border: none; background: none; cursor: pointer; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent;">
+                        Following (<?php echo $following_count; ?>)
+                    </button>
+                </div>
+
+                <!-- Followers List -->
+                <div id="followers-list" class="follow-list" style="display: block;">
+                    <?php if (count($followers) > 0): ?>
+                        <div style="display: grid; gap: 1rem;">
+                            <?php foreach ($followers as $follower): ?>
+                                <div class="user-card" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.75rem; border: 1px solid #e2e8f0;">
+                                    <img src="<?php echo !empty($follower['user_image']) ? htmlspecialchars($follower['user_image']) : 'https://ui-avatars.com/api/?name=' . urlencode($follower['name']) . '&background=6366f1&color=fff'; ?>" 
+                                         alt="<?php echo htmlspecialchars($follower['name']); ?>"
+                                         style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                                    <div style="flex: 1;">
+                                        <h4 style="margin: 0; font-size: 1rem; font-weight: 600;"><?php echo htmlspecialchars($follower['name']); ?></h4>
+                                        <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem; color: #64748b;">
+                                            <?php echo htmlspecialchars($follower['department'] ?? 'N/A'); ?>
+                                        </p>
+                                        <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: #94a3b8;">
+                                            Following since <?php echo date('M d, Y', strtotime($follower['followed_since'])); ?>
+                                        </p>
+                                    </div>
+                                    <a href="view_user_profile.php?user_id=<?php echo $follower['id']; ?>" 
+                                       class="btn btn-sm btn-primary" 
+                                       style="padding: 0.5rem 1rem; background: #6366f1; color: white; text-decoration: none; border-radius: 0.5rem; font-size: 0.875rem;">
+                                        View Profile
+                                    </a>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div style="text-align: center; padding: 3rem; color: #94a3b8;">
+                            <i class="fas fa-user-friends" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No followers yet</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Following List -->
+                <div id="following-list" class="follow-list" style="display: none;">
+                    <?php if (count($following) > 0): ?>
+                        <div style="display: grid; gap: 1rem;">
+                            <?php foreach ($following as $followed_user): ?>
+                                <div class="user-card" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.75rem; border: 1px solid #e2e8f0;">
+                                    <img src="<?php echo !empty($followed_user['user_image']) ? htmlspecialchars($followed_user['user_image']) : 'https://ui-avatars.com/api/?name=' . urlencode($followed_user['name']) . '&background=6366f1&color=fff'; ?>" 
+                                         alt="<?php echo htmlspecialchars($followed_user['name']); ?>"
+                                         style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                                    <div style="flex: 1;">
+                                        <h4 style="margin: 0; font-size: 1rem; font-weight: 600;"><?php echo htmlspecialchars($followed_user['name']); ?></h4>
+                                        <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem; color: #64748b;">
+                                            <?php echo htmlspecialchars($followed_user['department'] ?? 'N/A'); ?>
+                                        </p>
+                                        <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: #94a3b8;">
+                                            Following since <?php echo date('M d, Y', strtotime($followed_user['following_since'])); ?>
+                                        </p>
+                                    </div>
+                                    <a href="view_user_profile.php?user_id=<?php echo $followed_user['id']; ?>" 
+                                       class="btn btn-sm btn-primary" 
+                                       style="padding: 0.5rem 1rem; background: #6366f1; color: white; text-decoration: none; border-radius: 0.5rem; font-size: 0.875rem;">
+                                        View Profile
+                                    </a>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div style="text-align: center; padding: 3rem; color: #94a3b8;">
+                            <i class="fas fa-user-plus" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>Not following anyone yet</p>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -708,6 +833,41 @@ function showNotification(message, type = 'info') {
         }
     }, 5000);
 }
+</script>
+
+<script>
+// Tab switching for Followers/Following
+document.addEventListener('DOMContentLoaded', function() {
+    const tabs = document.querySelectorAll('.follow-tab');
+    const followersList = document.getElementById('followers-list');
+    const followingList = document.getElementById('following-list');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabName = this.dataset.tab;
+            
+            // Update active tab
+            tabs.forEach(t => {
+                t.classList.remove('active');
+                t.style.color = '#64748b';
+                t.style.borderBottom = '3px solid transparent';
+            });
+            
+            this.classList.add('active');
+            this.style.color = '#6366f1';
+            this.style.borderBottom = '3px solid #6366f1';
+            
+            // Show/hide lists
+            if (tabName === 'followers') {
+                followersList.style.display = 'block';
+                followingList.style.display = 'none';
+            } else {
+                followersList.style.display = 'none';
+                followingList.style.display = 'block';
+            }
+        });
+    });
+});
 </script>
 
 <!-- Universal Loader -->
