@@ -122,6 +122,8 @@ $stmt->close();
 // Check if current user is following the idea creator
 $is_following = false;
 $follow_counts = ['followers' => 0, 'following' => 0];
+$can_message = false;
+$message_request_status = null;
 if ($user_id && $user_id != $idea['user_id']) {
     $follow_check_sql = "SELECT EXISTS(SELECT 1 FROM user_follows WHERE follower_id = ? AND following_id = ?) as is_following";
     $follow_check_stmt = $conn->prepare($follow_check_sql);
@@ -131,6 +133,35 @@ if ($user_id && $user_id != $idea['user_id']) {
     $follow_check_row = $follow_check_result->fetch_assoc();
     $is_following = (bool)$follow_check_row['is_following'];
     $follow_check_stmt->close();
+    
+    // Check if both users follow each other OR if there's an accepted message request
+    $mutual_follow_sql = "SELECT EXISTS(SELECT 1 FROM user_follows WHERE follower_id = ? AND following_id = ?) as mutual";
+    $mutual_stmt = $conn->prepare($mutual_follow_sql);
+    $mutual_stmt->bind_param("ii", $idea['user_id'], $user_id);
+    $mutual_stmt->execute();
+    $mutual_result = $mutual_stmt->get_result()->fetch_assoc();
+    $mutual_stmt->close();
+    
+    $request_sql = "SELECT status FROM message_requests WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)) AND status = 'accepted' LIMIT 1";
+    $request_stmt = $conn->prepare($request_sql);
+    $request_stmt->bind_param("iiii", $user_id, $idea['user_id'], $idea['user_id'], $user_id);
+    $request_stmt->execute();
+    $request_result = $request_stmt->get_result();
+    $has_accepted_request = $request_result->num_rows > 0;
+    $request_stmt->close();
+    
+    $can_message = ($is_following && $mutual_result['mutual']) || $has_accepted_request;
+    
+    // Check pending request status
+    $pending_sql = "SELECT id, status FROM message_requests WHERE sender_id = ? AND receiver_id = ? LIMIT 1";
+    $pending_stmt = $conn->prepare($pending_sql);
+    $pending_stmt->bind_param("ii", $user_id, $idea['user_id']);
+    $pending_stmt->execute();
+    $pending_result = $pending_stmt->get_result();
+    if ($pending_row = $pending_result->fetch_assoc()) {
+        $message_request_status = $pending_row['status'];
+    }
+    $pending_stmt->close();
 }
 
 // Get follower/following counts for the idea creator
@@ -575,6 +606,20 @@ function formatDate($date) {
             border-radius: 1rem;
         }
 
+        .btn-message:hover {
+            background: var(--accent-color) !important;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-request-message:hover {
+            background: var(--accent-color) !important;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
         .follow-stat-item {
             text-align: center;
         }
@@ -751,6 +796,22 @@ function formatDate($date) {
                             <i class="fas fa-user-<?php echo $is_following ? 'check' : 'plus'; ?>"></i>
                             <span class="follow-text"><?php echo $is_following ? 'Following' : 'Follow'; ?></span>
                         </button>
+                        <?php if ($can_message): ?>
+                            <a href="../chat/?user=<?php echo $idea['user_id']; ?>" class="btn-message" style="padding: 0.75rem 1.5rem; border: 2px solid var(--accent-color); background: white; color: var(--accent-color); border-radius: 2rem; cursor: pointer; transition: all 0.3s ease; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; width: 100%; justify-content: center; text-decoration: none;">
+                                <i class="fas fa-comment"></i>
+                                <span>Message</span>
+                            </a>
+                        <?php elseif ($message_request_status === 'pending'): ?>
+                            <button class="btn-message" disabled style="padding: 0.75rem 1.5rem; border: 2px solid var(--warning-color); background: white; color: var(--warning-color); border-radius: 2rem; transition: all 0.3s ease; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; width: 100%; justify-content: center; opacity: 0.7; cursor: not-allowed;">
+                                <i class="fas fa-clock"></i>
+                                <span>Request Pending</span>
+                            </button>
+                        <?php else: ?>
+                            <button class="btn-request-message" data-receiver-id="<?php echo $idea['user_id']; ?>" style="padding: 0.75rem 1.5rem; border: 2px solid var(--accent-color); background: white; color: var(--accent-color); border-radius: 2rem; cursor: pointer; transition: all 0.3s ease; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; width: 100%; justify-content: center;">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Request to Message</span>
+                            </button>
+                        <?php endif; ?>
                     <?php endif; ?>
 
                     <?php if (!empty($idea['user_bio'])): ?>
@@ -825,6 +886,39 @@ function formatDate($date) {
         // Follow/Unfollow functionality
         document.addEventListener('DOMContentLoaded', function() {
             const followBtn = document.querySelector('.btn-follow');
+            const requestBtn = document.querySelector('.btn-request-message');
+            
+            if (requestBtn) {
+                requestBtn.addEventListener('click', function() {
+                    const receiverId = this.dataset.receiverId;
+                    const btn = this;
+                    btn.disabled = true;
+                    
+                    fetch('../chat/message_request_handler.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: `action=send_request&receiver_id=${receiverId}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            btn.innerHTML = '<i class="fas fa-clock"></i> <span>Request Pending</span>';
+                            btn.style.borderColor = 'var(--warning-color)';
+                            btn.style.color = 'var(--warning-color)';
+                            btn.style.opacity = '0.7';
+                            btn.style.cursor = 'not-allowed';
+                            showNotification(data.message, 'success');
+                        } else {
+                            showNotification(data.message, 'error');
+                            btn.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        showNotification('An error occurred', 'error');
+                        btn.disabled = false;
+                    });
+                });
+            }
             
             if (followBtn) {
                 followBtn.addEventListener('click', function() {
