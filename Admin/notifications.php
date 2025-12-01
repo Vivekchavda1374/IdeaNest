@@ -57,136 +57,193 @@ foreach ($alter_queries as $query) {
     $conn->query($query);
 }
 
-// Get notification statistics
-$stats_query = "SELECT 
-    type,
-    status,
-    COUNT(*) as count
-FROM notification_logs 
-GROUP BY type, status";
-$stats_result = $conn->query($stats_query);
+// Get comprehensive notification statistics from all sources
+$stats = [
+    'total_notifications' => 0,
+    'email_sent' => 0,
+    'email_failed' => 0,
+    'user_notifications' => 0,
+    'realtime_notifications' => 0
+];
 
-$stats = [];
-while ($row = $stats_result->fetch_assoc()) {
-    $stats[$row['type']][$row['status']] = $row['count'];
+// Count from notification_logs (email notifications)
+$email_stats = $conn->query("SELECT 
+    COUNT(*) as total,
+    SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) as sent,
+    SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed
+FROM notification_logs");
+if ($email_stats && $row = $email_stats->fetch_assoc()) {
+    $stats['email_sent'] = $row['sent'] ?? 0;
+    $stats['email_failed'] = $row['failed'] ?? 0;
 }
 
-// Get recent notifications
-$recent_query = "SELECT 
-    nl.*,
-    r.name as user_name,
-    r.email as user_email,
-    p.project_name
-FROM notification_logs nl
-LEFT JOIN register r ON nl.user_id = r.id
-LEFT JOIN admin_approved_projects p ON nl.project_id = p.id
-ORDER BY nl.created_at DESC
-LIMIT 50";
-$recent_result = $conn->query($recent_query);
+// Count from notifications table
+$user_notif = $conn->query("SELECT COUNT(*) as count FROM notifications");
+if ($user_notif && $row = $user_notif->fetch_assoc()) {
+    $stats['user_notifications'] = $row['count'];
+}
+
+// Count from realtime_notifications table
+$realtime_notif = $conn->query("SELECT COUNT(*) as count FROM realtime_notifications");
+if ($realtime_notif && $row = $realtime_notif->fetch_assoc()) {
+    $stats['realtime_notifications'] = $row['count'];
+}
+
+$stats['total_notifications'] = $stats['email_sent'] + $stats['email_failed'] + $stats['user_notifications'] + $stats['realtime_notifications'];
 
 // --- FILTERS ---
+$source_filter = isset($_GET['source']) ? $_GET['source'] : 'all'; // all, email, user, realtime
 $type_filter = isset($_GET['type']) ? $_GET['type'] : '';
 $status_filter = isset($_GET['status']) ? $_GET['status'] : '';
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $date_filter = isset($_GET['date']) ? $_GET['date'] : '';
 $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
-$per_page = 10;
+$per_page = 20;
 $offset = ($page - 1) * $per_page;
 
-$where = [];
-$params = [];
-$types = '';
+// Build unified query from all notification sources with explicit collation
+$union_parts = [];
 
+// 1. Email Notifications (notification_logs)
+if ($source_filter == 'all' || $source_filter == 'email') {
+    $union_parts[] = "
+        SELECT 
+            'email' COLLATE utf8mb4_general_ci as source,
+            nl.id,
+            CAST(nl.type AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as type,
+            CAST(nl.status AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as status,
+            nl.created_at,
+            CAST(r.name AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as user_name,
+            CAST(r.email AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as user_email,
+            CAST(nl.email_to AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as email_to,
+            CAST(nl.email_subject AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as subject,
+            CAST(COALESCE(p.project_name, ap.project_name) AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as project_name,
+            CAST(nl.error_message AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as error_message,
+            CAST(NULL AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as message,
+            NULL as is_read
+        FROM notification_logs nl
+        LEFT JOIN register r ON nl.user_id = r.id
+        LEFT JOIN projects p ON nl.project_id = p.id
+        LEFT JOIN admin_approved_projects ap ON nl.project_id = ap.id
+    ";
+}
+
+// 2. User Notifications (notifications)
+if ($source_filter == 'all' || $source_filter == 'user') {
+    $union_parts[] = "
+        SELECT 
+            'user' COLLATE utf8mb4_general_ci as source,
+            n.id,
+            CAST(n.type AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as type,
+            CAST(CASE WHEN n.is_read = 1 THEN 'read' ELSE 'unread' END AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as status,
+            n.created_at,
+            CAST(r.name AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as user_name,
+            CAST(r.email AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as user_email,
+            CAST(NULL AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as email_to,
+            CAST(n.title AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as subject,
+            CAST(NULL AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as project_name,
+            CAST(NULL AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as error_message,
+            CAST(n.message AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as message,
+            n.is_read
+        FROM notifications n
+        LEFT JOIN register r ON n.user_id = r.id
+    ";
+}
+
+// 3. Realtime Notifications (realtime_notifications)
+if ($source_filter == 'all' || $source_filter == 'realtime') {
+    $union_parts[] = "
+        SELECT 
+            'realtime' COLLATE utf8mb4_general_ci as source,
+            rn.id,
+            CAST(rn.type AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as type,
+            CAST(CASE WHEN rn.is_read = 1 THEN 'read' ELSE 'unread' END AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as status,
+            rn.created_at,
+            CAST(r.name AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as user_name,
+            CAST(r.email AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as user_email,
+            CAST(NULL AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as email_to,
+            CAST(rn.title AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as subject,
+            CAST(NULL AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as project_name,
+            CAST(NULL AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as error_message,
+            CAST(rn.message AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as message,
+            rn.is_read
+        FROM realtime_notifications rn
+        LEFT JOIN register r ON rn.user_id = r.id
+    ";
+}
+
+// Combine all sources
+if (empty($union_parts)) {
+    $union_parts[] = "SELECT 'email' as source, 0 as id, '' as type, '' as status, NOW() as created_at, '' as user_name, '' as user_email, '' as email_to, '' as subject, '' as project_name, '' as error_message, '' as message, 0 as is_read LIMIT 0";
+}
+
+$base_query = "SELECT * FROM (" . implode(" UNION ALL ", $union_parts) . ") as all_notifications";
+
+// Apply filters
+$where_conditions = [];
 if ($type_filter) {
-    $where[] = 'nl.type = ?';
-    $params[] = $type_filter;
-    $types .= 's';
+    $where_conditions[] = "type = " . $conn->real_escape_string($type_filter);
 }
 if ($status_filter) {
-    $where[] = 'nl.status = ?';
-    $params[] = $status_filter;
-    $types .= 's';
+    $where_conditions[] = "status = '" . $conn->real_escape_string($status_filter) . "'";
 }
 if ($date_filter) {
-    $where[] = 'DATE(nl.created_at) = ?';
-    $params[] = $date_filter;
-    $types .= 's';
+    $where_conditions[] = "DATE(created_at) = '" . $conn->real_escape_string($date_filter) . "'";
 }
 if ($search) {
-    $where[] = '(r.name LIKE ? OR r.email LIKE ? OR nl.email_to LIKE ? OR nl.email_subject LIKE ? OR p.project_name LIKE ? OR nl.type LIKE ? OR nl.status LIKE ? OR nl.error_message LIKE ?)';
-    for ($i = 0; $i < 8; $i++) {
-        $params[] = "%$search%";
-        $types .= 's';
+    $search_escaped = $conn->real_escape_string($search);
+    $where_conditions[] = "(user_name LIKE '%$search_escaped%' OR user_email LIKE '%$search_escaped%' OR email_to LIKE '%$search_escaped%' OR subject LIKE '%$search_escaped%' OR project_name LIKE '%$search_escaped%' OR type LIKE '%$search_escaped%' OR message LIKE '%$search_escaped%')";
+}
+
+$where_sql = !empty($where_conditions) ? " WHERE " . implode(" AND ", $where_conditions) : "";
+
+// Get total count
+$count_query = "SELECT COUNT(*) as total FROM ($base_query $where_sql) as counted";
+$count_result = $conn->query($count_query);
+$total = $count_result ? $count_result->fetch_assoc()['total'] : 0;
+$total_pages = ceil($total / $per_page);
+
+// Get paginated results
+$final_query = "$base_query $where_sql ORDER BY created_at DESC LIMIT $per_page OFFSET $offset";
+$log_result = $conn->query($final_query);
+
+// Get filter options
+$type_options = [];
+$type_query = "SELECT DISTINCT type FROM (
+    SELECT CAST(type AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as type FROM notification_logs
+    UNION
+    SELECT CAST(type AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as type FROM notifications
+    UNION
+    SELECT CAST(type AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_general_ci as type FROM realtime_notifications
+) as types WHERE type IS NOT NULL AND type != '' ORDER BY type";
+$type_result = $conn->query($type_query);
+if ($type_result) {
+    while ($row = $type_result->fetch_assoc()) {
+        if ($row['type']) {
+            $type_options[] = $row['type'];
+        }
     }
 }
-$where_sql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
 
-// --- STATISTICS ---
-$stats_sql = "SELECT 
-    type,
-    status,
-    COUNT(*) as count
-FROM notification_logs 
-GROUP BY type, status";
-$stats_result = $conn->query($stats_sql);
-$stats = [];
-while ($row = $stats_result->fetch_assoc()) {
-    $stats[$row['type']][$row['status']] = $row['count'];
-}
+$status_options = ['sent', 'failed', 'read', 'unread'];
 
-// --- NOTIFICATION TYPES ---
-$types_sql = "SELECT DISTINCT type FROM notification_logs ORDER BY type";
-$types_result = $conn->query($types_sql);
-$type_options = [];
-while ($row = $types_result->fetch_assoc()) {
-    $type_options[] = $row['type'];
-}
-
-// --- STATUS OPTIONS ---
-$status_sql = "SELECT DISTINCT status FROM notification_logs ORDER BY status";
-$status_result = $conn->query($status_sql);
-$status_options = [];
-while ($row = $status_result->fetch_assoc()) {
-    $status_options[] = $row['status'];
-}
-
-// --- DATE OPTIONS ---
-$date_sql = "SELECT DISTINCT DATE(created_at) as date FROM notification_logs ORDER BY date DESC LIMIT 30";
-$date_result = $conn->query($date_sql);
+// Get date options
+$date_query = "SELECT DISTINCT DATE(created_at) as date FROM (
+    SELECT created_at FROM notification_logs
+    UNION
+    SELECT created_at FROM notifications
+    UNION
+    SELECT created_at FROM realtime_notifications
+) as dates ORDER BY date DESC LIMIT 30";
+$date_result = $conn->query($date_query);
 $date_options = [];
-while ($row = $date_result->fetch_assoc()) {
-    $date_options[] = $row['date'];
+if ($date_result) {
+    while ($row = $date_result->fetch_assoc()) {
+        if ($row['date']) {
+            $date_options[] = $row['date'];
+        }
+    }
 }
-
-// --- PAGINATED NOTIFICATIONS ---
-$count_sql = "SELECT COUNT(*) as total FROM notification_logs nl
-LEFT JOIN register r ON nl.user_id = r.id
-LEFT JOIN admin_approved_projects p ON nl.project_id = p.id
-$where_sql";
-$count_stmt = $conn->prepare($count_sql);
-if ($types) {
-    $count_stmt->bind_param($types, ...$params);
-}
-$count_stmt->execute();
-$count_result = $count_stmt->get_result();
-$total = $count_result->fetch_assoc()['total'];
-$count_stmt->close();
-
-$log_sql = "SELECT nl.*, r.name as user_name, r.email as user_email, p.project_name
-FROM notification_logs nl
-LEFT JOIN register r ON nl.user_id = r.id
-LEFT JOIN admin_approved_projects p ON nl.project_id = p.id
-$where_sql
-ORDER BY nl.created_at DESC
-LIMIT $per_page OFFSET $offset";
-$log_stmt = $conn->prepare($log_sql);
-if ($types) {
-    $log_stmt->bind_param($types, ...$params);
-}
-$log_stmt->execute();
-$log_result = $log_stmt->get_result();
-
-$total_pages = ceil($total / $per_page);
 
 $message = isset($_GET['message']) ? $_GET['message'] : '';
 $error = isset($_GET['error']) ? $_GET['error'] : '';
@@ -252,16 +309,30 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         <!-- Statistics Row -->
         <div class="row stats-row mb-4 gx-4 gy-4">
             <div class="col-12 col-sm-6 col-lg-3">
+                <div class="stats-card primary glass-card position-relative overflow-hidden h-100">
+                    <div class="accent-bar bg-primary position-absolute top-0 start-0 w-100" style="height: 6px;"></div>
+                    <div class="icon-bg bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mb-3" style="width:56px;height:56px;">
+                        <i class="bi bi-bell text-primary" style="font-size:2rem;"></i>
+                    </div>
+                    <div class="stats-number">
+                        <?php echo $stats['total_notifications']; ?>
+                    </div>
+                    <div class="stats-label">
+                        Total Notifications
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
                 <div class="stats-card success glass-card position-relative overflow-hidden h-100">
                     <div class="accent-bar bg-success position-absolute top-0 start-0 w-100" style="height: 6px;"></div>
                     <div class="icon-bg bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mb-3" style="width:56px;height:56px;">
-                        <i class="bi bi-check-circle text-success" style="font-size:2rem;"></i>
+                        <i class="bi bi-envelope-check text-success" style="font-size:2rem;"></i>
                     </div>
                     <div class="stats-number">
-                        <?php echo ($stats['project_approval']['sent'] ?? 0) + ($stats['project_rejection']['sent'] ?? 0) + ($stats['new_user_notification']['sent'] ?? 0); ?>
+                        <?php echo $stats['email_sent']; ?>
                     </div>
                     <div class="stats-label">
-                        Successful Notifications
+                        Emails Sent
                     </div>
                 </div>
             </div>
@@ -269,13 +340,13 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                 <div class="stats-card danger glass-card position-relative overflow-hidden h-100">
                     <div class="accent-bar bg-danger position-absolute top-0 start-0 w-100" style="height: 6px;"></div>
                     <div class="icon-bg bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mb-3" style="width:56px;height:56px;">
-                        <i class="bi bi-exclamation-triangle text-danger" style="font-size:2rem;"></i>
+                        <i class="bi bi-envelope-x text-danger" style="font-size:2rem;"></i>
                     </div>
                     <div class="stats-number">
-                        <?php echo ($stats['project_approval']['failed'] ?? 0) + ($stats['project_rejection']['failed'] ?? 0) + ($stats['new_user_notification']['failed'] ?? 0); ?>
+                        <?php echo $stats['email_failed']; ?>
                     </div>
                     <div class="stats-label">
-                        Failed Notifications
+                        Failed Emails
                     </div>
                 </div>
             </div>
@@ -283,27 +354,13 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                 <div class="stats-card info glass-card position-relative overflow-hidden h-100">
                     <div class="accent-bar bg-info position-absolute top-0 start-0 w-100" style="height: 6px;"></div>
                     <div class="icon-bg bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mb-3" style="width:56px;height:56px;">
-                        <i class="bi bi-person-plus text-info" style="font-size:2rem;"></i>
+                        <i class="bi bi-person-check text-info" style="font-size:2rem;"></i>
                     </div>
                     <div class="stats-number">
-                        <?php echo $stats['new_user_notification']['sent'] ?? 0; ?>
+                        <?php echo $stats['user_notifications'] + $stats['realtime_notifications']; ?>
                     </div>
                     <div class="stats-label">
-                        New User Notifications
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="stats-card warning glass-card position-relative overflow-hidden h-100">
-                    <div class="accent-bar bg-warning position-absolute top-0 start-0 w-100" style="height: 6px;"></div>
-                    <div class="icon-bg bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mb-3" style="width:56px;height:56px;">
-                        <i class="bi bi-envelope text-warning" style="font-size:2rem;"></i>
-                    </div>
-                    <div class="stats-number">
-                        <?php echo ($stats['project_approval']['sent'] ?? 0) + ($stats['project_rejection']['sent'] ?? 0); ?>
-                    </div>
-                    <div class="stats-label">
-                        Project Notifications
+                        User Notifications
                     </div>
                 </div>
             </div>
@@ -311,6 +368,14 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
 
         <!-- Filter/Search Bar -->
         <form class="filter-bar row g-2 mb-4" method="get" action="">
+            <div class="col-auto">
+                <select class="form-select" name="source">
+                    <option value="all" <?php if ($source_filter == 'all') echo 'selected'; ?>>All Sources</option>
+                    <option value="email" <?php if ($source_filter == 'email') echo 'selected'; ?>>Email Notifications</option>
+                    <option value="user" <?php if ($source_filter == 'user') echo 'selected'; ?>>User Notifications</option>
+                    <option value="realtime" <?php if ($source_filter == 'realtime') echo 'selected'; ?>>Realtime Notifications</option>
+                </select>
+            </div>
             <div class="col-auto">
                 <select class="form-select" name="type">
                     <option value="">All Types</option>
@@ -347,6 +412,9 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary"><i class="bi bi-funnel me-1"></i> Filter</button>
             </div>
+            <div class="col-auto">
+                <a href="notifications.php" class="btn btn-secondary"><i class="bi bi-x-circle me-1"></i> Clear</a>
+            </div>
         </form>
 
         <!-- Notification Table -->
@@ -354,24 +422,43 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
             <table class="table align-middle mb-0">
                 <thead>
                     <tr>
+                        <th>Source</th>
                         <th>Date/Time</th>
                         <th>Type</th>
                         <th>Status</th>
                         <th>User</th>
-                        <th>Email To</th>
+                        <th>Subject/Title</th>
+                        <th>Message/Details</th>
                         <th>Project</th>
-                        <th>Subject</th>
-                        <th>Error</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if ($log_result && $log_result->num_rows > 0) : ?>
                         <?php while ($n = $log_result->fetch_assoc()) : ?>
                             <tr>
-                                <td><?php echo date('M j, Y g:i A', strtotime($n['created_at'])); ?></td>
+                                <td>
+                                    <?php 
+                                    $source_badges = [
+                                        'email' => '<span class="badge bg-primary"><i class="bi bi-envelope"></i> Email</span>',
+                                        'user' => '<span class="badge bg-info"><i class="bi bi-person"></i> User</span>',
+                                        'realtime' => '<span class="badge bg-success"><i class="bi bi-lightning"></i> Realtime</span>'
+                                    ];
+                                    echo $source_badges[$n['source']] ?? '<span class="badge bg-secondary">Unknown</span>';
+                                    ?>
+                                </td>
+                                <td><?php echo date('M j, Y<\b\r>g:i A', strtotime($n['created_at'])); ?></td>
                                 <td><span class="badge bg-secondary"><?php echo ucwords(str_replace('_', ' ', $n['type'])); ?></span></td>
                                 <td>
-                                    <span class="status-badge status-<?php echo htmlspecialchars($n['status']); ?>">
+                                    <?php 
+                                    $status_class = [
+                                        'sent' => 'success',
+                                        'failed' => 'danger',
+                                        'read' => 'info',
+                                        'unread' => 'warning'
+                                    ];
+                                    $class = $status_class[$n['status']] ?? 'secondary';
+                                    ?>
+                                    <span class="badge bg-<?php echo $class; ?>">
                                         <?php echo ucfirst($n['status']); ?>
                                     </span>
                                 </td>
@@ -380,11 +467,23 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
                                     <?php if ($n['user_email']) : ?>
                                         <br><small class="text-muted"><?php echo htmlspecialchars($n['user_email']); ?></small>
                                     <?php endif; ?>
+                                    <?php if ($n['email_to'] && $n['email_to'] != $n['user_email']) : ?>
+                                        <br><small class="text-primary"><i class="bi bi-arrow-right"></i> <?php echo htmlspecialchars($n['email_to']); ?></small>
+                                    <?php endif; ?>
                                 </td>
-                                <td><?php echo htmlspecialchars($n['email_to'] ?? ''); ?></td>
+                                <td style="max-width:250px;">
+                                    <?php echo htmlspecialchars($n['subject'] ?? 'N/A'); ?>
+                                </td>
+                                <td style="max-width:300px;">
+                                    <?php if ($n['message']) : ?>
+                                        <small><?php echo htmlspecialchars(substr($n['message'], 0, 150)) . (strlen($n['message']) > 150 ? '...' : ''); ?></small>
+                                    <?php elseif ($n['error_message']) : ?>
+                                        <small class="text-danger"><i class="bi bi-exclamation-triangle"></i> <?php echo htmlspecialchars(substr($n['error_message'], 0, 150)); ?></small>
+                                    <?php else : ?>
+                                        <small class="text-muted">-</small>
+                                    <?php endif; ?>
+                                </td>
                                 <td><?php echo $n['project_name'] ? htmlspecialchars($n['project_name']) : '-'; ?></td>
-                                <td><?php echo htmlspecialchars($n['email_subject'] ?? ''); ?></td>
-                                <td style="max-width:200px; white-space:pre-wrap; word-break:break-all;"><span class="text-danger"><?php echo htmlspecialchars($n['error_message'] ?? ''); ?></span></td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else : ?>
