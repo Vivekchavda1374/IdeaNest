@@ -97,138 +97,149 @@ if (!$error_message && isset($conn)) {
 }
 
 // Handle mentor request submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && !$error_message) {
-    // Verify CSRF token
-    if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
-        $error_message = "Invalid security token. Please try again.";
-    } else {
-        $mentor_id = intval($_POST['mentor_id']);
-        $project_id = !empty($_POST['project_id']) ? intval($_POST['project_id']) : null;
-        $message = trim($_POST['message']);
-        
-        // Validate inputs
-        if (empty($mentor_id) || empty($message)) {
-            $error_message = "Please fill in all required fields.";
-        } elseif (strlen($message) < 10) {
-            $error_message = "Message must be at least 10 characters long.";
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor'])) {
+    error_log("Mentor request form submitted by user ID: $user_id");
+    
+    // Only process if no previous errors
+    if (!$error_message && isset($conn)) {
+        // Verify CSRF token
+        if (!isset($_POST['csrf_token'])) {
+            $error_message = "Security token missing. Please refresh the page and try again.";
+            error_log("CSRF token missing in mentor request form");
+        } elseif (!validateCSRFToken($_POST['csrf_token'])) {
+            $error_message = "Invalid security token. Please try again.";
+            error_log("CSRF token validation failed for user ID: $user_id");
         } else {
-            // Verify mentor exists and is actually a mentor
-            $verify_mentor = "SELECT id FROM register WHERE id = ? AND role = 'mentor'";
-            $verify_stmt = $conn->prepare($verify_mentor);
+            $mentor_id = isset($_POST['mentor_id']) ? intval($_POST['mentor_id']) : 0;
+            $project_id = !empty($_POST['project_id']) ? intval($_POST['project_id']) : null;
+            $message = isset($_POST['message']) ? trim($_POST['message']) : '';
             
-            if (!$verify_stmt) {
-                $error_message = "Database error: " . $conn->error;
-                error_log("Failed to prepare verify mentor query: " . $conn->error);
+            error_log("Processing mentor request: Student=$user_id, Mentor=$mentor_id, Project=$project_id");
+            
+            // Validate inputs
+            if (empty($mentor_id) || empty($message)) {
+                $error_message = "Please fill in all required fields.";
+            } elseif (strlen($message) < 10) {
+                $error_message = "Message must be at least 10 characters long.";
             } else {
-                $verify_stmt->bind_param("i", $mentor_id);
-                $verify_stmt->execute();
-                $verify_result = $verify_stmt->get_result();
+                // Verify mentor exists and is actually a mentor
+                $verify_mentor = "SELECT id FROM register WHERE id = ? AND role = 'mentor'";
+                $verify_stmt = $conn->prepare($verify_mentor);
                 
-                if ($verify_result->num_rows == 0) {
-                    $error_message = "Invalid mentor selected.";
-                    error_log("Mentor ID $mentor_id not found or not a mentor");
+                if (!$verify_stmt) {
+                    $error_message = "Database error: " . $conn->error;
+                    error_log("Failed to prepare verify mentor query: " . $conn->error);
                 } else {
-                    // Check if request already exists
-                    $check_query = "SELECT id FROM mentor_requests WHERE student_id = ? AND mentor_id = ? AND status = 'pending'";
-                    $check_stmt = $conn->prepare($check_query);
+                    $verify_stmt->bind_param("i", $mentor_id);
+                    $verify_stmt->execute();
+                    $verify_result = $verify_stmt->get_result();
                     
-                    if (!$check_stmt) {
-                        $error_message = "Database error: " . $conn->error;
-                        error_log("Failed to prepare check query: " . $conn->error);
+                    if ($verify_result->num_rows == 0) {
+                        $error_message = "Invalid mentor selected.";
+                        error_log("Mentor ID $mentor_id not found or not a mentor");
                     } else {
-                        $check_stmt->bind_param("ii", $user_id, $mentor_id);
+                        // Check if request already exists
+                        $check_query = "SELECT id FROM mentor_requests WHERE student_id = ? AND mentor_id = ? AND status = 'pending'";
+                        $check_stmt = $conn->prepare($check_query);
                         
-                        if (!$check_stmt->execute()) {
-                            $error_message = "Database error: " . $check_stmt->error;
-                            error_log("Failed to execute check query: " . $check_stmt->error);
+                        if (!$check_stmt) {
+                            $error_message = "Database error: " . $conn->error;
+                            error_log("Failed to prepare check query: " . $conn->error);
                         } else {
-                            $check_result = $check_stmt->get_result();
-
-                            if ($check_result->num_rows == 0) {
-                                // Begin transaction for data integrity
-                                $conn->begin_transaction();
-                                
-                                try {
-                                    $insert_query = "INSERT INTO mentor_requests (student_id, mentor_id, project_id, message, status) VALUES (?, ?, ?, ?, 'pending')";
-                                    $insert_stmt = $conn->prepare($insert_query);
-                                    
-                                    if (!$insert_stmt) {
-                                        throw new Exception("Failed to prepare insert statement: " . $conn->error);
-                                    }
-                                    
-                                    $insert_stmt->bind_param("iiis", $user_id, $mentor_id, $project_id, $message);
-                                    
-                                    if (!$insert_stmt->execute()) {
-                                        throw new Exception("Failed to execute insert: " . $insert_stmt->error);
-                                    }
-                                    
-                                    $request_id = $insert_stmt->insert_id;
-                                    
-                                    // Create notification for mentor
-                                    $notif_query = "INSERT INTO user_notifications (user_id, notification_type, title, message, related_id, related_type, action_url, icon, color) 
-                                                   VALUES (?, 'mentor_request', 'New Mentorship Request', ?, ?, 'mentor_request', '/mentor/view_requests.php', 'bi-person-plus', 'info')";
-                                    $notif_stmt = $conn->prepare($notif_query);
-                                    
-                                    if ($notif_stmt) {
-                                        $notif_message = "You have received a new mentorship request from a student.";
-                                        $notif_stmt->bind_param("isi", $mentor_id, $notif_message, $request_id);
-                                        $notif_stmt->execute();
-                                        $notif_stmt->close();
-                                    }
-                                    
-                                    // Commit transaction
-                                    $conn->commit();
-                                    
-                                    $success_message = "Mentor request sent successfully!";
-                                    error_log("Mentor request created successfully: Request ID $request_id, Student ID $user_id, Mentor ID $mentor_id");
-                                    
-                                    // Try to send email notification
-                                    if ($phpmailer_available) {
-                                        try {
-                                            // Get mentor details
-                                            $details_query = "SELECT r1.name as student_name, r2.name as mentor_name, r2.email as mentor_email
-                                                             FROM register r1, register r2
-                                                             WHERE r1.id = ? AND r2.id = ?";
-                                            $details_stmt = $conn->prepare($details_query);
-                                            $details_stmt->bind_param("ii", $user_id, $mentor_id);
-                                            $details_stmt->execute();
-                                            $details = $details_stmt->get_result()->fetch_assoc();
-
-                                            if ($details) {
-                                                $mailer = new SMTPMailer();
-                                                $subject = 'New Mentorship Request - IdeaNest';
-                                                $body = "<h2>New Mentorship Request</h2>
-                                                <p>Dear {$details['mentor_name']},</p>
-                                                <p>You have received a new mentorship request from <strong>{$details['student_name']}</strong>.</p>
-                                                <p><strong>Message:</strong></p>
-                                                <p style='background: #f5f5f5; padding: 15px; border-radius: 5px;'>" . htmlspecialchars($message) . "</p>
-                                                <p>Best regards,<br>The IdeaNest Team</p>";
-                                                $mailer->send($details['mentor_email'], $subject, $body);
-                                                $success_message .= " The mentor has been notified via email.";
-                                            }
-                                            $details_stmt->close();
-                                        } catch (Exception $e) {
-                                            // Email failed, but request was saved
-                                            error_log("Email notification failed: " . $e->getMessage());
-                                        }
-                                    }
-                                    
-                                    $insert_stmt->close();
-
-                                } catch (Exception $e) {
-                                    // Rollback transaction on error
-                                    $conn->rollback();
-                                    $error_message = "Failed to send request: " . $e->getMessage();
-                                    error_log("Mentor request error: " . $e->getMessage());
-                                }
+                            $check_stmt->bind_param("ii", $user_id, $mentor_id);
+                            
+                            if (!$check_stmt->execute()) {
+                                $error_message = "Database error: " . $check_stmt->error;
+                                error_log("Failed to execute check query: " . $check_stmt->error);
                             } else {
-                                $error_message = "You already have a pending request with this mentor.";
+                                $check_result = $check_stmt->get_result();
+
+                                if ($check_result->num_rows == 0) {
+                                    // Begin transaction for data integrity
+                                    $conn->begin_transaction();
+                                    
+                                    try {
+                                        $insert_query = "INSERT INTO mentor_requests (student_id, mentor_id, project_id, message, status) VALUES (?, ?, ?, ?, 'pending')";
+                                        $insert_stmt = $conn->prepare($insert_query);
+                                        
+                                        if (!$insert_stmt) {
+                                            throw new Exception("Failed to prepare insert statement: " . $conn->error);
+                                        }
+                                        
+                                        $insert_stmt->bind_param("iiis", $user_id, $mentor_id, $project_id, $message);
+                                        
+                                        if (!$insert_stmt->execute()) {
+                                            throw new Exception("Failed to execute insert: " . $insert_stmt->error);
+                                        }
+                                        
+                                        $request_id = $insert_stmt->insert_id;
+                                        
+                                        // Create notification for mentor
+                                        $notif_query = "INSERT INTO user_notifications (user_id, notification_type, title, message, related_id, related_type, action_url, icon, color) 
+                                                       VALUES (?, 'mentor_request', 'New Mentorship Request', ?, ?, 'mentor_request', '/mentor/student_requests.php', 'bi-person-plus', 'info')";
+                                        $notif_stmt = $conn->prepare($notif_query);
+                                        
+                                        if ($notif_stmt) {
+                                            $notif_message = "You have received a new mentorship request from a student.";
+                                            $notif_stmt->bind_param("isi", $mentor_id, $notif_message, $request_id);
+                                            $notif_stmt->execute();
+                                            $notif_stmt->close();
+                                        }
+                                        
+                                        // Commit transaction
+                                        $conn->commit();
+                                        
+                                        $success_message = "Mentor request sent successfully!";
+                                        error_log("Mentor request created successfully: Request ID $request_id, Student ID $user_id, Mentor ID $mentor_id");
+                                        
+                                        // Try to send email notification
+                                        if ($phpmailer_available) {
+                                            try {
+                                                // Get mentor details
+                                                $details_query = "SELECT r1.name as student_name, r2.name as mentor_name, r2.email as mentor_email
+                                                                 FROM register r1, register r2
+                                                                 WHERE r1.id = ? AND r2.id = ?";
+                                                $details_stmt = $conn->prepare($details_query);
+                                                $details_stmt->bind_param("ii", $user_id, $mentor_id);
+                                                $details_stmt->execute();
+                                                $details = $details_stmt->get_result()->fetch_assoc();
+
+                                                if ($details) {
+                                                    $mailer = new SMTPMailer();
+                                                    $subject = 'New Mentorship Request - IdeaNest';
+                                                    $body = "<h2>New Mentorship Request</h2>
+                                                    <p>Dear {$details['mentor_name']},</p>
+                                                    <p>You have received a new mentorship request from <strong>{$details['student_name']}</strong>.</p>
+                                                    <p><strong>Message:</strong></p>
+                                                    <p style='background: #f5f5f5; padding: 15px; border-radius: 5px;'>" . htmlspecialchars($message) . "</p>
+                                                    <p>Best regards,<br>The IdeaNest Team</p>";
+                                                    $mailer->send($details['mentor_email'], $subject, $body);
+                                                    $success_message .= " The mentor has been notified via email.";
+                                                }
+                                                $details_stmt->close();
+                                            } catch (Exception $e) {
+                                                // Email failed, but request was saved
+                                                error_log("Email notification failed: " . $e->getMessage());
+                                            }
+                                        }
+                                        
+                                        $insert_stmt->close();
+
+                                    } catch (Exception $e) {
+                                        // Rollback transaction on error
+                                        $conn->rollback();
+                                        $error_message = "Failed to send request: " . $e->getMessage();
+                                        error_log("Mentor request error: " . $e->getMessage());
+                                    }
+                                } else {
+                                    $error_message = "You already have a pending request with this mentor.";
+                                }
+                                $check_stmt->close();
                             }
-                            $check_stmt->close();
                         }
                     }
+                    $verify_stmt->close();
                 }
-                $verify_stmt->close();
             }
         }
     }
@@ -434,6 +445,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
             }
         }
 
+        function showAlert(message, type = 'success') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.setAttribute('role', 'alert');
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const container = document.querySelector('.container-fluid');
+            const firstRow = container.querySelector('.row');
+            container.insertBefore(alertDiv, firstRow.nextSibling);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Hide loader on page load
             hideLoader();
@@ -453,15 +483,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
                 // Reset form
                 messageField.value = '';
                 messageField.classList.remove('is-invalid');
+                
+                // Re-enable submit button
+                const submitBtn = mentorRequestForm.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Request';
+                }
             });
             
-            // Form validation and submission
+            // Form validation and submission with AJAX
             if (mentorRequestForm) {
                 mentorRequestForm.addEventListener('submit', function(e) {
+                    e.preventDefault(); // Always prevent default for AJAX
+                    
                     const message = messageField.value.trim();
                     
                     if (message.length < 10) {
-                        e.preventDefault();
                         messageField.classList.add('is-invalid');
                         
                         let feedback = messageField.nextElementSibling;
@@ -476,7 +514,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
                     
                     messageField.classList.remove('is-invalid');
                     
-                    // Show loader on valid submission
+                    // Show loader
                     showLoader('Sending request...');
                     
                     // Disable submit button to prevent double submission
@@ -485,6 +523,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor']) && 
                         submitBtn.disabled = true;
                         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
                     }
+                    
+                    // Send AJAX request
+                    const formData = new FormData(this);
+                    
+                    fetch('ajax_mentor_request.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        hideLoader();
+                        
+                        if (data.success) {
+                            // Close modal
+                            const modal = bootstrap.Modal.getInstance(requestModal);
+                            modal.hide();
+                            
+                            // Show success message
+                            showAlert(data.message, 'success');
+                            
+                            // Reset form
+                            mentorRequestForm.reset();
+                            
+                            // Optionally redirect after a delay
+                            setTimeout(() => {
+                                window.location.href = 'my_mentor_requests.php';
+                            }, 2000);
+                        } else {
+                            // Show error message
+                            showAlert(data.message, 'danger');
+                            
+                            // Re-enable submit button
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Request';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        hideLoader();
+                        console.error('Error:', error);
+                        showAlert('An error occurred. Please try again.', 'danger');
+                        
+                        // Re-enable submit button
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Send Request';
+                        }
+                    });
                 });
                 
                 messageField.addEventListener('input', function() {
