@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Nov 28, 2025 at 09:37 AM
+-- Generation Time: Nov 30, 2025 at 06:39 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -59,6 +59,14 @@ CREATE TABLE `admin_approved_projects` (
   `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `admin_approved_projects`
+--
+
+INSERT INTO `admin_approved_projects` (`id`, `user_id`, `project_name`, `project_type`, `classification`, `project_category`, `difficulty_level`, `development_time`, `team_size`, `target_audience`, `project_goals`, `challenges_faced`, `future_enhancements`, `github_repo`, `live_demo_url`, `project_license`, `keywords`, `contact_email`, `social_links`, `description`, `language`, `image_path`, `video_path`, `code_file_path`, `instruction_file_path`, `presentation_file_path`, `additional_files_path`, `submission_date`, `status`) VALUES
+(1, '2', 'Automated Attendance System with Face Recognition', 'software', 'ai_ml', 'education', 'intermediate', '2-3 months', '2', 'Schools, colleges, corporate training centers, and educational administrators', 'Automate attendance tracking, reduce manual errors, save time for educators, provide accurate attendance analytics, and improve overall administrative efficiency.', 'Ensuring accuracy in different lighting conditions, handling privacy concerns, preventing spoofing attacks, optimizing for real-time processing, and managing large datasets of student faces.', 'Mobile app integration, cloud-based deployment, integration with learning management systems, advanced analytics dashboard, and support for mask detection.', 'https://github.com/viveksinhchavda/face-recognition-attendance', 'https://face-attendance-demo.herokuapp.com', 'BSD-3-Clause', 'face recognition, attendance system, computer vision, automation, education management', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda', 'An intelligent attendance management system using computer vision and facial recognition technology. The system automatically marks attendance when students enter the classroom, generates detailed reports, and integrates with existing student management systems. Features include real-time monitoring, anti-spoofing measures, and privacy protection.', 'Python, OpenCV, TensorFlow, Flask, SQLite, HTML/CSS/JavaScript', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-09 04:52:14', 'approved'),
+(2, '2', 'Automated Attendance System with Face Recognition', 'software', 'ai_ml', 'education', 'intermediate', '2-3 months', '2', 'Schools, colleges, corporate training centers, and educational administrators', 'Automate attendance tracking, reduce manual errors, save time for educators, provide accurate attendance analytics, and improve overall administrative efficiency.', 'Ensuring accuracy in different lighting conditions, handling privacy concerns, preventing spoofing attacks, optimizing for real-time processing, and managing large datasets of student faces.', 'Mobile app integration, cloud-based deployment, integration with learning management systems, advanced analytics dashboard, and support for mask detection.', 'https://github.com/viveksinhchavda/face-recognition-attendance', 'https://face-attendance-demo.herokuapp.com', 'BSD-3-Clause', 'face recognition, attendance system, computer vision, automation, education management', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda', 'An intelligent attendance management system using computer vision and facial recognition technology. The system automatically marks attendance when students enter the classroom, generates detailed reports, and integrates with existing student management systems. Features include real-time monitoring, anti-spoofing measures, and privacy protection.', 'Python, OpenCV, TensorFlow, Flask, SQLite, HTML/CSS/JavaScript', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-21 09:42:52', 'approved');
+
 -- --------------------------------------------------------
 
 --
@@ -73,6 +81,13 @@ CREATE TABLE `admin_logs` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `admin_logs`
+--
+
+INSERT INTO `admin_logs` (`id`, `action`, `details`, `admin_id`, `created_at`, `timestamp`) VALUES
+(1, 'mentor_removed', 'Removed mentor: vivek chavda (vivek.chavda119486@marwadiuniversity.ac.in)', 1, '2025-11-30 16:50:52', '2025-11-30 16:50:52');
 
 -- --------------------------------------------------------
 
@@ -114,6 +129,22 @@ CREATE TABLE `blog` (
   `content` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `blog`
+--
+
+INSERT INTO `blog` (`id`, `user_id`, `er_number`, `project_name`, `project_type`, `classification`, `description`, `submission_datetime`, `status`, `priority1`, `assigned_to`, `completion_date`, `created_at`, `updated_at`, `title`, `content`) VALUES
+(1, 2, 'ER001', 'Smart Home Automation System', 'software', 'IoT', 'An intelligent home automation system using IoT sensors and machine learning to optimize energy consumption and enhance security.', '2025-11-28 21:43:28', 'pending', 'high', NULL, NULL, '2025-11-28 16:13:28', '2025-11-28 16:13:28', 'Smart Home Automation with AI', 'This project aims to create a comprehensive smart home system that learns from user behavior patterns and automatically adjusts lighting, temperature, and security settings. The system will use various IoT sensors, machine learning algorithms for pattern recognition, and a mobile app for remote control.'),
+(2, 2, 'ER002', 'E-Learning Platform', 'software', 'Web Development', 'A modern e-learning platform with interactive courses, real-time collaboration, and AI-powered personalized learning paths.', '2025-11-28 21:43:28', 'in_progress', 'high', NULL, NULL, '2025-11-28 16:13:28', '2025-11-28 16:13:28', 'Next-Gen E-Learning Platform', 'Building a comprehensive online learning platform that features video lectures, interactive quizzes, peer-to-peer collaboration, and AI-driven course recommendations. The platform will support multiple learning styles and provide detailed analytics for both students and instructors.'),
+(3, 2, 'ER003', 'Health & Fitness Tracker', 'software', 'Mobile App', 'A comprehensive health and fitness tracking application with workout plans, nutrition tracking, and social features.', '2025-11-28 21:43:28', 'pending', 'medium', NULL, NULL, '2025-11-28 16:13:28', '2025-11-28 16:13:28', 'Personal Health & Fitness Companion', 'Developing a mobile application that helps users track their fitness journey, including workout routines, calorie intake, water consumption, and sleep patterns. The app will provide personalized workout plans, nutrition advice, and allow users to connect with friends for motivation.'),
+(4, 2, 'ER004', 'Predictive Analytics Dashboard', 'software', 'Data Science', 'A data analytics platform that uses machine learning to predict trends and provide actionable insights for businesses.', '2025-11-28 21:43:28', 'pending', 'high', NULL, NULL, '2025-11-28 16:13:28', '2025-11-28 16:13:28', 'Business Intelligence Dashboard', 'Creating a powerful analytics dashboard that processes large datasets, identifies patterns, and provides predictive insights. The system will use various ML algorithms for forecasting, anomaly detection, and trend analysis, with an intuitive visualization interface.'),
+(5, 2, 'ER005', 'Decentralized Supply Chain', 'software', 'Blockchain', 'A blockchain-based supply chain management system ensuring transparency and traceability of products.', '2025-11-28 21:43:28', 'pending', 'medium', NULL, NULL, '2025-11-28 16:13:28', '2025-11-28 16:13:28', 'Blockchain Supply Chain Solution', 'Implementing a decentralized supply chain tracking system using blockchain technology. This ensures complete transparency, prevents counterfeiting, and provides real-time tracking of products from manufacturer to consumer. Smart contracts will automate various supply chain processes.'),
+(6, 2, 'ER006', 'Network Security Monitor', 'software', 'Cybersecurity', 'An advanced network security monitoring tool that detects and prevents cyber threats in real-time.', '2025-11-28 21:43:28', 'in_progress', 'high', NULL, NULL, '2025-11-28 16:13:28', '2025-11-28 16:13:28', 'Real-Time Threat Detection System', 'Developing a comprehensive network security solution that monitors network traffic, detects anomalies, identifies potential threats, and automatically responds to security incidents. The system uses AI/ML for threat intelligence and pattern recognition.'),
+(7, 2, 'ER007', 'Educational VR Game', 'software', 'Game Development', 'An immersive virtual reality educational game that makes learning science concepts fun and interactive.', '2025-11-28 21:43:28', 'pending', 'medium', NULL, NULL, '2025-11-28 16:13:28', '2025-11-28 16:13:28', 'VR Science Learning Experience', 'Creating an engaging VR game that teaches complex science concepts through interactive simulations and gamification. Students can explore virtual laboratories, conduct experiments, and learn through hands-on experience in a safe virtual environment.'),
+(8, 2, 'ER008', 'Autonomous Drone System', 'hardware', 'Robotics', 'An autonomous drone system for agricultural monitoring and crop health analysis using computer vision.', '2025-11-28 21:43:28', 'pending', 'high', NULL, NULL, '2025-11-28 16:13:28', '2025-11-28 16:13:28', 'Agricultural Monitoring Drone', 'Building an autonomous drone equipped with multispectral cameras and AI-powered image analysis to monitor crop health, detect diseases, and optimize irrigation. The system will provide farmers with actionable insights through a web dashboard.'),
+(9, 2, 'ER009', 'Serverless Microservices Platform', 'software', 'Cloud Computing', 'A scalable serverless architecture platform for deploying and managing microservices applications.', '2025-11-28 21:43:28', 'pending', 'medium', NULL, NULL, '2025-11-28 16:13:28', '2025-11-28 16:13:28', 'Cloud-Native Application Platform', 'Developing a platform that simplifies the deployment and management of microservices using serverless architecture. The platform will handle auto-scaling, load balancing, and provide monitoring tools for distributed applications.'),
+(10, 2, 'ER010', 'Community Help Network', 'software', 'Social Platform', 'A social platform connecting volunteers with community service opportunities and NGOs.', '2025-11-28 21:43:28', 'pending', 'medium', NULL, NULL, '2025-11-28 16:13:28', '2025-11-28 16:13:28', 'Volunteer Matching Platform', 'Creating a platform that connects volunteers with meaningful community service opportunities. The system matches volunteers based on their skills, interests, and availability with NGOs and community organizations that need help. Includes features for event management, impact tracking, and volunteer recognition.');
+
 -- --------------------------------------------------------
 
 --
@@ -126,19 +157,6 @@ CREATE TABLE `bookmark` (
   `user_id` varchar(255) NOT NULL,
   `idea_id` int(11) DEFAULT 0,
   `bookmarked_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `comment_likes`
---
-
-CREATE TABLE `comment_likes` (
-  `id` int(11) NOT NULL,
-  `comment_id` int(11) NOT NULL,
-  `user_id` varchar(255) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -198,6 +216,14 @@ CREATE TABLE `denial_projects` (
   `rejection_reason` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `denial_projects`
+--
+
+INSERT INTO `denial_projects` (`id`, `user_id`, `project_name`, `project_type`, `classification`, `project_category`, `difficulty_level`, `development_time`, `team_size`, `target_audience`, `project_goals`, `challenges_faced`, `future_enhancements`, `github_repo`, `live_demo_url`, `project_license`, `keywords`, `contact_email`, `social_links`, `description`, `language`, `image_path`, `video_path`, `code_file_path`, `instruction_file_path`, `presentation_file_path`, `additional_files_path`, `submission_date`, `status`, `rejection_date`, `rejection_reason`) VALUES
+(1, 2, 'AI-Powered Student Performance Predictor', 'software', 'ai_ml', 'education', 'expert', '2-3 months', '2', 'Educational institutions, academic counselors, teachers, and students', 'Identify at-risk students early, provide personalized learning recommendations, improve overall academic performance, and assist educators in making data-driven decisions.', 'Handling sensitive student data with privacy concerns, ensuring model accuracy across diverse student populations, dealing with incomplete or biased data, and creating interpretable AI recommendations.', 'Real-time performance monitoring, integration with learning management systems, mobile application for students and parents, advanced visualization dashboards, and multi-language support.', 'https://github.com/viveksinhchavda/ai-student-predictor', 'https://student-predictor-ai.herokuapp.com', 'MIT', 'artificial intelligence, machine learning, education, student performance, predictive analytics', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda, https://github.com/viveksinhchavda', 'A machine learning application that analyzes student performance data to predict academic outcomes and identify students at risk of falling behind. The system uses various algorithms including regression analysis, decision trees, and neural networks to provide accurate predictions and personalized recommendations for improvement.', 'Python, TensorFlow, Scikit-learn, Pandas, Flask, PostgreSQL', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-07 10:22:14', 'rejected', '2025-11-28 15:03:26', 'not good'),
+(2, 2, 'AI-Powered Student Performance Predictor', 'software', 'ai_ml', 'education', 'expert', '2-3 months', '2', 'Educational institutions, academic counselors, teachers, and students', 'Identify at-risk students early, provide personalized learning recommendations, improve overall academic performance, and assist educators in making data-driven decisions.', 'Handling sensitive student data with privacy concerns, ensuring model accuracy across diverse student populations, dealing with incomplete or biased data, and creating interpretable AI recommendations.', 'Real-time performance monitoring, integration with learning management systems, mobile application for students and parents, advanced visualization dashboards, and multi-language support.', 'https://github.com/viveksinhchavda/ai-student-predictor', 'https://student-predictor-ai.herokuapp.com', 'MIT', 'artificial intelligence, machine learning, education, student performance, predictive analytics', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda, https://github.com/viveksinhchavda', 'A machine learning application that analyzes student performance data to predict academic outcomes and identify students at risk of falling behind. The system uses various algorithms including regression analysis, decision trees, and neural networks to provide accurate predictions and personalized recommendations for improvement.', 'Python, TensorFlow, Scikit-learn, Pandas, Flask, PostgreSQL', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-25 15:12:52', 'rejected', '2025-11-28 15:25:04', 'not good');
+
 -- --------------------------------------------------------
 
 --
@@ -221,7 +247,9 @@ CREATE TABLE `email_logs` (
 
 INSERT INTO `email_logs` (`id`, `recipient_email`, `subject`, `email_type`, `status`, `error_message`, `sent_at`, `created_at`) VALUES
 (1, 'chavdaviveksinh1374@gmail.com', 'Welcome to IdeaNest - Subadmin Access', 'subadmin_welcome', 'sent', NULL, '2025-11-28 02:41:51', '2025-11-28 07:11:51'),
-(2, 'vivek.chavda119486@marwadiuniversity.ac.in', 'Welcome to IdeaNest - Mentor Account Created', 'mentor_welcome', 'sent', NULL, '2025-11-28 02:53:04', '2025-11-28 07:23:04');
+(2, 'vivek.chavda119486@marwadiuniversity.ac.in', 'Welcome to IdeaNest - Mentor Account Created', 'mentor_welcome', 'sent', NULL, '2025-11-28 02:53:04', '2025-11-28 07:23:04'),
+(3, 'vivekcchavda@gmail.com', 'Welcome to IdeaNest - Mentor Account Created', 'mentor_welcome', 'sent', NULL, '2025-11-30 12:21:19', '2025-11-30 16:51:19'),
+(4, 'viveksinhchavda639@gmail.com', 'Welcome to IdeaNest - Subadmin Access', 'subadmin_welcome', 'sent', NULL, '2025-11-30 12:28:00', '2025-11-30 16:58:00');
 
 -- --------------------------------------------------------
 
@@ -251,6 +279,13 @@ CREATE TABLE `idea_bookmarks` (
   `user_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `idea_bookmarks`
+--
+
+INSERT INTO `idea_bookmarks` (`id`, `idea_id`, `user_id`, `created_at`) VALUES
+(1, 1, 2, '2025-11-29 07:37:45');
 
 -- --------------------------------------------------------
 
@@ -286,6 +321,27 @@ CREATE TABLE `idea_comments` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `idea_comments`
+--
+
+INSERT INTO `idea_comments` (`id`, `idea_id`, `user_id`, `parent_id`, `comment`, `created_at`, `updated_at`) VALUES
+(1, 0, 2, NULL, 'hello', '2025-11-28 16:14:51', '2025-11-28 16:14:51'),
+(2, 0, 2, NULL, 'hi', '2025-11-28 16:15:09', '2025-11-28 16:15:09'),
+(3, 0, 2, NULL, 'hi', '2025-11-28 16:25:12', '2025-11-28 16:25:12'),
+(4, 0, 3, NULL, 'hi', '2025-11-29 07:36:15', '2025-11-29 07:36:15'),
+(5, 0, 3, NULL, 'hello', '2025-11-30 13:54:17', '2025-11-30 13:54:17'),
+(6, 0, 3, NULL, 'hi', '2025-11-30 13:54:28', '2025-11-30 13:54:28'),
+(7, 0, 3, NULL, 'hello', '2025-11-30 13:56:25', '2025-11-30 13:56:25'),
+(8, 0, 3, NULL, 'hello', '2025-11-30 13:58:53', '2025-11-30 13:58:53'),
+(9, 0, 3, NULL, 'helllo', '2025-11-30 14:03:01', '2025-11-30 14:03:01'),
+(10, 0, 3, NULL, 'hello', '2025-11-30 14:07:56', '2025-11-30 14:07:56'),
+(11, 0, 3, NULL, 'hi', '2025-11-30 14:09:27', '2025-11-30 14:09:27'),
+(12, 0, 3, NULL, 'hi', '2025-11-30 14:13:14', '2025-11-30 14:13:14'),
+(13, 0, 3, NULL, 'hell', '2025-11-30 14:13:20', '2025-11-30 14:13:20'),
+(14, 1, 3, NULL, 'hi', '2025-11-30 14:15:45', '2025-11-30 14:15:45'),
+(15, 1, 3, 14, 'hello', '2025-11-30 14:15:51', '2025-11-30 14:15:51');
+
 -- --------------------------------------------------------
 
 --
@@ -314,6 +370,13 @@ CREATE TABLE `idea_likes` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `idea_likes`
+--
+
+INSERT INTO `idea_likes` (`id`, `idea_id`, `user_id`, `created_at`) VALUES
+(3, 1, 2, '2025-11-29 07:37:27');
+
 -- --------------------------------------------------------
 
 --
@@ -329,6 +392,13 @@ CREATE TABLE `idea_ratings` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `idea_ratings`
+--
+
+INSERT INTO `idea_ratings` (`id`, `idea_id`, `user_id`, `rating`, `review_text`, `created_at`, `updated_at`) VALUES
+(1, 1, 3, 4, NULL, '2025-11-30 14:07:47', '2025-11-30 14:07:47');
 
 -- --------------------------------------------------------
 
@@ -359,6 +429,16 @@ CREATE TABLE `idea_shares` (
   `platform` enum('twitter','facebook','linkedin','whatsapp','copy','other') NOT NULL DEFAULT 'other',
   `shared_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `idea_shares`
+--
+
+INSERT INTO `idea_shares` (`id`, `idea_id`, `user_id`, `platform`, `shared_at`) VALUES
+(1, 1, 2, 'linkedin', '2025-11-29 07:32:12'),
+(2, 1, 2, 'whatsapp', '2025-11-29 07:32:23'),
+(3, 1, 2, 'copy', '2025-11-29 07:32:28'),
+(4, 1, 2, 'copy', '2025-11-29 07:41:03');
 
 -- --------------------------------------------------------
 
@@ -626,7 +706,9 @@ INSERT INTO `idea_views` (`id`, `idea_id`, `user_id`, `ip_address`, `user_agent`
 (228, 5, 1, NULL, NULL, '2025-10-16 14:44:41'),
 (229, 4, 1, NULL, NULL, '2025-10-16 14:44:41'),
 (231, 2, 1, NULL, NULL, '2025-10-16 14:44:42'),
-(232, 2, 1, NULL, NULL, '2025-10-16 14:44:42');
+(232, 2, 1, NULL, NULL, '2025-10-16 14:44:42'),
+(233, 9, 3, NULL, NULL, '2025-11-30 16:26:31'),
+(234, 1, 3, NULL, NULL, '2025-11-30 16:26:38');
 
 -- --------------------------------------------------------
 
@@ -675,6 +757,18 @@ CREATE TABLE `mentoring_sessions` (
   `immediate_reminder_sent` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `mentoring_sessions`
+--
+
+INSERT INTO `mentoring_sessions` (`id`, `pair_id`, `session_date`, `duration_minutes`, `notes`, `meeting_link`, `status`, `created_at`, `reminder_sent`, `immediate_reminder_sent`) VALUES
+(1, 2, '2025-11-28 20:17:00', 60, 'gfbrhjkklsf jdKM B', '', 'scheduled', '2025-11-28 14:48:03', 0, 0),
+(2, 2, '2025-11-28 20:17:00', 60, 'gfbrhjkklsf jdKM B', '', 'scheduled', '2025-11-28 14:50:42', 0, 0),
+(3, 2, '2025-11-28 20:21:00', 90, 'hs kvjerwklVF  M', '', 'scheduled', '2025-11-28 14:51:11', 0, 0),
+(4, 2, '2025-11-28 20:21:00', 90, 'hs kvjerwklVF  M', '', 'scheduled', '2025-11-28 14:54:09', 0, 0),
+(5, 2, '2025-11-28 20:21:00', 90, 'hs kvjerwklVF  M', '', 'scheduled', '2025-11-28 14:56:37', 0, 0),
+(6, 2, '2025-11-30 21:27:00', 90, 'hj erkfwqkldvf n', '', 'scheduled', '2025-11-28 15:57:26', 0, 0);
+
 -- --------------------------------------------------------
 
 --
@@ -720,7 +814,7 @@ CREATE TABLE `mentors` (
 --
 
 INSERT INTO `mentors` (`id`, `user_id`, `specialization`, `experience_years`, `max_students`, `current_students`, `bio`, `linkedin_url`, `github_url`, `created_at`) VALUES
-(1, 1, 'Data Science', 5, 5, 0, 'Data Science', NULL, NULL, '2025-11-28 07:22:57');
+(3, 4, 'Web Development', 1, 5, 0, 'Web Development', NULL, NULL, '2025-11-30 16:51:13');
 
 -- --------------------------------------------------------
 
@@ -736,6 +830,18 @@ CREATE TABLE `mentor_activity_logs` (
   `student_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `mentor_activity_logs`
+--
+
+INSERT INTO `mentor_activity_logs` (`id`, `mentor_id`, `activity_type`, `description`, `student_id`, `created_at`) VALUES
+(1, 1, 'session_scheduled', 'Scheduled session with vivek chavda for Nov 28, 2025 8:17 PM', 2, '2025-11-28 14:48:03'),
+(2, 1, 'session_scheduled', 'Scheduled session with vivek chavda for Nov 28, 2025 8:17 PM', 2, '2025-11-28 14:50:42'),
+(3, 1, 'session_scheduled', 'Scheduled session with vivek chavda for Nov 28, 2025 8:21 PM', 2, '2025-11-28 14:51:11'),
+(4, 1, 'session_scheduled', 'Scheduled session with vivek chavda for Nov 28, 2025 8:21 PM', 2, '2025-11-28 14:54:09'),
+(5, 1, 'session_scheduled', 'Scheduled session with vivek chavda for Nov 28, 2025 8:21 PM', 2, '2025-11-28 14:56:37'),
+(6, 1, 'session_scheduled', 'Scheduled session with vivek chavda for Nov 30, 2025 9:27 PM', 2, '2025-11-28 15:57:26');
 
 -- --------------------------------------------------------
 
@@ -810,6 +916,25 @@ CREATE TABLE `mentor_project_access` (
   `granted_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `mentor_project_access`
+--
+
+INSERT INTO `mentor_project_access` (`id`, `mentor_id`, `student_id`, `project_id`, `granted_at`) VALUES
+(1, 1, 2, 1, '2025-11-30 16:44:21'),
+(2, 1, 2, 2, '2025-11-30 16:44:21'),
+(3, 1, 2, 3, '2025-11-30 16:44:21'),
+(4, 1, 2, 4, '2025-11-30 16:44:21'),
+(5, 1, 2, 5, '2025-11-30 16:44:21'),
+(6, 1, 2, 6, '2025-11-30 16:44:21'),
+(7, 1, 2, 7, '2025-11-30 16:44:21'),
+(8, 1, 2, 8, '2025-11-30 16:44:21'),
+(9, 1, 2, 9, '2025-11-30 16:44:21'),
+(10, 1, 2, 10, '2025-11-30 16:44:21'),
+(11, 1, 2, 11, '2025-11-30 16:44:21'),
+(12, 1, 2, 12, '2025-11-30 16:44:21'),
+(16, 4, 2, 6, '2025-11-30 16:55:55');
+
 -- --------------------------------------------------------
 
 --
@@ -826,6 +951,15 @@ CREATE TABLE `mentor_requests` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `mentor_requests`
+--
+
+INSERT INTO `mentor_requests` (`id`, `student_id`, `mentor_id`, `project_id`, `message`, `status`, `created_at`, `updated_at`) VALUES
+(1, 2, 1, NULL, 'Test mentor request - This is a sample request to verify the system is working', 'pending', '2025-11-28 16:07:45', '2025-11-28 16:07:45'),
+(2, 2, 1, NULL, 'Test request', 'accepted', '2025-11-28 16:11:39', '2025-11-30 16:44:21'),
+(3, 2, 4, 6, 'thakjkn dkn dsn', 'accepted', '2025-11-30 16:55:22', '2025-11-30 16:55:55');
 
 -- --------------------------------------------------------
 
@@ -846,6 +980,15 @@ CREATE TABLE `mentor_student_pairs` (
   `welcome_sent` tinyint(1) DEFAULT 0,
   `last_progress_email` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `mentor_student_pairs`
+--
+
+INSERT INTO `mentor_student_pairs` (`id`, `mentor_id`, `student_id`, `project_id`, `status`, `paired_at`, `completed_at`, `rating`, `feedback`, `welcome_sent`, `last_progress_email`) VALUES
+(1, 1, 2, NULL, 'completed', '2025-11-28 10:02:00', '2025-11-28 10:02:13', 5, 'good', 0, NULL),
+(2, 1, 2, NULL, 'active', '2025-11-28 10:02:25', NULL, NULL, NULL, 0, NULL),
+(3, 1, 3, NULL, 'active', '2025-11-30 16:44:43', NULL, NULL, NULL, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -988,23 +1131,23 @@ CREATE TABLE `projects` (
   `title` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `project_comments`
+-- Dumping data for table `projects`
 --
 
-CREATE TABLE `project_comments` (
-  `id` int(11) NOT NULL,
-  `project_id` int(5) NOT NULL,
-  `user_id` varchar(255) NOT NULL,
-  `user_name` varchar(100) NOT NULL,
-  `comment_text` text NOT NULL,
-  `parent_comment_id` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `is_deleted` tinyint(1) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO `projects` (`id`, `user_id`, `project_name`, `project_type`, `classification`, `project_category`, `difficulty_level`, `development_time`, `team_size`, `target_audience`, `project_goals`, `challenges_faced`, `future_enhancements`, `github_repo`, `live_demo_url`, `project_license`, `keywords`, `contact_email`, `social_links`, `description`, `language`, `image_path`, `video_path`, `code_file_path`, `instruction_file_path`, `presentation_file_path`, `additional_files_path`, `submission_date`, `status`, `title`) VALUES
+(1, 2, 'Smart Learning Management System', 'software', 'web', 'education', 'advanced', '3-6 months', '3', 'Educational institutions, teachers, students, and academic administrators', 'Create an intuitive and scalable learning platform that enhances the educational experience through technology. Improve student engagement, streamline administrative tasks, and provide comprehensive analytics for better decision-making.', 'Implementing real-time collaboration features, ensuring scalability for large user bases, creating an intuitive user interface that works for all age groups, and integrating with existing educational systems.', 'AI-powered personalized learning recommendations, mobile application development, integration with popular video conferencing tools, advanced plagiarism detection, and blockchain-based certificate verification.', 'https://github.com/viveksinhchavda/smart-lms', 'https://smart-lms-demo.herokuapp.com', 'MIT', 'education, learning management, web application, PHP, MySQL, student tracking', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda, https://twitter.com/vivekchavda', 'A comprehensive web-based learning management system designed for educational institutions. Features include course management, student progress tracking, interactive assignments, real-time collaboration tools, and advanced analytics for educators. The system supports multiple learning formats including video lectures, interactive quizzes, and peer-to-peer discussions.', 'PHP, JavaScript, MySQL, HTML5, CSS3, Bootstrap', NULL, NULL, NULL, NULL, NULL, NULL, '2025-10-31 04:52:14', 'approved', NULL),
+(2, 2, 'IoT-Based Smart Classroom System', 'hardware', 'iot', 'education', 'expert', '6+ months', '5', 'Educational institutions, facility managers, teachers, and students', 'Enhance the learning environment through automated systems, reduce energy consumption, improve attendance tracking accuracy, and provide data-driven insights for classroom management.', 'Integrating multiple sensor types, ensuring reliable wireless communication, developing a user-friendly dashboard, managing power consumption, and ensuring system security and privacy.', 'Integration with facial recognition for attendance, AI-powered predictive maintenance, mobile app for remote monitoring, integration with existing school management systems, and expansion to multiple classrooms.', 'https://github.com/viveksinhchavda/iot-smart-classroom', 'https://smart-classroom-dashboard.netlify.app', 'Apache-2.0', 'IoT, smart classroom, Arduino, sensors, automation, education technology', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda', 'An innovative IoT-based smart classroom system that automates environmental controls, monitors student attendance using RFID technology, and provides real-time data analytics for classroom optimization. The system includes sensors for temperature, humidity, air quality, and noise levels, with automated responses to maintain optimal learning conditions.', 'Arduino C++, Python, Node.js, React, MongoDB', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-21 04:52:14', 'approved', NULL),
+(3, 2, 'AI-Powered Student Performance Predictor', 'software', 'ai_ml', 'education', 'expert', '2-3 months', '2', 'Educational institutions, academic counselors, teachers, and students', 'Identify at-risk students early, provide personalized learning recommendations, improve overall academic performance, and assist educators in making data-driven decisions.', 'Handling sensitive student data with privacy concerns, ensuring model accuracy across diverse student populations, dealing with incomplete or biased data, and creating interpretable AI recommendations.', 'Real-time performance monitoring, integration with learning management systems, mobile application for students and parents, advanced visualization dashboards, and multi-language support.', 'https://github.com/viveksinhchavda/ai-student-predictor', 'https://student-predictor-ai.herokuapp.com', 'MIT', 'artificial intelligence, machine learning, education, student performance, predictive analytics', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda, https://github.com/viveksinhchavda', 'A machine learning application that analyzes student performance data to predict academic outcomes and identify students at risk of falling behind. The system uses various algorithms including regression analysis, decision trees, and neural networks to provide accurate predictions and personalized recommendations for improvement.', 'Python, TensorFlow, Scikit-learn, Pandas, Flask, PostgreSQL', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-07 04:52:14', 'rejected', NULL),
+(4, 2, 'Virtual Reality Chemistry Lab', 'software', 'game', 'education', 'advanced', '3-6 months', '4', 'High school and college students, chemistry teachers, and educational institutions', 'Provide safe and accessible chemistry education, reduce laboratory costs, enhance student engagement through immersive experiences, and enable remote learning capabilities.', 'Creating realistic physics simulations for chemical reactions, optimizing VR performance for smooth user experience, designing intuitive VR interactions, and ensuring educational accuracy of all experiments.', 'Support for more VR headsets, multiplayer collaborative experiments, AI-powered virtual teaching assistant, integration with curriculum standards, and assessment tools for teachers.', 'https://github.com/viveksinhchavda/vr-chemistry-lab', 'https://vr-chem-lab-demo.com', 'GPL-3.0', 'virtual reality, chemistry, education, Unity3D, VR learning, simulation', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda', 'An immersive virtual reality application that allows students to conduct chemistry experiments in a safe, virtual environment. The VR lab includes realistic 3D models of laboratory equipment, accurate chemical reactions, and interactive tutorials. Students can practice dangerous or expensive experiments without real-world risks.', 'Unity3D, C#, Blender, Oculus SDK, SteamVR', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-22 04:52:14', 'approved', NULL),
+(5, 2, 'Blockchain-Based Digital Certificate System', 'software', 'web', 'education', 'expert', '6+ months', '3', 'Educational institutions, employers, certification bodies, and students', 'Eliminate certificate fraud, provide instant verification, reduce administrative overhead, create a global standard for digital credentials, and enhance trust in educational qualifications.', 'Understanding blockchain technology complexities, managing gas fees for transactions, ensuring user-friendly interface for non-technical users, and integrating with existing educational systems.', 'Integration with major job portals, mobile application development, support for multiple blockchain networks, AI-powered skill verification, and international standards compliance.', 'https://github.com/viveksinhchavda/blockchain-certificates', 'https://blockchain-certs.netlify.app', 'MIT', 'blockchain, digital certificates, smart contracts, education, verification, Ethereum', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda, https://twitter.com/vivekchavda', 'A secure blockchain-based system for issuing, verifying, and managing digital certificates and credentials. The platform ensures tamper-proof certificates, instant verification, and eliminates the need for manual verification processes. Built with smart contracts for automated certificate issuance and verification.', 'Solidity, Web3.js, React, Node.js, Ethereum, IPFS', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-15 04:52:14', 'approved', NULL),
+(6, 2, 'Automated Attendance System with Face Recognition', 'software', 'ai_ml', 'education', 'intermediate', '2-3 months', '2', 'Schools, colleges, corporate training centers, and educational administrators', 'Automate attendance tracking, reduce manual errors, save time for educators, provide accurate attendance analytics, and improve overall administrative efficiency.', 'Ensuring accuracy in different lighting conditions, handling privacy concerns, preventing spoofing attacks, optimizing for real-time processing, and managing large datasets of student faces.', 'Mobile app integration, cloud-based deployment, integration with learning management systems, advanced analytics dashboard, and support for mask detection.', 'https://github.com/viveksinhchavda/face-recognition-attendance', 'https://face-attendance-demo.herokuapp.com', 'BSD-3-Clause', 'face recognition, attendance system, computer vision, automation, education management', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda', 'An intelligent attendance management system using computer vision and facial recognition technology. The system automatically marks attendance when students enter the classroom, generates detailed reports, and integrates with existing student management systems. Features include real-time monitoring, anti-spoofing measures, and privacy protection.', 'Python, OpenCV, TensorFlow, Flask, SQLite, HTML/CSS/JavaScript', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-09 04:52:14', 'approved', NULL),
+(7, 2, 'Smart Learning Management System', 'software', 'web', 'education', 'advanced', '3-6 months', '3', 'Educational institutions, teachers, students, and academic administrators', 'Create an intuitive and scalable learning platform that enhances the educational experience through technology. Improve student engagement, streamline administrative tasks, and provide comprehensive analytics for better decision-making.', 'Implementing real-time collaboration features, ensuring scalability for large user bases, creating an intuitive user interface that works for all age groups, and integrating with existing educational systems.', 'AI-powered personalized learning recommendations, mobile application development, integration with popular video conferencing tools, advanced plagiarism detection, and blockchain-based certificate verification.', 'https://github.com/viveksinhchavda/smart-lms', 'https://smart-lms-demo.herokuapp.com', 'MIT', 'education, learning management, web application, PHP, MySQL, student tracking', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda, https://twitter.com/vivekchavda', 'A comprehensive web-based learning management system designed for educational institutions. Features include course management, student progress tracking, interactive assignments, real-time collaboration tools, and advanced analytics for educators. The system supports multiple learning formats including video lectures, interactive quizzes, and peer-to-peer discussions.', 'PHP, JavaScript, MySQL, HTML5, CSS3, Bootstrap', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-23 09:42:52', 'approved', NULL),
+(8, 2, 'IoT-Based Smart Classroom System', 'hardware', 'iot', 'education', 'expert', '6+ months', '5', 'Educational institutions, facility managers, teachers, and students', 'Enhance the learning environment through automated systems, reduce energy consumption, improve attendance tracking accuracy, and provide data-driven insights for classroom management.', 'Integrating multiple sensor types, ensuring reliable wireless communication, developing a user-friendly dashboard, managing power consumption, and ensuring system security and privacy.', 'Integration with facial recognition for attendance, AI-powered predictive maintenance, mobile app for remote monitoring, integration with existing school management systems, and expansion to multiple classrooms.', 'https://github.com/viveksinhchavda/iot-smart-classroom', 'https://smart-classroom-dashboard.netlify.app', 'Apache-2.0', 'IoT, smart classroom, Arduino, sensors, automation, education technology', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda', 'An innovative IoT-based smart classroom system that automates environmental controls, monitors student attendance using RFID technology, and provides real-time data analytics for classroom optimization. The system includes sensors for temperature, humidity, air quality, and noise levels, with automated responses to maintain optimal learning conditions.', 'Arduino C++, Python, Node.js, React, MongoDB', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-16 09:42:52', 'approved', NULL),
+(9, 2, 'AI-Powered Student Performance Predictor', 'software', 'ai_ml', 'education', 'expert', '2-3 months', '2', 'Educational institutions, academic counselors, teachers, and students', 'Identify at-risk students early, provide personalized learning recommendations, improve overall academic performance, and assist educators in making data-driven decisions.', 'Handling sensitive student data with privacy concerns, ensuring model accuracy across diverse student populations, dealing with incomplete or biased data, and creating interpretable AI recommendations.', 'Real-time performance monitoring, integration with learning management systems, mobile application for students and parents, advanced visualization dashboards, and multi-language support.', 'https://github.com/viveksinhchavda/ai-student-predictor', 'https://student-predictor-ai.herokuapp.com', 'MIT', 'artificial intelligence, machine learning, education, student performance, predictive analytics', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda, https://github.com/viveksinhchavda', 'A machine learning application that analyzes student performance data to predict academic outcomes and identify students at risk of falling behind. The system uses various algorithms including regression analysis, decision trees, and neural networks to provide accurate predictions and personalized recommendations for improvement.', 'Python, TensorFlow, Scikit-learn, Pandas, Flask, PostgreSQL', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-25 09:42:52', 'rejected', NULL),
+(10, 2, 'Virtual Reality Chemistry Lab', 'software', 'game', 'education', 'advanced', '3-6 months', '4', 'High school and college students, chemistry teachers, and educational institutions', 'Provide safe and accessible chemistry education, reduce laboratory costs, enhance student engagement through immersive experiences, and enable remote learning capabilities.', 'Creating realistic physics simulations for chemical reactions, optimizing VR performance for smooth user experience, designing intuitive VR interactions, and ensuring educational accuracy of all experiments.', 'Support for more VR headsets, multiplayer collaborative experiments, AI-powered virtual teaching assistant, integration with curriculum standards, and assessment tools for teachers.', 'https://github.com/viveksinhchavda/vr-chemistry-lab', 'https://vr-chem-lab-demo.com', 'GPL-3.0', 'virtual reality, chemistry, education, Unity3D, VR learning, simulation', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda', 'An immersive virtual reality application that allows students to conduct chemistry experiments in a safe, virtual environment. The VR lab includes realistic 3D models of laboratory equipment, accurate chemical reactions, and interactive tutorials. Students can practice dangerous or expensive experiments without real-world risks.', 'Unity3D, C#, Blender, Oculus SDK, SteamVR', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-10 09:42:52', 'approved', NULL),
+(11, 2, 'Blockchain-Based Digital Certificate System', 'software', 'web', 'education', 'expert', '6+ months', '3', 'Educational institutions, employers, certification bodies, and students', 'Eliminate certificate fraud, provide instant verification, reduce administrative overhead, create a global standard for digital credentials, and enhance trust in educational qualifications.', 'Understanding blockchain technology complexities, managing gas fees for transactions, ensuring user-friendly interface for non-technical users, and integrating with existing educational systems.', 'Integration with major job portals, mobile application development, support for multiple blockchain networks, AI-powered skill verification, and international standards compliance.', 'https://github.com/viveksinhchavda/blockchain-certificates', 'https://blockchain-certs.netlify.app', 'MIT', 'blockchain, digital certificates, smart contracts, education, verification, Ethereum', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda, https://twitter.com/vivekchavda', 'A secure blockchain-based system for issuing, verifying, and managing digital certificates and credentials. The platform ensures tamper-proof certificates, instant verification, and eliminates the need for manual verification processes. Built with smart contracts for automated certificate issuance and verification.', 'Solidity, Web3.js, React, Node.js, Ethereum, IPFS', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-03 09:42:52', 'approved', NULL),
+(12, 2, 'Automated Attendance System with Face Recognition', 'software', 'ai_ml', 'education', 'intermediate', '2-3 months', '2', 'Schools, colleges, corporate training centers, and educational administrators', 'Automate attendance tracking, reduce manual errors, save time for educators, provide accurate attendance analytics, and improve overall administrative efficiency.', 'Ensuring accuracy in different lighting conditions, handling privacy concerns, preventing spoofing attacks, optimizing for real-time processing, and managing large datasets of student faces.', 'Mobile app integration, cloud-based deployment, integration with learning management systems, advanced analytics dashboard, and support for mask detection.', 'https://github.com/viveksinhchavda/face-recognition-attendance', 'https://face-attendance-demo.herokuapp.com', 'BSD-3-Clause', 'face recognition, attendance system, computer vision, automation, education management', 'viveksinhchavda@gmail.com', 'https://linkedin.com/in/viveksinhchavda', 'An intelligent attendance management system using computer vision and facial recognition technology. The system automatically marks attendance when students enter the classroom, generates detailed reports, and integrates with existing student management systems. Features include real-time monitoring, anti-spoofing measures, and privacy protection.', 'Python, OpenCV, TensorFlow, Flask, SQLite, HTML/CSS/JavaScript', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-21 09:42:52', 'approved', NULL);
 
 -- --------------------------------------------------------
 
@@ -1018,6 +1161,13 @@ CREATE TABLE `project_likes` (
   `user_id` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `project_likes`
+--
+
+INSERT INTO `project_likes` (`id`, `project_id`, `user_id`, `created_at`) VALUES
+(2, 2, '3', '2025-11-30 15:23:52');
 
 -- --------------------------------------------------------
 
@@ -1073,8 +1223,10 @@ CREATE TABLE `register` (
 --
 
 INSERT INTO `register` (`id`, `name`, `email`, `enrollment_number`, `gr_number`, `password`, `about`, `phone_no`, `department`, `passout_year`, `user_image`, `google_id`, `email_notifications`, `last_notification_sent`, `github_token`, `role`, `expertise`, `mentor_rating`, `is_available`, `github_username`, `github_profile_url`, `github_repos_count`, `github_last_sync`) VALUES
-(1, 'vivek chavda', 'vivek.chavda119486@marwadiuniversity.ac.in', 'MEN618', 'MEN618', '$2y$10$JS6Xyh6YDx0onCrmU9u7/egT1zNHSPMpiwwKRoQgBiiRhIAHsm72G', 'Data Science', NULL, 'Mentor', '2024', '', NULL, 1, NULL, NULL, 'mentor', 'Data Science', 0.00, 1, NULL, NULL, 0, NULL),
-(2, 'vivek chavda', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$gyy21yBLGu0T2fHLitVwmOb5sK1HxmaGNw6KZTZ4RASzz89YQK60a', 'New student at IdeaNest', NULL, 'ict', '2026', '', NULL, 1, NULL, NULL, 'student', NULL, 0.00, 1, NULL, NULL, 0, NULL);
+(1, 'vivek chavda', 'vivek.chavda119486@marwadiuniversity.ac.in', 'MEN618', 'MEN618', '$2y$10$JS6Xyh6YDx0onCrmU9u7/egT1zNHSPMpiwwKRoQgBiiRhIAHsm72G', 'Data Science', NULL, 'Mentor', '2024', '', NULL, 1, NULL, NULL, 'student', 'Data Science', 0.00, 1, NULL, NULL, 0, NULL),
+(2, 'vivek chavda', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$gyy21yBLGu0T2fHLitVwmOb5sK1HxmaGNw6KZTZ4RASzz89YQK60a', 'New student at IdeaNest', NULL, 'ict', '2026', '', NULL, 1, NULL, NULL, 'student', NULL, 0.00, 1, NULL, NULL, 0, NULL),
+(3, 'Bhavik kaldiya', 'vivek@gmail.com', '92200133025', '119485', '$2y$10$9i9v37qQ7QswVsheS3EyDuqWJCaxtCge0MLwtti2m6Dx3K053YP1S', 'New student at IdeaNest', NULL, 'ict', '2026', '', NULL, 1, NULL, NULL, 'student', NULL, 0.00, 1, NULL, NULL, 0, NULL),
+(4, 'vivek chavda', 'vivekcchavda@gmail.com', 'MEN108', 'MEN108', '$2y$10$mJVRU09ZmDw6XPLXl8aiQOF/xlMckK785wgtaQiYR4zLpjnWBKfty', 'Web Development', NULL, 'Mentor', '2024', '', NULL, 1, NULL, NULL, 'mentor', 'Web Development', 0.00, 1, NULL, NULL, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -1139,7 +1291,8 @@ CREATE TABLE `subadmins` (
 --
 
 INSERT INTO `subadmins` (`id`, `email`, `password`, `first_name`, `last_name`, `phone`, `department`, `position`, `specialization`, `domains`, `experience_years`, `bio`, `avatar`, `status`, `email_verified`, `last_login`, `created_at`, `updated_at`) VALUES
-(4, 'chavdaviveksinh1374@gmail.com', '$2y$10$S4ao6auDmlziKiwnNDxj6.9OZWHyapZEANmlj5QmN8EjmNluyn3tu', 'vivek', 'chavda', '9104231590', 'ICT', 'Faculty', 'Web', 'Web Application,System Software', 0, 'I Am vivek chavda', NULL, 'active', 0, NULL, '2025-11-28 07:11:44', '2025-11-28 07:16:00');
+(4, 'chavdaviveksinh1374@gmail.com', '$2y$10$S4ao6auDmlziKiwnNDxj6.9OZWHyapZEANmlj5QmN8EjmNluyn3tu', 'vivek', 'chavda', '9104231590', 'ICT', 'Faculty', 'Web', 'Web Application', 0, 'I Am vivek chavda', NULL, 'active', 0, NULL, '2025-11-28 07:11:44', '2025-11-30 16:43:46'),
+(5, 'viveksinhchavda639@gmail.com', '$2y$10$MNvGNGjm5a2OhXV7R88hHOD41y8T1fkDdQqP0wjx9Qo8VXy19jtOG', 'vivek', 'vivek', '1234567890', 'ict', 'Faculty', 'Web', 'AI & Machine Learning', 1, 'thank', NULL, 'active', 0, NULL, '2025-11-30 16:57:53', '2025-11-30 16:59:15');
 
 -- --------------------------------------------------------
 
@@ -1268,7 +1421,9 @@ CREATE TABLE `temp_credentials` (
 
 INSERT INTO `temp_credentials` (`id`, `user_type`, `user_id`, `email`, `plain_password`, `email_sent`, `email_sent_at`, `email_attempts`, `last_attempt_at`, `error_message`, `created_at`, `expires_at`) VALUES
 (1, 'subadmin', 4, 'chavdaviveksinh1374@gmail.com', '9be50ef6', 1, '2025-11-28 07:11:51', 2, '2025-11-28 07:11:51', NULL, '2025-11-28 07:11:44', '2025-12-05 07:11:44'),
-(2, 'mentor', 1, 'vivek.chavda119486@marwadiuniversity.ac.in', 'f6d76951', 1, '2025-11-28 07:23:04', 2, '2025-11-28 07:23:04', NULL, '2025-11-28 07:22:57', '2025-12-05 07:22:57');
+(2, 'mentor', 1, 'vivek.chavda119486@marwadiuniversity.ac.in', 'f6d76951', 1, '2025-11-28 07:23:04', 2, '2025-11-28 07:23:04', NULL, '2025-11-28 07:22:57', '2025-12-05 07:22:57'),
+(3, 'mentor', 4, 'vivekcchavda@gmail.com', '8b2aae00', 1, '2025-11-30 16:51:19', 2, '2025-11-30 16:51:19', NULL, '2025-11-30 16:51:13', '2025-12-07 16:51:13'),
+(4, 'subadmin', 5, 'viveksinhchavda639@gmail.com', '22365aeb', 1, '2025-11-30 16:58:00', 2, '2025-11-30 16:58:00', NULL, '2025-11-30 16:57:53', '2025-12-07 16:57:53');
 
 -- --------------------------------------------------------
 
@@ -1353,6 +1508,19 @@ CREATE TABLE `user_notifications` (
   `color` varchar(20) DEFAULT 'primary' COMMENT 'Badge color'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `user_notifications`
+--
+
+INSERT INTO `user_notifications` (`id`, `user_id`, `notification_type`, `title`, `message`, `related_id`, `related_type`, `is_read`, `read_at`, `created_at`, `action_url`, `icon`, `color`) VALUES
+(1, 2, 'project_approved', '🎉 Project Approved!', 'Congratulations! Your project \'Automated Attendance System with Face Recognition\' has been approved and is now live on IdeaNest.', 12, 'project', 0, NULL, '2025-11-28 13:43:40', '/user/my_projects.php', 'bi-check-circle-fill', 'success'),
+(2, 2, 'session_scheduled', 'New Session Scheduled', 'Your mentor has scheduled a session for Nov 28, 2025 8:17 PM', 2, 'session', 0, NULL, '2025-11-28 14:50:42', '/user/sessions.php', 'bi-calendar-check', 'success'),
+(3, 2, 'session_scheduled', 'New Session Scheduled', 'Your mentor has scheduled a session for Nov 28, 2025 8:21 PM', 3, 'session', 0, NULL, '2025-11-28 14:51:11', '/user/sessions.php', 'bi-calendar-check', 'success'),
+(4, 2, 'session_scheduled', 'New Session Scheduled', 'Your mentor has scheduled a session for Nov 28, 2025 8:21 PM', 4, 'session', 0, NULL, '2025-11-28 14:54:09', '/user/sessions.php', 'bi-calendar-check', 'success'),
+(5, 2, 'session_scheduled', 'New Session Scheduled', 'Your mentor has scheduled a session for Nov 28, 2025 8:21 PM', 5, 'session', 0, NULL, '2025-11-28 14:56:37', '/user/sessions.php', 'bi-calendar-check', 'success'),
+(6, 2, 'session_scheduled', 'New Session Scheduled', 'Your mentor has scheduled a session for Nov 30, 2025 9:27 PM', 6, 'session', 0, NULL, '2025-11-28 15:57:26', '/user/sessions.php', 'bi-calendar-check', 'success'),
+(7, 4, 'mentor_request', 'New Mentorship Request', 'You have received a new mentorship request from a student.', 3, 'mentor_request', 0, NULL, '2025-11-30 16:55:22', '/mentor/student_requests.php', 'bi-person-plus', 'info');
+
 -- --------------------------------------------------------
 
 --
@@ -1425,15 +1593,6 @@ ALTER TABLE `blog`
 ALTER TABLE `bookmark`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unique_bookmark` (`project_id`,`user_id`);
-
---
--- Indexes for table `comment_likes`
---
-ALTER TABLE `comment_likes`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_comment_like` (`comment_id`,`user_id`),
-  ADD KEY `idx_comment_id` (`comment_id`),
-  ADD KEY `idx_user_id` (`user_id`);
 
 --
 -- Indexes for table `deleted_ideas`
@@ -1745,16 +1904,6 @@ ALTER TABLE `projects`
   ADD KEY `idx_projects_user_status` (`user_id`,`status`);
 
 --
--- Indexes for table `project_comments`
---
-ALTER TABLE `project_comments`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_project_id` (`project_id`),
-  ADD KEY `idx_user_id` (`user_id`),
-  ADD KEY `idx_parent_comment` (`parent_comment_id`),
-  ADD KEY `idx_created_at` (`created_at`);
-
---
 -- Indexes for table `project_likes`
 --
 ALTER TABLE `project_likes`
@@ -1910,13 +2059,13 @@ ALTER TABLE `user_notifications`
 -- AUTO_INCREMENT for table `admin_approved_projects`
 --
 ALTER TABLE `admin_approved_projects`
-  MODIFY `id` int(5) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `admin_logs`
 --
 ALTER TABLE `admin_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `admin_settings`
@@ -1928,19 +2077,13 @@ ALTER TABLE `admin_settings`
 -- AUTO_INCREMENT for table `blog`
 --
 ALTER TABLE `blog`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `bookmark`
 --
 ALTER TABLE `bookmark`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `comment_likes`
---
-ALTER TABLE `comment_likes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `deleted_ideas`
@@ -1952,13 +2095,13 @@ ALTER TABLE `deleted_ideas`
 -- AUTO_INCREMENT for table `denial_projects`
 --
 ALTER TABLE `denial_projects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `email_logs`
 --
 ALTER TABLE `email_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `idea_activity_log`
@@ -1970,7 +2113,7 @@ ALTER TABLE `idea_activity_log`
 -- AUTO_INCREMENT for table `idea_bookmarks`
 --
 ALTER TABLE `idea_bookmarks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `idea_collaborations`
@@ -1982,25 +2125,25 @@ ALTER TABLE `idea_collaborations`
 -- AUTO_INCREMENT for table `idea_comments`
 --
 ALTER TABLE `idea_comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `idea_followers`
 --
 ALTER TABLE `idea_followers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `idea_likes`
 --
 ALTER TABLE `idea_likes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `idea_ratings`
 --
 ALTER TABLE `idea_ratings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `idea_reports`
@@ -2012,13 +2155,13 @@ ALTER TABLE `idea_reports`
 -- AUTO_INCREMENT for table `idea_shares`
 --
 ALTER TABLE `idea_shares`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `idea_tags`
 --
 ALTER TABLE `idea_tags`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `idea_tag_relations`
@@ -2030,7 +2173,7 @@ ALTER TABLE `idea_tag_relations`
 -- AUTO_INCREMENT for table `idea_views`
 --
 ALTER TABLE `idea_views`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=233;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=235;
 
 --
 -- AUTO_INCREMENT for table `idea_warnings`
@@ -2048,19 +2191,19 @@ ALTER TABLE `login`
 -- AUTO_INCREMENT for table `mentoring_sessions`
 --
 ALTER TABLE `mentoring_sessions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `mentors`
 --
 ALTER TABLE `mentors`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `mentor_activity_logs`
 --
 ALTER TABLE `mentor_activity_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `mentor_email_logs`
@@ -2084,19 +2227,19 @@ ALTER TABLE `mentor_email_stats`
 -- AUTO_INCREMENT for table `mentor_project_access`
 --
 ALTER TABLE `mentor_project_access`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `mentor_requests`
 --
 ALTER TABLE `mentor_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `mentor_student_pairs`
 --
 ALTER TABLE `mentor_student_pairs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `notifications`
@@ -2138,19 +2281,13 @@ ALTER TABLE `progress_notes`
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` int(5) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `project_comments`
---
-ALTER TABLE `project_comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `project_likes`
 --
 ALTER TABLE `project_likes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `realtime_notifications`
@@ -2162,7 +2299,7 @@ ALTER TABLE `realtime_notifications`
 -- AUTO_INCREMENT for table `register`
 --
 ALTER TABLE `register`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `removed_user`
@@ -2180,7 +2317,7 @@ ALTER TABLE `student_email_preferences`
 -- AUTO_INCREMENT for table `subadmins`
 --
 ALTER TABLE `subadmins`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `subadmin_activities`
@@ -2222,7 +2359,7 @@ ALTER TABLE `support_ticket_replies`
 -- AUTO_INCREMENT for table `temp_credentials`
 --
 ALTER TABLE `temp_credentials`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -2240,7 +2377,7 @@ ALTER TABLE `user_activity_log`
 -- AUTO_INCREMENT for table `user_notifications`
 --
 ALTER TABLE `user_notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
@@ -2257,12 +2394,6 @@ ALTER TABLE `blog`
 --
 ALTER TABLE `bookmark`
   ADD CONSTRAINT `bookmark_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `admin_approved_projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `comment_likes`
---
-ALTER TABLE `comment_likes`
-  ADD CONSTRAINT `comment_likes_ibfk_1` FOREIGN KEY (`comment_id`) REFERENCES `project_comments` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `idea_activity_log`
@@ -2397,12 +2528,6 @@ ALTER TABLE `mentor_student_pairs`
   ADD CONSTRAINT `mentor_student_pairs_ibfk_1` FOREIGN KEY (`mentor_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `mentor_student_pairs_ibfk_2` FOREIGN KEY (`student_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `mentor_student_pairs_ibfk_3` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL;
-
---
--- Constraints for table `project_comments`
---
-ALTER TABLE `project_comments`
-  ADD CONSTRAINT `project_comments_ibfk_1` FOREIGN KEY (`parent_comment_id`) REFERENCES `project_comments` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `student_email_preferences`
