@@ -137,7 +137,30 @@ if ($result->num_rows === 0) {
 $project = $result->fetch_assoc();
 $stmt->close();
 
+// Check if current user is following the project creator
+$is_following = false;
+$follow_counts = ['followers' => 0, 'following' => 0];
+if ($user_id && $user_id != $project['user_id']) {
+    $follow_check_sql = "SELECT EXISTS(SELECT 1 FROM user_follows WHERE follower_id = ? AND following_id = ?) as is_following";
+    $follow_check_stmt = $conn->prepare($follow_check_sql);
+    $follow_check_stmt->bind_param("ii", $user_id, $project['user_id']);
+    $follow_check_stmt->execute();
+    $follow_check_result = $follow_check_stmt->get_result();
+    $follow_check_row = $follow_check_result->fetch_assoc();
+    $is_following = (bool)$follow_check_row['is_following'];
+    $follow_check_stmt->close();
+}
 
+// Get follower/following counts for the project creator
+$follow_stats_sql = "SELECT COALESCE(followers_count, 0) as followers, COALESCE(following_count, 0) as following FROM user_follow_stats WHERE user_id = ?";
+$follow_stats_stmt = $conn->prepare($follow_stats_sql);
+$follow_stats_stmt->bind_param("i", $project['user_id']);
+$follow_stats_stmt->execute();
+$follow_stats_result = $follow_stats_stmt->get_result();
+if ($follow_stats_row = $follow_stats_result->fetch_assoc()) {
+    $follow_counts = $follow_stats_row;
+}
+$follow_stats_stmt->close();
 
 // Get comprehensive user statistics
 $user_stats_sql = "SELECT 
@@ -1174,6 +1197,29 @@ function getFileIcon($filePath) {
                     <div class="user-name"><?php echo htmlspecialchars($project['user_name']); ?></div>
                     <div class="user-department"><?php echo htmlspecialchars($project['user_department']); ?></div>
 
+                    <!-- Follow Stats -->
+                    <div class="follow-stats" style="display: flex; gap: 1.5rem; justify-content: center; margin: 1rem 0; padding: 1rem; background: var(--bg-tertiary); border-radius: 1rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);" class="follower-count"><?php echo $follow_counts['followers']; ?></div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary);">Followers</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);"><?php echo $follow_counts['following']; ?></div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary);">Following</div>
+                        </div>
+                    </div>
+
+                    <!-- Follow Button -->
+                    <?php if ($user_id && $user_id != $project['user_id']): ?>
+                        <button class="btn-follow <?php echo $is_following ? 'following' : ''; ?>" 
+                                data-user-id="<?php echo $project['user_id']; ?>"
+                                data-action="<?php echo $is_following ? 'unfollow' : 'follow'; ?>"
+                                style="padding: 0.75rem 1.5rem; border: 2px solid var(--primary-color); background: <?php echo $is_following ? 'var(--primary-color)' : 'white'; ?>; color: <?php echo $is_following ? 'white' : 'var(--primary-color)'; ?>; border-radius: 2rem; cursor: pointer; transition: all 0.3s ease; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1rem; width: 100%; justify-content: center;">
+                            <i class="fas fa-user-<?php echo $is_following ? 'check' : 'plus'; ?>"></i>
+                            <span class="follow-text"><?php echo $is_following ? 'Following' : 'Follow'; ?></span>
+                        </button>
+                    <?php endif; ?>
+
                     <div class="user-stats">
                         <div class="stat-item">
                             <div class="stat-number"><?php echo $user_stats['total_projects']; ?></div>
@@ -1387,5 +1433,146 @@ function getFileIcon($filePath) {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Follow/Unfollow functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const followBtn = document.querySelector('.btn-follow');
+            
+            if (followBtn) {
+                followBtn.addEventListener('click', function() {
+                    const userId = this.dataset.userId;
+                    const action = this.dataset.action;
+                    const btn = this;
+                    
+                    // Disable button during request
+                    btn.disabled = true;
+                    
+                    fetch('ajax/follow_handler.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `action=${action}&user_id=${userId}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Toggle button state
+                            if (action === 'follow') {
+                                btn.dataset.action = 'unfollow';
+                                btn.classList.add('following');
+                                btn.style.background = 'var(--primary-color)';
+                                btn.style.color = 'white';
+                                btn.innerHTML = '<i class="fas fa-user-check"></i> <span class="follow-text">Following</span>';
+                                
+                                // Update follower count
+                                const followerCount = document.querySelector('.follower-count');
+                                if (followerCount) {
+                                    let count = parseInt(followerCount.textContent);
+                                    followerCount.textContent = count + 1;
+                                }
+                            } else {
+                                btn.dataset.action = 'follow';
+                                btn.classList.remove('following');
+                                btn.style.background = 'white';
+                                btn.style.color = 'var(--primary-color)';
+                                btn.innerHTML = '<i class="fas fa-user-plus"></i> <span class="follow-text">Follow</span>';
+                                
+                                // Update follower count
+                                const followerCount = document.querySelector('.follower-count');
+                                if (followerCount) {
+                                    let count = parseInt(followerCount.textContent);
+                                    followerCount.textContent = Math.max(0, count - 1);
+                                }
+                            }
+                            
+                            // Show success message
+                            showNotification(data.message, 'success');
+                        } else {
+                            showNotification(data.message, 'error');
+                        }
+                        
+                        btn.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('An error occurred', 'error');
+                        btn.disabled = false;
+                    });
+                });
+                
+                // Add hover effect for following button
+                followBtn.addEventListener('mouseenter', function() {
+                    if (this.classList.contains('following')) {
+                        this.style.background = 'var(--danger-color)';
+                        this.style.borderColor = 'var(--danger-color)';
+                    }
+                });
+                
+                followBtn.addEventListener('mouseleave', function() {
+                    if (this.classList.contains('following')) {
+                        this.style.background = 'var(--primary-color)';
+                        this.style.borderColor = 'var(--primary-color)';
+                    }
+                });
+            }
+        });
+
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                color: white;
+                border-radius: 0.75rem;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                z-index: 9999;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+            .btn-follow:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>
