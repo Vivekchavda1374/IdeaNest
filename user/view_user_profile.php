@@ -1,14 +1,26 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
 require_once __DIR__ . '/../includes/security_init.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require_once '../Login/Login/db.php';
+
+try {
+    require_once '../Login/Login/db.php';
+} catch (Exception $e) {
+    error_log('Database connection error in view_user_profile.php: ' . $e->getMessage());
+    die('Database connection error. Please try again later.');
+}
 
 // Initialize variables
 $user = null;
 $projects = [];
 $ideas = [];
+$followers_list = [];
+$following_list = [];
 $followers_count = 0;
 $following_count = 0;
 $is_following = false;
@@ -17,6 +29,11 @@ $error_message = null;
 $viewed_user_id = null;
 $current_user_id = $_SESSION['user_id'] ?? null;
 $projects_total = 0;
+$followers_page = max(1, intval($_GET['followers_page'] ?? 1));
+$following_page = max(1, intval($_GET['following_page'] ?? 1));
+$follow_per_page = 6;
+$followers_total_pages = 1;
+$following_total_pages = 1;
 
 if (!function_exists('truncate_text')) {
     /**
@@ -28,15 +45,45 @@ if (!function_exists('truncate_text')) {
     }
 }
 
+if (!function_exists('resolve_profile_pic_url')) {
+    function resolve_profile_pic_url($profile_pic) {
+        if (empty($profile_pic)) {
+            return '';
+        }
+        $file = basename($profile_pic);
+        $path = __DIR__ . '/profile_pictures/' . $file;
+        return file_exists($path) ? 'profile_pictures/' . $file : '';
+    }
+}
+
+if (!function_exists('build_profile_query')) {
+    function build_profile_query(array $overrides = []) {
+        $params = $_GET;
+        foreach ($overrides as $key => $value) {
+            $params[$key] = $value;
+        }
+        if (empty($params['user_id']) && !empty($GLOBALS['viewed_user_id'])) {
+            $params['user_id'] = $GLOBALS['viewed_user_id'];
+        }
+        $query = http_build_query($params);
+        return $query ? '?' . $query : '';
+    }
+}
+
 // Determine which user profile to show
 if (!isset($_GET['user_id']) || empty($_GET['user_id'])) {
     if ($current_user_id) {
         $viewed_user_id = intval($current_user_id);
     } else {
-        $error_message = "Invalid user ID";
+        $error_message = "Please log in to view profiles";
+        $viewed_user_id = null;
     }
 } else {
     $viewed_user_id = intval($_GET['user_id']);
+    if ($viewed_user_id <= 0) {
+        $error_message = "Invalid user ID";
+        $viewed_user_id = null;
+    }
 }
 
 if (!$error_message && $viewed_user_id) {
@@ -136,6 +183,74 @@ if (!$error_message && $viewed_user_id) {
                 $following_stmt->close();
             }
 
+            // Followers pagination setup
+            $followers_total_pages = $followers_count > 0 ? (int)ceil($followers_count / $follow_per_page) : 1;
+            if ($followers_page > $followers_total_pages) {
+                $followers_page = $followers_total_pages;
+            }
+            $followers_offset = max(0, ($followers_page - 1) * $follow_per_page);
+
+            // Following pagination setup
+            $following_total_pages = $following_count > 0 ? (int)ceil($following_count / $follow_per_page) : 1;
+            if ($following_page > $following_total_pages) {
+                $following_page = $following_total_pages;
+            }
+            $following_offset = max(0, ($following_page - 1) * $follow_per_page);
+
+            // Fetch followers list
+            if ($followers_count > 0) {
+                $followers_list_query = "
+                    SELECT 
+                        r.id,
+                        r.name,
+                        r.email,
+                        r.department,
+                        r.user_image as profile_pic,
+                        r.about
+                    FROM user_follows uf
+                    INNER JOIN register r ON uf.follower_id = r.id
+                    WHERE uf.following_id = ?
+                    ORDER BY uf.created_at DESC
+                    LIMIT ? OFFSET ?";
+                $followers_list_stmt = $conn->prepare($followers_list_query);
+                if ($followers_list_stmt) {
+                    $followers_list_stmt->bind_param("iii", $viewed_user_id, $follow_per_page, $followers_offset);
+                    $followers_list_stmt->execute();
+                    $followers_result = $followers_list_stmt->get_result();
+                    while ($row = $followers_result->fetch_assoc()) {
+                        $followers_list[] = $row;
+                    }
+                    $followers_list_stmt->close();
+                }
+            }
+
+            // Fetch following list
+            if ($following_count > 0) {
+                $following_list_query = "
+                    SELECT 
+                        r.id,
+                        r.name,
+                        r.email,
+                        r.department,
+                        r.user_image as profile_pic,
+                        r.about
+                    FROM user_follows uf
+                    INNER JOIN register r ON uf.following_id = r.id
+                    WHERE uf.follower_id = ?
+                    ORDER BY uf.created_at DESC
+                    LIMIT ? OFFSET ?";
+                $following_list_stmt = $conn->prepare($following_list_query);
+                if ($following_list_stmt) {
+                    $following_list_stmt->bind_param("iii", $viewed_user_id, $follow_per_page, $following_offset);
+                    $following_list_stmt->execute();
+                    $following_result = $following_list_stmt->get_result();
+                    while ($row = $following_result->fetch_assoc()) {
+                        $following_list[] = $row;
+                    }
+                    $following_list_stmt->close();
+                }
+            }
+
             // Check if current user follows this user
             if ($current_user_id && $current_user_id !== $viewed_user_id) {
                 $follow_check = "SELECT id FROM user_follows WHERE follower_id = ? AND following_id = ?";
@@ -149,21 +264,7 @@ if (!$error_message && $viewed_user_id) {
             }
 
             // Get user's profile picture (stored in user/profile_pictures)
-            $profile_pic = $user['profile_pic'] ?? '';
-            if (!empty($profile_pic)) {
-                // Normalize to just the file name to avoid path issues
-                $profile_pic_file = basename($profile_pic);
-                $profile_pic_path = __DIR__ . '/profile_pictures/' . $profile_pic_file;
-
-                if (file_exists($profile_pic_path)) {
-                    // Browser-accessible relative URL
-                    $profile_pic_url = 'profile_pictures/' . $profile_pic_file;
-                } else {
-                    $profile_pic_url = '../assets/image/default_avatar.png';
-                }
-            } else {
-                $profile_pic_url = '';
-            }
+            $profile_pic_url = resolve_profile_pic_url($user['user_image'] ?? '');
         }
         $stmt->close();
     } else {
@@ -190,9 +291,10 @@ if (!$error_message && $viewed_user_id) {
         }
 
         body {
-            background: #f5f7fa;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             font-family: 'Inter', sans-serif;
             color: #333;
+            min-height: 100vh;
         }
 
         .navbar {
@@ -270,10 +372,26 @@ if (!$error_message && $viewed_user_id) {
         }
 
         .profile-header {
+            background: white;
+            color: #1f2937;
+            padding: 0;
+            margin: 20px auto;
+            max-width: 1200px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .profile-banner {
+            height: 200px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 20px;
-            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .profile-content {
+            padding: 0 40px 40px;
+            margin-top: -80px;
+            position: relative;
         }
 
         .profile-card {
@@ -285,18 +403,39 @@ if (!$error_message && $viewed_user_id) {
         }
 
         .container-main {
-            max-width: 1000px;
-            margin: 0 auto;
+            max-width: 1200px;
+            margin: 20px auto;
             padding: 0 20px;
         }
 
         .profile-pic {
-            width: 150px;
-            height: 150px;
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid white;
-            margin-bottom: 20px;
+            border: 6px solid white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            background: white;
+        }
+
+        .profile-pic-wrapper {
+            display: inline-block;
+            position: relative;
+        }
+
+        .profile-avatar-placeholder {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            font-weight: 700;
+            color: white;
+            border: 6px solid white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
         .user-stats {
@@ -311,40 +450,53 @@ if (!$error_message && $viewed_user_id) {
         }
 
         .stat-number {
-            font-size: 24px;
-            font-weight: bold;
-            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .stat-label {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px;
+            color: #6b7280;
             margin-top: 5px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .follow-btn {
-            background: white;
-            color: #667eea;
-            border: 2px solid white;
-            padding: 10px 30px;
-            border-radius: 6px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 50px;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 15px;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .follow-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
         }
 
         .follow-btn.following {
-            background: rgba(255, 255, 255, 0.3);
-            color: white;
+            background: #10b981;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
         }
 
         .follow-btn.following:hover {
-            background: rgba(255, 255, 255, 0.4);
+            background: #059669;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
         }
 
         .project-card {
@@ -417,14 +569,34 @@ if (!$error_message && $viewed_user_id) {
 
         .info-value {
             font-size: 16px;
-            color: #333;
-            font-weight: 500;
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .info-value a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .info-value a:hover {
+            color: #764ba2;
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px;
-            color: #999;
+            padding: 60px 40px;
+            color: #9ca3af;
+        }
+
+        .empty-state i {
+            color: #d1d5db;
+            margin-bottom: 16px;
+        }
+
+        .empty-state p {
+            font-size: 15px;
+            font-weight: 500;
         }
 
         .content-grid {
@@ -434,11 +606,25 @@ if (!$error_message && $viewed_user_id) {
             margin-bottom: 30px;
         }
 
+        .content-grid + .content-card {
+            margin-top: 40px;
+        }
+
+        .content-card + .content-grid {
+            margin-top: 40px;
+        }
+
         .content-card {
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.08);
-            padding: 24px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
         }
 
         .section-header {
@@ -451,37 +637,57 @@ if (!$error_message && $viewed_user_id) {
 
         .section-header h3 {
             margin: 0;
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 22px;
+            font-weight: 700;
             color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header h3 i {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .pill-link {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 16px;
+            padding: 10px 20px;
             border-radius: 999px;
             font-size: 14px;
-            color: #667eea;
-            background: rgba(102, 126, 234, 0.12);
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .pill-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
         }
 
         .project-pill,
         .idea-card {
-            border: 1px solid rgba(99, 102, 241, 0.12);
-            border-radius: 14px;
-            padding: 18px;
+            border: 2px solid #f3f4f6;
+            border-radius: 16px;
+            padding: 24px;
             margin-bottom: 16px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: all 0.3s ease;
+            background: #fafafa;
         }
 
         .project-pill:hover,
         .idea-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 18px 35px rgba(31, 41, 55, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+            background: white;
         }
 
         .project-pill-header,
@@ -531,6 +737,12 @@ if (!$error_message && $viewed_user_id) {
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .text-link:hover {
+            gap: 10px;
+            color: #764ba2;
         }
 
         .status-badge {
@@ -567,6 +779,118 @@ if (!$error_message && $viewed_user_id) {
             color: #dc2626;
         }
 
+        .follow-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .follow-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            border: 2px solid #f3f4f6;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .follow-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+            transform: translateY(-3px);
+            background: white;
+        }
+
+        .follow-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 700;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .follow-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .follow-info h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .follow-info p {
+            margin: 4px 0 0;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .follow-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pill-button {
+            padding: 10px 20px;
+            border-radius: 999px;
+            border: 2px solid #667eea;
+            font-size: 13px;
+            color: #667eea;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            background: white;
+        }
+
+        .pill-button:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .pagination-controls {
+            margin-top: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-controls a {
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid #d1d5db;
+            text-decoration: none;
+            color: #4b5563;
+            font-weight: 500;
+        }
+
+        .pagination-controls a:hover {
+            background: #f3f4f6;
+        }
+
+        .pagination-controls span {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
         /* Responsive refinements */
         @media (max-width: 992px) {
             .navbar-content {
@@ -598,9 +922,19 @@ if (!$error_message && $viewed_user_id) {
         }
 
         @media (max-width: 768px) {
-            .profile-pic {
+            .profile-pic,
+            .profile-avatar-placeholder {
                 width: 120px;
                 height: 120px;
+            }
+
+            .profile-banner {
+                height: 150px;
+            }
+
+            .profile-content {
+                padding: 0 20px 30px;
+                margin-top: -60px;
             }
 
             .user-stats {
@@ -627,7 +961,7 @@ if (!$error_message && $viewed_user_id) {
             }
 
             .profile-header h1 {
-                font-size: 26px;
+                font-size: 24px !important;
             }
 
             .navbar-brand {
@@ -636,7 +970,73 @@ if (!$error_message && $viewed_user_id) {
 
             .follow-btn {
                 width: 100%;
+                justify-content: center;
             }
+
+            .content-card {
+                padding: 20px;
+            }
+
+            .project-pill,
+            .idea-card {
+                padding: 16px;
+            }
+        }
+
+        /* Smooth animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-header,
+        .content-card {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .content-grid > * {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .content-grid > *:nth-child(1) { animation-delay: 0.1s; }
+        .content-grid > *:nth-child(2) { animation-delay: 0.2s; }
+        .content-grid > *:nth-child(3) { animation-delay: 0.3s; }
+        .content-grid > *:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Loading skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s ease-in-out infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
         }
 </style>
 </head>
@@ -644,7 +1044,9 @@ if (!$error_message && $viewed_user_id) {
     <?php
         // Standard user layout with sidebar/navigation
         $basePath = './';
-        include 'layout.php';
+        if (file_exists(__DIR__ . '/layout.php')) {
+            include 'layout.php';
+        }
     ?>
 
     <div class="main-content">
@@ -660,24 +1062,25 @@ if (!$error_message && $viewed_user_id) {
     <?php elseif ($user): ?>
         <!-- Profile Header -->
         <div class="profile-header">
-            <div class="container-main">
-                <div style="display: flex; gap: 30px; align-items: center; flex-wrap: wrap;">
-                    <div style="text-align: center;">
+            <div class="profile-banner"></div>
+            <div class="profile-content">
+                <div style="display: flex; gap: 30px; align-items: flex-start; flex-wrap: wrap;">
+                    <div class="profile-pic-wrapper">
                         <?php if (!empty($profile_pic_url)): ?>
                             <img src="<?php echo htmlspecialchars($profile_pic_url); ?>" alt="<?php echo htmlspecialchars($user['name']); ?>" class="profile-pic">
                         <?php else: ?>
-                            <div style="width: 150px; height: 150px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: 700; color: white; border: 4px solid white;">
+                            <div class="profile-avatar-placeholder">
                                 <?php echo strtoupper(substr($user['name'] ?? 'U', 0, 1)); ?>
                             </div>
                         <?php endif; ?>
                     </div>
-                    <div style="flex: 1;">
-                        <h1 style="margin-bottom: 10px;"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?></h1>
-                        <p style="font-size: 16px; margin: 10px 0; opacity: 0.9;">
+                    <div style="flex: 1; padding-top: 20px;">
+                        <h1 style="margin-bottom: 8px; font-size: 32px; font-weight: 700; color: #1f2937;"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?></h1>
+                        <p style="font-size: 16px; margin: 0 0 20px 0; color: #6b7280; line-height: 1.6;">
                             <?php echo htmlspecialchars($user['about'] ?? 'No bio provided'); ?>
                         </p>
                         
-                        <div class="user-stats">
+                        <div class="user-stats" style="margin: 24px 0;">
                             <div class="stat-item">
                                 <div class="stat-number"><?php echo $projects_total; ?></div>
                                 <div class="stat-label">Projects</div>
@@ -693,17 +1096,135 @@ if (!$error_message && $viewed_user_id) {
                         </div>
 
                         <?php if ($current_user_id && $current_user_id !== $viewed_user_id): ?>
-                        <button class="follow-btn <?php echo $is_following ? 'following' : ''; ?>" onclick="toggleFollow(<?php echo $viewed_user_id; ?>)">
-                            <i class="fas fa-<?php echo $is_following ? 'check' : 'plus'; ?>"></i>
-                            <?php echo $is_following ? 'Following' : 'Follow'; ?>
-                        </button>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="follow-btn <?php echo $is_following ? 'following' : ''; ?>" onclick="toggleFollow(<?php echo $viewed_user_id; ?>)">
+                                <i class="fas fa-<?php echo $is_following ? 'check' : 'user-plus'; ?>"></i>
+                                <span><?php echo $is_following ? 'Following' : 'Follow'; ?></span>
+                            </button>
+                            <button class="follow-btn" onclick="openChat(<?php echo $viewed_user_id; ?>, '<?php echo htmlspecialchars($user['name']); ?>')" style="background: #10b981; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">
+                                <i class="fas fa-comment"></i>
+                                <span>Message</span>
+                            </button>
+                        </div>
                         <?php endif; ?>
                     </div>
                 </div>
             </div>
+
         </div>
 
         <div class="container-main">
+            <div class="content-grid">
+                <!-- Followers Section -->
+                <div class="content-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-users"></i> Followers (<?php echo $followers_count; ?>)</h3>
+                    </div>
+                    <?php if ($followers_count > 0): ?>
+                        <div class="follow-list">
+                            <?php foreach ($followers_list as $follower):
+                                $follower_avatar = resolve_profile_pic_url($follower['profile_pic'] ?? '');
+                                $follower_initial = strtoupper(substr($follower['name'] ?? 'U', 0, 1));
+                            ?>
+                                <div class="follow-card">
+                                    <div class="follow-avatar">
+                                        <?php if (!empty($follower_avatar)): ?>
+                                            <img src="<?php echo htmlspecialchars($follower_avatar); ?>" alt="<?php echo htmlspecialchars($follower['name']); ?>">
+                                        <?php else: ?>
+                                            <?php echo htmlspecialchars($follower_initial); ?>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="follow-info">
+                                        <h4><?php echo htmlspecialchars($follower['name'] ?? 'User'); ?></h4>
+                                        <p><?php echo htmlspecialchars($follower['department'] ?? 'Unknown department'); ?></p>
+                                        <p style="font-size: 12px;"><?php echo htmlspecialchars(truncate_text($follower['about'] ?? 'No bio provided', 80)); ?></p>
+                                    </div>
+                                    <div class="follow-actions">
+                                        <a href="view_user_profile.php?user_id=<?php echo $follower['id']; ?>" class="pill-button">View profile</a>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="pagination-controls">
+                            <?php if ($followers_page > 1): ?>
+                                <a href="<?php echo htmlspecialchars(build_profile_query([
+                                    'followers_page' => $followers_page - 1,
+                                    'following_page' => $following_page
+                                ])); ?>">&larr; Previous</a>
+                            <?php else: ?>
+                                <span></span>
+                            <?php endif; ?>
+                            <span>Page <?php echo $followers_page; ?> of <?php echo max(1, $followers_total_pages); ?></span>
+                            <?php if ($followers_page < $followers_total_pages): ?>
+                                <a href="<?php echo htmlspecialchars(build_profile_query([
+                                    'followers_page' => $followers_page + 1,
+                                    'following_page' => $following_page
+                                ])); ?>">Next &rarr;</a>
+                            <?php endif; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="empty-state">
+                            <i class="fas fa-user-friends" style="font-size: 48px; margin-bottom: 10px;"></i>
+                            <p>No followers yet</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Following Section -->
+                <div class="content-card">
+                    <div class="section-header">
+                        <h3><i class="fas fa-user-check"></i> Following (<?php echo $following_count; ?>)</h3>
+                    </div>
+                    <?php if ($following_count > 0): ?>
+                        <div class="follow-list">
+                            <?php foreach ($following_list as $following):
+                                $following_avatar = resolve_profile_pic_url($following['profile_pic'] ?? '');
+                                $following_initial = strtoupper(substr($following['name'] ?? 'U', 0, 1));
+                            ?>
+                                <div class="follow-card">
+                                    <div class="follow-avatar">
+                                        <?php if (!empty($following_avatar)): ?>
+                                            <img src="<?php echo htmlspecialchars($following_avatar); ?>" alt="<?php echo htmlspecialchars($following['name']); ?>">
+                                        <?php else: ?>
+                                            <?php echo htmlspecialchars($following_initial); ?>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="follow-info">
+                                        <h4><?php echo htmlspecialchars($following['name'] ?? 'User'); ?></h4>
+                                        <p><?php echo htmlspecialchars($following['department'] ?? 'Unknown department'); ?></p>
+                                        <p style="font-size: 12px;"><?php echo htmlspecialchars(truncate_text($following['about'] ?? 'No bio provided', 80)); ?></p>
+                                    </div>
+                                    <div class="follow-actions">
+                                        <a href="view_user_profile.php?user_id=<?php echo $following['id']; ?>" class="pill-button">View profile</a>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="pagination-controls">
+                            <?php if ($following_page > 1): ?>
+                                <a href="<?php echo htmlspecialchars(build_profile_query([
+                                    'following_page' => $following_page - 1,
+                                    'followers_page' => $followers_page
+                                ])); ?>">&larr; Previous</a>
+                            <?php else: ?>
+                                <span></span>
+                            <?php endif; ?>
+                            <span>Page <?php echo $following_page; ?> of <?php echo max(1, $following_total_pages); ?></span>
+                            <?php if ($following_page < $following_total_pages): ?>
+                                <a href="<?php echo htmlspecialchars(build_profile_query([
+                                    'following_page' => $following_page + 1,
+                                    'followers_page' => $followers_page
+                                ])); ?>">Next &rarr;</a>
+                            <?php endif; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="empty-state">
+                            <i class="fas fa-user-check" style="font-size: 48px; margin-bottom: 10px;"></i>
+                            <p>Not following anyone yet</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
             <!-- User Information -->
             <div class="content-card">
                 <h3 class="section-title"><i class="fas fa-user-circle"></i> About</h3>
@@ -900,6 +1421,12 @@ if (!$error_message && $viewed_user_id) {
         function toggleFollow(userId) {
             const btn = event.target.closest('.follow-btn');
             const isFollowing = btn.classList.contains('following');
+            const originalHTML = btn.innerHTML;
+            
+            // Show loading state
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Processing...</span>';
+            btn.style.opacity = '0.7';
             
             const formData = new FormData();
             formData.append('user_id', userId);
@@ -914,16 +1441,105 @@ if (!$error_message && $viewed_user_id) {
                 if (data.success) {
                     btn.classList.toggle('following');
                     btn.innerHTML = isFollowing ? 
-                        '<i class="fas fa-plus"></i> Follow' : 
-                        '<i class="fas fa-check"></i> Following';
+                        '<i class="fas fa-user-plus"></i><span>Follow</span>' : 
+                        '<i class="fas fa-check"></i><span>Following</span>';
+                    
+                    // Update follower count
+                    const followerCount = document.querySelector('.stat-item:nth-child(2) .stat-number');
+                    if (followerCount) {
+                        const currentCount = parseInt(followerCount.textContent);
+                        followerCount.textContent = isFollowing ? currentCount - 1 : currentCount + 1;
+                    }
+                    
+                    // Show success animation
+                    btn.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        btn.style.transform = '';
+                    }, 200);
                 } else {
-                    alert(data.message || 'Error updating follow status');
+                    btn.innerHTML = originalHTML;
+                    showNotification(data.message || 'Error updating follow status', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error updating follow status');
+                btn.innerHTML = originalHTML;
+                showNotification('Network error. Please try again.', 'error');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.style.opacity = '1';
             });
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 16px 24px;
+                background: ${type === 'error' ? '#ef4444' : '#10b981'};
+                color: white;
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+                font-weight: 500;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Add animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Smooth scroll for pagination
+        document.querySelectorAll('.pagination-controls a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // Add loading effect on page load
+        window.addEventListener('load', function() {
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 0.5s ease';
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+
+        async function openChat(userId, userName) {
+            const formData = new FormData();
+            formData.append('action', 'send_request');
+            formData.append('receiver_id', userId);
+            formData.append('message', 'Hi, I would like to connect with you!');
+            
+            const response = await fetch('./chat/api.php', { method: 'POST', body: formData });
+            const data = await response.json();
+            
+            if (data.success || data.message === 'Already connected') {
+                window.location.href = './chat/index.php';
+            } else {
+                showNotification(data.message, 'error');
+            }
         }
     </script>
 </body>
