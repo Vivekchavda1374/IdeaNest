@@ -3,8 +3,8 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![PHP Version](https://img.shields.io/badge/PHP-8.2.12-blue.svg)](https://www.php.net/)
 [![MySQL Version](https://img.shields.io/badge/MySQL-10.4.28--MariaDB-blue.svg)](https://www.mysql.com/)
-[![Security](https://img.shields.io/badge/Security-98%25-brightgreen.svg)](SECURITY_AUDIT_REPORT.md)
-[![Performance](https://img.shields.io/badge/Performance-100%25-brightgreen.svg)](PERFORMANCE_OPTIMIZATION_REPORT.md)
+[![Security](https://img.shields.io/badge/Security-98%25-brightgreen.svg)](SECURITY.md)
+[![Performance](https://img.shields.io/badge/Performance-100%25-brightgreen.svg)](#-system-performance)
 
 IdeaNest is a comprehensive, secure, and high-performance web-based platform designed to facilitate academic project management, collaboration, and mentorship. It provides a complete ecosystem for students, mentors, sub-admins, and administrators to manage the entire project lifecycle from idea conception to final approval.
 
@@ -15,7 +15,7 @@ IdeaNest is a comprehensive, secure, and high-performance web-based platform des
 - 🔒 **Enterprise-Level Security** - 98% security score with SQL injection protection, CSRF tokens, and XSS prevention
 - ⚡ **High Performance** - 0.05ms database queries, optimized code, and efficient resource usage
 - 🧪 **Automated Testing** - Comprehensive test suite with unit, integration, and functional tests
-- � **Comprlete Documentation** - Developer guides, security audits, and performance reports
+- 📚 **Complete Documentation** - Developer guides, security audits, and performance reports
 - 🚀 **Production Ready** - Fully tested, secured, and optimized for deployment
 
 ---
@@ -73,7 +73,7 @@ IdeaNest is a comprehensive, secure, and high-performance web-based platform des
 - **Profile Management**: Complete profile setup with domain expertise and specializations
 - **Assigned Projects**: View and manage all projects assigned for review
 
-### �💼 Admin Feoatures
+### 💼 Admin Features
 - **Enhanced Dashboard**: System analytics with charts, statistics, and real-time metrics
 - **User Management**: Complete user lifecycle management with activity logs and role assignment
 - **Mentor Management**: Add, remove, and manage mentor accounts with detailed profiles
@@ -224,16 +224,13 @@ mysql -u root -p -e "CREATE DATABASE ictmu6ya_ideanest;"
 
 # Import database schema
 mysql -u root -p ictmu6ya_ideanest < db/ictmu6ya_ideanest.sql
-
-# Run migrations
-php db/run_migrations.php
 ```
 
 5. **Set file permissions:**
 ```bash
 chmod 755 user/uploads/ logs/ Admin/assets/
 chmod 644 .env Login/Login/db.php
-chmod +x cron/*.sh
+chmod +x cron/*.sh scripts/*.sh
 ```
 
 6. **Configure database connection:**
@@ -257,8 +254,6 @@ php -S localhost:8000
 - Open browser: `http://localhost:8000`
 - Admin login: `ideanest.ict@gmail.com` / `ideanest133`
 
-For detailed production deployment, see [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md).
-
 ---
 
 ## 🧪 Testing
@@ -266,25 +261,23 @@ For detailed production deployment, see [PRODUCTION_SETUP.md](PRODUCTION_SETUP.m
 ### Run Automated Tests
 ```bash
 # Run all tests
-php automated_tests.php
+./tests/run_tests.sh
 
-# Run comprehensive verification
-php verify_fixes.php
+# Run specific test suites
+vendor/bin/phpunit tests/Unit
+vendor/bin/phpunit tests/Integration
+vendor/bin/phpunit tests/Functional
 
-# Run performance tests
-php performance_test.php
-
-# Check system health
-php comprehensive_check.php
+# Run with coverage
+vendor/bin/phpunit --coverage-html coverage/
 ```
 
 ### Test Coverage
-- ✅ Database connection tests
-- ✅ Security function tests
-- ✅ Helper function tests
-- ✅ CSRF protection tests
-- ✅ SQL injection prevention tests
-- ✅ Input validation tests
+- ✅ Unit Tests: Authentication, Validation, GitHub Service, Smart Pairing
+- ✅ Integration Tests: Database, GitHub Integration, Mentor System, Project Management
+- ✅ Functional Tests: Complete Workflow, User Workflow
+- ✅ Performance Tests: Load Testing
+- ✅ UI Tests: JavaScript functionality
 
 ---
 
@@ -330,6 +323,7 @@ cd cron
 IdeaNest/
 ├── Admin/                          # Admin panel
 │   ├── subadmin/                   # SubAdmin management
+│   ├── assets/                     # Admin assets (CSS/JS)
 │   ├── admin.php                   # Main admin dashboard
 │   ├── admin_view_project.php      # Project review interface
 │   ├── manage_mentors.php          # Mentor management
@@ -340,16 +334,21 @@ IdeaNest/
 │   ├── manage_reported_ideas.php   # Content moderation
 │   └── settings.php                # System settings
 ├── mentor/                         # Mentor system
+│   ├── api/                        # Mentor API endpoints
 │   ├── dashboard.php               # Mentor dashboard
 │   ├── students.php                # Student management
 │   ├── sessions.php                # Session management
 │   ├── projects.php                # Project access
 │   ├── email_system.php            # Email functionality
-│   └── analytics.php               # Analytics dashboard
+│   ├── analytics.php               # Analytics dashboard
+│   ├── smart_pairing.php           # Intelligent pairing system
+│   └── progress_tracking.php       # Student progress tracking
 ├── user/                           # User interface
 │   ├── forms/                      # Project submission
 │   ├── Blog/                       # Ideas system
 │   ├── api/                        # User API endpoints
+│   ├── chat/                       # Messaging system
+│   ├── ajax/                       # AJAX handlers
 │   ├── index.php                   # User dashboard
 │   ├── all_projects.php            # Project gallery
 │   ├── github_*.php                # GitHub integration
@@ -366,19 +365,28 @@ IdeaNest/
 │   ├── csrf.php                    # CSRF protection
 │   ├── secure_db.php               # Secure database class
 │   ├── smtp_mailer.php             # Email system
-│   └── session_manager.php         # Session handling
+│   ├── session_manager.php         # Session handling
+│   ├── auth_guard.php              # Authentication guard
+│   ├── form_validation.php         # Form validation
+│   ├── security_middleware.php     # Security middleware
+│   └── notification_helper.php     # Notification system
 ├── config/                         # Configuration
 │   ├── config.php                  # Base configuration
 │   ├── email_config.php            # Email settings
-│   └── security.php                # Security config
+│   ├── security.php                # Security config
+│   └── production.php              # Production settings
 ├── cron/                           # Background tasks
 │   ├── weekly_notifications.php    # Weekly emails
 │   ├── mentor_email_cron.php       # Mentor emails
+│   ├── cleanup_old_sessions.php    # Session cleanup
 │   └── setup_cron.sh               # Cron setup
+├── scripts/                        # Deployment scripts
+│   ├── backup.sh                   # Backup script
+│   ├── deploy_production.sh        # Production deployment
+│   ├── enable_maintenance.sh       # Maintenance mode
+│   └── rollback.sh                 # Rollback script
 ├── db/                             # Database
-│   ├── ictmu6ya_ideanest.sql       # Database schema
-│   ├── migrations/                 # Database migrations
-│   └── run_migrations.php          # Migration runner
+│   └── ictmu6ya_ideanest.sql       # Database schema
 ├── logs/                           # System logs
 │   ├── error.log                   # Error logs
 │   ├── email_failures.log          # Email logs
@@ -386,32 +394,47 @@ IdeaNest/
 ├── tests/                          # Test suite
 │   ├── Unit/                       # Unit tests
 │   ├── Integration/                # Integration tests
-│   └── Functional/                 # Functional tests
+│   ├── Functional/                 # Functional tests
+│   ├── Performance/                # Performance tests
+│   └── UI/                         # UI tests
+├── assets/                         # Global assets
+│   ├── css/                        # Stylesheets
+│   ├── js/                         # JavaScript files
+│   └── image/                      # Images
+├── backups/                        # Database backups
+├── error_pages/                    # Custom error pages
+├── Report/                         # Project documentation
+├── System Design/                  # System design diagrams
+├── vendor/                         # Composer dependencies
 ├── .env                            # Environment configuration
 ├── composer.json                   # Dependencies
-├── automated_tests.php             # Automated test runner
-├── SECURITY_AUDIT_REPORT.md        # Security audit
-├── PERFORMANCE_OPTIMIZATION_REPORT.md # Performance report
-├── DEVELOPER_DOCUMENTATION.md      # Developer guide
-└── README.md                       # This file
+├── phpunit.xml                     # PHPUnit configuration
+├── phpstan.neon                    # PHPStan configuration
+├── phpcs.xml                       # Code sniffer configuration
+├── README.md                       # This file
+└── SECURITY.md                     # Security policy
 ```
 
 ---
 
 ## 🗄 Database Schema
 
-### Core Tables (11 tables)
+### Core Tables
 - **register**: User accounts with roles and GitHub integration
 - **projects**: Project submissions with metadata
 - **admin_approved_projects**: Approved projects
 - **blog**: Ideas and blog posts
 - **mentors**: Mentor profiles
 - **subadmins**: SubAdmin accounts
+- **mentor_students**: Mentor-student pairings
+- **mentor_sessions**: Mentoring sessions
+- **mentor_emails**: Email queue
 - **notifications**: User notifications
 - **user_notifications**: Notification system
 - **temp_credentials**: Temporary passwords
 - **email_logs**: Email tracking
 - **bookmark**: User bookmarks
+- **reported_ideas**: Content moderation
 
 All tables use:
 - ✅ Prepared statements (100% coverage)
@@ -434,22 +457,31 @@ All tables use:
 - ✅ **Security Headers**: XSS and clickjacking protection
 - ✅ **Input Validation**: Server-side validation for all inputs
 - ✅ **Error Handling**: Secure error logging without exposure
+- ✅ **Authentication Guard**: Protected routes and resources
+- ✅ **Security Middleware**: Request filtering and validation
 
 ### Security Score: 98/100 🎯
 
-See [SECURITY_AUDIT_REPORT.md](SECURITY_AUDIT_REPORT.md) for detailed security analysis.
+See [SECURITY.md](SECURITY.md) for detailed security policy.
 
 ---
 
 ## 📚 Documentation
 
 ### Available Documentation
-- **[SECURITY_AUDIT_REPORT.md](SECURITY_AUDIT_REPORT.md)** - Security analysis and audit
-- **[PERFORMANCE_OPTIMIZATION_REPORT.md](PERFORMANCE_OPTIMIZATION_REPORT.md)** - Performance metrics
-- **[DEVELOPER_DOCUMENTATION.md](DEVELOPER_DOCUMENTATION.md)** - Developer guide
-- **[FINAL_STATUS_REPORT.md](FINAL_STATUS_REPORT.md)** - Complete platform status
-- **[PRODUCTION_SETUP.md](PRODUCTION_SETUP.md)** - Production deployment guide
 - **[SECURITY.md](SECURITY.md)** - Security policy and reporting
+- **[Report/](Report/)** - Complete project documentation
+  - Architecture Overview
+  - Authentication Module
+  - Database Schema
+  - Deployment Operations
+  - GitHub Integration
+  - Installation Configuration
+  - Mentor System
+  - Project Management System
+  - User Manual
+- **[System Design/](System%20Design%20/)** - System design diagrams
+- **[tests/README.md](tests/README.md)** - Testing documentation
 
 ---
 
@@ -507,11 +539,11 @@ ls -la user/uploads/
 
 **Email Not Sending:**
 ```bash
-# Test email configuration
-php test_email.php
-
 # Check logs
 cat logs/email_failures.log
+
+# Test SMTP configuration
+php -r "require 'includes/smtp_mailer.php';"
 ```
 
 **Session Issues:**
@@ -519,6 +551,41 @@ cat logs/email_failures.log
 # Check session directory
 ls -la /tmp/
 chmod 1777 /tmp/
+```
+
+---
+
+## 🚀 Deployment
+
+### Production Deployment
+```bash
+# Run deployment script
+./scripts/deploy_production.sh
+
+# Enable maintenance mode
+./scripts/enable_maintenance.sh
+
+# Disable maintenance mode
+./scripts/disable_maintenance.sh
+
+# Create backup
+./scripts/backup.sh
+
+# Rollback if needed
+./scripts/rollback.sh
+```
+
+### Cron Jobs Setup
+```bash
+# Setup all cron jobs
+cd cron
+./setup_cron.sh
+
+# Setup mentor email cron
+./setup_mentor_email_cron.sh
+
+# Manage cron jobs
+./manage_cron.sh
 ```
 
 ---
@@ -538,6 +605,7 @@ chmod 1777 /tmp/
 - Use prepared statements for all queries
 - Implement CSRF protection on forms
 - Use safe_html() for output
+- Run PHPStan and PHP_CodeSniffer before committing
 
 ---
 
@@ -553,11 +621,11 @@ For support and questions:
 - **Email**: ideanest.ict@gmail.com
 - **GitHub Issues**: Create an issue for bug reports
 - **Security Issues**: See [SECURITY.md](SECURITY.md)
-- **Documentation**: See [DEVELOPER_DOCUMENTATION.md](DEVELOPER_DOCUMENTATION.md)
+- **Documentation**: See [Report/](Report/) directory
 
 ---
 
-## � Acknowledgments
+## 🙏 Acknowledgments
 
 - **PHP Community** for security best practices
 - **GitHub API** for developer data access
@@ -593,14 +661,13 @@ For support and questions:
 ## 🚀 Quick Links
 
 - [Installation Guide](#-getting-started)
-- [Security Audit](SECURITY_AUDIT_REPORT.md)
-- [Performance Report](PERFORMANCE_OPTIMIZATION_REPORT.md)
-- [Developer Documentation](DEVELOPER_DOCUMENTATION.md)
-- [Production Setup](PRODUCTION_SETUP.md)
-- [Run Tests](#-testing)
+- [Testing Documentation](tests/README.md)
+- [Security Policy](SECURITY.md)
+- [Project Documentation](Report/)
+- [System Design](System%20Design%20/)
 
 ---
 
-**Last Updated:** November 20, 2025  
+**Last Updated:** January 2025  
 **Version:** 2.0.0  
 **Status:** Production Ready ✅
