@@ -119,7 +119,14 @@ if (!empty($search_keywords)) {
 
 if (!empty($where_conditions)) {
     $where_clause = implode(' OR ', $where_conditions);
-    $sql = "SELECT * FROM projects WHERE status = 'pending' AND ($where_clause) ORDER BY submission_date DESC";
+    // Show ALL projects (pending, approved, rejected) that match the domain
+    $sql = "SELECT * FROM projects WHERE ($where_clause) ORDER BY 
+            CASE status 
+                WHEN 'pending' THEN 1 
+                WHEN 'approved' THEN 2 
+                WHEN 'rejected' THEN 3 
+            END, 
+            submission_date DESC";
     $stmt = $conn->prepare($sql);
     
     if (!empty($params)) {
