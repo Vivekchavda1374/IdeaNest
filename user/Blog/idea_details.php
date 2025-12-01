@@ -119,6 +119,31 @@ if ($result->num_rows === 0) {
 $idea = $result->fetch_assoc();
 $stmt->close();
 
+// Check if current user is following the idea creator
+$is_following = false;
+$follow_counts = ['followers' => 0, 'following' => 0];
+if ($user_id && $user_id != $idea['user_id']) {
+    $follow_check_sql = "SELECT EXISTS(SELECT 1 FROM user_follows WHERE follower_id = ? AND following_id = ?) as is_following";
+    $follow_check_stmt = $conn->prepare($follow_check_sql);
+    $follow_check_stmt->bind_param("ii", $user_id, $idea['user_id']);
+    $follow_check_stmt->execute();
+    $follow_check_result = $follow_check_stmt->get_result();
+    $follow_check_row = $follow_check_result->fetch_assoc();
+    $is_following = (bool)$follow_check_row['is_following'];
+    $follow_check_stmt->close();
+}
+
+// Get follower/following counts for the idea creator
+$follow_stats_sql = "SELECT COALESCE(followers_count, 0) as followers, COALESCE(following_count, 0) as following FROM user_follow_stats WHERE user_id = ?";
+$follow_stats_stmt = $conn->prepare($follow_stats_sql);
+$follow_stats_stmt->bind_param("i", $idea['user_id']);
+$follow_stats_stmt->execute();
+$follow_stats_result = $follow_stats_stmt->get_result();
+if ($follow_stats_row = $follow_stats_result->fetch_assoc()) {
+    $follow_counts = $follow_stats_row;
+}
+$follow_stats_stmt->close();
+
 // Get comprehensive user statistics
 $user_stats_sql = "SELECT 
     (SELECT COUNT(*) FROM blog WHERE user_id = ?) as total_ideas,
@@ -506,6 +531,65 @@ function formatDate($date) {
             color: var(--text-muted);
         }
 
+        .btn-follow {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--primary-color);
+            background: white;
+            color: var(--primary-color);
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-follow:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-follow.following {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-follow.following:hover {
+            background: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        .follow-stats {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 1rem;
+        }
+
+        .follow-stat-item {
+            text-align: center;
+        }
+
+        .follow-stat-number {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .follow-stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 margin-left: 0;
@@ -647,6 +731,28 @@ function formatDate($date) {
                     <div class="user-department"><?php echo htmlspecialchars($idea['user_department']); ?></div>
                     <?php endif; ?>
 
+                    <!-- Follow Stats -->
+                    <div class="follow-stats">
+                        <div class="follow-stat-item">
+                            <div class="follow-stat-number follower-count"><?php echo $follow_counts['followers']; ?></div>
+                            <div class="follow-stat-label">Followers</div>
+                        </div>
+                        <div class="follow-stat-item">
+                            <div class="follow-stat-number"><?php echo $follow_counts['following']; ?></div>
+                            <div class="follow-stat-label">Following</div>
+                        </div>
+                    </div>
+
+                    <!-- Follow Button -->
+                    <?php if ($user_id && $user_id != $idea['user_id']): ?>
+                        <button class="btn-follow <?php echo $is_following ? 'following' : ''; ?>" 
+                                data-user-id="<?php echo $idea['user_id']; ?>"
+                                data-action="<?php echo $is_following ? 'unfollow' : 'follow'; ?>">
+                            <i class="fas fa-user-<?php echo $is_following ? 'check' : 'plus'; ?>"></i>
+                            <span class="follow-text"><?php echo $is_following ? 'Following' : 'Follow'; ?></span>
+                        </button>
+                    <?php endif; ?>
+
                     <?php if (!empty($idea['user_bio'])): ?>
                     <div class="user-bio">
                         <?php echo nl2br(htmlspecialchars($idea['user_bio'])); ?>
@@ -715,5 +821,123 @@ function formatDate($date) {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Follow/Unfollow functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const followBtn = document.querySelector('.btn-follow');
+            
+            if (followBtn) {
+                followBtn.addEventListener('click', function() {
+                    const userId = this.dataset.userId;
+                    const action = this.dataset.action;
+                    const btn = this;
+                    
+                    // Disable button during request
+                    btn.disabled = true;
+                    
+                    fetch('../ajax/follow_handler.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `action=${action}&user_id=${userId}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Toggle button state
+                            if (action === 'follow') {
+                                btn.dataset.action = 'unfollow';
+                                btn.classList.add('following');
+                                btn.innerHTML = '<i class="fas fa-user-check"></i> <span class="follow-text">Following</span>';
+                                
+                                // Update follower count
+                                const followerCount = document.querySelector('.follower-count');
+                                if (followerCount) {
+                                    let count = parseInt(followerCount.textContent);
+                                    followerCount.textContent = count + 1;
+                                }
+                            } else {
+                                btn.dataset.action = 'follow';
+                                btn.classList.remove('following');
+                                btn.innerHTML = '<i class="fas fa-user-plus"></i> <span class="follow-text">Follow</span>';
+                                
+                                // Update follower count
+                                const followerCount = document.querySelector('.follower-count');
+                                if (followerCount) {
+                                    let count = parseInt(followerCount.textContent);
+                                    followerCount.textContent = Math.max(0, count - 1);
+                                }
+                            }
+                            
+                            // Show success message
+                            showNotification(data.message, 'success');
+                        } else {
+                            showNotification(data.message, 'error');
+                        }
+                        
+                        btn.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showNotification('An error occurred', 'error');
+                        btn.disabled = false;
+                    });
+                });
+            }
+        });
+
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                color: white;
+                border-radius: 0.75rem;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                z-index: 9999;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>

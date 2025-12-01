@@ -169,6 +169,8 @@ if (isset($_POST['submit_report']) && $user_id > 0) {
 $search = $_GET['search'] ?? '';
 $filter_classification = $_GET['classification'] ?? '';
 $filter_type = $_GET['type'] ?? '';
+$filter_status = $_GET['status'] ?? '';
+$filter_priority = $_GET['priority'] ?? '';
 $sort_by = $_GET['sort'] ?? 'newest';
 $view_mode = $_GET['view'] ?? 'my_ideas'; // my_ideas, all_ideas, bookmarked
 $current_page = max(1, (int)($_GET['page'] ?? 1));
@@ -184,7 +186,8 @@ if ($view_mode === 'my_ideas' && $user_id > 0) {
 } elseif ($view_mode === 'bookmarked' && $user_id > 0) {
     $where .= " AND EXISTS (SELECT 1 FROM idea_bookmarks WHERE idea_id=b.id AND user_id=$user_id)";
 } elseif ($view_mode === 'following' && $user_id > 0) {
-    $where .= " AND EXISTS (SELECT 1 FROM idea_followers WHERE idea_id=b.id AND user_id=$user_id)";
+    // Show ideas from users that the current user follows
+    $where .= " AND b.user_id IN (SELECT following_id FROM user_follows WHERE follower_id=$user_id)";
 } elseif ($view_mode === 'shared' && $user_id > 0) {
     $where .= " AND EXISTS (SELECT 1 FROM idea_shares WHERE idea_id=b.id AND user_id=$user_id)";
 }
@@ -200,6 +203,14 @@ if ($filter_classification) {
 if ($filter_type) {
     $t = $conn->real_escape_string($filter_type);
     $where .= " AND b.project_type='$t'";
+}
+if ($filter_status) {
+    $st = $conn->real_escape_string($filter_status);
+    $where .= " AND b.status='$st'";
+}
+if ($filter_priority) {
+    $p = $conn->real_escape_string($filter_priority);
+    $where .= " AND b.priority1='$p'";
 }
 
 // Sorting
@@ -506,12 +517,16 @@ include '../layout.php';
     <div class="filter-section">
         <form method="get" class="row g-3">
             <input type="hidden" name="view" value="<?= htmlspecialchars($view_mode) ?>">
-            <div class="col-md-3">
-                <label class="form-label">Search Ideas</label>
-                <input type="text" class="form-control" name="search" placeholder="Search..." value="<?= htmlspecialchars($search) ?>">
+            
+            <!-- Search -->
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label"><i class="fas fa-search me-1"></i>Search Ideas</label>
+                <input type="text" class="form-control" name="search" placeholder="Search by name, description..." value="<?= htmlspecialchars($search) ?>">
             </div>
-            <div class="col-md-2">
-                <label class="form-label">Classification</label>
+            
+            <!-- Classification -->
+            <div class="col-6 col-md-3 col-lg-2">
+                <label class="form-label"><i class="fas fa-tag me-1"></i>Classification</label>
                 <select class="form-select" name="classification">
                     <option value="">All</option>
                     <?php foreach($classifications as $c): ?>
@@ -521,29 +536,78 @@ include '../layout.php';
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="col-md-2">
-                <label class="form-label">Project Type</label>
+            
+            <!-- Project Type -->
+            <div class="col-6 col-md-3 col-lg-2">
+                <label class="form-label"><i class="fas fa-cube me-1"></i>Type</label>
                 <select class="form-select" name="type">
-                    <option value="">All Types</option>
+                    <option value="">All</option>
                     <option value="software" <?= $filter_type==='software'?'selected':'' ?>>Software</option>
                     <option value="hardware" <?= $filter_type==='hardware'?'selected':'' ?>>Hardware</option>
+                    <option value="research" <?= $filter_type==='research'?'selected':'' ?>>Research</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                <label class="form-label">Sort By</label>
+            
+            <!-- Status -->
+            <div class="col-6 col-md-3 col-lg-2">
+                <label class="form-label"><i class="fas fa-info-circle me-1"></i>Status</label>
+                <select class="form-select" name="status">
+                    <option value="">All</option>
+                    <option value="pending" <?= $filter_status==='pending'?'selected':'' ?>>Pending</option>
+                    <option value="in_progress" <?= $filter_status==='in_progress'?'selected':'' ?>>In Progress</option>
+                    <option value="completed" <?= $filter_status==='completed'?'selected':'' ?>>Completed</option>
+                    <option value="rejected" <?= $filter_status==='rejected'?'selected':'' ?>>Rejected</option>
+                </select>
+            </div>
+            
+            <!-- Priority -->
+            <div class="col-6 col-md-3 col-lg-2">
+                <label class="form-label"><i class="fas fa-flag me-1"></i>Priority</label>
+                <select class="form-select" name="priority">
+                    <option value="">All</option>
+                    <option value="low" <?= $filter_priority==='low'?'selected':'' ?>>Low</option>
+                    <option value="medium" <?= $filter_priority==='medium'?'selected':'' ?>>Medium</option>
+                    <option value="high" <?= $filter_priority==='high'?'selected':'' ?>>High</option>
+                </select>
+            </div>
+            
+            <!-- Sort By -->
+            <div class="col-6 col-md-3 col-lg-2">
+                <label class="form-label"><i class="fas fa-sort me-1"></i>Sort By</label>
                 <select class="form-select" name="sort">
                     <option value="newest" <?= $sort_by==='newest'?'selected':'' ?>>Newest First</option>
                     <option value="oldest" <?= $sort_by==='oldest'?'selected':'' ?>>Oldest First</option>
                     <option value="popular" <?= $sort_by==='popular'?'selected':'' ?>>Most Popular</option>
-
                     <option value="most_viewed" <?= $sort_by==='most_viewed'?'selected':'' ?>>Most Viewed</option>
                 </select>
             </div>
-            <div class="col-md-3 d-flex align-items-end gap-2">
-                <button type="submit" class="btn btn-primary flex-grow-1"><i class="fas fa-search me-2"></i>Filter</button>
-                <a href="?view=<?= htmlspecialchars($view_mode) ?>" class="btn btn-secondary"><i class="fas fa-redo"></i></a>
+            
+            <!-- Buttons -->
+            <div class="col-6 col-md-3 col-lg-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1"><i class="fas fa-filter me-2"></i>Filter</button>
+                <a href="?view=<?= htmlspecialchars($view_mode) ?>" class="btn btn-outline-secondary"><i class="fas fa-redo"></i></a>
             </div>
         </form>
+        
+        <!-- Active Filters Display -->
+        <?php
+        $active_filters = [];
+        if ($search) $active_filters[] = "Search: " . htmlspecialchars($search);
+        if ($filter_classification) $active_filters[] = "Classification: " . htmlspecialchars($filter_classification);
+        if ($filter_type) $active_filters[] = "Type: " . htmlspecialchars($filter_type);
+        if ($filter_status) $active_filters[] = "Status: " . htmlspecialchars($filter_status);
+        if ($filter_priority) $active_filters[] = "Priority: " . htmlspecialchars($filter_priority);
+        
+        if (!empty($active_filters)): ?>
+        <div class="mt-3">
+            <small class="text-muted"><i class="fas fa-filter me-1"></i>Active Filters:</small>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+                <?php foreach ($active_filters as $filter): ?>
+                    <span class="badge bg-primary"><?= $filter ?></span>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 
     <div class="ideas-grid">
