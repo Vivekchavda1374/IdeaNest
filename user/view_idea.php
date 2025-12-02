@@ -918,6 +918,11 @@ function getFileIcon($filePath) {
                         <?php echo $project['is_bookmarked'] ? 'Unbookmark' : 'Bookmark'; ?>
                     </button>
                 </form>
+                
+                <button type="button" class="action-btn" onclick="shareThisProject()" id="shareProjectBtn">
+                    <i class="fas fa-share-alt"></i>
+                    Share via Message
+                </button>
             </div>
             <?php endif; ?>
         </div>
@@ -1479,6 +1484,7 @@ function getFileIcon($filePath) {
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Follow/Unfollow functionality
@@ -1653,6 +1659,18 @@ function getFileIcon($filePath) {
             }
         `;
         document.head.appendChild(style);
+        
+        // Share Project Function
+        function shareThisProject() {
+            const projectId = <?php echo $project_id; ?>;
+            const title = <?php echo json_encode($project['project_name']); ?>;
+            const description = <?php echo json_encode(substr($project['description'], 0, 200)); ?>;
+            
+            initShareModal('project', projectId, title, description);
+        }
     </script>
+    
+    <!-- Include Share Modal -->
+    <?php include 'share_modal.php'; ?>
 </body>
 </html>

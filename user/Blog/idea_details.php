@@ -698,6 +698,11 @@ function formatDate($date) {
                         <?php echo $idea['is_liked'] ? 'Unlike' : 'Like'; ?>
                     </button>
                 </form>
+                
+                <button type="button" class="action-btn" onclick="shareThisIdea()" id="shareIdeaBtn">
+                    <i class="fas fa-share-alt"></i>
+                    Share via Message
+                </button>
             </div>
             <?php endif; ?>
         </div>
@@ -881,6 +886,7 @@ function formatDate($date) {
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Follow/Unfollow functionality
@@ -1032,6 +1038,18 @@ function formatDate($date) {
             }
         `;
         document.head.appendChild(style);
+        
+        // Share Idea Function
+        function shareThisIdea() {
+            const ideaId = <?php echo $idea_id; ?>;
+            const title = <?php echo json_encode($idea['project_name']); ?>;
+            const description = <?php echo json_encode(substr($idea['description'], 0, 200)); ?>;
+            
+            initShareModal('idea', ideaId, title, description);
+        }
     </script>
+    
+    <!-- Include Share Modal -->
+    <?php include '../share_modal.php'; ?>
 </body>
 </html>

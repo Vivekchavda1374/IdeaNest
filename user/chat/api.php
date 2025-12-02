@@ -182,6 +182,16 @@ switch ($action) {
         $encrypted_content = $_POST['encrypted_content'] ?? '';
         $iv = $_POST['iv'] ?? '';
         
+        // Check if either user has blocked the other
+        $block_check = $conn->prepare("SELECT id FROM blocked_users WHERE (blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?)");
+        $block_check->bind_param("iiii", $user_id, $receiver_id, $receiver_id, $user_id);
+        $block_check->execute();
+        
+        if ($block_check->get_result()->num_rows > 0) {
+            echo json_encode(['success' => false, 'message' => 'Cannot send message to blocked user']);
+            exit;
+        }
+        
         if (!canChat($conn, $user_id, $receiver_id)) {
             echo json_encode(['success' => false, 'message' => 'Cannot send message']);
             exit;
@@ -219,6 +229,7 @@ switch ($action) {
                 r.user_image as other_user_image,
                 m.encrypted_content,
                 m.iv,
+                m.message_type,
                 m.created_at as last_message_time
             FROM conversations c
             LEFT JOIN register r ON r.id = IF(c.user1_id = ?, c.user2_id, c.user1_id)
@@ -416,6 +427,118 @@ switch ($action) {
         } else {
             echo json_encode(['success' => false, 'message' => 'Conversation not found']);
         }
+        break;
+        
+    case 'block_user':
+        $blocked_id = intval($_POST['blocked_id'] ?? 0);
+        
+        if (!$blocked_id || $blocked_id === $user_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid user']);
+            exit;
+        }
+        
+        // Check if already blocked
+        $check = $conn->prepare("SELECT id FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?");
+        $check->bind_param("ii", $user_id, $blocked_id);
+        $check->execute();
+        
+        if ($check->get_result()->num_rows > 0) {
+            echo json_encode(['success' => false, 'message' => 'User already blocked']);
+            exit;
+        }
+        
+        // Block the user
+        $stmt = $conn->prepare("INSERT INTO blocked_users (blocker_id, blocked_id) VALUES (?, ?)");
+        $stmt->bind_param("ii", $user_id, $blocked_id);
+        
+        if ($stmt->execute()) {
+            // Update conversation status
+            $conn->query("UPDATE conversations SET is_blocked = 1 
+                         WHERE (user1_id = $user_id AND user2_id = $blocked_id) 
+                         OR (user1_id = $blocked_id AND user2_id = $user_id)");
+            
+            echo json_encode(['success' => true, 'message' => 'User blocked successfully']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to block user']);
+        }
+        break;
+        
+    case 'unblock_user':
+        $blocked_id = intval($_POST['blocked_id'] ?? 0);
+        
+        if (!$blocked_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid user']);
+            exit;
+        }
+        
+        // Unblock the user
+        $stmt = $conn->prepare("DELETE FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?");
+        $stmt->bind_param("ii", $user_id, $blocked_id);
+        
+        if ($stmt->execute()) {
+            // Update conversation status
+            $conn->query("UPDATE conversations SET is_blocked = 0 
+                         WHERE (user1_id = $user_id AND user2_id = $blocked_id) 
+                         OR (user1_id = $blocked_id AND user2_id = $user_id)");
+            
+            echo json_encode(['success' => true, 'message' => 'User unblocked successfully']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to unblock user']);
+        }
+        break;
+        
+    case 'check_block_status':
+        $other_user_id = intval($_GET['user_id'] ?? 0);
+        
+        if (!$other_user_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid user']);
+            exit;
+        }
+        
+        // Check if current user blocked the other user
+        $stmt = $conn->prepare("SELECT id FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?");
+        $stmt->bind_param("ii", $user_id, $other_user_id);
+        $stmt->execute();
+        $i_blocked_them = $stmt->get_result()->num_rows > 0;
+        
+        // Check if other user blocked current user
+        $stmt = $conn->prepare("SELECT id FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?");
+        $stmt->bind_param("ii", $other_user_id, $user_id);
+        $stmt->execute();
+        $they_blocked_me = $stmt->get_result()->num_rows > 0;
+        
+        echo json_encode([
+            'success' => true,
+            'i_blocked_them' => $i_blocked_them,
+            'they_blocked_me' => $they_blocked_me,
+            'is_blocked' => $i_blocked_them || $they_blocked_me
+        ]);
+        break;
+        
+    case 'get_blocked_users':
+        $stmt = $conn->prepare("
+            SELECT 
+                bu.id,
+                bu.blocked_id,
+                bu.blocked_at,
+                r.name as blocked_name,
+                r.email as blocked_email,
+                r.user_image as blocked_image
+            FROM blocked_users bu
+            JOIN register r ON bu.blocked_id = r.id
+            WHERE bu.blocker_id = ?
+            ORDER BY bu.blocked_at DESC
+        ");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $blocked_users = [];
+        while ($row = $result->fetch_assoc()) {
+            $blocked_users[] = $row;
+        }
+        
+        echo json_encode(['success' => true, 'blocked_users' => $blocked_users]);
         break;
         
     default:

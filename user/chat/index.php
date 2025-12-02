@@ -313,6 +313,41 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             gap: 6px;
         }
         
+        .chat-header-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+        
+        .header-action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(51, 65, 85, 0.5);
+            color: #94a3b8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .header-action-btn:hover {
+            background: #475569;
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .header-action-btn.blocked {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .header-action-btn.blocked:hover {
+            background: #dc2626;
+        }
+        
         .chat-header-status::before {
             content: '';
             width: 8px;
@@ -726,6 +761,130 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             background: #f8f9fa;
         }
 
+        /* Shared Content Card Styles */
+        .shared-content-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.08));
+            border: 2px solid rgba(59, 130, 246, 0.25);
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 12px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .message.sent .shared-content-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.1));
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .shared-content-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+        
+        .shared-content-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .shared-content-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .message.sent .shared-content-icon {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            color: #3b82f6;
+        }
+        
+        .shared-content-title {
+            font-weight: 600;
+            color: #3b82f6;
+            font-size: 0.95rem;
+            flex: 1;
+        }
+        
+        .message.sent .shared-content-title {
+            color: white;
+        }
+        
+        .shared-content-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .message.sent .shared-content-link {
+            background: white;
+            color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+        }
+        
+        .shared-content-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+            text-decoration: none;
+            color: white;
+        }
+        
+        .message.sent .shared-content-link:hover {
+            color: #3b82f6;
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+        }
+        
+        .shared-content-link i {
+            font-size: 0.85rem;
+        }
+        
+        /* Message text for shared content */
+        .message-text {
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        
+        /* Notification animations */
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -855,7 +1014,13 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
                         const unreadBadge = conv.unread_count > 0 ? `<span class="unread-badge">${conv.unread_count}</span>` : '';
                         
                         let preview = 'No messages yet';
-                        if (conv.encrypted_content && conv.iv && conv.encryption_key) {
+                        
+                        // Check if last message is a shared content
+                        if (conv.message_type === 'idea_share') {
+                            preview = '💡 Shared an idea';
+                        } else if (conv.message_type === 'project_share') {
+                            preview = '📁 Shared a project';
+                        } else if (conv.encrypted_content && conv.iv && conv.encryption_key) {
                             try {
                                 const convKey = await chatEncryption.getOrCreateConversationKey(conv.id, conv.encryption_key);
                                 const decrypted = await chatEncryption.decryptMessage(conv.encrypted_content, conv.iv, convKey);
@@ -865,7 +1030,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
                                     preview = 'New message';
                                 }
                             } catch (e) {
-                                console.error('Preview decryption error:', e);
+                                // Silently handle decryption errors
                                 preview = 'New message';
                             }
                         }
@@ -926,6 +1091,14 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
                         <h3>${otherUserName}</h3>
                         <div class="chat-header-status" id="typingStatus">Online</div>
                     </div>
+                    <div class="chat-header-actions">
+                        <button class="header-action-btn" id="blockBtn" onclick="toggleBlockUser(${otherUserId}, '${otherUserName}')" title="Block user">
+                            <i class="fas fa-ban"></i>
+                        </button>
+                        <button class="header-action-btn" onclick="toggleChatMenu()" title="More options">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="chat-messages" id="chatMessages">
                     <div class="typing-indicator" id="typingIndicator">
@@ -952,6 +1125,9 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             if (messageInput) {
                 messageInput.addEventListener('input', handleTyping);
             }
+            
+            // Check block status
+            await checkBlockStatus(otherUserId);
             
             await loadMessages(conversationId);
             startMessagePolling();
@@ -984,12 +1160,45 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
                     if (data.messages && data.messages.length > 0) {
                         for (const msg of data.messages) {
                             let decrypted;
-                            try {
-                                decrypted = await chatEncryption.decryptMessage(msg.encrypted_content, msg.iv, currentEncryptionKey);
-                            } catch (e) {
-                                console.error('Error decrypting message:', e);
-                                decrypted = 'Message';
+                            let isSharedContent = false;
+                            let sharedContentHTML = '';
+                            
+                            // Check if this is a shared content message
+                            if (msg.message_type === 'idea_share' || msg.message_type === 'project_share') {
+                                isSharedContent = true;
+                                const contentType = msg.message_type === 'idea_share' ? 'Idea' : 'Project';
+                                const contentId = msg.message_type === 'idea_share' ? msg.shared_idea_id : msg.shared_project_id;
+                                const viewLink = msg.message_type === 'idea_share' 
+                                    ? `../Blog/idea_details.php?id=${contentId}`
+                                    : `../view_idea.php?id=${contentId}`;
+                                
+                                decrypted = `Shared a ${contentType.toLowerCase()} with you`;
+                                
+                                // Create shared content card
+                                sharedContentHTML = `
+                                    <div class="shared-content-card">
+                                        <div class="shared-content-header">
+                                            <div class="shared-content-icon">
+                                                <i class="fas fa-${msg.message_type === 'idea_share' ? 'lightbulb' : 'project-diagram'}"></i>
+                                            </div>
+                                            <span class="shared-content-title">Shared ${contentType}</span>
+                                        </div>
+                                        <a href="${viewLink}" target="_blank" class="shared-content-link">
+                                            <i class="fas fa-external-link-alt"></i>
+                                            <span>View ${contentType}</span>
+                                        </a>
+                                    </div>
+                                `;
+                            } else {
+                                // Regular message - decrypt normally
+                                try {
+                                    decrypted = await chatEncryption.decryptMessage(msg.encrypted_content, msg.iv, currentEncryptionKey);
+                                } catch (e) {
+                                    console.error('Error decrypting message:', e);
+                                    decrypted = 'Message';
+                                }
                             }
+                            
                             const messageDiv = document.createElement('div');
                             messageDiv.className = `message ${msg.sender_id == currentUserId ? 'sent' : 'received'}`;
                             messageDiv.dataset.messageId = msg.id;
@@ -1002,9 +1211,11 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
                                         <i class="fas fa-ellipsis-v"></i>
                                     </button>
                                     <div class="message-dropdown" id="dropdown-${msg.id}">
+                                        ${!isSharedContent ? `
                                         <div class="message-dropdown-item" onclick="editMessage(event, ${msg.id}, '${escapedText}')">
                                             <i class="fas fa-edit"></i> Edit
                                         </div>
+                                        ` : ''}
                                         <div class="message-dropdown-item delete" onclick="deleteMessage(event, ${msg.id})">
                                             <i class="fas fa-trash"></i> Delete
                                         </div>
@@ -1016,6 +1227,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
                                 <div class="message-content">
                                     ${actions}
                                     <div class="message-text">${displayText}</div>
+                                    ${sharedContentHTML}
                                     <div class="message-time">${formatTime(msg.created_at)}</div>
                                 </div>
                             `;
@@ -1131,6 +1343,123 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             if (diff < 3600000) return Math.floor(diff / 60000) + 'm';
             if (diff < 86400000) return Math.floor(diff / 3600000) + 'h';
             return date.toLocaleDateString();
+        }
+        
+        // Block/Unblock functionality
+        let currentBlockStatus = false;
+        
+        async function checkBlockStatus(userId) {
+            try {
+                const response = await fetch(`api.php?action=check_block_status&user_id=${userId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentBlockStatus = data.i_blocked_them;
+                    updateBlockButton(data.i_blocked_them);
+                    
+                    // If blocked by them, show message
+                    if (data.they_blocked_me) {
+                        const messageInput = document.getElementById('messageInput');
+                        if (messageInput) {
+                            messageInput.disabled = true;
+                            messageInput.placeholder = 'You cannot message this user';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking block status:', error);
+            }
+        }
+        
+        function updateBlockButton(isBlocked) {
+            const blockBtn = document.getElementById('blockBtn');
+            if (blockBtn) {
+                if (isBlocked) {
+                    blockBtn.classList.add('blocked');
+                    blockBtn.title = 'Unblock user';
+                    blockBtn.innerHTML = '<i class="fas fa-ban"></i>';
+                } else {
+                    blockBtn.classList.remove('blocked');
+                    blockBtn.title = 'Block user';
+                    blockBtn.innerHTML = '<i class="fas fa-ban"></i>';
+                }
+            }
+        }
+        
+        async function toggleBlockUser(userId, userName) {
+            const action = currentBlockStatus ? 'unblock' : 'block';
+            const confirmMsg = currentBlockStatus 
+                ? `Unblock ${userName}? You will be able to message each other again.`
+                : `Block ${userName}? You won't be able to message each other.`;
+            
+            if (!confirm(confirmMsg)) return;
+            
+            try {
+                const formData = new FormData();
+                formData.append('action', currentBlockStatus ? 'unblock_user' : 'block_user');
+                formData.append('blocked_id', userId);
+                
+                const response = await fetch('api.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentBlockStatus = !currentBlockStatus;
+                    updateBlockButton(currentBlockStatus);
+                    
+                    // Show notification
+                    showNotification(data.message, 'success');
+                    
+                    // Disable/enable message input
+                    const messageInput = document.getElementById('messageInput');
+                    if (messageInput) {
+                        messageInput.disabled = currentBlockStatus;
+                        messageInput.placeholder = currentBlockStatus 
+                            ? 'You have blocked this user' 
+                            : 'Type a message...';
+                    }
+                    
+                    // Reload conversations to update UI
+                    await loadConversations();
+                } else {
+                    showNotification(data.message || 'Action failed', 'error');
+                }
+            } catch (error) {
+                console.error('Error toggling block:', error);
+                showNotification('Failed to ' + action + ' user', 'error');
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                font-weight: 500;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        function toggleChatMenu() {
+            // Placeholder for additional menu options
+            alert('More options coming soon!');
         }
 
         async function showNewChatModal() {
