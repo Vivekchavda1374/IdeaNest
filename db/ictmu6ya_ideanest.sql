@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Dec 02, 2025 at 05:52 AM
+-- Generation Time: Dec 02, 2025 at 07:28 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -107,6 +107,125 @@ CREATE TABLE `admin_settings` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `badges`
+--
+
+CREATE TABLE `badges` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `icon` varchar(50) NOT NULL,
+  `category` enum('project','social','mentor','streak','special') DEFAULT 'project',
+  `points_required` int(11) DEFAULT 0,
+  `condition_type` enum('projects_count','likes_received','comments_made','ideas_shared','mentor_sessions','streak_days','special') NOT NULL,
+  `condition_value` int(11) NOT NULL,
+  `rarity` enum('common','rare','epic','legendary') DEFAULT 'common',
+  `color` varchar(20) DEFAULT '#3b82f6',
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `badges`
+--
+
+INSERT INTO `badges` (`id`, `name`, `description`, `icon`, `category`, `points_required`, `condition_type`, `condition_value`, `rarity`, `color`, `is_active`, `created_at`) VALUES
+(1, 'First Steps', 'Submit your first project', 'fa-rocket', 'project', 0, 'projects_count', 1, 'common', '#10b981', 1, '2025-12-02 06:16:10'),
+(2, 'Project Enthusiast', 'Submit 5 projects', 'fa-folder-open', 'project', 50, 'projects_count', 5, 'common', '#3b82f6', 1, '2025-12-02 06:16:10'),
+(3, 'Project Master', 'Submit 10 projects', 'fa-trophy', 'project', 150, 'projects_count', 10, 'rare', '#8b5cf6', 1, '2025-12-02 06:16:10'),
+(4, 'Project Legend', 'Submit 25 projects', 'fa-crown', 'project', 500, 'projects_count', 25, 'epic', '#f59e0b', 1, '2025-12-02 06:16:10'),
+(5, 'Project God', 'Submit 50 projects', 'fa-star', 'project', 1000, 'projects_count', 50, 'legendary', '#ef4444', 1, '2025-12-02 06:16:10'),
+(6, 'Popular', 'Receive 10 likes', 'fa-heart', 'social', 20, 'likes_received', 10, 'common', '#ec4899', 1, '2025-12-02 06:16:10'),
+(7, 'Influencer', 'Receive 50 likes', 'fa-fire', 'social', 100, 'likes_received', 50, 'rare', '#f97316', 1, '2025-12-02 06:16:10'),
+(8, 'Celebrity', 'Receive 100 likes', 'fa-star', 'social', 250, 'likes_received', 100, 'epic', '#eab308', 1, '2025-12-02 06:16:10'),
+(9, 'Superstar', 'Receive 500 likes', 'fa-gem', 'social', 1000, 'likes_received', 500, 'legendary', '#a855f7', 1, '2025-12-02 06:16:10'),
+(10, 'Conversationalist', 'Make 25 comments', 'fa-comments', 'social', 50, 'comments_made', 25, 'common', '#06b6d4', 1, '2025-12-02 06:16:10'),
+(11, 'Discussion Leader', 'Make 100 comments', 'fa-comment-dots', 'social', 200, 'comments_made', 100, 'rare', '#0ea5e9', 1, '2025-12-02 06:16:10'),
+(12, 'Idea Starter', 'Share 5 ideas', 'fa-lightbulb', 'social', 30, 'ideas_shared', 5, 'common', '#fbbf24', 1, '2025-12-02 06:16:10'),
+(13, 'Innovation Hub', 'Share 20 ideas', 'fa-brain', 'social', 150, 'ideas_shared', 20, 'rare', '#f59e0b', 1, '2025-12-02 06:16:10'),
+(14, 'Visionary', 'Share 50 ideas', 'fa-magic', 'social', 500, 'ideas_shared', 50, 'epic', '#dc2626', 1, '2025-12-02 06:16:10'),
+(15, 'Mentor Rookie', 'Complete 1 mentor session', 'fa-chalkboard-teacher', 'mentor', 25, 'mentor_sessions', 1, 'common', '#10b981', 1, '2025-12-02 06:16:10'),
+(16, 'Mentor Guide', 'Complete 10 mentor sessions', 'fa-user-graduate', 'mentor', 150, 'mentor_sessions', 10, 'rare', '#3b82f6', 1, '2025-12-02 06:16:10'),
+(17, 'Mentor Expert', 'Complete 25 mentor sessions', 'fa-award', 'mentor', 400, 'mentor_sessions', 25, 'epic', '#8b5cf6', 1, '2025-12-02 06:16:10'),
+(18, 'Mentor Legend', 'Complete 50 mentor sessions', 'fa-medal', 'mentor', 1000, 'mentor_sessions', 50, 'legendary', '#f59e0b', 1, '2025-12-02 06:16:10'),
+(19, 'Consistent', '7 day login streak', 'fa-calendar-check', 'streak', 50, 'streak_days', 7, 'common', '#10b981', 1, '2025-12-02 06:16:10'),
+(20, 'Dedicated', '30 day login streak', 'fa-calendar-alt', 'streak', 200, 'streak_days', 30, 'rare', '#3b82f6', 1, '2025-12-02 06:16:10'),
+(21, 'Unstoppable', '90 day login streak', 'fa-fire-alt', 'streak', 600, 'streak_days', 90, 'epic', '#f59e0b', 1, '2025-12-02 06:16:10'),
+(22, 'Legendary Streak', '365 day login streak', 'fa-infinity', 'streak', 2000, 'streak_days', 365, 'legendary', '#ef4444', 1, '2025-12-02 06:16:10'),
+(23, 'Early Adopter', 'One of the first 100 users', 'fa-flag', 'special', 100, 'special', 1, 'rare', '#8b5cf6', 1, '2025-12-02 06:16:10'),
+(24, 'Community Hero', 'Awarded by admin for outstanding contribution', 'fa-shield-alt', 'special', 500, 'special', 1, 'legendary', '#dc2626', 1, '2025-12-02 06:16:10'),
+(25, 'Bug Hunter', 'Report a critical bug', 'fa-bug', 'special', 200, 'special', 1, 'epic', '#10b981', 1, '2025-12-02 06:16:10'),
+(26, 'Beta Tester', 'Test new features before release', 'fa-flask', 'special', 150, 'special', 1, 'rare', '#06b6d4', 1, '2025-12-02 06:16:10'),
+(27, 'First Steps', 'Submit your first project', 'fa-rocket', 'project', 0, 'projects_count', 1, 'common', '#10b981', 1, '2025-12-02 06:17:38'),
+(28, 'Project Enthusiast', 'Submit 5 projects', 'fa-folder-open', 'project', 50, 'projects_count', 5, 'common', '#3b82f6', 1, '2025-12-02 06:17:38'),
+(29, 'Project Master', 'Submit 10 projects', 'fa-trophy', 'project', 150, 'projects_count', 10, 'rare', '#8b5cf6', 1, '2025-12-02 06:17:38'),
+(30, 'Project Legend', 'Submit 25 projects', 'fa-crown', 'project', 500, 'projects_count', 25, 'epic', '#f59e0b', 1, '2025-12-02 06:17:38'),
+(31, 'Project God', 'Submit 50 projects', 'fa-star', 'project', 1000, 'projects_count', 50, 'legendary', '#ef4444', 1, '2025-12-02 06:17:38'),
+(32, 'Popular', 'Receive 10 likes', 'fa-heart', 'social', 20, 'likes_received', 10, 'common', '#ec4899', 1, '2025-12-02 06:17:38'),
+(33, 'Influencer', 'Receive 50 likes', 'fa-fire', 'social', 100, 'likes_received', 50, 'rare', '#f97316', 1, '2025-12-02 06:17:38'),
+(34, 'Celebrity', 'Receive 100 likes', 'fa-star', 'social', 250, 'likes_received', 100, 'epic', '#eab308', 1, '2025-12-02 06:17:38'),
+(35, 'Superstar', 'Receive 500 likes', 'fa-gem', 'social', 1000, 'likes_received', 500, 'legendary', '#a855f7', 1, '2025-12-02 06:17:38'),
+(36, 'Conversationalist', 'Make 25 comments', 'fa-comments', 'social', 50, 'comments_made', 25, 'common', '#06b6d4', 1, '2025-12-02 06:17:38'),
+(37, 'Discussion Leader', 'Make 100 comments', 'fa-comment-dots', 'social', 200, 'comments_made', 100, 'rare', '#0ea5e9', 1, '2025-12-02 06:17:38'),
+(38, 'Idea Starter', 'Share 5 ideas', 'fa-lightbulb', 'social', 30, 'ideas_shared', 5, 'common', '#fbbf24', 1, '2025-12-02 06:17:38'),
+(39, 'Innovation Hub', 'Share 20 ideas', 'fa-brain', 'social', 150, 'ideas_shared', 20, 'rare', '#f59e0b', 1, '2025-12-02 06:17:38'),
+(40, 'Visionary', 'Share 50 ideas', 'fa-magic', 'social', 500, 'ideas_shared', 50, 'epic', '#dc2626', 1, '2025-12-02 06:17:38'),
+(41, 'Mentor Rookie', 'Complete 1 mentor session', 'fa-chalkboard-teacher', 'mentor', 25, 'mentor_sessions', 1, 'common', '#10b981', 1, '2025-12-02 06:17:38'),
+(42, 'Mentor Guide', 'Complete 10 mentor sessions', 'fa-user-graduate', 'mentor', 150, 'mentor_sessions', 10, 'rare', '#3b82f6', 1, '2025-12-02 06:17:38'),
+(43, 'Mentor Expert', 'Complete 25 mentor sessions', 'fa-award', 'mentor', 400, 'mentor_sessions', 25, 'epic', '#8b5cf6', 1, '2025-12-02 06:17:38'),
+(44, 'Mentor Legend', 'Complete 50 mentor sessions', 'fa-medal', 'mentor', 1000, 'mentor_sessions', 50, 'legendary', '#f59e0b', 1, '2025-12-02 06:17:38'),
+(45, 'Consistent', '7 day login streak', 'fa-calendar-check', 'streak', 50, 'streak_days', 7, 'common', '#10b981', 1, '2025-12-02 06:17:38'),
+(46, 'Dedicated', '30 day login streak', 'fa-calendar-alt', 'streak', 200, 'streak_days', 30, 'rare', '#3b82f6', 1, '2025-12-02 06:17:38'),
+(47, 'Unstoppable', '90 day login streak', 'fa-fire-alt', 'streak', 600, 'streak_days', 90, 'epic', '#f59e0b', 1, '2025-12-02 06:17:38'),
+(48, 'Legendary Streak', '365 day login streak', 'fa-infinity', 'streak', 2000, 'streak_days', 365, 'legendary', '#ef4444', 1, '2025-12-02 06:17:38'),
+(49, 'Early Adopter', 'One of the first 100 users', 'fa-flag', 'special', 100, 'special', 1, 'rare', '#8b5cf6', 1, '2025-12-02 06:17:38'),
+(50, 'Community Hero', 'Awarded by admin for outstanding contribution', 'fa-shield-alt', 'special', 500, 'special', 1, 'legendary', '#dc2626', 1, '2025-12-02 06:17:38'),
+(51, 'Bug Hunter', 'Report a critical bug', 'fa-bug', 'special', 200, 'special', 1, 'epic', '#10b981', 1, '2025-12-02 06:17:38'),
+(52, 'Beta Tester', 'Test new features before release', 'fa-flask', 'special', 150, 'special', 1, 'rare', '#06b6d4', 1, '2025-12-02 06:17:38'),
+(53, 'First Steps', 'Submit your first project', 'fa-rocket', 'project', 0, 'projects_count', 1, 'common', '#10b981', 1, '2025-12-02 06:18:54'),
+(54, 'Project Enthusiast', 'Submit 5 projects', 'fa-folder-open', 'project', 50, 'projects_count', 5, 'common', '#3b82f6', 1, '2025-12-02 06:18:54'),
+(55, 'Project Master', 'Submit 10 projects', 'fa-trophy', 'project', 150, 'projects_count', 10, 'rare', '#8b5cf6', 1, '2025-12-02 06:18:54'),
+(56, 'Project Legend', 'Submit 25 projects', 'fa-crown', 'project', 500, 'projects_count', 25, 'epic', '#f59e0b', 1, '2025-12-02 06:18:54'),
+(57, 'Project God', 'Submit 50 projects', 'fa-star', 'project', 1000, 'projects_count', 50, 'legendary', '#ef4444', 1, '2025-12-02 06:18:54'),
+(58, 'Popular', 'Receive 10 likes', 'fa-heart', 'social', 20, 'likes_received', 10, 'common', '#ec4899', 1, '2025-12-02 06:18:54'),
+(59, 'Influencer', 'Receive 50 likes', 'fa-fire', 'social', 100, 'likes_received', 50, 'rare', '#f97316', 1, '2025-12-02 06:18:54'),
+(60, 'Celebrity', 'Receive 100 likes', 'fa-star', 'social', 250, 'likes_received', 100, 'epic', '#eab308', 1, '2025-12-02 06:18:54'),
+(61, 'Superstar', 'Receive 500 likes', 'fa-gem', 'social', 1000, 'likes_received', 500, 'legendary', '#a855f7', 1, '2025-12-02 06:18:54'),
+(62, 'Conversationalist', 'Make 25 comments', 'fa-comments', 'social', 50, 'comments_made', 25, 'common', '#06b6d4', 1, '2025-12-02 06:18:54'),
+(63, 'Discussion Leader', 'Make 100 comments', 'fa-comment-dots', 'social', 200, 'comments_made', 100, 'rare', '#0ea5e9', 1, '2025-12-02 06:18:54'),
+(64, 'Idea Starter', 'Share 5 ideas', 'fa-lightbulb', 'social', 30, 'ideas_shared', 5, 'common', '#fbbf24', 1, '2025-12-02 06:18:54'),
+(65, 'Innovation Hub', 'Share 20 ideas', 'fa-brain', 'social', 150, 'ideas_shared', 20, 'rare', '#f59e0b', 1, '2025-12-02 06:18:54'),
+(66, 'Visionary', 'Share 50 ideas', 'fa-magic', 'social', 500, 'ideas_shared', 50, 'epic', '#dc2626', 1, '2025-12-02 06:18:54'),
+(67, 'Mentor Rookie', 'Complete 1 mentor session', 'fa-chalkboard-teacher', 'mentor', 25, 'mentor_sessions', 1, 'common', '#10b981', 1, '2025-12-02 06:18:54'),
+(68, 'Mentor Guide', 'Complete 10 mentor sessions', 'fa-user-graduate', 'mentor', 150, 'mentor_sessions', 10, 'rare', '#3b82f6', 1, '2025-12-02 06:18:54'),
+(69, 'Mentor Expert', 'Complete 25 mentor sessions', 'fa-award', 'mentor', 400, 'mentor_sessions', 25, 'epic', '#8b5cf6', 1, '2025-12-02 06:18:54'),
+(70, 'Mentor Legend', 'Complete 50 mentor sessions', 'fa-medal', 'mentor', 1000, 'mentor_sessions', 50, 'legendary', '#f59e0b', 1, '2025-12-02 06:18:54'),
+(71, 'Consistent', '7 day login streak', 'fa-calendar-check', 'streak', 50, 'streak_days', 7, 'common', '#10b981', 1, '2025-12-02 06:18:54'),
+(72, 'Dedicated', '30 day login streak', 'fa-calendar-alt', 'streak', 200, 'streak_days', 30, 'rare', '#3b82f6', 1, '2025-12-02 06:18:54'),
+(73, 'Unstoppable', '90 day login streak', 'fa-fire-alt', 'streak', 600, 'streak_days', 90, 'epic', '#f59e0b', 1, '2025-12-02 06:18:54'),
+(74, 'Legendary Streak', '365 day login streak', 'fa-infinity', 'streak', 2000, 'streak_days', 365, 'legendary', '#ef4444', 1, '2025-12-02 06:18:54'),
+(75, 'Early Adopter', 'One of the first 100 users', 'fa-flag', 'special', 100, 'special', 1, 'rare', '#8b5cf6', 1, '2025-12-02 06:18:54'),
+(76, 'Community Hero', 'Awarded by admin for outstanding contribution', 'fa-shield-alt', 'special', 500, 'special', 1, 'legendary', '#dc2626', 1, '2025-12-02 06:18:54'),
+(77, 'Bug Hunter', 'Report a critical bug', 'fa-bug', 'special', 200, 'special', 1, 'epic', '#10b981', 1, '2025-12-02 06:18:54'),
+(78, 'Beta Tester', 'Test new features before release', 'fa-flask', 'special', 150, 'special', 1, 'rare', '#06b6d4', 1, '2025-12-02 06:18:54');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `blocked_users`
+--
+
+CREATE TABLE `blocked_users` (
+  `id` int(11) NOT NULL,
+  `blocker_id` int(11) NOT NULL COMMENT 'User who blocked',
+  `blocked_id` int(11) NOT NULL COMMENT 'User who is blocked',
+  `reason` varchar(255) DEFAULT NULL,
+  `blocked_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `blog`
 --
 
@@ -195,6 +314,7 @@ CREATE TABLE `conversations` (
   `last_message_id` int(11) DEFAULT NULL,
   `last_message_at` timestamp NULL DEFAULT NULL,
   `encryption_key` text DEFAULT NULL,
+  `is_blocked` tinyint(1) DEFAULT 0,
   `user1_unread` int(11) DEFAULT 0,
   `user2_unread` int(11) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -205,8 +325,8 @@ CREATE TABLE `conversations` (
 -- Dumping data for table `conversations`
 --
 
-INSERT INTO `conversations` (`id`, `user1_id`, `user2_id`, `last_message_id`, `last_message_at`, `encryption_key`, `user1_unread`, `user2_unread`, `created_at`, `updated_at`) VALUES
-(3, 3, 2, 2, '2025-12-01 15:39:48', '45SZpi6DlvDayl8aHBj9e5wPP7vP2h/RZzhe5Ia+yik=', 0, 0, '2025-12-01 15:27:12', '2025-12-01 15:39:50');
+INSERT INTO `conversations` (`id`, `user1_id`, `user2_id`, `last_message_id`, `last_message_at`, `encryption_key`, `is_blocked`, `user1_unread`, `user2_unread`, `created_at`, `updated_at`) VALUES
+(3, 3, 2, 16, '2025-12-02 05:28:58', '45SZpi6DlvDayl8aHBj9e5wPP7vP2h/RZzhe5Ia+yik=', 0, 0, 0, '2025-12-01 15:27:12', '2025-12-02 05:41:24');
 
 -- --------------------------------------------------------
 
@@ -780,6 +900,27 @@ CREATE TABLE `idea_warnings` (
 -- --------------------------------------------------------
 
 --
+-- Stand-in structure for view `leaderboard_view`
+-- (See below for the actual view)
+--
+CREATE TABLE `leaderboard_view` (
+`id` int(11)
+,`user_name` varchar(100)
+,`email` varchar(100)
+,`profile_image` text
+,`total_points` int(11)
+,`level` int(11)
+,`current_streak` int(11)
+,`longest_streak` int(11)
+,`badges_count` bigint(21)
+,`projects_count` bigint(21)
+,`ideas_count` bigint(21)
+,`total_likes` bigint(21)
+);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `login`
 --
 
@@ -1053,6 +1194,10 @@ CREATE TABLE `messages` (
   `sender_id` int(11) NOT NULL,
   `receiver_id` int(11) NOT NULL,
   `encrypted_content` text NOT NULL,
+  `shared_idea_id` int(11) DEFAULT NULL,
+  `shared_project_id` int(11) DEFAULT NULL,
+  `message_type` enum('text','idea_share','project_share','file','image') DEFAULT 'text',
+  `attachment_path` varchar(255) DEFAULT NULL,
   `iv` varchar(32) NOT NULL,
   `is_read` tinyint(1) DEFAULT 0,
   `read_at` timestamp NULL DEFAULT NULL,
@@ -1065,9 +1210,19 @@ CREATE TABLE `messages` (
 -- Dumping data for table `messages`
 --
 
-INSERT INTO `messages` (`id`, `conversation_id`, `sender_id`, `receiver_id`, `encrypted_content`, `iv`, `is_read`, `read_at`, `deleted_by_sender`, `deleted_by_receiver`, `created_at`) VALUES
-(1, 3, 3, 2, 'EVu5tlr9Mrkv0qmsmC+jInq7', 'H0Ei0DmugKMilQqK', 1, '2025-12-01 15:39:29', 0, 0, '2025-12-01 15:39:29'),
-(2, 3, 2, 3, 'b2zGoXP2yS9RGdGdgkb85f7ZCzR7', 'O6G7PO+SPxc891Qj', 1, '2025-12-01 15:39:50', 0, 0, '2025-12-01 15:39:48');
+INSERT INTO `messages` (`id`, `conversation_id`, `sender_id`, `receiver_id`, `encrypted_content`, `shared_idea_id`, `shared_project_id`, `message_type`, `attachment_path`, `iv`, `is_read`, `read_at`, `deleted_by_sender`, `deleted_by_receiver`, `created_at`) VALUES
+(1, 3, 3, 2, 'EVu5tlr9Mrkv0qmsmC+jInq7', NULL, NULL, 'text', NULL, 'H0Ei0DmugKMilQqK', 1, '2025-12-01 15:39:29', 0, 0, '2025-12-01 15:39:29'),
+(2, 3, 2, 3, 'b2zGoXP2yS9RGdGdgkb85f7ZCzR7', NULL, NULL, 'text', NULL, 'O6G7PO+SPxc891Qj', 1, '2025-12-01 15:39:50', 0, 0, '2025-12-01 15:39:48'),
+(7, 3, 3, 2, '0', 1, NULL, 'idea_share', NULL, 'c1e7d086c379d6bd', 1, '2025-12-02 05:27:27', 0, 0, '2025-12-02 05:15:40'),
+(8, 3, 3, 2, '0', 1, NULL, 'idea_share', NULL, 'de5ab430d2155da3', 1, '2025-12-02 05:27:27', 0, 0, '2025-12-02 05:16:02'),
+(9, 3, 3, 2, '0', 1, NULL, 'idea_share', NULL, '81d2be65533c19e9', 1, '2025-12-02 05:27:27', 0, 0, '2025-12-02 05:18:35'),
+(10, 3, 3, 2, 'OEblOccF3bTnW6fLDNf5fOKk', NULL, NULL, 'text', NULL, '8yREmuILG2Rz1J97', 1, '2025-12-02 05:27:27', 0, 0, '2025-12-02 05:20:39'),
+(11, 3, 3, 2, '0', 1, NULL, 'idea_share', NULL, '9d3f5f0fe7bdb2f6', 1, '2025-12-02 05:27:27', 0, 0, '2025-12-02 05:20:52'),
+(12, 3, 3, 2, 'OX+zeyX7sik11ZUdrdRjBhmP', NULL, NULL, 'text', NULL, 'h7Wu8mpHGZXv60jX', 1, '2025-12-02 05:27:27', 0, 0, '2025-12-02 05:24:55'),
+(13, 3, 3, 2, 'YDRqRTeiUzmRD9YfNzB3cfKWHsTr', NULL, NULL, 'text', NULL, 'N28mV4w7Q+CvXaz9', 1, '2025-12-02 05:27:27', 0, 0, '2025-12-02 05:24:59'),
+(14, 3, 3, 2, '0', 1, NULL, 'idea_share', NULL, '', 1, '2025-12-02 05:27:27', 0, 0, '2025-12-02 05:25:13'),
+(15, 3, 2, 3, '0', NULL, 1, 'project_share', NULL, '', 1, '2025-12-02 05:32:31', 0, 0, '2025-12-02 05:28:03'),
+(16, 3, 2, 3, '0', 1, NULL, 'idea_share', NULL, '', 1, '2025-12-02 05:32:31', 0, 0, '2025-12-02 05:28:58');
 
 -- --------------------------------------------------------
 
@@ -1094,6 +1249,51 @@ INSERT INTO `message_requests` (`id`, `sender_id`, `receiver_id`, `status`, `cre
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `message_shares`
+--
+
+CREATE TABLE `message_shares` (
+  `id` int(11) NOT NULL,
+  `message_id` int(11) NOT NULL,
+  `sender_id` int(11) NOT NULL,
+  `receiver_id` int(11) NOT NULL,
+  `content_type` enum('idea','project') NOT NULL,
+  `content_id` int(11) NOT NULL,
+  `viewed` tinyint(1) DEFAULT 0,
+  `viewed_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `message_shares`
+--
+
+INSERT INTO `message_shares` (`id`, `message_id`, `sender_id`, `receiver_id`, `content_type`, `content_id`, `viewed`, `viewed_at`, `created_at`) VALUES
+(1, 9, 3, 2, 'idea', 1, 0, NULL, '2025-12-02 05:18:35'),
+(2, 11, 3, 2, 'idea', 1, 0, NULL, '2025-12-02 05:20:52'),
+(3, 14, 3, 2, 'idea', 1, 0, NULL, '2025-12-02 05:25:13'),
+(4, 15, 2, 3, 'project', 1, 0, NULL, '2025-12-02 05:28:03'),
+(5, 16, 2, 3, 'idea', 1, 0, NULL, '2025-12-02 05:28:58');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `message_share_statistics`
+-- (See below for the actual view)
+--
+CREATE TABLE `message_share_statistics` (
+`content_type` enum('idea','project')
+,`content_id` int(11)
+,`total_shares` bigint(21)
+,`viewed_shares` bigint(21)
+,`unique_receivers` bigint(21)
+,`first_shared_at` timestamp
+,`last_shared_at` timestamp
+);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `notifications`
 --
 
@@ -1107,6 +1307,17 @@ CREATE TABLE `notifications` (
   `is_read` tinyint(1) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`id`, `user_id`, `type`, `title`, `message`, `link`, `is_read`, `created_at`) VALUES
+(1, 2, 'message_share', 'New Idea Shared', 'Someone shared a idea with you: Smart Home Automation System', 'messages.php?conversation=3', 0, '2025-12-02 05:18:35'),
+(2, 2, 'message_share', 'New Idea Shared', 'Someone shared a idea with you: Smart Home Automation System', 'messages.php?conversation=3', 0, '2025-12-02 05:20:52'),
+(3, 2, 'message_share', 'New Idea Shared', 'Someone shared a idea with you: Smart Home Automation System', 'messages.php?conversation=3', 0, '2025-12-02 05:25:13'),
+(4, 3, 'message_share', 'New Project Shared', 'Someone shared a project with you: Automated Attendance System with Face Recognition', 'messages.php?conversation=3', 0, '2025-12-02 05:28:03'),
+(5, 3, 'message_share', 'New Idea Shared', 'Someone shared a idea with you: Smart Home Automation System', 'messages.php?conversation=3', 0, '2025-12-02 05:28:58');
 
 -- --------------------------------------------------------
 
@@ -1157,6 +1368,22 @@ CREATE TABLE `notification_templates` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `points_history`
+--
+
+CREATE TABLE `points_history` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `points` int(11) NOT NULL,
+  `action_type` enum('project_submit','project_approved','idea_posted','like_received','comment_made','mentor_session','daily_login','badge_earned','manual') NOT NULL,
+  `reference_id` int(11) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -1574,23 +1801,8 @@ CREATE TABLE `typing_indicators` (
 --
 
 INSERT INTO `typing_indicators` (`id`, `conversation_id`, `user_id`, `is_typing`, `updated_at`) VALUES
-(20, 3, 3, 0, '2025-12-01 15:39:29'),
+(20, 3, 3, 0, '2025-12-02 05:25:00'),
 (23, 3, 2, 0, '2025-12-01 15:39:50');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
-
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `role` enum('user','moderator','admin') NOT NULL DEFAULT 'user',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -1608,6 +1820,34 @@ CREATE TABLE `user_activity_log` (
   `user_agent` text DEFAULT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_badges`
+--
+
+CREATE TABLE `user_badges` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `badge_id` int(11) NOT NULL,
+  `earned_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_displayed` tinyint(1) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `user_block_status`
+-- (See below for the actual view)
+--
+CREATE TABLE `user_block_status` (
+`blocker_id` int(11)
+,`blocked_id` int(11)
+,`blocked_at` timestamp
+,`blocker_name` varchar(100)
+,`blocked_name` varchar(100)
+);
 
 -- --------------------------------------------------------
 
@@ -1636,6 +1876,13 @@ CREATE TABLE `user_follows` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `notification_enabled` tinyint(1) DEFAULT 1 COMMENT 'Notify follower of new content'
 ) ;
+
+--
+-- Dumping data for table `user_follows`
+--
+
+INSERT INTO `user_follows` (`id`, `follower_id`, `following_id`, `created_at`, `notification_enabled`) VALUES
+(14, 3, 2, '2025-12-02 05:00:16', 1);
 
 -- --------------------------------------------------------
 
@@ -1693,8 +1940,8 @@ CREATE TABLE `user_follow_stats` (
 --
 
 INSERT INTO `user_follow_stats` (`id`, `user_id`, `followers_count`, `following_count`, `last_updated`) VALUES
-(11, 2, 0, 0, '2025-12-01 15:13:06'),
-(12, 3, 0, 0, '2025-12-01 15:13:06');
+(11, 2, 1, 0, '2025-12-02 05:00:16'),
+(12, 3, 0, 1, '2025-12-02 05:00:16');
 
 -- --------------------------------------------------------
 
@@ -1736,7 +1983,37 @@ INSERT INTO `user_notifications` (`id`, `user_id`, `notification_type`, `title`,
 (11, 2, 'new_follower', 'New Follower', 'Bhavik kaldiya started following you', 3, 'user', 0, NULL, '2025-12-01 13:13:08', NULL, 'bi-person-plus', 'info'),
 (12, 2, 'new_follower', 'New Follower', 'Bhavik kaldiya started following you', 3, 'user', 0, NULL, '2025-12-01 13:26:29', NULL, 'bi-person-plus', 'info'),
 (13, 3, 'new_follower', 'New Follower', 'vivek chavda started following you', 2, 'user', 0, NULL, '2025-12-01 13:29:43', NULL, 'bi-person-plus', 'info'),
-(14, 2, 'new_follower', 'New Follower', 'Bhavik kaldiya started following you', 3, 'user', 0, NULL, '2025-12-01 15:13:04', NULL, 'bi-person-plus', 'info');
+(14, 2, 'new_follower', 'New Follower', 'Bhavik kaldiya started following you', 3, 'user', 0, NULL, '2025-12-01 15:13:04', NULL, 'bi-person-plus', 'info'),
+(15, 2, 'new_follower', 'New Follower', 'Bhavik kaldiya started following you', 3, 'user', 0, NULL, '2025-12-02 05:00:12', NULL, 'bi-person-plus', 'info'),
+(16, 2, 'new_follower', 'New Follower', 'Bhavik kaldiya started following you', 3, 'user', 0, NULL, '2025-12-02 05:00:16', NULL, 'bi-person-plus', 'info');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_points`
+--
+
+CREATE TABLE `user_points` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `total_points` int(11) DEFAULT 0,
+  `level` int(11) DEFAULT 1,
+  `current_streak` int(11) DEFAULT 0,
+  `longest_streak` int(11) DEFAULT 0,
+  `last_activity_date` date DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_points`
+--
+
+INSERT INTO `user_points` (`id`, `user_id`, `total_points`, `level`, `current_streak`, `longest_streak`, `last_activity_date`, `created_at`, `updated_at`) VALUES
+(1, 3, 0, 1, 0, 0, NULL, '2025-12-02 06:16:10', '2025-12-02 06:16:10'),
+(2, 2, 0, 1, 0, 0, NULL, '2025-12-02 06:16:10', '2025-12-02 06:16:10'),
+(3, 4, 0, 1, 0, 0, NULL, '2025-12-02 06:16:10', '2025-12-02 06:16:10'),
+(4, 1, 0, 1, 0, 0, NULL, '2025-12-02 06:16:10', '2025-12-02 06:16:10');
 
 -- --------------------------------------------------------
 
@@ -1750,11 +2027,38 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 -- --------------------------------------------------------
 
 --
+-- Structure for view `leaderboard_view`
+--
+DROP TABLE IF EXISTS `leaderboard_view`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `leaderboard_view`  AS SELECT `r`.`id` AS `id`, `r`.`name` AS `user_name`, `r`.`email` AS `email`, `r`.`user_image` AS `profile_image`, `up`.`total_points` AS `total_points`, `up`.`level` AS `level`, `up`.`current_streak` AS `current_streak`, `up`.`longest_streak` AS `longest_streak`, count(distinct `ub`.`badge_id`) AS `badges_count`, count(distinct `p`.`id`) AS `projects_count`, count(distinct `b`.`id`) AS `ideas_count`, (select count(0) from `idea_likes` where `idea_likes`.`idea_id` in (select `blog`.`id` from `blog` where `blog`.`user_id` = `r`.`id`)) AS `total_likes` FROM ((((`register` `r` left join `user_points` `up` on(`r`.`id` = `up`.`user_id`)) left join `user_badges` `ub` on(`r`.`id` = `ub`.`user_id`)) left join `projects` `p` on(`r`.`id` = `p`.`user_id`)) left join `blog` `b` on(`r`.`id` = `b`.`user_id`)) GROUP BY `r`.`id` ORDER BY `up`.`total_points` DESC, `up`.`level` DESC ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `message_share_statistics`
+--
+DROP TABLE IF EXISTS `message_share_statistics`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `message_share_statistics`  AS SELECT `ms`.`content_type` AS `content_type`, `ms`.`content_id` AS `content_id`, count(distinct `ms`.`id`) AS `total_shares`, count(distinct case when `ms`.`viewed` = 1 then `ms`.`id` end) AS `viewed_shares`, count(distinct `ms`.`receiver_id`) AS `unique_receivers`, min(`ms`.`created_at`) AS `first_shared_at`, max(`ms`.`created_at`) AS `last_shared_at` FROM `message_shares` AS `ms` GROUP BY `ms`.`content_type`, `ms`.`content_id` ;
+
+-- --------------------------------------------------------
+
+--
 -- Structure for view `trending_ideas`
 --
 DROP TABLE IF EXISTS `trending_ideas`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `trending_ideas`  AS SELECT `b`.`id` AS `id`, `b`.`project_name` AS `project_name`, `b`.`classification` AS `classification`, `b`.`project_type` AS `project_type`, count(distinct `il`.`id`) AS `recent_likes`, count(distinct `ic`.`id`) AS `recent_comments`, count(distinct `iv`.`id`) AS `recent_views`, count(distinct `il`.`id`) * 3 + count(distinct `ic`.`id`) * 5 + count(distinct `iv`.`id`) AS `engagement_score` FROM (((`blog` `b` left join `idea_likes` `il` on(`b`.`id` = `il`.`idea_id` and `il`.`created_at` >= current_timestamp() - interval 7 day)) left join `idea_comments` `ic` on(`b`.`id` = `ic`.`idea_id` and `ic`.`created_at` >= current_timestamp() - interval 7 day)) left join `idea_views` `iv` on(`b`.`id` = `iv`.`idea_id` and `iv`.`viewed_at` >= current_timestamp() - interval 7 day)) GROUP BY `b`.`id` HAVING `engagement_score` > 0 ORDER BY count(distinct `il`.`id`) * 3 + count(distinct `ic`.`id`) * 5 + count(distinct `iv`.`id`) DESC ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `user_block_status`
+--
+DROP TABLE IF EXISTS `user_block_status`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `user_block_status`  AS SELECT `bu`.`blocker_id` AS `blocker_id`, `bu`.`blocked_id` AS `blocked_id`, `bu`.`blocked_at` AS `blocked_at`, `r1`.`name` AS `blocker_name`, `r2`.`name` AS `blocked_name` FROM ((`blocked_users` `bu` join `register` `r1` on(`bu`.`blocker_id` = `r1`.`id`)) join `register` `r2` on(`bu`.`blocked_id` = `r2`.`id`)) ;
 
 -- --------------------------------------------------------
 
@@ -1798,6 +2102,23 @@ ALTER TABLE `admin_logs`
 ALTER TABLE `admin_settings`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `setting_key` (`setting_key`);
+
+--
+-- Indexes for table `badges`
+--
+ALTER TABLE `badges`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_badges_category` (`category`);
+
+--
+-- Indexes for table `blocked_users`
+--
+ALTER TABLE `blocked_users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_block` (`blocker_id`,`blocked_id`),
+  ADD KEY `idx_blocker` (`blocker_id`),
+  ADD KEY `idx_blocked` (`blocked_id`),
+  ADD KEY `idx_block_check` (`blocker_id`,`blocked_id`);
 
 --
 -- Indexes for table `blog`
@@ -2085,7 +2406,10 @@ ALTER TABLE `messages`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_conversation` (`conversation_id`,`created_at`),
   ADD KEY `idx_sender` (`sender_id`),
-  ADD KEY `idx_receiver` (`receiver_id`,`is_read`);
+  ADD KEY `idx_receiver` (`receiver_id`,`is_read`),
+  ADD KEY `idx_messages_shared_idea` (`shared_idea_id`),
+  ADD KEY `idx_messages_shared_project` (`shared_project_id`),
+  ADD KEY `idx_messages_type` (`message_type`);
 
 --
 -- Indexes for table `message_requests`
@@ -2094,6 +2418,16 @@ ALTER TABLE `message_requests`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unique_request` (`sender_id`,`receiver_id`),
   ADD KEY `receiver_id` (`receiver_id`);
+
+--
+-- Indexes for table `message_shares`
+--
+ALTER TABLE `message_shares`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_message_id` (`message_id`),
+  ADD KEY `idx_sender_id` (`sender_id`),
+  ADD KEY `idx_receiver_id` (`receiver_id`),
+  ADD KEY `idx_content` (`content_type`,`content_id`);
 
 --
 -- Indexes for table `notifications`
@@ -2128,6 +2462,15 @@ ALTER TABLE `notification_logs`
 ALTER TABLE `notification_templates`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unique_type` (`type`);
+
+--
+-- Indexes for table `points_history`
+--
+ALTER TABLE `points_history`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_user` (`user_id`),
+  ADD KEY `idx_date` (`created_at`),
+  ADD KEY `idx_points_history_user_date` (`user_id`,`created_at`);
 
 --
 -- Indexes for table `progress_milestones`
@@ -2296,13 +2639,6 @@ ALTER TABLE `typing_indicators`
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
-
---
 -- Indexes for table `user_activity_log`
 --
 ALTER TABLE `user_activity_log`
@@ -2311,6 +2647,16 @@ ALTER TABLE `user_activity_log`
   ADD KEY `idx_action` (`action`),
   ADD KEY `idx_project_id` (`project_id`),
   ADD KEY `idx_timestamp` (`timestamp`);
+
+--
+-- Indexes for table `user_badges`
+--
+ALTER TABLE `user_badges`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_badge` (`user_id`,`badge_id`),
+  ADD KEY `badge_id` (`badge_id`),
+  ADD KEY `idx_user` (`user_id`),
+  ADD KEY `idx_earned` (`earned_at`);
 
 --
 -- Indexes for table `user_encryption_keys`
@@ -2360,6 +2706,16 @@ ALTER TABLE `user_notifications`
   ADD KEY `idx_user_unread` (`user_id`,`is_read`,`created_at`);
 
 --
+-- Indexes for table `user_points`
+--
+ALTER TABLE `user_points`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user` (`user_id`),
+  ADD KEY `idx_points` (`total_points`),
+  ADD KEY `idx_level` (`level`),
+  ADD KEY `idx_user_points_user` (`user_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -2380,6 +2736,18 @@ ALTER TABLE `admin_logs`
 --
 ALTER TABLE `admin_settings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `badges`
+--
+ALTER TABLE `badges`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
+
+--
+-- AUTO_INCREMENT for table `blocked_users`
+--
+ALTER TABLE `blocked_users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `blog`
@@ -2565,7 +2933,7 @@ ALTER TABLE `mentor_student_pairs`
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `message_requests`
@@ -2574,10 +2942,16 @@ ALTER TABLE `message_requests`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `message_shares`
+--
+ALTER TABLE `message_shares`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `notification_counters`
@@ -2595,6 +2969,12 @@ ALTER TABLE `notification_logs`
 -- AUTO_INCREMENT for table `notification_templates`
 --
 ALTER TABLE `notification_templates`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `points_history`
+--
+ALTER TABLE `points_history`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -2697,18 +3077,18 @@ ALTER TABLE `temp_credentials`
 -- AUTO_INCREMENT for table `typing_indicators`
 --
 ALTER TABLE `typing_indicators`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
-
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
 
 --
 -- AUTO_INCREMENT for table `user_activity_log`
 --
 ALTER TABLE `user_activity_log`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `user_badges`
+--
+ALTER TABLE `user_badges`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -2733,17 +3113,30 @@ ALTER TABLE `user_follow_notifications`
 -- AUTO_INCREMENT for table `user_follow_stats`
 --
 ALTER TABLE `user_follow_stats`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `user_notifications`
 --
 ALTER TABLE `user_notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT for table `user_points`
+--
+ALTER TABLE `user_points`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `blocked_users`
+--
+ALTER TABLE `blocked_users`
+  ADD CONSTRAINT `fk_blocked_user` FOREIGN KEY (`blocked_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_blocker_user` FOREIGN KEY (`blocker_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `blog`
@@ -2909,6 +3302,8 @@ ALTER TABLE `mentor_student_pairs`
 -- Constraints for table `messages`
 --
 ALTER TABLE `messages`
+  ADD CONSTRAINT `fk_messages_idea` FOREIGN KEY (`shared_idea_id`) REFERENCES `blog` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_messages_project` FOREIGN KEY (`shared_project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`conversation_id`) REFERENCES `conversations` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `messages_ibfk_3` FOREIGN KEY (`receiver_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
@@ -2919,6 +3314,20 @@ ALTER TABLE `messages`
 ALTER TABLE `message_requests`
   ADD CONSTRAINT `message_requests_ibfk_1` FOREIGN KEY (`sender_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `message_requests_ibfk_2` FOREIGN KEY (`receiver_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `message_shares`
+--
+ALTER TABLE `message_shares`
+  ADD CONSTRAINT `fk_message_shares_message` FOREIGN KEY (`message_id`) REFERENCES `messages` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_message_shares_receiver` FOREIGN KEY (`receiver_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_message_shares_sender` FOREIGN KEY (`sender_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `points_history`
+--
+ALTER TABLE `points_history`
+  ADD CONSTRAINT `points_history_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `student_email_preferences`
@@ -2966,42 +3375,4 @@ ALTER TABLE `support_ticket_replies`
 -- Constraints for table `typing_indicators`
 --
 ALTER TABLE `typing_indicators`
-  ADD CONSTRAINT `typing_indicators_ibfk_1` FOREIGN KEY (`conversation_id`) REFERENCES `conversations` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `typing_indicators_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `user_encryption_keys`
---
-ALTER TABLE `user_encryption_keys`
-  ADD CONSTRAINT `user_encryption_keys_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `user_follows`
---
-ALTER TABLE `user_follows`
-  ADD CONSTRAINT `fk_user_follows_follower` FOREIGN KEY (`follower_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_user_follows_following` FOREIGN KEY (`following_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `user_follow_notifications`
---
-ALTER TABLE `user_follow_notifications`
-  ADD CONSTRAINT `fk_follow_notif_follower` FOREIGN KEY (`follower_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_follow_notif_following` FOREIGN KEY (`following_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `user_follow_stats`
---
-ALTER TABLE `user_follow_stats`
-  ADD CONSTRAINT `fk_user_follow_stats_user` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `user_notifications`
---
-ALTER TABLE `user_notifications`
-  ADD CONSTRAINT `user_notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+  ADD CONSTRAINT `typing_indicators_
