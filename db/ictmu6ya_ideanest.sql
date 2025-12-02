@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Dec 01, 2025 at 06:00 AM
+-- Generation Time: Dec 02, 2025 at 05:52 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -158,6 +158,55 @@ CREATE TABLE `bookmark` (
   `idea_id` int(11) DEFAULT 0,
   `bookmarked_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `chat_requests`
+--
+
+CREATE TABLE `chat_requests` (
+  `id` int(11) NOT NULL,
+  `sender_id` int(11) NOT NULL,
+  `receiver_id` int(11) NOT NULL,
+  `status` enum('pending','accepted','rejected') DEFAULT 'pending',
+  `message` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `chat_requests`
+--
+
+INSERT INTO `chat_requests` (`id`, `sender_id`, `receiver_id`, `status`, `message`, `created_at`, `updated_at`) VALUES
+(1, 3, 2, 'pending', 'Hi, I would like to connect with you!', '2025-12-01 13:26:18', '2025-12-01 13:26:18');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `conversations`
+--
+
+CREATE TABLE `conversations` (
+  `id` int(11) NOT NULL,
+  `user1_id` int(11) NOT NULL,
+  `user2_id` int(11) NOT NULL,
+  `last_message_id` int(11) DEFAULT NULL,
+  `last_message_at` timestamp NULL DEFAULT NULL,
+  `encryption_key` text DEFAULT NULL,
+  `user1_unread` int(11) DEFAULT 0,
+  `user2_unread` int(11) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `conversations`
+--
+
+INSERT INTO `conversations` (`id`, `user1_id`, `user2_id`, `last_message_id`, `last_message_at`, `encryption_key`, `user1_unread`, `user2_unread`, `created_at`, `updated_at`) VALUES
+(3, 3, 2, 2, '2025-12-01 15:39:48', '45SZpi6DlvDayl8aHBj9e5wPP7vP2h/RZzhe5Ia+yik=', 0, 0, '2025-12-01 15:27:12', '2025-12-01 15:39:50');
 
 -- --------------------------------------------------------
 
@@ -357,13 +406,6 @@ CREATE TABLE `idea_followers` (
   `followed_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `idea_followers`
---
-
-INSERT INTO `idea_followers` (`id`, `idea_id`, `user_id`, `notify_comments`, `notify_updates`, `followed_at`) VALUES
-(6, 1, 3, 1, 1, '2025-12-01 04:35:56');
-
 -- --------------------------------------------------------
 
 --
@@ -382,7 +424,9 @@ CREATE TABLE `idea_likes` (
 --
 
 INSERT INTO `idea_likes` (`id`, `idea_id`, `user_id`, `created_at`) VALUES
-(3, 1, 2, '2025-11-29 07:37:27');
+(3, 1, 2, '2025-11-29 07:37:27'),
+(16, 2, 3, '2025-12-01 14:51:16'),
+(17, 3, 3, '2025-12-01 14:51:19');
 
 -- --------------------------------------------------------
 
@@ -1000,6 +1044,56 @@ INSERT INTO `mentor_student_pairs` (`id`, `mentor_id`, `student_id`, `project_id
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `messages`
+--
+
+CREATE TABLE `messages` (
+  `id` int(11) NOT NULL,
+  `conversation_id` int(11) NOT NULL,
+  `sender_id` int(11) NOT NULL,
+  `receiver_id` int(11) NOT NULL,
+  `encrypted_content` text NOT NULL,
+  `iv` varchar(32) NOT NULL,
+  `is_read` tinyint(1) DEFAULT 0,
+  `read_at` timestamp NULL DEFAULT NULL,
+  `deleted_by_sender` tinyint(1) DEFAULT 0,
+  `deleted_by_receiver` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `messages`
+--
+
+INSERT INTO `messages` (`id`, `conversation_id`, `sender_id`, `receiver_id`, `encrypted_content`, `iv`, `is_read`, `read_at`, `deleted_by_sender`, `deleted_by_receiver`, `created_at`) VALUES
+(1, 3, 3, 2, 'EVu5tlr9Mrkv0qmsmC+jInq7', 'H0Ei0DmugKMilQqK', 1, '2025-12-01 15:39:29', 0, 0, '2025-12-01 15:39:29'),
+(2, 3, 2, 3, 'b2zGoXP2yS9RGdGdgkb85f7ZCzR7', 'O6G7PO+SPxc891Qj', 1, '2025-12-01 15:39:50', 0, 0, '2025-12-01 15:39:48');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `message_requests`
+--
+
+CREATE TABLE `message_requests` (
+  `id` int(11) NOT NULL,
+  `sender_id` int(11) NOT NULL,
+  `receiver_id` int(11) NOT NULL,
+  `status` enum('pending','accepted','rejected') DEFAULT 'pending',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `message_requests`
+--
+
+INSERT INTO `message_requests` (`id`, `sender_id`, `receiver_id`, `status`, `created_at`, `updated_at`) VALUES
+(1, 3, 2, 'accepted', '2025-12-01 15:19:29', '2025-12-01 15:22:52');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `notifications`
 --
 
@@ -1464,6 +1558,28 @@ CREATE TABLE `trending_ideas` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `typing_indicators`
+--
+
+CREATE TABLE `typing_indicators` (
+  `id` int(11) NOT NULL,
+  `conversation_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `is_typing` tinyint(1) DEFAULT 1,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `typing_indicators`
+--
+
+INSERT INTO `typing_indicators` (`id`, `conversation_id`, `user_id`, `is_typing`, `updated_at`) VALUES
+(20, 3, 3, 0, '2025-12-01 15:39:29'),
+(23, 3, 2, 0, '2025-12-01 15:39:50');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -1492,6 +1608,20 @@ CREATE TABLE `user_activity_log` (
   `user_agent` text DEFAULT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_encryption_keys`
+--
+
+CREATE TABLE `user_encryption_keys` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `public_key` text NOT NULL,
+  `encrypted_private_key` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -1558,6 +1688,14 @@ CREATE TABLE `user_follow_stats` (
   `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Cached follower/following counts for performance';
 
+--
+-- Dumping data for table `user_follow_stats`
+--
+
+INSERT INTO `user_follow_stats` (`id`, `user_id`, `followers_count`, `following_count`, `last_updated`) VALUES
+(11, 2, 0, 0, '2025-12-01 15:13:06'),
+(12, 3, 0, 0, '2025-12-01 15:13:06');
+
 -- --------------------------------------------------------
 
 --
@@ -1591,7 +1729,14 @@ INSERT INTO `user_notifications` (`id`, `user_id`, `notification_type`, `title`,
 (4, 2, 'session_scheduled', 'New Session Scheduled', 'Your mentor has scheduled a session for Nov 28, 2025 8:21 PM', 4, 'session', 0, NULL, '2025-11-28 14:54:09', '/user/sessions.php', 'bi-calendar-check', 'success'),
 (5, 2, 'session_scheduled', 'New Session Scheduled', 'Your mentor has scheduled a session for Nov 28, 2025 8:21 PM', 5, 'session', 0, NULL, '2025-11-28 14:56:37', '/user/sessions.php', 'bi-calendar-check', 'success'),
 (6, 2, 'session_scheduled', 'New Session Scheduled', 'Your mentor has scheduled a session for Nov 30, 2025 9:27 PM', 6, 'session', 0, NULL, '2025-11-28 15:57:26', '/user/sessions.php', 'bi-calendar-check', 'success'),
-(7, 4, 'mentor_request', 'New Mentorship Request', 'You have received a new mentorship request from a student.', 3, 'mentor_request', 0, NULL, '2025-11-30 16:55:22', '/mentor/student_requests.php', 'bi-person-plus', 'info');
+(7, 4, 'mentor_request', 'New Mentorship Request', 'You have received a new mentorship request from a student.', 3, 'mentor_request', 0, NULL, '2025-11-30 16:55:22', '/mentor/student_requests.php', 'bi-person-plus', 'info'),
+(8, 2, 'new_follower', 'New Follower', 'Bhavik kaldiya started following you', 3, 'user', 0, NULL, '2025-12-01 05:01:29', NULL, 'bi-person-plus', 'info'),
+(9, 2, 'new_follower', 'New Follower', 'Bhavik kaldiya started following you', 3, 'user', 0, NULL, '2025-12-01 05:02:25', NULL, 'bi-person-plus', 'info'),
+(10, 2, 'new_follower', 'New Follower', 'Bhavik kaldiya started following you', 3, 'user', 0, NULL, '2025-12-01 13:13:02', NULL, 'bi-person-plus', 'info'),
+(11, 2, 'new_follower', 'New Follower', 'Bhavik kaldiya started following you', 3, 'user', 0, NULL, '2025-12-01 13:13:08', NULL, 'bi-person-plus', 'info'),
+(12, 2, 'new_follower', 'New Follower', 'Bhavik kaldiya started following you', 3, 'user', 0, NULL, '2025-12-01 13:26:29', NULL, 'bi-person-plus', 'info'),
+(13, 3, 'new_follower', 'New Follower', 'vivek chavda started following you', 2, 'user', 0, NULL, '2025-12-01 13:29:43', NULL, 'bi-person-plus', 'info'),
+(14, 2, 'new_follower', 'New Follower', 'Bhavik kaldiya started following you', 3, 'user', 0, NULL, '2025-12-01 15:13:04', NULL, 'bi-person-plus', 'info');
 
 -- --------------------------------------------------------
 
@@ -1676,6 +1821,24 @@ ALTER TABLE `blog`
 ALTER TABLE `bookmark`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unique_bookmark` (`project_id`,`user_id`);
+
+--
+-- Indexes for table `chat_requests`
+--
+ALTER TABLE `chat_requests`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_request` (`sender_id`,`receiver_id`),
+  ADD KEY `idx_receiver` (`receiver_id`,`status`),
+  ADD KEY `idx_sender` (`sender_id`);
+
+--
+-- Indexes for table `conversations`
+--
+ALTER TABLE `conversations`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_conversation` (`user1_id`,`user2_id`),
+  ADD KEY `idx_user1` (`user1_id`,`last_message_at`),
+  ADD KEY `idx_user2` (`user2_id`,`last_message_at`);
 
 --
 -- Indexes for table `deleted_ideas`
@@ -1916,6 +2079,23 @@ ALTER TABLE `mentor_student_pairs`
   ADD KEY `idx_mentor_pairs_status` (`mentor_id`,`status`);
 
 --
+-- Indexes for table `messages`
+--
+ALTER TABLE `messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_conversation` (`conversation_id`,`created_at`),
+  ADD KEY `idx_sender` (`sender_id`),
+  ADD KEY `idx_receiver` (`receiver_id`,`is_read`);
+
+--
+-- Indexes for table `message_requests`
+--
+ALTER TABLE `message_requests`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_request` (`sender_id`,`receiver_id`),
+  ADD KEY `receiver_id` (`receiver_id`);
+
+--
 -- Indexes for table `notifications`
 --
 ALTER TABLE `notifications`
@@ -2108,6 +2288,14 @@ ALTER TABLE `temp_project_ownership`
   ADD KEY `idx_session` (`user_session`);
 
 --
+-- Indexes for table `typing_indicators`
+--
+ALTER TABLE `typing_indicators`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_typing` (`conversation_id`,`user_id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -2123,6 +2311,13 @@ ALTER TABLE `user_activity_log`
   ADD KEY `idx_action` (`action`),
   ADD KEY `idx_project_id` (`project_id`),
   ADD KEY `idx_timestamp` (`timestamp`);
+
+--
+-- Indexes for table `user_encryption_keys`
+--
+ALTER TABLE `user_encryption_keys`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_key` (`user_id`);
 
 --
 -- Indexes for table `user_follows`
@@ -2199,6 +2394,18 @@ ALTER TABLE `bookmark`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT for table `chat_requests`
+--
+ALTER TABLE `chat_requests`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `conversations`
+--
+ALTER TABLE `conversations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `deleted_ideas`
 --
 ALTER TABLE `deleted_ideas`
@@ -2244,13 +2451,13 @@ ALTER TABLE `idea_comments`
 -- AUTO_INCREMENT for table `idea_followers`
 --
 ALTER TABLE `idea_followers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `idea_likes`
 --
 ALTER TABLE `idea_likes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `idea_ratings`
@@ -2353,6 +2560,18 @@ ALTER TABLE `mentor_requests`
 --
 ALTER TABLE `mentor_student_pairs`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `messages`
+--
+ALTER TABLE `messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `message_requests`
+--
+ALTER TABLE `message_requests`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `notifications`
@@ -2475,6 +2694,12 @@ ALTER TABLE `temp_credentials`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT for table `typing_indicators`
+--
+ALTER TABLE `typing_indicators`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
@@ -2484,6 +2709,12 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_activity_log`
 --
 ALTER TABLE `user_activity_log`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `user_encryption_keys`
+--
+ALTER TABLE `user_encryption_keys`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -2502,13 +2733,13 @@ ALTER TABLE `user_follow_notifications`
 -- AUTO_INCREMENT for table `user_follow_stats`
 --
 ALTER TABLE `user_follow_stats`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `user_notifications`
 --
 ALTER TABLE `user_notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- Constraints for dumped tables
@@ -2525,6 +2756,20 @@ ALTER TABLE `blog`
 --
 ALTER TABLE `bookmark`
   ADD CONSTRAINT `bookmark_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `admin_approved_projects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `chat_requests`
+--
+ALTER TABLE `chat_requests`
+  ADD CONSTRAINT `chat_requests_ibfk_1` FOREIGN KEY (`sender_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `chat_requests_ibfk_2` FOREIGN KEY (`receiver_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `conversations`
+--
+ALTER TABLE `conversations`
+  ADD CONSTRAINT `conversations_ibfk_1` FOREIGN KEY (`user1_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `conversations_ibfk_2` FOREIGN KEY (`user2_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `idea_activity_log`
@@ -2661,6 +2906,21 @@ ALTER TABLE `mentor_student_pairs`
   ADD CONSTRAINT `mentor_student_pairs_ibfk_3` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL;
 
 --
+-- Constraints for table `messages`
+--
+ALTER TABLE `messages`
+  ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`conversation_id`) REFERENCES `conversations` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `messages_ibfk_3` FOREIGN KEY (`receiver_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `message_requests`
+--
+ALTER TABLE `message_requests`
+  ADD CONSTRAINT `message_requests_ibfk_1` FOREIGN KEY (`sender_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `message_requests_ibfk_2` FOREIGN KEY (`receiver_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `student_email_preferences`
 --
 ALTER TABLE `student_email_preferences`
@@ -2701,6 +2961,19 @@ ALTER TABLE `support_tickets`
 --
 ALTER TABLE `support_ticket_replies`
   ADD CONSTRAINT `support_ticket_replies_ibfk_1` FOREIGN KEY (`ticket_id`) REFERENCES `support_tickets` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `typing_indicators`
+--
+ALTER TABLE `typing_indicators`
+  ADD CONSTRAINT `typing_indicators_ibfk_1` FOREIGN KEY (`conversation_id`) REFERENCES `conversations` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `typing_indicators_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_encryption_keys`
+--
+ALTER TABLE `user_encryption_keys`
+  ADD CONSTRAINT `user_encryption_keys_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `user_follows`
