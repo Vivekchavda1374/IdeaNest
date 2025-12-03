@@ -904,6 +904,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             }
         }
     </style>
+    <link rel="stylesheet" href="../../assets/css/loader.css">
 </head>
 <body>
     <?php
@@ -1812,5 +1813,6 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         setInterval(loadMessageRequests, 10000);
     </script>
     </div>
+<script src="../../assets/js/loader.js"></script>
 </body>
 </html>

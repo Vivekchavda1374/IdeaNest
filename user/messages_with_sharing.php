@@ -22,6 +22,7 @@ $conversation_id = isset($_GET['conversation']) ? intval($_GET['conversation']) 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messages - IdeaNest</title>
+    <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
@@ -124,6 +125,7 @@ $conversation_id = isset($_GET['conversation']) ? intval($_GET['conversation']) 
             background: #218838;
         }
     </style>
+    <link rel="stylesheet" href="../assets/css/loader.css">
 </head>
 <body>
     <div class="container-fluid">
@@ -398,5 +400,6 @@ $conversation_id = isset($_GET['conversation']) ? intval($_GET['conversation']) 
             setInterval(loadMessages, 5000); // Refresh every 5 seconds
         });
     </script>
+<script src="../assets/js/loader.js"></script>
 </body>
 </html>
