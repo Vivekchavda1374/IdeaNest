@@ -1,6 +1,6 @@
 <?php
 // Base URL Configuration
-define('BASE_URL', 'http://localhost/IdeaNest');
+define('BASE_URL', 'https://ictmu.in/hcd/IdeaNest');
 
 // Helper function to get full URL
 function getBaseUrl($path = '') {

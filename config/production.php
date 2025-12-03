@@ -232,10 +232,12 @@ if (file_exists($maintenance_file)) {
             if (file_exists(__DIR__ . '/../error_pages/maintenance.html')) {
                 readfile(__DIR__ . '/../error_pages/maintenance.html');
             } else {
-                echo '<!DOCTYPE html><html><head><title>Maintenance</title></head><body>';
+                echo '<!DOCTYPE html><html><head><title>Maintenance</title>    <link rel="stylesheet" href="../assets/css/loader.css">
+</head><body>';
                 echo '<h1>Site Under Maintenance</h1>';
                 echo '<p>We are currently performing scheduled maintenance. Please check back soon.</p>';
-                echo '</body></html>';
+                echo '<script src="../assets/js/loader.js"></script>
+</body></html>';
             }
             exit;
         }
