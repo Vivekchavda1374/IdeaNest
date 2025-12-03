@@ -157,7 +157,6 @@ if ($id > 0) {
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <link rel="stylesheet" href="../../assets/css/loader.css">
-    <link rel="stylesheet" href="../../assets/css/loading.css">
     
     <style>
         :root {
@@ -653,7 +652,6 @@ if ($id > 0) {
 </div>
 
 <script src="../../assets/js/loader.js"></script>
-<script src="../../assets/js/loading.js"></script>
 </body>
 
 </html>

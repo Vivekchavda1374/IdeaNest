@@ -432,7 +432,6 @@ if ($user_id > 0) {
         @media(max-width:1024px){.main-content{margin-left:0;padding:1rem}.ideas-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,1fr)}}
     </style>
     <link rel="stylesheet" href="../../assets/css/loader.css">
-    <link rel="stylesheet" href="../../assets/css/loading.css">
 </head>
 <body>
 <?php 
@@ -1215,6 +1214,5 @@ function submitReport() {
 </div>
 
 <script src="../../assets/js/loader.js"></script>
-<script src="../../assets/js/loading.js"></script>
 </body>
 </html>
