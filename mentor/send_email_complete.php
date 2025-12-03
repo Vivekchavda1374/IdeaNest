@@ -178,6 +178,7 @@ function generateWelcomeEmail($student_name, $mentor_name) {
     return "
     <html>
     <head>
+    <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -185,7 +186,8 @@ function generateWelcomeEmail($student_name, $mentor_name) {
             .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
             .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
         </style>
-    </head>
+        <link rel="stylesheet" href="../assets/css/loader.css">
+</head>
     <body>
         <div class='container'>
             <div class='header'>
@@ -201,7 +203,8 @@ function generateWelcomeEmail($student_name, $mentor_name) {
                 <p>Best regards,<br>{$mentor_name}</p>
             </div>
         </div>
-    </body>
+    <script src="../assets/js/loader.js"></script>
+</body>
     </html>
     ";
 }
@@ -220,7 +223,8 @@ function generateSessionInvitationEmail($student_name, $mentor_name, $session_da
             .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
             .session-details { background: white; padding: 20px; border-left: 4px solid #667eea; margin: 20px 0; }
         </style>
-    </head>
+        <link rel="stylesheet" href="../assets/css/loader.css">
+</head>
     <body>
         <div class='container'>
             <div class='header'>
@@ -241,7 +245,8 @@ function generateSessionInvitationEmail($student_name, $mentor_name, $session_da
                 <p>Best regards,<br>{$mentor_name}</p>
             </div>
         </div>
-    </body>
+    <script src="../assets/js/loader.js"></script>
+</body>
     </html>
     ";
 }
@@ -257,7 +262,8 @@ function generateReminderEmail($student_name, $mentor_name, $message) {
             .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
             .message { background: white; padding: 20px; border-left: 4px solid #f59e0b; margin: 20px 0; }
         </style>
-    </head>
+        <link rel="stylesheet" href="../assets/css/loader.css">
+</head>
     <body>
         <div class='container'>
             <div class='header'>
@@ -272,7 +278,8 @@ function generateReminderEmail($student_name, $mentor_name, $message) {
                 <p>Best regards,<br>{$mentor_name}</p>
             </div>
         </div>
-    </body>
+    <script src="../assets/js/loader.js"></script>
+</body>
     </html>
     ";
 }
@@ -288,7 +295,8 @@ function generateFeedbackEmail($student_name, $mentor_name, $feedback) {
             .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
             .feedback { background: white; padding: 20px; border-left: 4px solid #10b981; margin: 20px 0; }
         </style>
-    </head>
+        <link rel="stylesheet" href="../assets/css/loader.css">
+</head>
     <body>
         <div class='container'>
             <div class='header'>
@@ -305,7 +313,8 @@ function generateFeedbackEmail($student_name, $mentor_name, $feedback) {
                 <p>Best regards,<br>{$mentor_name}</p>
             </div>
         </div>
-    </body>
+    <script src="../assets/js/loader.js"></script>
+</body>
     </html>
     ";
 }

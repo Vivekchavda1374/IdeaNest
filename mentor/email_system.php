@@ -148,6 +148,7 @@ class MentorEmailSystem
 
     private function getWelcomeTemplate($student, $mentor)
     {
+        $site_url = $_ENV['SITE_URL'] ?? 'https://ictmu.in/hcd/IdeaNest/';
         return "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
             <div style='background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;'>
@@ -166,7 +167,7 @@ class MentorEmailSystem
                 
                 <p style='text-align: center; margin: 30px 0;'>
 
-                    <a href='http://localhost/IdeaNest/user/dashboard.php' style='background: #8b5cf6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;'>Get Started</a>
+                    <a href='" . $site_url . "user/dashboard.php' style='background: #8b5cf6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;'>Get Started</a>
 
                 </p>
                 

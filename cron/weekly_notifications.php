@@ -144,7 +144,8 @@ function generateEmailTemplate($user, $projects, $ideas)
             .footer { background: #1f2937; color: white; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; }
             .btn { display: inline-block; background: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 10px 0; }
         </style>
-    </head>
+        <link rel="stylesheet" href="../assets/css/loader.css">
+</head>
     <body>
         <div class="container">
             <div class="header">
@@ -194,16 +195,17 @@ function generateEmailTemplate($user, $projects, $ideas)
     }
 
     $html .= '<div style="text-align: center; margin-top: 30px;">
-                    <a href="http://localhost/IdeaNest/user/all_projects.php" class="btn">View All Projects</a>
-                    <a href="http://localhost/IdeaNest/user/Blog/list-project.php" class="btn">View All Ideas</a>
+                    <a href="https://ictmu.in/hcd/IdeaNest/user/all_projects.php" class="btn">View All Projects</a>
+                    <a href="https://ictmu.in/hcd/IdeaNest/user/Blog/list-project.php" class="btn">View All Ideas</a>
                 </div>
             </div>
             <div class="footer">
                 <p>Thank you for being part of the IdeaNest community!</p>
-                <p>Don\'t want these emails? <a href="http://localhost/IdeaNest/user/user_profile_setting.php" style="color: #6366f1;">Update your preferences</a></p>
+                <p>Don\'t want these emails? <a href="https://ictmu.in/hcd/IdeaNest/user/user_profile_setting.php" style="color: #6366f1;">Update your preferences</a></p>
             </div>
         </div>
-    </body>
+    <script src="../assets/js/loader.js"></script>
+</body>
     </html>';
 
     return $html;
