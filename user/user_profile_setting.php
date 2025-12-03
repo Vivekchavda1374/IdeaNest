@@ -367,7 +367,6 @@ $following = $following_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
     </style>
     <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
 <div class="main-content">
@@ -879,6 +878,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
 </body>
 </html>
