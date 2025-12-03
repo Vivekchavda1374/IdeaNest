@@ -17,11 +17,9 @@ function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '')
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <!-- Loading CSS -->
-        <link rel="stylesheet" href="../assets/css/loading.css">
         <!-- Chart.js -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <!-- Loading JS -->
-        <script src="../assets/js/loading.js"></script>
 
         <style>
             :root {
@@ -179,7 +177,6 @@ function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '')
             <?= $additionalCSS ?>
         </style>
         <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
     <body>
     <!-- Sidebar -->
@@ -329,7 +326,6 @@ function renderLayout($title, $content, $additionalCSS = '', $additionalJS = '')
 </div>
 
 <script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
 </body>
     </html>
     <?php

@@ -5,7 +5,7 @@ require_once '../Login/Login/db.php';
 require_once 'mentor_layout.php';
 
 if (!isset($_SESSION['mentor_id'])) {
-    header('Location: http://localhost/IdeaNest/Login/Login/login.php');
+    header('Location: ../Login/Login/login.php');
     exit;
 }
 
