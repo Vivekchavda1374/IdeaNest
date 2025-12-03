@@ -8,7 +8,6 @@
 function loader_head() {
     $base_path = get_loader_base_path();
     echo '<link rel="stylesheet" href="' . $base_path . '/assets/css/loader.css">';
-    echo '<link rel="stylesheet" href="' . $base_path . '/assets/css/loading.css">';
 }
 
 // Function to render loader HTML
@@ -27,7 +26,6 @@ function loader_body() {
 function loader_scripts() {
     $base_path = get_loader_base_path();
     echo '<script src="' . $base_path . '/assets/js/loader.js"></script>';
-    echo '<script src="' . $base_path . '/assets/js/loading.js"></script>';
 }
 
 // Helper function to get base path

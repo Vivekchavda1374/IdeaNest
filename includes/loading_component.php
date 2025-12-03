@@ -5,8 +5,6 @@
  */
 
 function includeLoadingAssets() {
-    echo '<link rel="stylesheet" href="' . getAssetPath('css/loading.css') . '">';
-    echo '<script src="' . getAssetPath('js/loading.js') . '"></script>';
 }
 
 function getAssetPath($path) {
