@@ -42,22 +42,52 @@ $progress_percentage = ($progress_in_level / 100) * 100;
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --accent-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #06b6d4;
+            --success-color: #10b981;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            --gradient-accent: linear-gradient(135deg, var(--accent-color), #34d399);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
         }
         
         .main-content {
             margin-left: 280px;
-            padding: 20px;
+            padding: 2rem;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
         }
         
         @media (max-width: 768px) {
-            .main-content { margin-left: 0; }
+            .main-content { 
+                margin-left: 0;
+                padding: 1rem;
+            }
         }
         
         .container {
@@ -66,22 +96,40 @@ $progress_percentage = ($progress_in_level / 100) * 100;
         }
         
         .page-header {
-            text-align: center;
+            background: var(--gradient-primary);
             color: white;
-            margin-bottom: 40px;
-            animation: fadeInDown 0.6s;
+            padding: 3rem;
+            border-radius: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
         }
         
         .page-header h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            margin-bottom: 10px;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
         }
         
         .page-header p {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             opacity: 0.95;
+            position: relative;
         }
         
         .stats-grid {
@@ -92,24 +140,24 @@ $progress_percentage = ($progress_in_level / 100) * 100;
         }
         
         .stat-card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
+            background: var(--bg-primary);
+            border-radius: 1.5rem;
+            padding: 2rem;
             text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-            animation: fadeInUp 0.6s;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
         }
         
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+            box-shadow: var(--shadow-xl);
         }
         
         .stat-icon {
             width: 70px;
             height: 70px;
-            margin: 0 auto 20px;
+            margin: 0 auto 1rem;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -124,7 +172,7 @@ $progress_percentage = ($progress_in_level / 100) * 100;
             font-size: 2.5rem;
             font-weight: 900;
             color: #1e293b;
-            margin-bottom: 5px;
+            margin-bottom: 0.5rem;
         }
         
         .stat-label {
@@ -134,12 +182,12 @@ $progress_percentage = ($progress_in_level / 100) * 100;
         }
         
         .level-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 40px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            animation: fadeInUp 0.6s 0.2s both;
+            background: var(--bg-primary);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
         }
         
         .level-header {
@@ -150,19 +198,20 @@ $progress_percentage = ($progress_in_level / 100) * 100;
         }
         
         .level-info h2 {
-            font-size: 2rem;
+            font-size: 1.75rem;
             color: #1e293b;
-            margin-bottom: 5px;
+            margin-bottom: 0.75rem;
         }
         
         .level-info p {
             color: #64748b;
+            font-size: 1rem;
         }
         
         .rank-badge {
             background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
             color: white;
-            padding: 15px 30px;
+            padding: 0.75rem 1.5rem;
             border-radius: 50px;
             font-size: 1.2rem;
             font-weight: 700;
@@ -188,27 +237,28 @@ $progress_percentage = ($progress_in_level / 100) * 100;
             padding-right: 15px;
             color: white;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
         
         .progress-text {
             text-align: center;
             color: #64748b;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
         
         .section-title {
-            font-size: 2rem;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 25px;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 0.75rem;
         }
         
         .section-title i {
-            font-size: 1.8rem;
+            color: var(--primary-color);
+            font-size: 1.75rem;
         }
         
         .badges-grid {
@@ -219,20 +269,21 @@ $progress_percentage = ($progress_in_level / 100) * 100;
         }
         
         .badge-card {
-            background: white;
-            border-radius: 16px;
-            padding: 25px;
+            background: var(--bg-primary);
+            border-radius: 1rem;
+            padding: 1.5rem;
             text-align: center;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            animation: fadeInUp 0.6s;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
         }
         
         .badge-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
         }
         
         .badge-card.earned {
@@ -245,14 +296,14 @@ $progress_percentage = ($progress_in_level / 100) * 100;
         }
         
         .badge-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 15px;
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 1rem;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
+            font-size: 2rem;
             color: white;
             position: relative;
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
@@ -263,17 +314,17 @@ $progress_percentage = ($progress_in_level / 100) * 100;
         }
         
         .badge-name {
-            font-size: 1.1rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: #1e293b;
-            margin-bottom: 8px;
+            margin-bottom: 0.5rem;
         }
         
         .badge-description {
-            font-size: 0.85rem;
+            font-size: 1rem;
             color: #64748b;
-            margin-bottom: 12px;
-            line-height: 1.4;
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
         }
         
         .badge-progress {
@@ -291,7 +342,7 @@ $progress_percentage = ($progress_in_level / 100) * 100;
         }
         
         .badge-progress-text {
-            font-size: 0.75rem;
+            font-size: 0.95rem;
             color: #64748b;
             font-weight: 600;
         }
@@ -329,11 +380,11 @@ $progress_percentage = ($progress_in_level / 100) * 100;
         }
         
         .activities-card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            animation: fadeInUp 0.6s 0.4s both;
+            background: var(--bg-primary);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
         }
         
         .activity-item {
@@ -373,56 +424,50 @@ $progress_percentage = ($progress_in_level / 100) * 100;
         .activity-description {
             font-weight: 600;
             color: #1e293b;
-            margin-bottom: 3px;
+            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
         }
         
         .activity-time {
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             color: #64748b;
         }
         
         .activity-points {
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-weight: 800;
             color: #10b981;
         }
         
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+
         
         .tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            background: rgba(255,255,255,0.2);
-            padding: 8px;
-            border-radius: 16px;
-            backdrop-filter: blur(10px);
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
         }
         
         .tab {
             flex: 1;
-            padding: 15px;
+            padding: 0.75rem 1.5rem;
             border: none;
             background: transparent;
-            color: white;
+            color: var(--text-secondary);
             font-weight: 600;
-            border-radius: 12px;
+            border-radius: 0.75rem;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
         
         .tab.active {
-            background: white;
-            color: #667eea;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
         }
         
         .tab-content {
@@ -433,6 +478,7 @@ $progress_percentage = ($progress_in_level / 100) * 100;
             display: block;
         }
     </style>
+    <link rel="stylesheet" href="../assets/css/loader.css">
 </head>
 <body>
     <?php include 'layout.php'; ?>
@@ -617,5 +663,6 @@ $progress_percentage = ($progress_in_level / 100) * 100;
             document.getElementById(tab + '-tab').classList.add('active');
         }
     </script>
+<script src="../assets/js/loader.js"></script>
 </body>
 </html>
