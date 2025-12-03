@@ -273,6 +273,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor'])) {
         .specialization-badge { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px; padding: 4px 12px; font-size: 0.8rem; }
         @media (max-width: 768px) { .main-content { margin-left: 0; } }
     </style>
+    <link rel="stylesheet" href="../assets/css/loader.css">
 </head>
 <?php include 'layout.php'; ?>
 <body>
@@ -634,5 +635,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor'])) {
             100% { transform: rotate(360deg); }
         }
     </style>
+<script src="../assets/js/loader.js"></script>
 </body>
 </html>

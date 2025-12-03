@@ -20,11 +20,9 @@ function include_loader_assets() {
     ?>
     <!-- Loader CSS -->
     <link rel="stylesheet" href="<?php echo get_base_url(); ?>/assets/css/loader.css">
-    <link rel="stylesheet" href="<?php echo get_base_url(); ?>/assets/css/loading.css">
     
     <!-- Loader JavaScript -->
     <script src="<?php echo get_base_url(); ?>/assets/js/loader.js"></script>
-    <script src="<?php echo get_base_url(); ?>/assets/js/loading.js"></script>
     <?php
 }
 

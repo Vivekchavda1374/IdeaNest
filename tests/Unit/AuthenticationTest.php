@@ -8,6 +8,9 @@ class AuthenticationTest extends TestCase
 {
     protected function setUp(): void
     {
+        // Include validation functions
+        require_once __DIR__ . '/../../includes/validation.php';
+        
         // Mock session functions
         if (!function_exists('session_start')) {
             function session_start() {

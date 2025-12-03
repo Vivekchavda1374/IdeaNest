@@ -255,14 +255,13 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notifications - <?php echo $site_name; ?></title>
-    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
+    <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/notifications.css">
     <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
     <!-- Sidebar -->
@@ -533,6 +532,5 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
 </div>
 
 <script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
 </body>
 </html> 

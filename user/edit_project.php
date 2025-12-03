@@ -457,7 +457,6 @@ $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
         }
     </style>
     <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
 <!-- Sidebar -->
@@ -1011,6 +1010,5 @@ $user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
 </div>
 
 <script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
 </body>
 </html>

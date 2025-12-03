@@ -115,9 +115,7 @@ $logout_url = isset($logout_url) ? $logout_url : $web_base_path . "logout.php";
 </div>
 
 <link rel="stylesheet" href="../assets/css/sidebar_admin.css">
-<link rel="stylesheet" href="../assets/css/loading.css">
 <link rel="stylesheet" href="../assets/css/loader.css">
-<script src="../assets/js/loading.js"></script>
 <script src="../assets/js/loader.js"></script>
 <style>
 .sidebar-divider {

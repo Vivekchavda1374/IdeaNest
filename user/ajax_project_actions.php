@@ -50,7 +50,7 @@ if (in_array($action, $login_required_actions) && !$user_id) {
 
 // Verify CSRF token for actions that require it
 if (in_array($action, $login_required_actions)) {
-    if (!isset($input['csrf_token']) || !verifyCSRF($input['csrf_token'])) {
+    if (!isset($input['csrf_token']) || !validateCSRFToken($input['csrf_token'])) {
         echo json_encode(['success' => false, 'message' => 'Invalid security token']);
         exit;
     }

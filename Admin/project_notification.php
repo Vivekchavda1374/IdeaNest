@@ -188,7 +188,6 @@ function createApprovedEmailContent($user_name, $project, $options, $subadmin_de
             }
         </style>
         <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
     <body>
         <div class="container">
@@ -235,7 +234,6 @@ function createApprovedEmailContent($user_name, $project, $options, $subadmin_de
 </div>
 
 <script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
 </body>
     </html>';
 
@@ -312,7 +310,6 @@ function createRejectedEmailContent($user_name, $project, $rejection_reason, $op
             }
         </style>
         <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
     <body>
         <div class="container">
@@ -363,7 +360,6 @@ function createRejectedEmailContent($user_name, $project, $rejection_reason, $op
 </div>
 
 <script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
 </body>
     </html>';
 

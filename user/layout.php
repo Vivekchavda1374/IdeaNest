@@ -29,7 +29,6 @@ if ($is_in_subdirectory) {
 
 <!-- Layout Styles and Scripts -->
 <link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/layout_user.css">
-<link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/loading.css">
 <link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/loader.css">
 <link rel="stylesheet" href="<?php echo $basePath; ?>assets/css/educational-ui.css">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -219,7 +218,6 @@ if ($is_in_subdirectory) {
 }
 </style>
 
-<script src="<?php echo $basePath; ?>../assets/js/loading.js"></script>
 <script src="<?php echo $basePath; ?>../assets/js/loader.js"></script>
 <script src="<?php echo $basePath; ?>../assets/js/layout_user.js" defer></script>
 
@@ -310,6 +308,18 @@ document.addEventListener('DOMContentLoaded', function() {
             <a href="<?php echo $basePath; ?>Blog/list-project.php" class="nav-item <?php echo ($current_page == 'list-project.php' && $current_dir == 'Blog') ? 'active' : ''; ?>">
                 <i class="fas fa-list nav-icon"></i>
                 <span class="nav-text">All Ideas</span>
+            </a>
+            <a href="<?php echo $basePath; ?>gamification.php" class="nav-item <?php echo ($current_page == 'gamification.php') ? 'active' : ''; ?>">
+                <i class="fas fa-trophy nav-icon"></i>
+                <span class="nav-text">Achievements</span>
+            </a>
+            <a href="<?php echo $basePath; ?>leaderboard.php" class="nav-item <?php echo ($current_page == 'leaderboard.php') ? 'active' : ''; ?>">
+                <i class="fas fa-medal nav-icon"></i>
+                <span class="nav-text">Leaderboard</span>
+            </a>
+            <a href="<?php echo $basePath; ?>achievements_guide.php" class="nav-item <?php echo ($current_page == 'achievements_guide.php') ? 'active' : ''; ?>">
+                <i class="fas fa-book-open nav-icon"></i>
+                <span class="nav-text">How to Earn</span>
             </a>
             <a href="<?php echo $basePath; ?>select_mentor.php" class="nav-item <?php echo ($current_page == 'select_mentor.php') ? 'active' : ''; ?>">
                 <i class="fas fa-user-graduate nav-icon"></i>

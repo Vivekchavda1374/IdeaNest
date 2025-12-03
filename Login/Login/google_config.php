@@ -11,21 +11,21 @@ if (file_exists(__DIR__ . '/../../.env')) {
     }
 }
 
-// Google OAuth Configuration for Development
-// Development domain: http://localhost/IdeaNest/
+// Google OAuth Configuration for Production
+// Production domain: https://ictmu.in/hcd/IdeaNest/
 
 define('GOOGLE_CLIENT_ID', $_ENV['GOOGLE_CLIENT_ID'] ?? '373663984974-msaj22ll4i9085r7120barr1g1akjs5d.apps.googleusercontent.com');
 define('GOOGLE_CLIENT_SECRET', $_ENV['GOOGLE_CLIENT_SECRET'] ?? '');
 
-// Development OAuth Settings
-define('GOOGLE_REDIRECT_URI', 'http://localhost/IdeaNest/Login/Login/google_callback.php');
+// Production OAuth Settings
+define('GOOGLE_REDIRECT_URI', 'https://ictmu.in/hcd/IdeaNest/Login/Login/google_callback.php');
 define('GOOGLE_SCOPE', 'email profile');
 
-// Development authorized origins that need to be added to Google Console:
-// - http://localhost
-// - http://localhost/IdeaNest
+// Production authorized origins that need to be added to Google Console:
+// - https://ictmu.in
+// - https://ictmu.in/hcd/IdeaNest
 // 
 // Authorized redirect URIs:
-// - http://localhost/IdeaNest/Login/Login/google_callback.php
+// - https://ictmu.in/hcd/IdeaNest/Login/Login/google_callback.php
 
 

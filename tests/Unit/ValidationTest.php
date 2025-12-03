@@ -22,7 +22,8 @@ class ValidationTest extends TestCase
     {
         $input = 'test@example.com<script>';
         $result = sanitizeInput($input, 'email');
-        $this->assertEquals('test@example.comscript', $result);
+        // strip_tags removes <script> completely, which is correct security behavior
+        $this->assertEquals('test@example.com', $result);
     }
 
     public function testValidateEmailValid()

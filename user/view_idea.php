@@ -872,6 +872,7 @@ function getFileIcon($filePath) {
             }
         }
     </style>
+    <link rel="stylesheet" href="../assets/css/loader.css">
 </head>
 <body>
     <?php include 'layout.php'; ?>
@@ -1672,5 +1673,6 @@ function getFileIcon($filePath) {
     
     <!-- Include Share Modal -->
     <?php include 'share_modal.php'; ?>
+<script src="../assets/js/loader.js"></script>
 </body>
 </html>

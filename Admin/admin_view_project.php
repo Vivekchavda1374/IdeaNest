@@ -204,11 +204,10 @@ $message = $_GET['message'] ?? '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Projects Management | IdeaNest</title>
-    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
+    <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/loading.css">
     <style>
         .main-content {
             background-color: #f8f9fa;
@@ -296,7 +295,6 @@ $message = $_GET['message'] ?? '';
         }
     </style>
     <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
     <?php include 'sidebar_admin.php'; ?>
@@ -545,7 +543,6 @@ $message = $_GET['message'] ?? '';
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../assets/js/loading.js"></script>
     <script>
         function handleApprove(event, projectId) {
             if (confirm('Approve this project? This will send an approval email to the student.')) {
@@ -593,6 +590,5 @@ $message = $_GET['message'] ?? '';
 </div>
 
 <script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
 </body>
 </html>
