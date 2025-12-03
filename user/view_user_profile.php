@@ -1039,6 +1039,7 @@ if (!$error_message && $viewed_user_id) {
             background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
         }
 </style>
+    <link rel="stylesheet" href="../assets/css/loader.css">
 </head>
 <body>
     <?php
@@ -1114,6 +1115,9 @@ if (!$error_message && $viewed_user_id) {
         </div>
 
         <div class="container-main">
+            <!-- Gamification Widget -->
+            <?php include 'gamification_widget.php'; ?>
+            
             <div class="content-grid">
                 <!-- Followers Section -->
                 <div class="content-card">
@@ -1542,5 +1546,6 @@ if (!$error_message && $viewed_user_id) {
             }
         }
     </script>
+<script src="../assets/js/loader.js"></script>
 </body>
 </html>
