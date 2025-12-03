@@ -29,22 +29,52 @@ $user_stats = $gamification->getUserStats($user_id);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --accent-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #06b6d4;
+            --success-color: #10b981;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            --gradient-accent: linear-gradient(135deg, var(--accent-color), #34d399);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
         }
         
         .main-content {
             margin-left: 280px;
-            padding: 20px;
+            padding: 2rem;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
         }
         
         @media (max-width: 768px) {
-            .main-content { margin-left: 0; }
+            .main-content { 
+                margin-left: 0;
+                padding: 1rem;
+            }
         }
         
         .container {
@@ -53,22 +83,40 @@ $user_stats = $gamification->getUserStats($user_id);
         }
         
         .page-header {
-            text-align: center;
+            background: var(--gradient-primary);
             color: white;
-            margin-bottom: 40px;
-            animation: fadeInDown 0.6s;
+            padding: 3rem;
+            border-radius: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
         }
         
         .page-header h1 {
-            font-size: 3.5rem;
-            font-weight: 900;
-            margin-bottom: 10px;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
         }
         
         .page-header p {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             opacity: 0.95;
+            position: relative;
         }
         
         .podium {
@@ -80,17 +128,19 @@ $user_stats = $gamification->getUserStats($user_id);
         }
         
         .podium-item {
-            background: white;
-            border-radius: 20px;
-            padding: 30px 20px;
+            background: var(--bg-primary);
+            border-radius: 1.5rem;
+            padding: 2rem 1.5rem;
             text-align: center;
             position: relative;
-            transition: transform 0.3s;
-            animation: fadeInUp 0.6s;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
         }
         
         .podium-item:hover {
-            transform: translateY(-10px);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
         }
         
         .podium-item.first {
@@ -118,7 +168,7 @@ $user_stats = $gamification->getUserStats($user_id);
         .podium-rank {
             width: 60px;
             height: 60px;
-            margin: 0 auto 20px;
+            margin: 0 auto 1rem;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -130,15 +180,15 @@ $user_stats = $gamification->getUserStats($user_id);
         }
         
         .podium-item.first .podium-rank {
-            width: 80px;
-            height: 80px;
+            width: 75px;
+            height: 75px;
             font-size: 2.5rem;
         }
         
         .podium-avatar {
             width: 80px;
             height: 80px;
-            margin: 0 auto 15px;
+            margin: 0 auto 1rem;
             border-radius: 50%;
             background: rgba(255,255,255,0.2);
             display: flex;
@@ -150,15 +200,15 @@ $user_stats = $gamification->getUserStats($user_id);
         }
         
         .podium-item.first .podium-avatar {
-            width: 100px;
-            height: 100px;
-            font-size: 2.5rem;
+            width: 90px;
+            height: 90px;
+            font-size: 2.25rem;
         }
         
         .podium-name {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 0.75rem;
         }
         
         .podium-points {
@@ -168,25 +218,25 @@ $user_stats = $gamification->getUserStats($user_id);
         }
         
         .podium-item.first .podium-points {
-            font-size: 2rem;
+            font-size: 1.75rem;
         }
         
         .podium-stats {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-top: 15px;
-            font-size: 0.9rem;
+            gap: 1rem;
+            margin-top: 1rem;
+            font-size: 0.95rem;
             opacity: 0.9;
         }
         
         .your-rank-card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            animation: fadeInUp 0.6s 0.2s both;
+            background: var(--bg-primary);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
         }
         
         .your-rank-content {
@@ -196,8 +246,8 @@ $user_stats = $gamification->getUserStats($user_id);
         }
         
         .your-rank-badge {
-            width: 100px;
-            height: 100px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -205,13 +255,13 @@ $user_stats = $gamification->getUserStats($user_id);
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 1.75rem;
             font-weight: 900;
             box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
         }
         
         .your-rank-badge small {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 600;
             opacity: 0.9;
         }
@@ -221,9 +271,9 @@ $user_stats = $gamification->getUserStats($user_id);
         }
         
         .your-rank-info h3 {
-            font-size: 1.8rem;
+            font-size: 1.75rem;
             color: #1e293b;
-            margin-bottom: 10px;
+            margin-bottom: 0.75rem;
         }
         
         .your-rank-stats {
@@ -245,18 +295,18 @@ $user_stats = $gamification->getUserStats($user_id);
         }
         
         .leaderboard-table {
-            background: white;
-            border-radius: 20px;
+            background: var(--bg-primary);
+            border-radius: 1.5rem;
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            animation: fadeInUp 0.6s 0.4s both;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
         }
         
         .table-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient-primary);
             color: white;
-            padding: 25px 30px;
-            font-size: 1.5rem;
+            padding: 1.5rem 2rem;
+            font-size: 1.4rem;
             font-weight: 700;
         }
         
@@ -304,6 +354,7 @@ $user_stats = $gamification->getUserStats($user_id);
         
         .rank-number.top3 {
             color: #f59e0b;
+            font-size: 1.75rem;
         }
         
         .user-info {
@@ -328,30 +379,22 @@ $user_stats = $gamification->getUserStats($user_id);
         .user-name {
             font-weight: 600;
             color: #1e293b;
-            font-size: 1.05rem;
+            font-size: 1.15rem;
         }
         
         .stat-value {
             font-weight: 700;
             color: #1e293b;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
         }
         
         .stat-label {
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             color: #64748b;
-            margin-top: 2px;
+            margin-top: 0.25rem;
         }
         
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+
         
         @media (max-width: 768px) {
             .podium {
@@ -374,6 +417,7 @@ $user_stats = $gamification->getUserStats($user_id);
             }
         }
     </style>
+    <link rel="stylesheet" href="../assets/css/loader.css">
 </head>
 <body>
     <?php include 'layout.php'; ?>
@@ -422,37 +466,37 @@ $user_stats = $gamification->getUserStats($user_id);
                             <div class="your-rank-stat">
                                 <i class="fas fa-star"></i>
                                 <div>
-                                    <div style="font-weight: 700; color: #1e293b;">
+                                    <div style="font-weight: 700; color: #1e293b; font-size: 1.3rem;">
                                         <?php echo number_format($user_stats['total_points'] ?? 0); ?>
                                     </div>
-                                    <div style="font-size: 0.85rem;">Points</div>
+                                    <div style="font-size: 0.95rem;">Points</div>
                                 </div>
                             </div>
                             <div class="your-rank-stat">
                                 <i class="fas fa-layer-group"></i>
                                 <div>
-                                    <div style="font-weight: 700; color: #1e293b;">
+                                    <div style="font-weight: 700; color: #1e293b; font-size: 1.3rem;">
                                         Level <?php echo $user_stats['level'] ?? 1; ?>
                                     </div>
-                                    <div style="font-size: 0.85rem;">Current Level</div>
+                                    <div style="font-size: 0.95rem;">Current Level</div>
                                 </div>
                             </div>
                             <div class="your-rank-stat">
                                 <i class="fas fa-trophy"></i>
                                 <div>
-                                    <div style="font-weight: 700; color: #1e293b;">
+                                    <div style="font-weight: 700; color: #1e293b; font-size: 1.3rem;">
                                         <?php echo $user_stats['badges_earned'] ?? 0; ?>
                                     </div>
-                                    <div style="font-size: 0.85rem;">Badges</div>
+                                    <div style="font-size: 0.95rem;">Badges</div>
                                 </div>
                             </div>
                             <div class="your-rank-stat">
                                 <i class="fas fa-fire"></i>
                                 <div>
-                                    <div style="font-weight: 700; color: #1e293b;">
+                                    <div style="font-weight: 700; color: #1e293b; font-size: 1.3rem;">
                                         <?php echo $user_stats['current_streak'] ?? 0; ?>
                                     </div>
-                                    <div style="font-size: 0.85rem;">Day Streak</div>
+                                    <div style="font-size: 0.95rem;">Day Streak</div>
                                 </div>
                             </div>
                         </div>
@@ -510,5 +554,6 @@ $user_stats = $gamification->getUserStats($user_id);
             </div>
         </div>
     </div>
+<script src="../assets/js/loader.js"></script>
 </body>
 </html>

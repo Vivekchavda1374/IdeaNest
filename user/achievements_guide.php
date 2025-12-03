@@ -27,22 +27,52 @@ $stats = $gamification->getUserStats($user_id);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --accent-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #06b6d4;
+            --success-color: #10b981;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            --gradient-accent: linear-gradient(135deg, var(--accent-color), #34d399);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
         }
         
         .main-content {
             margin-left: 280px;
-            padding: 20px;
+            padding: 2rem;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
         }
         
         @media (max-width: 768px) {
-            .main-content { margin-left: 0; }
+            .main-content { 
+                margin-left: 0;
+                padding: 1rem;
+            }
         }
         
         .container {
@@ -51,48 +81,64 @@ $stats = $gamification->getUserStats($user_id);
         }
         
         .page-header {
-            text-align: center;
+            background: var(--gradient-primary);
             color: white;
-            margin-bottom: 40px;
-            animation: fadeInDown 0.6s;
+            padding: 3rem;
+            border-radius: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
         }
         
         .page-header h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            margin-bottom: 10px;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
         }
         
         .page-header p {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             opacity: 0.95;
+            position: relative;
         }
         
         .guide-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            animation: fadeInUp 0.6s;
+            background: var(--bg-primary);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
         }
         
         .guide-card h2 {
-            color: #1e293b;
-            margin-bottom: 25px;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 15px;
-            font-size: 2rem;
+            gap: 0.75rem;
+            font-size: 1.75rem;
+            font-weight: 700;
         }
         
         .guide-card h2 i {
-            font-size: 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--primary-color);
+            font-size: 1.75rem;
         }
         
         .points-table {
@@ -102,26 +148,28 @@ $stats = $gamification->getUserStats($user_id);
         }
         
         .points-table th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient-primary);
             color: white;
-            padding: 15px;
+            padding: 1rem;
             text-align: left;
             font-weight: 600;
+            font-size: 1.15rem;
         }
         
         .points-table td {
-            padding: 15px;
-            border-bottom: 1px solid #f1f5f9;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 1rem;
         }
         
         .points-table tr:hover {
-            background: #f8fafc;
+            background: var(--bg-tertiary);
         }
         
         .points-value {
             font-weight: 700;
             color: #10b981;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
         }
         
         .badge-category {
@@ -130,11 +178,11 @@ $stats = $gamification->getUserStats($user_id);
         
         .badge-category h3 {
             color: #1e293b;
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
             font-size: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 0.75rem;
         }
         
         .badges-list {
@@ -144,17 +192,17 @@ $stats = $gamification->getUserStats($user_id);
         }
         
         .badge-item {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-radius: 16px;
-            padding: 25px;
-            transition: all 0.3s;
-            border: 2px solid transparent;
+            background: var(--bg-tertiary);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
         }
         
         .badge-item:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border-color: #667eea;
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
         }
         
         .badge-header {
@@ -167,7 +215,7 @@ $stats = $gamification->getUserStats($user_id);
         .badge-icon {
             width: 50px;
             height: 50px;
-            border-radius: 12px;
+            border-radius: 0.75rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -183,15 +231,16 @@ $stats = $gamification->getUserStats($user_id);
         .badge-name {
             font-weight: 700;
             color: #1e293b;
-            margin-bottom: 3px;
+            margin-bottom: 0.25rem;
+            font-size: 1.15rem;
         }
         
         .badge-rarity {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: 700;
             text-transform: uppercase;
-            padding: 3px 10px;
-            border-radius: 8px;
+            padding: 0.25rem 0.65rem;
+            border-radius: 0.5rem;
             display: inline-block;
         }
         
@@ -202,21 +251,21 @@ $stats = $gamification->getUserStats($user_id);
         
         .badge-description {
             color: #64748b;
-            font-size: 0.9rem;
-            margin-bottom: 12px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
             line-height: 1.5;
         }
         
         .badge-requirement {
             background: white;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 0.9rem;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            font-size: 1rem;
             color: #1e293b;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 0.5rem;
         }
         
         .badge-requirement i {
@@ -225,91 +274,92 @@ $stats = $gamification->getUserStats($user_id);
         
         .tip-box {
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
-            border-left: 4px solid #10b981;
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 30px;
+            border-left: 4px solid var(--accent-color);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-top: 2rem;
         }
         
         .tip-box h4 {
             color: #065f46;
-            margin-bottom: 10px;
+            margin-bottom: 0.75rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 0.75rem;
+            font-size: 1.2rem;
         }
         
         .tip-box p {
             color: #047857;
             line-height: 1.6;
+            font-size: 1.05rem;
         }
         
         .level-info {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 30px;
+            background: var(--bg-tertiary);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
         }
         
         .level-info h3 {
             color: #1e293b;
-            margin-bottom: 15px;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
         }
         
         .level-info p {
             color: #64748b;
-            line-height: 1.8;
-            margin-bottom: 10px;
+            line-height: 1.7;
+            margin-bottom: 0.75rem;
+            font-size: 1.05rem;
         }
         
         .level-formula {
             background: white;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 1rem;
+            border-radius: 0.75rem;
             font-family: 'Courier New', monospace;
             color: #667eea;
             font-weight: 700;
-            margin-top: 15px;
+            margin-top: 1rem;
+            font-size: 1.1rem;
         }
         
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+
         
         .back-link {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            color: white;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 0.75rem;
             text-decoration: none;
-            font-weight: 600;
-            margin-bottom: 20px;
-            padding: 12px 24px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 12px;
-            transition: all 0.3s;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
         }
         
         .back-link:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateX(-5px);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
     </style>
+    <link rel="stylesheet" href="../assets/css/loader.css">
 </head>
 <body>
     <?php include 'layout.php'; ?>
     
     <div class="main-content">
         <div class="container">
-            <a href="gamification.php" class="back-link">
-                <i class="fas fa-arrow-left"></i> Back to Achievements
-            </a>
+            
             
             <div class="page-header">
                 <h1>🎓 How to Earn Achievements</h1>
@@ -319,7 +369,7 @@ $stats = $gamification->getUserStats($user_id);
             <!-- Points System -->
             <div class="guide-card">
                 <h2><i class="fas fa-star"></i> Points System</h2>
-                <p style="color: #64748b; margin-bottom: 25px;">Earn points by completing various activities on IdeaNest. Points help you level up and unlock badges!</p>
+                <p style="color: #64748b; margin-bottom: 1.5rem; font-size: 1.05rem;">Earn points by completing various activities on IdeaNest. Points help you level up and unlock badges!</p>
                 
                 <table class="points-table">
                     <thead>
@@ -400,7 +450,7 @@ $stats = $gamification->getUserStats($user_id);
                     </div>
                 </div>
                 
-                <h3 style="color: #1e293b; margin-bottom: 20px;">Level Examples</h3>
+                <h3 style="color: #1e293b; margin-bottom: 1.5rem; font-size: 1.4rem;">Level Examples</h3>
                 <table class="points-table">
                     <thead>
                         <tr>
@@ -447,7 +497,7 @@ $stats = $gamification->getUserStats($user_id);
             <!-- Badges Guide -->
             <div class="guide-card">
                 <h2><i class="fas fa-award"></i> Achievement Badges</h2>
-                <p style="color: #64748b; margin-bottom: 30px;">Unlock badges by completing specific milestones. Each badge awards bonus points!</p>
+                <p style="color: #64748b; margin-bottom: 1.5rem; font-size: 1.05rem;">Unlock badges by completing specific milestones. Each badge awards bonus points!</p>
                 
                 <!-- Project Badges -->
                 <div class="badge-category">
@@ -681,32 +731,32 @@ $stats = $gamification->getUserStats($user_id);
             <div class="guide-card">
                 <h2><i class="fas fa-rocket"></i> Quick Start Guide</h2>
                 
-                <h3 style="color: #1e293b; margin-bottom: 20px;">Fastest Way to Earn Points</h3>
+                <h3 style="color: #1e293b; margin-bottom: 1.5rem; font-size: 1.4rem;">Fastest Way to Earn Points</h3>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                    <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 25px; border-radius: 16px;">
-                        <h4 style="margin-bottom: 15px; font-size: 1.3rem;">
+                    <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 1.75rem; border-radius: 1rem;">
+                        <h4 style="margin-bottom: 1rem; font-size: 1.4rem;">
                             <i class="fas fa-1"></i> Submit Your First Project
                         </h4>
-                        <p style="opacity: 0.95; line-height: 1.6;">
+                        <p style="opacity: 0.95; line-height: 1.6; font-size: 1.1rem;">
                             Go to "New Project" and submit your first project. You'll earn 20 points immediately plus the "First Steps" badge!
                         </p>
                     </div>
                     
-                    <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 25px; border-radius: 16px;">
-                        <h4 style="margin-bottom: 15px; font-size: 1.3rem;">
+                    <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 1.75rem; border-radius: 1rem;">
+                        <h4 style="margin-bottom: 1rem; font-size: 1.4rem;">
                             <i class="fas fa-2"></i> Share Your Ideas
                         </h4>
-                        <p style="opacity: 0.95; line-height: 1.6;">
+                        <p style="opacity: 0.95; line-height: 1.6; font-size: 1.1rem;">
                             Post ideas in the "Ideas" section. Each idea earns you 10 points, and you'll get more points when others like them!
                         </p>
                     </div>
                     
-                    <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 25px; border-radius: 16px;">
-                        <h4 style="margin-bottom: 15px; font-size: 1.3rem;">
+                    <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 1.75rem; border-radius: 1rem;">
+                        <h4 style="margin-bottom: 1rem; font-size: 1.4rem;">
                             <i class="fas fa-3"></i> Login Daily
                         </h4>
-                        <p style="opacity: 0.95; line-height: 1.6;">
+                        <p style="opacity: 0.95; line-height: 1.6; font-size: 1.1rem;">
                             Login every day to build your streak. You'll earn 5 points per day plus unlock streak badges for consecutive logins!
                         </p>
                     </div>
@@ -714,5 +764,6 @@ $stats = $gamification->getUserStats($user_id);
             </div>
         </div>
     </div>
+<script src="../assets/js/loader.js"></script>
 </body>
 </html>
