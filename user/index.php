@@ -357,10 +357,8 @@ if (empty($weekly_performance)) {
     <link rel="stylesheet" href="../assets/css/index.css">
     <link rel="stylesheet" href="../assets/css/layout_user.css">
     <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
     <link rel="stylesheet" href="assets/css/educational-ui.css">
     <!-- JavaScript -->
-    <script src="../assets/js/loading.js"></script>
     <script src="../assets/js/loader.js"></script>
     <script src="../assets/js/layout_user.js" defer></script>
     <script src="assets/js/educational-ui.js" defer></script>
@@ -1682,6 +1680,5 @@ window.showNotification = showNotification;
 </div>
 
 <script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
 </body>
 </html>

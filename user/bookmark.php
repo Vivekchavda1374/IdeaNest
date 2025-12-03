@@ -872,7 +872,6 @@ if (!$result) {
            }
        </style>
         <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
     <body>
 
@@ -1198,7 +1197,6 @@ if (!$result) {
 </div>
 
 <script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
 </body>
     </html>
 
