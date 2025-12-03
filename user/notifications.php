@@ -269,7 +269,6 @@ $stats = $notifier->getStats($user_id);
         }
     </style>
     <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
     <div class="notification-container">
@@ -402,6 +401,5 @@ $stats = $notifier->getStats($user_id);
 </div>
 
 <script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
 </body>
 </html>
