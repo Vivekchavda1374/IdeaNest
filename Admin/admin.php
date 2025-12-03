@@ -1289,7 +1289,6 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
         }
     </style>
     <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
 <!-- Sidebar -->
@@ -2202,6 +2201,5 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
 </div>
 
 <script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
 </body>
 </html>

@@ -81,7 +81,7 @@ $stats['avg_rating'] = $result['avg_rating'] ? round($result['avg_rating'], 1) :
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mentor Details - <?php echo htmlspecialchars($mentor['name']); ?></title>
-    <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
+    <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="../assets/css/sidebar_admin.css" rel="stylesheet">
@@ -97,7 +97,6 @@ $stats['avg_rating'] = $result['avg_rating'] ? round($result['avg_rating'], 1) :
         @media (max-width: 768px) { .main-content { margin-left: 0; } }
     </style>
     <link rel="stylesheet" href="../assets/css/loader.css">
-    <link rel="stylesheet" href="../assets/css/loading.css">
 </head>
 <body>
     <?php include 'sidebar_admin.php'; ?>
@@ -359,6 +358,5 @@ $stats['avg_rating'] = $result['avg_rating'] ? round($result['avg_rating'], 1) :
 </div>
 
 <script src="../assets/js/loader.js"></script>
-<script src="../assets/js/loading.js"></script>
 </body>
 </html>

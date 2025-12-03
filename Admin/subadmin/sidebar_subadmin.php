@@ -20,7 +20,6 @@ function renderLayout($title, $content, $activePage = '')
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="../../assets/css/sidebar_subadmin.css">
         <link rel="stylesheet" href="../../assets/css/loader.css">
-        <link rel="stylesheet" href="../../assets/css/loading.css">
 </head>
     <body>
     <!-- Sidebar -->
@@ -124,7 +123,6 @@ function renderLayout($title, $content, $activePage = '')
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/sidebar_subadmin.js"></script>
-    <script src="../../assets/js/loading.js"></script>
     <script>
         function showPageLoading() {
             if (window.loadingManager) {
@@ -142,7 +140,6 @@ function renderLayout($title, $content, $activePage = '')
 </div>
 
 <script src="../../assets/js/loader.js"></script>
-<script src="../../assets/js/loading.js"></script>
 </body>
     </html>
     <?php

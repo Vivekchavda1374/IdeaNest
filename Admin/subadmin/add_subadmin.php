@@ -762,7 +762,6 @@ $active_tab = $_GET['tab'] ?? 'overview';
         }
     </style>
     <link rel="stylesheet" href="../../assets/css/loader.css">
-    <link rel="stylesheet" href="../../assets/css/loading.css">
 </head>
 
 <body class="bg-light">
@@ -1609,6 +1608,5 @@ $replies_result = $stmt->get_result();
 </div>
 
 <script src="../../assets/js/loader.js"></script>
-<script src="../../assets/js/loading.js"></script>
 </body>
 </html>
