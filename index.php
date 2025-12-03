@@ -13,7 +13,6 @@ require_once __DIR__ . '/includes/security_init.php';
     <link rel="icon" type="image/png" href="assets/image/fevicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/loader.css">
-    <link rel="stylesheet" href="assets/css/loading.css">
     <style>
         * {
             margin: 0;
@@ -1191,7 +1190,6 @@ require_once __DIR__ . '/includes/security_init.php';
 </div>
 
 <script src="assets/js/loader.js"></script>
-<script src="assets/js/loading.js"></script>
 
 </body>
 </html>
