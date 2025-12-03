@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.disabled = true;
             this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Submitting...';
             
-            fetch('/IdeaNest/user/report_idea.php', {
+            fetch('report_idea.php', {
                 method: 'POST',
                 body: formData
             })

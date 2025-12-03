@@ -215,6 +215,7 @@ if ($is_admin) {
             margin-bottom: 2rem;
         }
     </style>
+    <link rel="stylesheet" href="../assets/css/loader.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -549,5 +550,6 @@ if ($is_admin) {
             a.click();
         }
     </script>
+<script src="../assets/js/loader.js"></script>
 </body>
 </html>
