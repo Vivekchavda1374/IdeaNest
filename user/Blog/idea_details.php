@@ -654,6 +654,7 @@ function formatDate($date) {
             }
         }
     </style>
+    <link rel="stylesheet" href="../../assets/css/loader.css">
 </head>
 <body>
     <?php include '../layout.php'; ?>
@@ -1051,5 +1052,6 @@ function formatDate($date) {
     
     <!-- Include Share Modal -->
     <?php include '../share_modal.php'; ?>
+<script src="../../assets/js/loader.js"></script>
 </body>
 </html>
