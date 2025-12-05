@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Dec 02, 2025 at 07:28 AM
+-- Generation Time: Dec 05, 2025 at 05:46 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -278,6 +278,14 @@ CREATE TABLE `bookmark` (
   `bookmarked_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `bookmark`
+--
+
+INSERT INTO `bookmark` (`id`, `project_id`, `user_id`, `idea_id`, `bookmarked_at`) VALUES
+(3, 1, '3', 0, '2025-12-02 06:42:31'),
+(4, 2, '3', 0, '2025-12-02 06:42:33');
+
 -- --------------------------------------------------------
 
 --
@@ -454,7 +462,8 @@ CREATE TABLE `idea_bookmarks` (
 --
 
 INSERT INTO `idea_bookmarks` (`id`, `idea_id`, `user_id`, `created_at`) VALUES
-(1, 1, 2, '2025-11-29 07:37:45');
+(1, 1, 2, '2025-11-29 07:37:45'),
+(2, 1, 3, '2025-12-02 06:43:18');
 
 -- --------------------------------------------------------
 
@@ -546,7 +555,8 @@ CREATE TABLE `idea_likes` (
 INSERT INTO `idea_likes` (`id`, `idea_id`, `user_id`, `created_at`) VALUES
 (3, 1, 2, '2025-11-29 07:37:27'),
 (16, 2, 3, '2025-12-01 14:51:16'),
-(17, 3, 3, '2025-12-01 14:51:19');
+(17, 3, 3, '2025-12-01 14:51:19'),
+(18, 1, 3, '2025-12-02 06:43:15');
 
 -- --------------------------------------------------------
 
@@ -1385,6 +1395,14 @@ CREATE TABLE `points_history` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `points_history`
+--
+
+INSERT INTO `points_history` (`id`, `user_id`, `points`, `action_type`, `reference_id`, `description`, `created_at`) VALUES
+(1, 3, 10, 'manual', NULL, 'Test points', '2025-12-02 06:41:49'),
+(2, 3, 5, 'daily_login', NULL, 'Daily login bonus', '2025-12-02 06:41:49');
+
 -- --------------------------------------------------------
 
 --
@@ -1495,7 +1513,10 @@ CREATE TABLE `project_likes` (
 --
 
 INSERT INTO `project_likes` (`id`, `project_id`, `user_id`, `created_at`) VALUES
-(7, 2, '3', '2025-12-01 04:21:46');
+(7, 2, '3', '2025-12-01 04:21:46'),
+(8, 1, '3', '2025-12-02 06:42:28'),
+(9, 2, '2', '2025-12-02 06:44:44'),
+(10, 1, '2', '2025-12-02 06:44:46');
 
 -- --------------------------------------------------------
 
@@ -1552,7 +1573,7 @@ CREATE TABLE `register` (
 
 INSERT INTO `register` (`id`, `name`, `email`, `enrollment_number`, `gr_number`, `password`, `about`, `phone_no`, `department`, `passout_year`, `user_image`, `google_id`, `email_notifications`, `last_notification_sent`, `github_token`, `role`, `expertise`, `mentor_rating`, `is_available`, `github_username`, `github_profile_url`, `github_repos_count`, `github_last_sync`) VALUES
 (1, 'vivek chavda', 'vivek.chavda119486@marwadiuniversity.ac.in', 'MEN618', 'MEN618', '$2y$10$JS6Xyh6YDx0onCrmU9u7/egT1zNHSPMpiwwKRoQgBiiRhIAHsm72G', 'Data Science', NULL, 'Mentor', '2024', '', NULL, 1, NULL, NULL, 'student', 'Data Science', 0.00, 1, NULL, NULL, 0, NULL),
-(2, 'vivek chavda', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$gyy21yBLGu0T2fHLitVwmOb5sK1HxmaGNw6KZTZ4RASzz89YQK60a', 'New student at IdeaNest', NULL, 'ict', '2026', '', NULL, 1, NULL, NULL, 'student', NULL, 0.00, 1, NULL, NULL, 0, NULL),
+(2, 'vivek chavda', 'viveksinhchavda@gmail.com', '92200133026', '119486', '$2y$10$xl0A3CgYP3sO7XGxm23Ple/h9Tv7kUJ5xKUS6EZ/rv/NlQIS2lrlS', 'New student at IdeaNest', NULL, 'ict', '2026', '', NULL, 1, NULL, NULL, 'student', NULL, 0.00, 1, NULL, NULL, 0, NULL),
 (3, 'Bhavik kaldiya', 'vivek@gmail.com', '92200133025', '119485', '$2y$10$9i9v37qQ7QswVsheS3EyDuqWJCaxtCge0MLwtti2m6Dx3K053YP1S', 'New student at IdeaNest', NULL, 'ict', '2026', '', NULL, 1, NULL, NULL, 'student', NULL, 0.00, 1, NULL, NULL, 0, NULL),
 (4, 'vivek chavda', 'vivekcchavda@gmail.com', 'MEN108', 'MEN108', '$2y$10$mJVRU09ZmDw6XPLXl8aiQOF/xlMckK785wgtaQiYR4zLpjnWBKfty', 'Web Development', NULL, 'Mentor', '2024', '', NULL, 1, NULL, NULL, 'mentor', 'Web Development', 0.00, 1, NULL, NULL, 0, NULL);
 
@@ -2010,10 +2031,41 @@ CREATE TABLE `user_points` (
 --
 
 INSERT INTO `user_points` (`id`, `user_id`, `total_points`, `level`, `current_streak`, `longest_streak`, `last_activity_date`, `created_at`, `updated_at`) VALUES
-(1, 3, 0, 1, 0, 0, NULL, '2025-12-02 06:16:10', '2025-12-02 06:16:10'),
+(1, 3, 15, 1, 1, 0, '2025-12-02', '2025-12-02 06:16:10', '2025-12-02 06:41:49'),
 (2, 2, 0, 1, 0, 0, NULL, '2025-12-02 06:16:10', '2025-12-02 06:16:10'),
 (3, 4, 0, 1, 0, 0, NULL, '2025-12-02 06:16:10', '2025-12-02 06:16:10'),
 (4, 1, 0, 1, 0, 0, NULL, '2025-12-02 06:16:10', '2025-12-02 06:16:10');
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `v_project_stats`
+-- (See below for the actual view)
+--
+CREATE TABLE `v_project_stats` (
+`id` int(5)
+,`project_name` varchar(255)
+,`user_id` varchar(255)
+,`status` enum('pending','approved','rejected')
+,`submission_date` timestamp
+,`likes_count` bigint(21)
+,`bookmark_count` bigint(21)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `v_user_stats`
+-- (See below for the actual view)
+--
+CREATE TABLE `v_user_stats` (
+`id` int(11)
+,`name` varchar(100)
+,`email` varchar(100)
+,`total_projects` bigint(21)
+,`approved_projects` decimal(22,0)
+,`total_ideas` bigint(21)
+);
 
 -- --------------------------------------------------------
 
@@ -2067,7 +2119,25 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `user_follow_feed`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `user_follow_feed`  AS SELECT 'idea' AS `content_type`, `b`.`id` AS `content_id`, `b`.`user_id` AS `user_id`, `b`.`project_name` AS `title`, `b`.`description` AS `description`, `b`.`classification` AS `classification`, `b`.`project_type` AS `project_type`, `b`.`submission_datetime` AS `created_at`, `b`.`status` AS `status`, (select count(0) from `idea_likes` where `idea_likes`.`idea_id` = `b`.`id`) AS `likes_count`, (select count(0) from `idea_comments` where `idea_comments`.`idea_id` = `b`.`id`) AS `comments_count`, (select count(0) from `idea_views` where `idea_views`.`idea_id` = `b`.`id`) AS `views_count` FROM `blog` AS `b` WHERE `b`.`status` in ('pending','in_progress','completed')union all select 'project' AS `content_type`,`p`.`id` AS `content_id`,`p`.`user_id` AS `user_id`,`p`.`project_name` AS `title`,`p`.`description` AS `description`,`p`.`classification` AS `classification`,`p`.`project_type` AS `project_type`,`p`.`submission_date` AS `created_at`,`p`.`status` AS `status`,0 AS `likes_count`,0 AS `comments_count`,0 AS `views_count` from `projects` `p` where `p`.`status` = 'pending' union all select 'approved_project' AS `content_type`,`ap`.`id` AS `content_id`,cast(`ap`.`user_id` as unsigned) AS `user_id`,`ap`.`project_name` AS `title`,`ap`.`description` AS `description`,`ap`.`classification` AS `classification`,`ap`.`project_type` AS `project_type`,`ap`.`submission_date` AS `created_at`,`ap`.`status` AS `status`,0 AS `likes_count`,0 AS `comments_count`,0 AS `views_count` from `admin_approved_projects` `ap` where `ap`.`status` = 'approved'  ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`ictmu6ya_ideanest`@`localhost` SQL SECURITY DEFINER VIEW `user_follow_feed`  AS SELECT 'idea' AS `content_type`, `b`.`id` AS `content_id`, `b`.`user_id` AS `user_id`, `b`.`project_name` AS `title`, `b`.`description` AS `description`, `b`.`classification` AS `classification`, `b`.`project_type` AS `project_type`, `b`.`submission_datetime` AS `created_at`, `b`.`status` AS `status`, (select count(0) from `idea_likes` where `idea_likes`.`idea_id` = `b`.`id`) AS `likes_count`, (select count(0) from `idea_comments` where `idea_comments`.`idea_id` = `b`.`id`) AS `comments_count`, (select count(0) from `idea_views` where `idea_views`.`idea_id` = `b`.`id`) AS `views_count` FROM `blog` AS `b` WHERE `b`.`status` in ('pending','in_progress','completed')union all select 'project' AS `content_type`,`p`.`id` AS `content_id`,`p`.`user_id` AS `user_id`,`p`.`project_name` AS `title`,`p`.`description` AS `description`,`p`.`classification` AS `classification`,`p`.`project_type` AS `project_type`,`p`.`submission_date` AS `created_at`,`p`.`status` AS `status`,0 AS `likes_count`,0 AS `comments_count`,0 AS `views_count` from `projects` `p` where `p`.`status` = 'pending' union all select 'approved_project' AS `content_type`,`ap`.`id` AS `content_id`,cast(`ap`.`user_id` as unsigned) AS `user_id`,`ap`.`project_name` AS `title`,`ap`.`description` AS `description`,`ap`.`classification` AS `classification`,`ap`.`project_type` AS `project_type`,`ap`.`submission_date` AS `created_at`,`ap`.`status` AS `status`,0 AS `likes_count`,0 AS `comments_count`,0 AS `views_count` from `admin_approved_projects` `ap` where `ap`.`status` = 'approved'  ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `v_project_stats`
+--
+DROP TABLE IF EXISTS `v_project_stats`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`ictmu6ya_ideanest`@`localhost` SQL SECURITY DEFINER VIEW `v_project_stats`  AS SELECT `ap`.`id` AS `id`, `ap`.`project_name` AS `project_name`, `ap`.`user_id` AS `user_id`, `ap`.`status` AS `status`, `ap`.`submission_date` AS `submission_date`, coalesce(`pl`.`likes_count`,0) AS `likes_count`, coalesce(`b`.`bookmark_count`,0) AS `bookmark_count` FROM ((`admin_approved_projects` `ap` left join (select `project_likes`.`project_id` AS `project_id`,count(0) AS `likes_count` from `project_likes` group by `project_likes`.`project_id`) `pl` on(`ap`.`id` = `pl`.`project_id`)) left join (select `bookmark`.`project_id` AS `project_id`,count(0) AS `bookmark_count` from `bookmark` where `bookmark`.`project_id` > 0 group by `bookmark`.`project_id`) `b` on(`ap`.`id` = `b`.`project_id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `v_user_stats`
+--
+DROP TABLE IF EXISTS `v_user_stats`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`ictmu6ya_ideanest`@`localhost` SQL SECURITY DEFINER VIEW `v_user_stats`  AS SELECT `r`.`id` AS `id`, `r`.`name` AS `name`, `r`.`email` AS `email`, coalesce(`p`.`total_projects`,0) AS `total_projects`, coalesce(`p`.`approved_projects`,0) AS `approved_projects`, coalesce(`i`.`total_ideas`,0) AS `total_ideas` FROM ((`register` `r` left join (select `admin_approved_projects`.`user_id` AS `user_id`,count(0) AS `total_projects`,sum(case when `admin_approved_projects`.`status` = 'approved' then 1 else 0 end) AS `approved_projects` from `admin_approved_projects` group by `admin_approved_projects`.`user_id`) `p` on(`r`.`id` = `p`.`user_id`)) left join (select `blog`.`user_id` AS `user_id`,count(0) AS `total_ideas` from `blog` group by `blog`.`user_id`) `i` on(`r`.`id` = `i`.`user_id`)) ;
 
 --
 -- Indexes for dumped tables
@@ -2088,7 +2158,10 @@ ALTER TABLE `admin_approved_projects`
   ADD KEY `idx_difficulty_type` (`difficulty_level`,`project_type`),
   ADD KEY `idx_submission_status` (`submission_date`,`status`),
   ADD KEY `idx_approved_projects_user` (`user_id`),
-  ADD KEY `idx_approved_user_date` (`user_id`,`submission_date`);
+  ADD KEY `idx_approved_user_date` (`user_id`,`submission_date`),
+  ADD KEY `idx_status` (`status`),
+  ADD KEY `idx_submission_date` (`submission_date`),
+  ADD KEY `idx_classification` (`classification`);
 
 --
 -- Indexes for table `admin_logs`
@@ -2134,14 +2207,17 @@ ALTER TABLE `blog`
   ADD KEY `idx_blog_priority` (`priority1`),
   ADD KEY `idx_blog_submission_date` (`submission_datetime`),
   ADD KEY `idx_blog_title` (`title`),
-  ADD KEY `idx_blog_user_date` (`user_id`,`submission_datetime`);
+  ADD KEY `idx_blog_user_date` (`user_id`,`submission_datetime`),
+  ADD KEY `idx_user_id` (`user_id`),
+  ADD KEY `idx_submission_datetime` (`submission_datetime`);
 
 --
 -- Indexes for table `bookmark`
 --
 ALTER TABLE `bookmark`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_bookmark` (`project_id`,`user_id`);
+  ADD UNIQUE KEY `unique_bookmark` (`project_id`,`user_id`),
+  ADD KEY `idx_user_project` (`user_id`,`project_id`);
 
 --
 -- Indexes for table `chat_requests`
@@ -2517,7 +2593,8 @@ ALTER TABLE `project_likes`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unique_like` (`project_id`,`user_id`),
   ADD KEY `idx_project_id` (`project_id`),
-  ADD KEY `idx_user_id` (`user_id`);
+  ADD KEY `idx_user_id` (`user_id`),
+  ADD KEY `idx_project_user` (`project_id`,`user_id`);
 
 --
 -- Indexes for table `realtime_notifications`
@@ -2539,7 +2616,10 @@ ALTER TABLE `register`
   ADD UNIQUE KEY `google_id` (`google_id`),
   ADD KEY `idx_register_email` (`email`),
   ADD KEY `idx_register_enrollment` (`enrollment_number`),
-  ADD KEY `idx_github_username` (`github_username`);
+  ADD KEY `idx_github_username` (`github_username`),
+  ADD KEY `idx_email` (`email`),
+  ADD KEY `idx_role` (`role`),
+  ADD KEY `idx_enrollment` (`enrollment_number`);
 
 --
 -- Indexes for table `removed_user`
@@ -2759,7 +2839,7 @@ ALTER TABLE `blog`
 -- AUTO_INCREMENT for table `bookmark`
 --
 ALTER TABLE `bookmark`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `chat_requests`
@@ -2801,7 +2881,7 @@ ALTER TABLE `idea_activity_log`
 -- AUTO_INCREMENT for table `idea_bookmarks`
 --
 ALTER TABLE `idea_bookmarks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `idea_collaborations`
@@ -2825,7 +2905,7 @@ ALTER TABLE `idea_followers`
 -- AUTO_INCREMENT for table `idea_likes`
 --
 ALTER TABLE `idea_likes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `idea_ratings`
@@ -2975,7 +3055,7 @@ ALTER TABLE `notification_templates`
 -- AUTO_INCREMENT for table `points_history`
 --
 ALTER TABLE `points_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `progress_milestones`
@@ -2999,7 +3079,7 @@ ALTER TABLE `projects`
 -- AUTO_INCREMENT for table `project_likes`
 --
 ALTER TABLE `project_likes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `realtime_notifications`
@@ -3125,7 +3205,7 @@ ALTER TABLE `user_notifications`
 -- AUTO_INCREMENT for table `user_points`
 --
 ALTER TABLE `user_points`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- Constraints for dumped tables
@@ -3375,4 +3455,55 @@ ALTER TABLE `support_ticket_replies`
 -- Constraints for table `typing_indicators`
 --
 ALTER TABLE `typing_indicators`
-  ADD CONSTRAINT `typing_indicators_
+  ADD CONSTRAINT `typing_indicators_ibfk_1` FOREIGN KEY (`conversation_id`) REFERENCES `conversations` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `typing_indicators_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_badges`
+--
+ALTER TABLE `user_badges`
+  ADD CONSTRAINT `user_badges_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `user_badges_ibfk_2` FOREIGN KEY (`badge_id`) REFERENCES `badges` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_encryption_keys`
+--
+ALTER TABLE `user_encryption_keys`
+  ADD CONSTRAINT `user_encryption_keys_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_follows`
+--
+ALTER TABLE `user_follows`
+  ADD CONSTRAINT `fk_user_follows_follower` FOREIGN KEY (`follower_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_user_follows_following` FOREIGN KEY (`following_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_follow_notifications`
+--
+ALTER TABLE `user_follow_notifications`
+  ADD CONSTRAINT `fk_follow_notif_follower` FOREIGN KEY (`follower_id`) REFERENCES `register` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_follow_notif_following` FOREIGN KEY (`following_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_follow_stats`
+--
+ALTER TABLE `user_follow_stats`
+  ADD CONSTRAINT `fk_user_follow_stats_user` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_notifications`
+--
+ALTER TABLE `user_notifications`
+  ADD CONSTRAINT `user_notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `user_points`
+--
+ALTER TABLE `user_points`
+  ADD CONSTRAINT `user_points_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `register` (`id`) ON DELETE CASCADE;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

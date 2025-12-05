@@ -94,6 +94,7 @@ if ($_POST) {
                 $body = "
                 <html>
                 <head>
+    <!-- Anti-injection script - MUST be first -->
                     <style>
                         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
                         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -157,9 +158,12 @@ if ($_POST) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Anti-injection script - MUST be first -->
+    <script src="../assets/js/anti_injection.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Mentor - IdeaNest Admin</title>
+    
     <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">

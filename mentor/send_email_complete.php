@@ -178,6 +178,8 @@ function generateWelcomeEmail($student_name, $mentor_name) {
     return "
     <html>
     <head>
+    <!-- Anti-injection script - MUST be first -->
+    <script src="../assets/js/anti_injection.js"></script>
     <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
         <style>
             body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }

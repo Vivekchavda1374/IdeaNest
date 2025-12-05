@@ -296,6 +296,8 @@ $following = $following_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Anti-injection script - MUST be first -->
+    <script src="../assets/js/anti_injection.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Settings - IdeaNest</title>

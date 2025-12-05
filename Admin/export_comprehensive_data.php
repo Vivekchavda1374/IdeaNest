@@ -755,6 +755,8 @@ if ($export_type === 'csv') {
         echo '<!DOCTYPE html>
         <html>
         <head>
+    <!-- Anti-injection script - MUST be first -->
+    <script src="../assets/js/anti_injection.js"></script>
             <title>Export Error</title>
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         </head>
@@ -780,6 +782,8 @@ if ($export_type === 'csv') {
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- Anti-injection script - MUST be first -->
+    <script src="../assets/js/anti_injection.js"></script>
     <title>Comprehensive Data Export</title>
     <link rel="icon" type="image/png" href="../assets/image/fevicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">

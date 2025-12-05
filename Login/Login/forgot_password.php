@@ -138,6 +138,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Anti-injection script - MUST be first -->
+    <script src="../../assets/js/anti_injection.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $step == 'email' ? 'Forgot Password' : ($step == 'otp' ? 'Verify OTP' : ($step == 'reset' ? 'Reset Password' : 'Success')); ?> - IdeaNest</title>

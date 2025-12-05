@@ -1,0 +1,9 @@
+Database Import Log - 2025-12-05 05:40:09
+================================================================================
+
+SQL File: /opt/lampp/htdocs/IdeaNest/db/ictmu6ya_ideanest_fixed.sql
+File Size: 173,409 bytes
+
+
+FATAL ERROR: No such file or directory
+
