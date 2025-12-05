@@ -159,7 +159,7 @@
                 </div>
                 <div class="config-item">
                     <span class="config-label">SQL File:</span>
-                    <span class="config-value">ictmu6ya_ideanest.sql</span>
+                    <span class="config-value">ictmu6ya_ideanest_fixed.sql</span>
                 </div>
                 <div class="config-item">
                     <span class="config-label">File Size:</span>
@@ -217,7 +217,19 @@
             addLog('Starting database import...', 'info');
             
             fetch('?action=import')
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('HTTP error ' + response.status);
+                    }
+                    return response.text();
+                })
+                .then(text => {
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        throw new Error('Invalid JSON response. Check PHP errors.');
+                    }
+                })
                 .then(data => {
                     if (data.success) {
                         updateProgress(100);
@@ -277,7 +289,7 @@ if (isset($_GET['action'])) {
         'username' => 'ictmu6ya_ideanest',
         'password' => 'ictmu6ya_ideanest',
         'database' => 'ictmu6ya_ideanest',
-        'sql_file' => __DIR__ . '/ictmu6ya_ideanest.sql'
+        'sql_file' => __DIR__ . '/ictmu6ya_ideanest_fixed.sql'
     ];
     
     if ($_GET['action'] === 'check') {

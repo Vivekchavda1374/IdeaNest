@@ -12,7 +12,7 @@ $dbname = "ictmu6ya_ideanest";
 
 
 // SQL file path
-$sqlFile = __DIR__ . '/ictmu6ya_ideanest.sql';
+$sqlFile = __DIR__ . '/ictmu6ya_ideanest_fixed.sql';
 
 // Check if SQL file exists
 if (!file_exists($sqlFile)) {
@@ -52,8 +52,9 @@ try {
     echo "SQL file loaded successfully.\n";
     echo "File size: " . strlen($sqlContent) . " bytes\n\n";
     
-    // Disable foreign key checks
+    // Disable foreign key checks and configure MySQL
     $conn->query("SET FOREIGN_KEY_CHECKS = 0");
+    $conn->query("SET SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO'");
     
     // Split SQL file into individual statements
     $statements = [];
