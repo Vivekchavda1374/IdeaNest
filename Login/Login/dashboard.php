@@ -10,6 +10,8 @@ if (!isset($_SESSION['user'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Anti-injection script - MUST be first -->
+    <script src="../../assets/js/anti_injection.js"></script>
     <title>Dashboard</title>
     <link rel="icon" type="image/png" href="../../assets/image/fevicon.png">
     <link rel="stylesheet" href="../assets/css/loader.css">
