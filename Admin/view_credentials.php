@@ -37,6 +37,8 @@ $failed_emails = $emailLogger->getFailedEmails(20);
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Anti-injection script - MUST be first -->
+    <script src="../assets/js/anti_injection.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Credentials - IdeaNest Admin</title>
