@@ -5,24 +5,28 @@
  * Prevents hosting provider script injection
  */
 
+// Load anti-injection first
+require_once __DIR__ . '/anti_injection.php';
+
 // Prevent direct access
 if (!defined('SECURITY_INIT')) {
     define('SECURITY_INIT', true);
 }
 
-// Start output buffering with callback to clean injected content
+// Start multiple levels of output buffering to catch all injections
 ob_start(function($buffer) {
-    // List of patterns to remove
+    // List of patterns to remove - more aggressive
     $remove_patterns = [
-        // Remove HTTP script tags from directfwd.com
-        '/<script[^>]*src=["\']http:\/\/cdn\.jsinit\.directfwd\.com[^"\']*["\'][^>]*><\/script>/i',
-        '/<script[^>]*src=["\']https?:\/\/[^"\']*directfwd\.com[^"\']*["\'][^>]*><\/script>/i',
-        '/<script[^>]*src=["\']https?:\/\/[^"\']*jsinit[^"\']*["\'][^>]*><\/script>/i',
-        '/<script[^>]*src=["\']https?:\/\/[^"\']*jspark[^"\']*["\'][^>]*><\/script>/i',
+        // Remove ALL script tags from directfwd.com (any protocol)
+        '/<script[^>]*src=["\'][^"\']*directfwd[^"\']*["\'][^>]*>.*?<\/script>/is',
+        '/<script[^>]*src=["\'][^"\']*jsinit[^"\']*["\'][^>]*>.*?<\/script>/is',
+        '/<script[^>]*src=["\'][^"\']*jspark[^"\']*["\'][^>]*>.*?<\/script>/is',
+        // Remove any HTTP (non-HTTPS) script tags
+        '/<script[^>]*src=["\']http:\/\/(?!localhost)[^"\']*["\'][^>]*>.*?<\/script>/is',
         // Remove inline scripts with injection keywords
         '/<script[^>]*>.*?(?:directfwd|jsinit|jspark).*?<\/script>/is',
-        // Remove any script tag with HTTP (not HTTPS)
-        '/<script([^>]*)src=["\']http:\/\/(?!localhost)([^"\']*)["\']([^>]*)>/i',
+        // Remove script tags without closing tags
+        '/<script[^>]*src=["\']http:\/\/cdn\.jsinit[^"\']*["\'][^>]*>/i',
     ];
     
     // Remove all matching patterns
@@ -30,15 +34,25 @@ ob_start(function($buffer) {
         $buffer = preg_replace($pattern, '', $buffer);
     }
     
-    // Additional cleanup - remove any remaining references
+    // Additional aggressive cleanup - remove any remaining references
     $buffer = str_replace([
         'http://cdn.jsinit.directfwd.com',
+        'https://cdn.jsinit.directfwd.com',
         'cdn.jsinit.directfwd.com',
-        'sk-jspark_init.php'
+        'sk-jspark_init.php',
+        'sk-jspark_init',
+        'directfwd.com',
+        'jsinit.directfwd',
     ], '', $buffer);
+    
+    // Remove any orphaned script tags
+    $buffer = preg_replace('/<script[^>]*><\/script>/i', '', $buffer);
     
     return $buffer;
 });
+
+// Add a second layer of buffering for extra protection
+ob_start();
 
 // Set comprehensive security headers
 $security_headers = [
@@ -62,9 +76,20 @@ if (!headers_sent()) {
 ini_set('auto_prepend_file', '');
 ini_set('auto_append_file', '');
 
-// Register shutdown function to ensure buffer is flushed
+// Register shutdown function to ensure buffers are properly flushed
 register_shutdown_function(function() {
+    // Get all buffered content and clean it
+    $output = '';
     while (ob_get_level() > 0) {
-        ob_end_flush();
+        $output = ob_get_clean() . $output;
     }
+    
+    // Final cleanup pass
+    $output = preg_replace([
+        '/<script[^>]*src=["\'][^"\']*directfwd[^"\']*["\'][^>]*>.*?<\/script>/is',
+        '/<script[^>]*src=["\'][^"\']*jsinit[^"\']*["\'][^>]*>.*?<\/script>/is',
+        '/<script[^>]*src=["\']http:\/\/[^"\']*["\'][^>]*>.*?<\/script>/is',
+    ], '', $output);
+    
+    echo $output;
 });

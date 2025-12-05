@@ -1,95 +1,86 @@
 /**
  * Client-side Anti-Injection Script
- * Removes any injected scripts from hosting provider
+ * Blocks and removes injected scripts from hosting provider
+ * Must be loaded FIRST in the <head> section
  */
 
 (function() {
     'use strict';
     
-    // Function to remove injected scripts
-    function removeInjectedScripts() {
-        // Get all script tags
-        const scripts = document.querySelectorAll('script[src]');
-        
-        scripts.forEach(script => {
-            const src = script.getAttribute('src') || '';
-            
-            // Check if script is from known injection domains
-            if (src.includes('directfwd.com') || 
-                src.includes('jsinit') || 
-                src.includes('jspark') ||
-                src.startsWith('http://')) {
-                
-                console.warn('Removing injected script:', src);
-                script.remove();
-            }
-        });
-        
-        // Also check for inline scripts with injection patterns
-        const inlineScripts = document.querySelectorAll('script:not([src])');
-        inlineScripts.forEach(script => {
-            const content = script.textContent || '';
-            if (content.includes('directfwd') || 
-                content.includes('jsinit') || 
-                content.includes('jspark')) {
-                console.warn('Removing injected inline script');
-                script.remove();
-            }
-        });
-    }
-    
-    // Run immediately
-    removeInjectedScripts();
-    
-    // Run after DOM is fully loaded
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', removeInjectedScripts);
-    }
-    
-    // Run after all resources are loaded
-    window.addEventListener('load', removeInjectedScripts);
-    
-    // Monitor for dynamically added scripts
-    const observer = new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-            mutation.addedNodes.forEach(node => {
-                if (node.nodeName === 'SCRIPT') {
+    // Immediately block any HTTP scripts
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            mutation.addedNodes.forEach(function(node) {
+                if (node.tagName === 'SCRIPT') {
                     const src = node.getAttribute('src') || '';
-                    const content = node.textContent || '';
                     
-                    if (src.includes('directfwd.com') || 
-                        src.includes('jsinit') || 
-                        src.includes('jspark') ||
-                        src.startsWith('http://') ||
-                        content.includes('directfwd') ||
-                        content.includes('jsinit') ||
-                        content.includes('jspark')) {
-                        
-                        console.warn('Blocking dynamically added injected script');
+                    // Block HTTP scripts (non-HTTPS)
+                    if (src.startsWith('http://') && !src.includes('localhost') && !src.includes('127.0.0.1')) {
+                        console.warn('Blocked insecure script:', src);
                         node.remove();
+                        return;
+                    }
+                    
+                    // Block known injection domains
+                    const blockedDomains = [
+                        'directfwd.com',
+                        'jsinit',
+                        'jspark',
+                        'cdn.jsinit'
+                    ];
+                    
+                    for (const domain of blockedDomains) {
+                        if (src.includes(domain)) {
+                            console.warn('Blocked injected script:', src);
+                            node.remove();
+                            return;
+                        }
                     }
                 }
             });
         });
     });
     
-    // Start observing
+    // Start observing immediately
     observer.observe(document.documentElement, {
         childList: true,
         subtree: true
     });
     
-    // Override document.write to prevent injection
-    const originalWrite = document.write;
-    document.write = function(content) {
-        if (content.includes('directfwd') || 
-            content.includes('jsinit') || 
-            content.includes('jspark') ||
-            content.includes('http://cdn.')) {
-            console.warn('Blocked document.write injection attempt');
-            return;
-        }
-        originalWrite.apply(document, arguments);
-    };
+    // Clean up existing scripts on DOM ready
+    function cleanExistingScripts() {
+        const scripts = document.querySelectorAll('script[src]');
+        scripts.forEach(function(script) {
+            const src = script.getAttribute('src') || '';
+            
+            // Remove HTTP scripts
+            if (src.startsWith('http://') && !src.includes('localhost')) {
+                console.warn('Removed insecure script:', src);
+                script.remove();
+                return;
+            }
+            
+            // Remove injection scripts
+            const blockedDomains = ['directfwd.com', 'jsinit', 'jspark'];
+            for (const domain of blockedDomains) {
+                if (src.includes(domain)) {
+                    console.warn('Removed injected script:', src);
+                    script.remove();
+                    return;
+                }
+            }
+        });
+    }
+    
+    // Run cleanup immediately and on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', cleanExistingScripts);
+    } else {
+        cleanExistingScripts();
+    }
+    
+    // Run cleanup again after a short delay to catch late injections
+    setTimeout(cleanExistingScripts, 100);
+    setTimeout(cleanExistingScripts, 500);
     
 })();
