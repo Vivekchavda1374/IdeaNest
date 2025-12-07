@@ -7,7 +7,7 @@ require_once __DIR__ . '/../includes/html_helpers.php';
 $current_page = basename($_SERVER['PHP_SELF']);
 
 // Set web base path for links
-$web_base_path = '/IdeaNest/Admin/';
+$web_base_path = '/hcd/IdeaNest/Admin/';
 
 // Define menu items with their corresponding pages
 $menu_items = [
