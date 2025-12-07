@@ -163,7 +163,7 @@ class SessionManager {
         self::startSecure();
         
         if (!self::isLoggedIn()) {
-            header('Location: /IdeaNest/Login/Login/login.php');
+            header('Location: /hcd/IdeaNest/Login/Login/login.php');
             exit();
         }
         
@@ -176,7 +176,7 @@ class SessionManager {
         
         // Check timeout
         if (!self::checkTimeout()) {
-            header('Location: /IdeaNest/Login/Login/login.php?timeout=1');
+            header('Location: /hcd/IdeaNest/Login/Login/login.php?timeout=1');
             exit();
         }
     }
