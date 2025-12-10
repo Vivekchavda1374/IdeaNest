@@ -53,6 +53,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!response.ok) {
                     throw new Error('Failed to load project details');
                 }
+                // Check if response is actually JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Server returned non-JSON response');
+                }
                 return response.json();
             })
             .then(data => {
@@ -311,7 +316,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Make AJAX request
             fetch(window.location.pathname + '?' + filterParams.toString())
-                .then(response => response.json())
+                .then(response => {
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new Error('Server returned non-JSON response');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success && data.html) {
                         // Append new projects to the grid
