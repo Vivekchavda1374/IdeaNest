@@ -55,7 +55,18 @@ if (!$error_message && isset($conn)) {
     if (!$tables_exist) {
         $error_message = "Required database tables are missing. Please run the database setup.";
     } else {
-        // Get available mentors
+        // Pagination setup
+        $items_per_page = 9; // 3 columns x 3 rows
+        $page = isset($_GET['page']) && is_numeric($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+        $offset = ($page - 1) * $items_per_page;
+        
+        // Get total count of mentors
+        $count_query = "SELECT COUNT(*) as total FROM register WHERE role = 'mentor'";
+        $count_result = $conn->query($count_query);
+        $total_items = $count_result ? $count_result->fetch_assoc()['total'] : 0;
+        $total_pages = ceil($total_items / $items_per_page);
+        
+        // Get available mentors with pagination
         $mentors_query = "SELECT r.id, r.name, r.email, 
                                 COALESCE(r.department, 'Not specified') as department,
                                 COALESCE(m.specialization, 'General') as specialization, 
@@ -66,8 +77,12 @@ if (!$error_message && isset($conn)) {
                          FROM register r 
                          LEFT JOIN mentors m ON r.id = m.user_id 
                          WHERE r.role = 'mentor' 
-                         ORDER BY r.name";
-        $mentors_result = $conn->query($mentors_query);
+                         ORDER BY r.name
+                         LIMIT ? OFFSET ?";
+        $mentors_stmt = $conn->prepare($mentors_query);
+        $mentors_stmt->bind_param("ii", $items_per_page, $offset);
+        $mentors_stmt->execute();
+        $mentors_result = $mentors_stmt->get_result();
         
         if (!$mentors_result) {
             $error_message = "Failed to fetch mentors: " . $conn->error;
@@ -251,6 +266,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Anti-injection script - MUST be first -->
+    <script src="../assets/js/anti_injection.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Select Mentor - IdeaNest</title>
@@ -271,6 +288,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor'])) {
         .mentor-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold; }
         .btn-request { background: linear-gradient(135deg, #667eea, #764ba2); border: none; border-radius: 25px; padding: 8px 20px; }
         .specialization-badge { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px; padding: 4px 12px; font-size: 0.8rem; }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
+        .pagination a, .pagination span { padding: 10px 16px; background: rgba(255, 255, 255, 0.95); border-radius: 8px; text-decoration: none; color: #667eea; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+        .pagination a:hover { background: #667eea; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+        .pagination .current { background: linear-gradient(135deg, #667eea, #764ba2); color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .pagination .disabled { opacity: 0.5; pointer-events: none; }
         @media (max-width: 768px) { .main-content { margin-left: 0; } }
     </style>
     <link rel="stylesheet" href="../assets/css/loader.css">
@@ -369,6 +391,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['request_mentor'])) {
                     </div>
                 <?php endif; ?>
             </div>
+
+            <?php if (!$error_message && $mentors_result && $total_pages > 1) : ?>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="pagination">
+                            <?php if ($page > 1) : ?>
+                                <a href="?page=1"><i class="fas fa-angle-double-left"></i></a>
+                                <a href="?page=<?= $page - 1 ?>"><i class="fas fa-angle-left"></i> Prev</a>
+                            <?php else : ?>
+                                <span class="disabled"><i class="fas fa-angle-double-left"></i></span>
+                                <span class="disabled"><i class="fas fa-angle-left"></i> Prev</span>
+                            <?php endif; ?>
+
+                            <?php
+                            $start = max(1, $page - 2);
+                            $end = min($total_pages, $page + 2);
+                            for ($i = $start; $i <= $end; $i++) :
+                            ?>
+                                <?php if ($i == $page) : ?>
+                                    <span class="current"><?= $i ?></span>
+                                <?php else : ?>
+                                    <a href="?page=<?= $i ?>"><?= $i ?></a>
+                                <?php endif; ?>
+                            <?php endfor; ?>
+
+                            <?php if ($page < $total_pages) : ?>
+                                <a href="?page=<?= $page + 1 ?>">Next <i class="fas fa-angle-right"></i></a>
+                                <a href="?page=<?= $total_pages ?>"><i class="fas fa-angle-double-right"></i></a>
+                            <?php else : ?>
+                                <span class="disabled">Next <i class="fas fa-angle-right"></i></span>
+                                <span class="disabled"><i class="fas fa-angle-double-right"></i></span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 

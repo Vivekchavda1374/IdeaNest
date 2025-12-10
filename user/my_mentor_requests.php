@@ -10,7 +10,20 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Get user's mentor requests
+// Pagination setup
+$items_per_page = 10;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $items_per_page;
+
+// Get total count
+$count_query = "SELECT COUNT(*) as total FROM mentor_requests WHERE student_id = ?";
+$count_stmt = $conn->prepare($count_query);
+$count_stmt->bind_param("i", $user_id);
+$count_stmt->execute();
+$total_items = $count_stmt->get_result()->fetch_assoc()['total'];
+$total_pages = ceil($total_items / $items_per_page);
+
+// Get user's mentor requests with pagination
 $requests_query = "SELECT mr.id, mr.mentor_id, mr.project_id, mr.message, mr.status, mr.created_at, mr.updated_at,
                           r.name as mentor_name, r.email as mentor_email, r.department as mentor_department,
                           m.specialization, m.experience_years,
@@ -20,9 +33,10 @@ $requests_query = "SELECT mr.id, mr.mentor_id, mr.project_id, mr.message, mr.sta
                    LEFT JOIN mentors m ON r.id = m.user_id
                    LEFT JOIN projects p ON mr.project_id = p.id
                    WHERE mr.student_id = ?
-                   ORDER BY mr.created_at DESC";
+                   ORDER BY mr.created_at DESC
+                   LIMIT ? OFFSET ?";
 $requests_stmt = $conn->prepare($requests_query);
-$requests_stmt->bind_param("i", $user_id);
+$requests_stmt->bind_param("iii", $user_id, $items_per_page, $offset);
 $requests_stmt->execute();
 $requests_result = $requests_stmt->get_result();
 
@@ -32,6 +46,8 @@ include 'layout.php';
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Anti-injection script - MUST be first -->
+    <script src="../assets/js/anti_injection.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Mentor Requests - IdeaNest</title>
@@ -47,6 +63,11 @@ include 'layout.php';
         .status-pending { color: #f59e0b; }
         .status-accepted { color: #10b981; }
         .status-rejected { color: #ef4444; }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
+        .pagination a, .pagination span { padding: 10px 16px; background: rgba(255, 255, 255, 0.95); border-radius: 8px; text-decoration: none; color: #667eea; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+        .pagination a:hover { background: #667eea; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+        .pagination .current { background: linear-gradient(135deg, #667eea, #764ba2); color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .pagination .disabled { opacity: 0.5; pointer-events: none; }
         @media (max-width: 768px) { .main-content { margin-left: 0; } }
     </style>
     <link rel="stylesheet" href="../assets/css/loader.css">
@@ -149,6 +170,38 @@ include 'layout.php';
                             <a href="select_mentor.php" class="btn btn-primary">
                                 <i class="fas fa-user-graduate me-2"></i>Find a Mentor
                             </a>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($total_pages > 1) : ?>
+                        <div class="pagination">
+                            <?php if ($page > 1) : ?>
+                                <a href="?page=1"><i class="fas fa-angle-double-left"></i></a>
+                                <a href="?page=<?= $page - 1 ?>"><i class="fas fa-angle-left"></i> Prev</a>
+                            <?php else : ?>
+                                <span class="disabled"><i class="fas fa-angle-double-left"></i></span>
+                                <span class="disabled"><i class="fas fa-angle-left"></i> Prev</span>
+                            <?php endif; ?>
+
+                            <?php
+                            $start = max(1, $page - 2);
+                            $end = min($total_pages, $page + 2);
+                            for ($i = $start; $i <= $end; $i++) :
+                            ?>
+                                <?php if ($i == $page) : ?>
+                                    <span class="current"><?= $i ?></span>
+                                <?php else : ?>
+                                    <a href="?page=<?= $i ?>"><?= $i ?></a>
+                                <?php endif; ?>
+                            <?php endfor; ?>
+
+                            <?php if ($page < $total_pages) : ?>
+                                <a href="?page=<?= $page + 1 ?>">Next <i class="fas fa-angle-right"></i></a>
+                                <a href="?page=<?= $total_pages ?>"><i class="fas fa-angle-double-right"></i></a>
+                            <?php else : ?>
+                                <span class="disabled">Next <i class="fas fa-angle-right"></i></span>
+                                <span class="disabled"><i class="fas fa-angle-double-right"></i></span>
+                            <?php endif; ?>
                         </div>
                     <?php endif; ?>
                 </div>
