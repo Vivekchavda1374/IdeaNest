@@ -1,39 +1,30 @@
 <?php
 require_once __DIR__ . '/../includes/security_init.php';
 require_once __DIR__ . '/../includes/html_helpers.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-if (!isset($basePath)) {
-    $basePath = './';
-}
 
 // Get user info from session
-$user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "vivek";
-$user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "V";
+$user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : "Guest";
+$user_initial = !empty($user_name) ? strtoupper(substr($user_name, 0, 1)) : "G";
 
 // Get current page to set active state
 $current_page = basename($_SERVER['PHP_SELF']);
-
-// Check if we're in a subdirectory (like Blog)
 $current_dir = basename(dirname($_SERVER['PHP_SELF']));
 $is_in_subdirectory = ($current_dir !== 'user' && $current_dir !== 'IdeaNest');
 
 // Adjust base path for subdirectories
-if ($is_in_subdirectory) {
-    $basePath = '../';
-} else {
-    $basePath = './';
-}
+$basePath = $is_in_subdirectory ? '../' : './';
 ?>
 
-<!-- Layout Styles and Scripts -->
+<!-- Styles -->
 <link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/layout_user.css">
 <link rel="stylesheet" href="<?php echo $basePath; ?>../assets/css/loader.css">
 <link rel="stylesheet" href="<?php echo $basePath; ?>assets/css/educational-ui.css">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-<!-- Fallback styles for layout -->
 <style>
 .sidebar {
     position: fixed;
@@ -74,13 +65,15 @@ if ($is_in_subdirectory) {
 .sidebar-logo-text {
     font-size: 1.5rem;
     font-weight: 700;
-    color: white;
 }
 
 .sidebar-user {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
 }
 
 .sidebar-user-avatar {
@@ -185,7 +178,12 @@ if ($is_in_subdirectory) {
     z-index: 999;
 }
 
-/* Mobile responsive */
+.main-content {
+    margin-left: 280px;
+    min-height: 100vh;
+    background: #f8fafc;
+}
+
 @media (max-width: 768px) {
     .sidebar {
         transform: translateX(-100%);
@@ -202,47 +200,15 @@ if ($is_in_subdirectory) {
     .overlay.active {
         display: block;
     }
-}
 
-/* Main content adjustment */
-.main-content {
-    margin-left: 280px;
-    min-height: 100vh;
-    background: #f8fafc;
-}
-
-@media (max-width: 768px) {
     .main-content {
         margin-left: 0;
     }
 }
 </style>
 
-<script src="<?php echo $basePath; ?>../assets/js/loader.js"></script>
-<script src="<?php echo $basePath; ?>../assets/js/layout_user.js" defer></script>
-
-<!-- Fallback JavaScript for mobile menu -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const mobileToggle = document.getElementById('mobileMenuToggle');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    
-    if (mobileToggle && sidebar && overlay) {
-        mobileToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        });
-        
-        overlay.addEventListener('click', function() {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-        });
-    }
-});
-</script>
-<!-- Mobile Menu Toggle Button -->
-<button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu">
+<!-- Mobile Menu Toggle -->
+<button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
     <i class="fas fa-bars"></i>
 </button>
 
@@ -261,12 +227,13 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="sidebar-user-avatar"><?php echo safe_html($user_initial); ?></div>
             <div class="sidebar-user-info">
                 <h4><?php echo safe_html($user_name); ?></h4>
-                <p>Innovator</p>
+                <p>Student</p>
             </div>
         </div>
     </div>
 
     <nav class="sidebar-nav">
+        <!-- Main -->
         <div class="nav-section">
             <div class="nav-section-title">Main</div>
             <a href="<?php echo $basePath; ?>index.php" class="nav-item <?php echo ($current_page == 'index.php') ? 'active' : ''; ?>">
@@ -279,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </a>
             <a href="<?php echo $basePath; ?>Blog/form.php" class="nav-item <?php echo ($current_page == 'form.php' && $current_dir == 'Blog') ? 'active' : ''; ?>">
                 <i class="fas fa-lightbulb nav-icon"></i>
-                <span class="nav-text">Ideas</span>
+                <span class="nav-text">My Ideas</span>
             </a>
             <a href="<?php echo $basePath; ?>bookmark.php" class="nav-item <?php echo ($current_page == 'bookmark.php') ? 'active' : ''; ?>">
                 <i class="fas fa-bookmark nav-icon"></i>
@@ -287,10 +254,11 @@ document.addEventListener('DOMContentLoaded', function() {
             </a>
         </div>
 
+        <!-- Create -->
         <div class="nav-section">
             <div class="nav-section-title">Create</div>
             <a href="<?php echo $basePath; ?>forms/new_project_add.php" class="nav-item <?php echo ($current_page == 'new_project_add.php') ? 'active' : ''; ?>">
-                <i class="fas fa-plus nav-icon"></i>
+                <i class="fas fa-plus-circle nav-icon"></i>
                 <span class="nav-text">New Project</span>
             </a>
             <a href="<?php echo $basePath; ?>Blog/form.php" class="nav-item <?php echo ($current_page == 'form.php' && $current_dir == 'Blog') ? 'active' : ''; ?>">
@@ -299,30 +267,15 @@ document.addEventListener('DOMContentLoaded', function() {
             </a>
         </div>
 
+        <!-- Community -->
         <div class="nav-section">
             <div class="nav-section-title">Community</div>
-            <a href="<?php echo $basePath; ?>all_projects.php" class="nav-item <?php echo ($current_page == 'all_projects.php') ? 'active' : ''; ?>">
-                <i class="fas fa-users nav-icon"></i>
-                <span class="nav-text">Explore Projects</span>
-            </a>
             <a href="<?php echo $basePath; ?>Blog/list-project.php" class="nav-item <?php echo ($current_page == 'list-project.php' && $current_dir == 'Blog') ? 'active' : ''; ?>">
                 <i class="fas fa-list nav-icon"></i>
                 <span class="nav-text">All Ideas</span>
             </a>
-            <a href="<?php echo $basePath; ?>gamification.php" class="nav-item <?php echo ($current_page == 'gamification.php') ? 'active' : ''; ?>">
-                <i class="fas fa-trophy nav-icon"></i>
-                <span class="nav-text">Achievements</span>
-            </a>
-            <a href="<?php echo $basePath; ?>leaderboard.php" class="nav-item <?php echo ($current_page == 'leaderboard.php') ? 'active' : ''; ?>">
-                <i class="fas fa-medal nav-icon"></i>
-                <span class="nav-text">Leaderboard</span>
-            </a>
-            <a href="<?php echo $basePath; ?>achievements_guide.php" class="nav-item <?php echo ($current_page == 'achievements_guide.php') ? 'active' : ''; ?>">
-                <i class="fas fa-book-open nav-icon"></i>
-                <span class="nav-text">How to Earn</span>
-            </a>
             <a href="<?php echo $basePath; ?>select_mentor.php" class="nav-item <?php echo ($current_page == 'select_mentor.php') ? 'active' : ''; ?>">
-                <i class="fas fa-user-graduate nav-icon"></i>
+                <i class="fas fa-user-tie nav-icon"></i>
                 <span class="nav-text">Find Mentor</span>
             </a>
             <a href="<?php echo $basePath; ?>my_mentor_requests.php" class="nav-item <?php echo ($current_page == 'my_mentor_requests.php') ? 'active' : ''; ?>">
@@ -335,24 +288,73 @@ document.addEventListener('DOMContentLoaded', function() {
             </a>
         </div>
 
+        <!-- Achievements -->
+        <div class="nav-section">
+            <div class="nav-section-title">Achievements</div>
+            <a href="<?php echo $basePath; ?>gamification.php" class="nav-item <?php echo ($current_page == 'gamification.php') ? 'active' : ''; ?>">
+                <i class="fas fa-trophy nav-icon"></i>
+                <span class="nav-text">My Achievements</span>
+            </a>
+            <a href="<?php echo $basePath; ?>leaderboard.php" class="nav-item <?php echo ($current_page == 'leaderboard.php') ? 'active' : ''; ?>">
+                <i class="fas fa-medal nav-icon"></i>
+                <span class="nav-text">Leaderboard</span>
+            </a>
+            <a href="<?php echo $basePath; ?>achievements_guide.php" class="nav-item <?php echo ($current_page == 'achievements_guide.php') ? 'active' : ''; ?>">
+                <i class="fas fa-book-open nav-icon"></i>
+                <span class="nav-text">How to Earn</span>
+            </a>
+        </div>
+
+        <!-- Account -->
         <div class="nav-section">
             <div class="nav-section-title">Account</div>
-            <a href="<?php echo $basePath; ?>chat/index.php" class="nav-item <?php echo ($current_page == 'index.php' && $current_dir == 'chat') ? 'active' : ''; ?>">
-                <i class="fas fa-comments nav-icon"></i>
-                <span class="nav-text">Messages</span>
-            </a>
             <a href="<?php echo $basePath; ?>user_profile_setting.php" class="nav-item <?php echo ($current_page == 'user_profile_setting.php') ? 'active' : ''; ?>">
                 <i class="fas fa-user nav-icon"></i>
                 <span class="nav-text">Profile</span>
             </a>
-            <a href="<?php echo $basePath; ?>user_profile_setting.php" class="nav-item <?php echo ($current_page == 'user_profile_setting.php') ? 'active' : ''; ?>">
-                <i class="fas fa-cog nav-icon"></i>
-                <span class="nav-text">Settings</span>
+            <a href="<?php echo $basePath; ?>chat/index.php" class="nav-item <?php echo ($current_page == 'index.php' && $current_dir == 'chat') ? 'active' : ''; ?>">
+                <i class="fas fa-comments nav-icon"></i>
+                <span class="nav-text">Messages</span>
             </a>
-            <a href="<?php echo $basePath; ?>../Login/Login/logout.php" class="nav-item" onclick="showLoader('Logging out...')">
+            
+            <a href="<?php echo $basePath; ?>../Login/Login/logout.php" class="nav-item">
                 <i class="fas fa-sign-out-alt nav-icon"></i>
                 <span class="nav-text">Logout</span>
             </a>
         </div>
     </nav>
 </aside>
+
+<!-- Scripts -->
+<script src="<?php echo $basePath; ?>../assets/js/loader.js"></script>
+<script src="<?php echo $basePath; ?>../assets/js/layout_user.js" defer></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    
+    if (mobileToggle && sidebar && overlay) {
+        mobileToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+        
+        overlay.addEventListener('click', function() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+
+        // Close on nav click (mobile)
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+    }
+});
+</script>
