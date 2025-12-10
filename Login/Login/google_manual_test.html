@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manual Google Sign-In Test</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .error { background: #fee; color: #c33; border: 1px solid #fcc; }
+        .success { background: #efe; color: #3c3; border: 1px solid #cfc; }
+        .info { background: #def; color: #369; border: 1px solid #bdf; }
+        button {
+            padding: 12px 24px;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background: #357ae8; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #4285f4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Google Sign-In Manual Test</h1>
+        
+        <div class="status info">
+            <strong>Current Status:</strong> Testing Google OAuth Configuration
+        </div>
+
+        <div class="step">
+            <h3>Step 1: Check Your Current URL</h3>
+            <pre id="currentUrl"></pre>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Google Sign-In Button Test</h3>
+            <p>The button should appear below:</p>
+            <div id="buttonContainer" style="margin: 20px 0; min-height: 60px; border: 2px dashed #ddd; padding: 10px; text-align: center;">
+                <div id="g_id_onload"
+                     data-client_id="373663984974-msaj22ll4i9085r7120barr1g1akjs5d.apps.googleusercontent.com"
+                     data-callback="handleCredentialResponse"
+                     data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin" 
+                     data-type="standard" 
+                     data-size="large" 
+                     data-theme="outline" 
+                     data-text="signin_with">
+                </div>
+            </div>
+            <div id="buttonStatus"></div>
+        </div>
+
+        <div class="step">
+            <h3>Step 3: Console Errors</h3>
+            <p>Open browser console (F12) and check for errors. Common errors:</p>
+            <ul>
+                <li><strong>"Not a valid origin"</strong> - Origin not added to Google Console</li>
+                <li><strong>"idpiframe_initialization_failed"</strong> - Cookies blocked</li>
+                <li><strong>"popup_closed_by_user"</strong> - User closed popup (normal)</li>
+            </ul>
+            <button onclick="checkConsole()">Check Console Now</button>
+            <pre id="consoleOutput" style="margin-top: 10px;"></pre>
+        </div>
+
+        <div class="step">
+            <h3>Step 4: What to Add to Google Console</h3>
+            <p>Go to: <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console</a></p>
+            <p>Find Client ID: <code>373663984974-msaj22ll4i9085r7120barr1g1akjs5d</code></p>
+            
+            <h4>Add to "Authorized JavaScript origins":</h4>
+            <pre id="origins"></pre>
+            
+            <h4>Add to "Authorized redirect URIs":</h4>
+            <pre id="redirects"></pre>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        // Display current URL info
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        const origin = protocol + '//' + host;
+        const path = window.location.pathname;
+        const dir = path.substring(0, path.lastIndexOf('/'));
+
+        document.getElementById('currentUrl').textContent = 
+            'Full URL: ' + window.location.href + '\n' +
+            'Origin: ' + origin + '\n' +
+            'Protocol: ' + protocol + '\n' +
+            'Host: ' + host;
+
+        document.getElementById('origins').textContent = origin;
+        
+        document.getElementById('redirects').textContent = 
+            origin + dir + '/google_callback.php\n' +
+            origin + dir + '/google_auth.php';
+
+        // Check if button rendered
+        let checkCount = 0;
+        const checkInterval = setInterval(function() {
+            checkCount++;
+            const btn = document.querySelector('.g_id_signin');
+            const status = document.getElementById('buttonStatus');
+            
+            if (btn && btn.children.length > 0) {
+                clearInterval(checkInterval);
+                status.innerHTML = '<div class="status success">✓ Button rendered successfully! Google Sign-In is configured correctly.</div>';
+            } else if (checkCount > 10) {
+                clearInterval(checkInterval);
+                status.innerHTML = '<div class="status error">✗ Button failed to render after 5 seconds.<br><br><strong>Most likely cause:</strong> Your origin (' + origin + ') is not authorized in Google Cloud Console.<br><br><strong>Fix:</strong> Add the origin shown above to Google Console.</div>';
+            }
+        }, 500);
+
+        // Handle successful sign-in
+        function handleCredentialResponse(response) {
+            const result = document.getElementById('result');
+            result.innerHTML = '<div class="status success"><h3>✓ Google Sign-In Successful!</h3><p>Token received. Authentication is working correctly.</p></div>';
+            console.log('Google Sign-In Response:', response);
+            
+            // Decode JWT
+            try {
+                const payload = JSON.parse(atob(response.credential.split('.')[1]));
+                result.innerHTML += '<h4>User Info:</h4><pre>' + JSON.stringify(payload, null, 2) + '</pre>';
+            } catch (e) {
+                console.error('Failed to decode JWT:', e);
+            }
+        }
+
+        // Check console for errors
+        function checkConsole() {
+            const output = document.getElementById('consoleOutput');
+            output.textContent = 'Check the browser console (F12 → Console tab) for detailed error messages.\n\nCommon errors and solutions:\n\n1. "Not a valid origin for the client"\n   → Add your origin to Google Console\n\n2. "idpiframe_initialization_failed"\n   → Enable third-party cookies\n\n3. "popup_closed_by_user"\n   → Normal, user closed the popup\n\n4. No errors but button not showing\n   → Clear cache and try again';
+        }
+
+        // Capture console errors
+        const originalError = console.error;
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            const output = document.getElementById('consoleOutput');
+            if (output) {
+                output.textContent = 'Error detected: ' + args.join(' ');
+            }
+        };
+    </script>
+</body>
+</html>

@@ -168,6 +168,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .divider { text-align: center; margin: 20px 0; color: #999; font-size: 14px; }
         .google-btn { width: 100%; padding: 10px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; }
         .google-btn:hover { background: #f9f9f9; }
+        
+        /* Google Sign-In Button Container */
+        #g_id_onload { display: block; }
+        .g_id_signin { 
+            display: flex !important; 
+            justify-content: center !important; 
+            align-items: center !important;
+            margin: 10px auto !important;
+            width: 100% !important;
+        }
+        .google-signin-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
@@ -199,26 +215,105 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="divider">OR</div>
 
         <?php 
-        // Disable Google Sign-In for localhost development
-        $is_localhost = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false);
-        
-        if (!$is_localhost) {
-            try {
-                require_once 'google_config.php'; 
-                if (defined('GOOGLE_CLIENT_ID') && !empty(GOOGLE_CLIENT_ID)) {
+        // Enable Google Sign-In for both localhost and production
+        try {
+            require_once 'google_config.php'; 
+            if (defined('GOOGLE_CLIENT_ID') && !empty(GOOGLE_CLIENT_ID)) {
         ?>
-        <div id="g_id_onload"
-             data-client_id="<?php echo GOOGLE_CLIENT_ID; ?>"
-             data-callback="handleCredentialResponse">
+        <div class="google-signin-container">
+            <!-- Google One Tap Sign-In -->
+            <div id="g_id_onload"
+                 data-client_id="<?php echo GOOGLE_CLIENT_ID; ?>"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false"
+                 data-cancel_on_tap_outside="false">
+            </div>
+            
+            <!-- Google Sign-In Button -->
+            <div id="googleButtonWrapper">
+                <div class="g_id_signin" 
+                     data-type="standard" 
+                     data-size="large" 
+                     data-theme="outline" 
+                     data-text="signin_with"
+                     data-shape="rectangular"
+                     data-logo_alignment="left"
+                     data-width="350">
+                </div>
+            </div>
+            
+            <!-- Fallback Manual Button (shows if Google button fails) -->
+            <button type="button" id="manualGoogleBtn" class="google-btn" style="display: none;">
+                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                </svg>
+                Sign in with Google
+            </button>
         </div>
-        <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="signin_with"></div>
-        <?php 
+        <script>
+            // Check if Google Sign-In library loaded and button rendered
+            let checkAttempts = 0;
+            const maxAttempts = 10;
+            
+            const checkGoogleButton = setInterval(function() {
+                checkAttempts++;
+                const googleBtn = document.querySelector('.g_id_signin');
+                const manualBtn = document.getElementById('manualGoogleBtn');
+                
+                // Check if Google button rendered successfully
+                if (googleBtn && googleBtn.children.length > 0) {
+                    console.log('✓ Google Sign-In button loaded successfully');
+                    clearInterval(checkGoogleButton);
+                    return;
                 }
-            } catch (Exception $e) {
-                // Google config not available, skip Google login
+                
+                // After 5 seconds, show manual button as fallback
+                if (checkAttempts >= maxAttempts) {
+                    console.warn('Google Sign-In button failed to render, showing fallback');
+                    console.log('Client ID:', '<?php echo GOOGLE_CLIENT_ID; ?>');
+                    console.log('Origin:', window.location.origin);
+                    
+                    // Hide Google button container and show manual button
+                    if (googleBtn) {
+                        googleBtn.style.display = 'none';
+                    }
+                    if (manualBtn) {
+                        manualBtn.style.display = 'flex';
+                    }
+                    
+                    clearInterval(checkGoogleButton);
+                }
+            }, 500);
+            
+            // Manual button click handler - opens Google OAuth popup
+            document.getElementById('manualGoogleBtn')?.addEventListener('click', function() {
+                const clientId = '<?php echo GOOGLE_CLIENT_ID; ?>';
+                const redirectUri = window.location.origin + window.location.pathname.replace('login.php', 'google_callback.php');
+                const scope = 'email profile';
+                const responseType = 'code';
+                
+                const authUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' +
+                    'client_id=' + encodeURIComponent(clientId) +
+                    '&redirect_uri=' + encodeURIComponent(redirectUri) +
+                    '&response_type=' + responseType +
+                    '&scope=' + encodeURIComponent(scope) +
+                    '&access_type=offline' +
+                    '&prompt=select_account';
+                
+                console.log('Opening Google OAuth:', authUrl);
+                window.location.href = authUrl;
+            });
+        </script>
+        <?php 
+            } else {
+                echo '<p style="text-align: center; color: #f44; font-size: 12px;">Google Sign-In not configured</p>';
             }
-        } else {
-            echo '<p style="text-align: center; color: #666; font-size: 12px; margin: 10px 0;">Google Sign-In disabled for localhost</p>';
+        } catch (Exception $e) {
+            error_log('Google config error: ' . $e->getMessage());
+            echo '<p style="text-align: center; color: #f44; font-size: 12px;">Google config error: ' . htmlspecialchars($e->getMessage()) . '</p>';
         }
         ?>
 
@@ -237,9 +332,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script src="../../assets/js/loader.js"></script>
-    <?php if (!$is_localhost): ?>
+    <!-- Google Sign-In Library - Works on both localhost and production -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <?php endif; ?>
     <script>
     function togglePassword() {
         const passwordInput = document.getElementById('password');
