@@ -12,6 +12,11 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $activities = [];
 
+// Pagination setup
+$items_per_page = 10;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $items_per_page;
+
 // Add sample data for testing
 $activities = [
     [
@@ -46,8 +51,30 @@ $activities = [
     ]
 ];
 
+$total_items = count($activities);
+$total_pages = ceil($total_items / $items_per_page);
+
 try {
     // Try to get real data from database
+    // First get total count
+    $count_query = "SELECT 
+        (SELECT COUNT(*) FROM mentoring_sessions ms
+         JOIN mentor_student_pairs msp ON ms.pair_id = msp.id
+         WHERE msp.student_id = ?) +
+        (SELECT COUNT(*) FROM mentor_requests mr WHERE mr.student_id = ?) as total";
+    
+    $count_stmt = $conn->prepare($count_query);
+    if ($count_stmt) {
+        $count_stmt->bind_param("ii", $user_id, $user_id);
+        $count_stmt->execute();
+        $count_result = $count_stmt->get_result();
+        if ($count_result) {
+            $total_items = $count_result->fetch_assoc()['total'];
+            $total_pages = ceil($total_items / $items_per_page);
+        }
+    }
+
+    // Get sessions
     $sessions_query = "SELECT 
         'session' as type,
         COALESCE(ms.session_date, NOW()) as date,
@@ -61,8 +88,7 @@ try {
         JOIN mentor_student_pairs msp ON ms.pair_id = msp.id
         JOIN register r ON msp.mentor_id = r.id
         WHERE msp.student_id = ?
-        ORDER BY ms.session_date DESC
-        LIMIT 20";
+        ORDER BY ms.session_date DESC";
 
     $stmt = $conn->prepare($sessions_query);
     if ($stmt) {
@@ -87,8 +113,7 @@ try {
         FROM mentor_requests mr
         JOIN register r ON mr.mentor_id = r.id
         WHERE mr.student_id = ?
-        ORDER BY mr.created_at DESC
-        LIMIT 20";
+        ORDER BY mr.created_at DESC";
 
     $stmt = $conn->prepare($requests_query);
     if ($stmt) {
@@ -106,10 +131,14 @@ try {
         usort($activities, function ($a, $b) {
             return strtotime($b['date']) - strtotime($a['date']);
         });
+        
+        // Apply pagination
+        $activities = array_slice($activities, $offset, $items_per_page);
     }
 } catch (Exception $e) {
     error_log("Activities error: " . $e->getMessage());
-    // Keep sample data if database fails
+    // Apply pagination to sample data
+    $activities = array_slice($activities, $offset, $items_per_page);
 }
 ?>
 
@@ -153,6 +182,11 @@ try {
 .timeline-item {
     position: relative;
 }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
+.pagination a, .pagination span { padding: 10px 16px; background: rgba(255, 255, 255, 0.95); border-radius: 8px; text-decoration: none; color: #667eea; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+.pagination a:hover { background: #667eea; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+.pagination .current { background: linear-gradient(135deg, #667eea, #764ba2); color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+.pagination .disabled { opacity: 0.5; pointer-events: none; }
 @media (max-width: 768px) {
     .main-content {
         margin-left: 0;
@@ -303,6 +337,38 @@ try {
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
+
+                                <?php if ($total_pages > 1) : ?>
+                                    <div class="pagination">
+                                        <?php if ($page > 1) : ?>
+                                            <a href="?page=1"><i class="fas fa-angle-double-left"></i></a>
+                                            <a href="?page=<?= $page - 1 ?>"><i class="fas fa-angle-left"></i> Prev</a>
+                                        <?php else : ?>
+                                            <span class="disabled"><i class="fas fa-angle-double-left"></i></span>
+                                            <span class="disabled"><i class="fas fa-angle-left"></i> Prev</span>
+                                        <?php endif; ?>
+
+                                        <?php
+                                        $start = max(1, $page - 2);
+                                        $end = min($total_pages, $page + 2);
+                                        for ($i = $start; $i <= $end; $i++) :
+                                        ?>
+                                            <?php if ($i == $page) : ?>
+                                                <span class="current"><?= $i ?></span>
+                                            <?php else : ?>
+                                                <a href="?page=<?= $i ?>"><?= $i ?></a>
+                                            <?php endif; ?>
+                                        <?php endfor; ?>
+
+                                        <?php if ($page < $total_pages) : ?>
+                                            <a href="?page=<?= $page + 1 ?>">Next <i class="fas fa-angle-right"></i></a>
+                                            <a href="?page=<?= $total_pages ?>"><i class="fas fa-angle-double-right"></i></a>
+                                        <?php else : ?>
+                                            <span class="disabled">Next <i class="fas fa-angle-right"></i></span>
+                                            <span class="disabled"><i class="fas fa-angle-double-right"></i></span>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </div>
                     </div>

@@ -14,14 +14,27 @@ require_once '../includes/gamification.php';
 $gamification = new Gamification($conn);
 $user_id = $_SESSION['user_id'];
 
-// Get leaderboard
-$leaderboard = $gamification->getLeaderboard(100);
+// Pagination setup
+$items_per_page = 20;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $items_per_page;
+
+// Get total count for pagination
+$total_users_query = "SELECT COUNT(*) as total FROM user_points";
+$total_result = $conn->query($total_users_query);
+$total_items = $total_result ? $total_result->fetch_assoc()['total'] : 100;
+$total_pages = ceil($total_items / $items_per_page);
+
+// Get leaderboard with pagination
+$leaderboard = $gamification->getLeaderboard($items_per_page, $offset);
 $user_rank = $gamification->getUserRank($user_id);
 $user_stats = $gamification->getUserStats($user_id);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Anti-injection script - MUST be first -->
+    <script src="../assets/js/anti_injection.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaderboard - IdeaNest</title>
@@ -394,7 +407,11 @@ $user_stats = $gamification->getUserStats($user_id);
             margin-top: 0.25rem;
         }
         
-
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; flex-wrap: wrap; padding: 20px; }
+        .pagination a, .pagination span { padding: 12px 18px; background: var(--bg-primary); border-radius: 10px; text-decoration: none; color: var(--primary-color); font-weight: 600; transition: all 0.3s ease; box-shadow: var(--shadow-md); border: 1px solid var(--border-color); }
+        .pagination a:hover { background: var(--gradient-primary); color: white; transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .pagination .current { background: var(--gradient-primary); color: white; box-shadow: var(--shadow-lg); }
+        .pagination .disabled { opacity: 0.5; pointer-events: none; }
         
         @media (max-width: 768px) {
             .podium {
@@ -551,6 +568,38 @@ $user_stats = $gamification->getUserStats($user_id);
                         </div>
                     <?php endforeach; ?>
                 </div>
+                
+                <?php if ($total_pages > 1) : ?>
+                    <div class="pagination">
+                        <?php if ($page > 1) : ?>
+                            <a href="?page=1"><i class="fas fa-angle-double-left"></i></a>
+                            <a href="?page=<?= $page - 1 ?>"><i class="fas fa-angle-left"></i> Prev</a>
+                        <?php else : ?>
+                            <span class="disabled"><i class="fas fa-angle-double-left"></i></span>
+                            <span class="disabled"><i class="fas fa-angle-left"></i> Prev</span>
+                        <?php endif; ?>
+
+                        <?php
+                        $start = max(1, $page - 2);
+                        $end = min($total_pages, $page + 2);
+                        for ($i = $start; $i <= $end; $i++) :
+                        ?>
+                            <?php if ($i == $page) : ?>
+                                <span class="current"><?= $i ?></span>
+                            <?php else : ?>
+                                <a href="?page=<?= $i ?>"><?= $i ?></a>
+                            <?php endif; ?>
+                        <?php endfor; ?>
+
+                        <?php if ($page < $total_pages) : ?>
+                            <a href="?page=<?= $page + 1 ?>">Next <i class="fas fa-angle-right"></i></a>
+                            <a href="?page=<?= $total_pages ?>"><i class="fas fa-angle-double-right"></i></a>
+                        <?php else : ?>
+                            <span class="disabled">Next <i class="fas fa-angle-right"></i></span>
+                            <span class="disabled"><i class="fas fa-angle-double-right"></i></span>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
