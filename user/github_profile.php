@@ -44,7 +44,7 @@ if (!empty($github_username)) {
             'avatar_url' => "https://github.com/{$github_username}.png",
             'name' => $github_username
         ];
-        $github_repos = []; // Skip repos for cached data
+        $github_repos = []; 
     } else {
         // Fetch fresh GitHub data
         $github_profile = fetchGitHubProfile($github_username);
