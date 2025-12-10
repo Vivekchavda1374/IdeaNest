@@ -30,7 +30,7 @@ class AuthGuard {
     /**
      * Require authentication
      */
-    public static function requireAuth($redirectUrl = '/IdeaNest/Login/Login/login.php') {
+    public static function requireAuth($redirectUrl = '/hcd/IdeaNest/Login/Login/login.php') {
         if (!self::verifySession()) {
             header('Location: ' . $redirectUrl);
             exit();
@@ -40,9 +40,9 @@ class AuthGuard {
     /**
      * Require specific role
      */
-    public static function requireRole($requiredRole, $redirectUrl = '/IdeaNest/') {
+    public static function requireRole($requiredRole, $redirectUrl = '/hcd/IdeaNest/') {
         if (!self::verifySession()) {
-            header('Location: /IdeaNest/Login/Login/login.php');
+            header('Location: /hcd/IdeaNest/Login/Login/login.php');
             exit();
         }
         
@@ -96,7 +96,7 @@ class AuthGuard {
     /**
      * Secure logout
      */
-    public static function logout($redirectUrl = '/IdeaNest/Login/Login/login.php') {
+    public static function logout($redirectUrl = '/hcd/IdeaNest/Login/Login/login.php') {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
