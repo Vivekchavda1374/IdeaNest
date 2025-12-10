@@ -1,4 +1,4 @@
-// End-to-End Encryption for Chat System
+
 class ChatEncryption {
     constructor() {
         this.algorithm = 'AES-GCM';
@@ -120,4 +120,11 @@ class ChatEncryption {
     }
 }
 
+// Initialize the encryption module
 const chatEncryption = new ChatEncryption();
+
+// Set a flag to indicate the module is loaded
+window.chatEncryptionLoaded = true;
+
+// Log successful initialization
+console.log('Chat encryption module loaded successfully');

@@ -13,6 +13,8 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Anti-injection script - MUST be first -->
+    <script src="../../assets/js/anti_injection.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messages - IdeaNest</title>
@@ -24,7 +26,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         
         body {
             font-family: 'Inter', sans-serif;
-            background: #0f172a;
+            background: #f8fafc;
             min-height: 100vh;
             overflow: hidden;
         }
@@ -39,7 +41,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             height: 100vh;
             display: flex;
             gap: 0;
-            background: #1e293b;
+            background: white;
             overflow: hidden;
         }
         
@@ -51,49 +53,46 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         
         .sidebar {
             width: 380px;
-            background: #0f172a;
-            border-right: 1px solid #334155;
+            background: white;
+            border-right: 1px solid #e2e8f0;
             display: flex;
             flex-direction: column;
         }
         
         .sidebar-header {
             padding: 24px;
-            background: #1e293b;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border-bottom: 1px solid #334155;
+            border-bottom: none;
         }
         
         .sidebar-header h2 {
             font-size: 28px;
             font-weight: 800;
             margin-bottom: 8px;
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: white;
         }
         
         .search-box {
             padding: 16px;
-            background: #1e293b;
+            background: white;
         }
         
         .search-box input {
             width: 100%;
             padding: 12px 20px 12px 45px;
-            border: 1px solid #334155;
+            border: 1px solid #e2e8f0;
             border-radius: 12px;
             font-size: 14px;
-            background: #0f172a;
-            color: #e2e8f0;
+            background: #f8fafc;
+            color: #1e293b;
             transition: all 0.3s;
         }
         
         .search-box input:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
         .search-box {
@@ -115,7 +114,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         .conversations-list {
             flex: 1;
             overflow-y: auto;
-            background: #0f172a;
+            background: white;
         }
         
         .conversations-list::-webkit-scrollbar {
@@ -123,11 +122,11 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         }
         
         .conversations-list::-webkit-scrollbar-track {
-            background: #1e293b;
+            background: #f8fafc;
         }
         
         .conversations-list::-webkit-scrollbar-thumb {
-            background: #334155;
+            background: #cbd5e1;
             border-radius: 3px;
         }
         
@@ -174,16 +173,16 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             left: 20px;
             right: 20px;
             height: 1px;
-            background: #1e293b;
+            background: #f1f5f9;
         }
         
         .conversation-item:hover {
-            background: #1e293b;
+            background: #f8fafc;
         }
         
         .conversation-item.active {
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%);
-            border-left-color: #3b82f6;
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, transparent 100%);
+            border-left-color: #667eea;
         }
         
         .conversation-avatar {
@@ -210,7 +209,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             width: 12px;
             height: 12px;
             background: #10b981;
-            border: 2px solid #0f172a;
+            border: 2px solid white;
             border-radius: 50%;
         }
         
@@ -223,7 +222,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             font-weight: 600;
             font-size: 15px;
             margin-bottom: 4px;
-            color: #e2e8f0;
+            color: #1e293b;
         }
         
         .conversation-preview {
@@ -235,7 +234,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         }
         
         .conversation-item.active .conversation-name {
-            color: #3b82f6;
+            color: #667eea;
         }
         
         .conversation-item.active .conversation-preview {
@@ -271,16 +270,16 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: #1e293b;
+            background: #f8fafc;
         }
         
         .chat-header {
             padding: 24px;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
             gap: 16px;
-            background: #1e293b;
+            background: white;
             backdrop-filter: blur(10px);
         }
         
@@ -302,7 +301,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             font-size: 19px;
             font-weight: 700;
             margin-bottom: 4px;
-            color: #e2e8f0;
+            color: #1e293b;
         }
         
         .chat-header-status {
@@ -324,8 +323,8 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             height: 36px;
             border-radius: 50%;
             border: none;
-            background: rgba(51, 65, 85, 0.5);
-            color: #94a3b8;
+            background: #f1f5f9;
+            color: #64748b;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -334,7 +333,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         }
         
         .header-action-btn:hover {
-            background: #475569;
+            background: #667eea;
             color: white;
             transform: scale(1.1);
         }
@@ -367,10 +366,10 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             flex: 1;
             overflow-y: auto;
             padding: 24px;
-            background: #0f172a;
+            background: #f8fafc;
             background-image: 
-                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+                radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.03) 0%, transparent 50%);
         }
         
         .chat-messages::-webkit-scrollbar {
@@ -378,11 +377,11 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         }
         
         .chat-messages::-webkit-scrollbar-track {
-            background: #1e293b;
+            background: #f8fafc;
         }
         
         .chat-messages::-webkit-scrollbar-thumb {
-            background: #334155;
+            background: #cbd5e1;
             border-radius: 4px;
         }
         
@@ -415,18 +414,18 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         }
         
         .message.received .message-content {
-            background: #1e293b;
-            border: 1px solid #334155;
+            background: white;
+            border: 1px solid #e2e8f0;
             border-bottom-left-radius: 6px;
-            color: #e2e8f0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            color: #1e293b;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
         
         .message.sent .message-content {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-bottom-right-radius: 6px;
-            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
         }
         
         .message-time {
@@ -455,7 +454,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         }
         
         .message-menu-btn {
-            background: rgba(51, 65, 85, 0.8);
+            background: rgba(100, 116, 139, 0.1);
             border: none;
             width: 28px;
             height: 28px;
@@ -474,7 +473,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         }
         
         .message-menu-btn:hover {
-            background: #475569;
+            background: rgba(102, 126, 234, 0.2);
             transform: scale(1.1);
         }
         
@@ -492,10 +491,10 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             position: absolute;
             top: 35px;
             right: 0;
-            background: #1e293b;
-            border: 1px solid #334155;
+            background: white;
+            border: 1px solid #e2e8f0;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             min-width: 120px;
             z-index: 100;
         }
@@ -507,7 +506,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         .message-dropdown-item {
             padding: 10px 16px;
             cursor: pointer;
-            color: #e2e8f0;
+            color: #1e293b;
             font-size: 14px;
             display: flex;
             align-items: center;
@@ -524,7 +523,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         }
         
         .message-dropdown-item:hover {
-            background: #334155;
+            background: #f8fafc;
         }
         
         .message-dropdown-item.delete:hover {
@@ -535,18 +534,18 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         .edit-input {
             width: 100%;
             padding: 10px 14px;
-            border: 1px solid #334155;
+            border: 1px solid #e2e8f0;
             border-radius: 10px;
             font-size: 14px;
             font-family: inherit;
-            background: #0f172a;
-            color: #e2e8f0;
+            background: white;
+            color: #1e293b;
         }
         
         .edit-input:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
         .edit-actions {
@@ -607,8 +606,8 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         
         .chat-input {
             padding: 20px 24px;
-            border-top: 1px solid #334155;
-            background: #1e293b;
+            border-top: 1px solid #e2e8f0;
+            background: white;
             backdrop-filter: blur(10px);
         }
         
@@ -616,16 +615,16 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             display: flex;
             gap: 12px;
             align-items: center;
-            background: #0f172a;
-            border: 1px solid #334155;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
             border-radius: 16px;
             padding: 8px;
             transition: all 0.3s;
         }
         
         .input-wrapper:focus-within {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
         .input-wrapper input {
@@ -634,7 +633,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             border: none;
             background: transparent;
             font-size: 15px;
-            color: #e2e8f0;
+            color: #1e293b;
             outline: none;
         }
         
@@ -646,7 +645,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             width: 44px;
             height: 44px;
             border-radius: 12px;
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             cursor: pointer;
@@ -654,12 +653,12 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
         
         .send-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
         }
         
         .send-btn:active {
@@ -678,14 +677,14 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         .empty-state i {
             font-size: 72px;
             margin-bottom: 24px;
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         
         .empty-state h3 {
-            color: #e2e8f0;
+            color: #1e293b;
             margin-bottom: 8px;
         }
         
@@ -763,8 +762,8 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
 
         /* Shared Content Card Styles */
         .shared-content-card {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.08));
-            border: 2px solid rgba(59, 130, 246, 0.25);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+            border: 2px solid rgba(102, 126, 234, 0.25);
             border-radius: 16px;
             padding: 16px;
             margin-top: 12px;
@@ -779,8 +778,8 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         
         .shared-content-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
-            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 0.4);
         }
         
         .shared-content-header {
@@ -794,23 +793,23 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             width: 40px;
             height: 40px;
             border-radius: 12px;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 1.2rem;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
         
         .message.sent .shared-content-icon {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
-            color: #3b82f6;
+            color: #667eea;
         }
         
         .shared-content-title {
             font-weight: 600;
-            color: #3b82f6;
+            color: #667eea;
             font-size: 0.95rem;
             flex: 1;
         }
@@ -823,7 +822,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             padding: 10px 18px;
             border-radius: 10px;
@@ -831,24 +830,24 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             font-size: 0.9rem;
             font-weight: 500;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
         
         .message.sent .shared-content-link {
             background: white;
-            color: #3b82f6;
+            color: #667eea;
             box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
         }
         
         .shared-content-link:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
             text-decoration: none;
             color: white;
         }
         
         .message.sent .shared-content-link:hover {
-            color: #3b82f6;
+            color: #667eea;
             box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
         }
         
@@ -924,8 +923,8 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             <div class="search-box">
                 <input type="text" placeholder="Search conversations..." id="searchConversations" oninput="filterConversations(this.value)">
             </div>
-            <div style="padding: 12px 16px; background: #1e293b; display: flex; gap: 8px;">
-                <button onclick="showNewChatModal()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(59, 130, 246, 0.4)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'">
+            <div style="padding: 12px 16px; background: white; display: flex; gap: 8px; border-bottom: 1px solid #e2e8f0;">
+                <button onclick="showNewChatModal()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.3)'">
                     <i class="fas fa-plus"></i> New Chat
                 </button>
                 <button onclick="showRequestsModal()" style="padding: 12px 16px; background: #10b981; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.3s; position: relative;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(16, 185, 129, 0.4)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.3)'">
@@ -980,7 +979,131 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
         </div>
     </div>
 
-    <script src="encryption.js"></script>
+    <script>
+        // Inline encryption module to avoid loading issues
+        class ChatEncryption {
+            constructor() {
+                this.algorithm = 'AES-GCM';
+                this.keyLength = 256;
+            }
+
+            async generateKeyPair() {
+                const key = await window.crypto.subtle.generateKey(
+                    { name: this.algorithm, length: this.keyLength },
+                    true,
+                    ['encrypt', 'decrypt']
+                );
+                return key;
+            }
+
+            async encryptMessage(message, key) {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(message);
+                const iv = window.crypto.getRandomValues(new Uint8Array(12));
+                
+                const encryptedData = await window.crypto.subtle.encrypt(
+                    { name: this.algorithm, iv: iv },
+                    key,
+                    data
+                );
+
+                return {
+                    encrypted: this.arrayBufferToBase64(encryptedData),
+                    iv: this.arrayBufferToBase64(iv)
+                };
+            }
+
+            async decryptMessage(encryptedMessage, iv, key) {
+                try {
+                    if (!encryptedMessage || !iv || !key) {
+                        return 'Message';
+                    }
+                    
+                    const encryptedData = this.base64ToArrayBuffer(encryptedMessage);
+                    const ivArray = this.base64ToArrayBuffer(iv);
+
+                    const decryptedData = await window.crypto.subtle.decrypt(
+                        { name: this.algorithm, iv: ivArray },
+                        key,
+                        encryptedData
+                    );
+
+                    const decoder = new TextDecoder();
+                    return decoder.decode(decryptedData);
+                } catch (e) {
+                    return 'Message';
+                }
+            }
+
+            async exportKey(key) {
+                const exported = await window.crypto.subtle.exportKey('raw', key);
+                return this.arrayBufferToBase64(exported);
+            }
+
+            async importKey(keyData) {
+                const keyBuffer = this.base64ToArrayBuffer(keyData);
+                return await window.crypto.subtle.importKey(
+                    'raw',
+                    keyBuffer,
+                    { name: this.algorithm, length: this.keyLength },
+                    true,
+                    ['encrypt', 'decrypt']
+                );
+            }
+
+            arrayBufferToBase64(buffer) {
+                const bytes = new Uint8Array(buffer);
+                let binary = '';
+                for (let i = 0; i < bytes.byteLength; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                return btoa(binary);
+            }
+
+            base64ToArrayBuffer(base64) {
+                const binary = atob(base64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    bytes[i] = binary.charCodeAt(i);
+                }
+                return bytes.buffer;
+            }
+
+            async storeKey(conversationId, key) {
+                const exported = await this.exportKey(key);
+                sessionStorage.setItem(`chat_key_${conversationId}`, exported);
+            }
+
+            async retrieveKey(conversationId) {
+                const keyData = sessionStorage.getItem(`chat_key_${conversationId}`);
+                if (!keyData) return null;
+                return await this.importKey(keyData);
+            }
+
+            async getOrCreateConversationKey(conversationId, serverKey = null) {
+                let key = await this.retrieveKey(conversationId);
+                if (key) return key;
+                
+                if (serverKey) {
+                    try {
+                        key = await this.importKey(serverKey);
+                        await this.storeKey(conversationId, key);
+                        return key;
+                    } catch (e) {
+                        console.error('Failed to import server key:', e);
+                    }
+                }
+                
+                key = await this.generateKeyPair();
+                await this.storeKey(conversationId, key);
+                return key;
+            }
+        }
+
+        const chatEncryption = new ChatEncryption();
+        window.chatEncryptionLoaded = true;
+        console.log('Chat encryption initialized');
+    </script>
     <script>
         const currentUserId = <?php echo $current_user_id; ?>;
         let currentConversationId = null;
@@ -1069,6 +1192,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
 
         async function openConversation(conversationId, otherUserId, otherUserName, encryptionKey = null) {
             try {
+                
                 currentConversationId = conversationId;
                 
                 if (encryptionKey) {
@@ -1506,6 +1630,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
 
         async function startNewChat(userId, userName) {
             try {
+                
                 const formData = new FormData();
                 formData.append('action', 'start_chat');
                 formData.append('other_user_id', userId);
@@ -1737,6 +1862,7 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
 
         async function acceptRequest(requestId) {
             try {
+                
                 const formData = new FormData();
                 formData.append('action', 'accept_request');
                 formData.append('request_id', requestId);
@@ -1807,10 +1933,13 @@ $current_user_name = $_SESSION['user_name'] ?? 'User';
             });
         }
 
-        loadConversations();
-        loadMessageRequests();
-        setInterval(loadConversations, 5000);
-        setInterval(loadMessageRequests, 10000);
+        // Initialize immediately
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConversations();
+            loadMessageRequests();
+            setInterval(loadConversations, 5000);
+            setInterval(loadMessageRequests, 10000);
+        });
     </script>
     </div>
 <script src="../../assets/js/loader.js"></script>
