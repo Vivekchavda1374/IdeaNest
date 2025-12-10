@@ -98,12 +98,6 @@ function renderLayout($title, $content, $activePage = '')
                                 <span>Profile</span>
                             </a>
                         </li>
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center" href="settings.php">
-                                <i class="bi bi-gear me-2"></i>
-                                <span>Settings</span>
-                            </a>
-                        </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item d-flex align-items-center text-danger" href="../../Login/Login/logout.php">

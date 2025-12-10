@@ -6,10 +6,10 @@ require_once __DIR__ . '/../includes/html_helpers.php';
 // Get current page name to set active menu item
 $current_page = basename($_SERVER['PHP_SELF']);
 
-// Set web base path for links
-$web_base_path = '/IdeaNest/Admin/';
 
-// Define menu items with their corresponding pages
+// Set web base path for links
+$web_base_path = '/hcd/IdeaNest/Admin/';
+
 $menu_items = [
         [
                 'icon' => 'bi-grid-1x2',
@@ -72,6 +72,12 @@ $menu_items = [
                 'title' => 'Notifications',
                 'url' => $web_base_path . 'notifications.php',
                 'page' => 'notifications.php'
+        ],
+        [
+                'icon' => 'bi-headset',
+                'title' => 'User Queries',
+                'url' => $web_base_path . 'manage_queries.php',
+                'page' => 'manage_queries.php'
         ],
         [
                 'icon' => 'bi-gear',

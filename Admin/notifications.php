@@ -496,21 +496,83 @@ $error = isset($_GET['error']) ? $_GET['error'] : '';
 
         <!-- Pagination -->
         <?php if ($total_pages > 1) : ?>
-        <nav>
-            <ul class="pagination">
-                <?php for ($i = 1; $i <= $total_pages; $i++) : ?>
-                    <li class="page-item <?php if ($i == $page) {
-                        echo 'active';
-                                         } ?>">
+        <div class="pagination-wrapper">
+            <div class="pagination-info">
+                Showing <?php echo (($page - 1) * $per_page) + 1; ?> to <?php echo min($page * $per_page, $total); ?> of <?php echo $total; ?> notifications
+            </div>
+            <nav aria-label="Notification pagination">
+                <ul class="pagination justify-content-center">
+                    <!-- Previous Button -->
+                    <li class="page-item <?php if ($page <= 1) echo 'disabled'; ?>">
                         <a class="page-link" href="?<?php
                             $q = $_GET;
-                        $q['page'] = $i;
-                        echo http_build_query($q);
-                        ?>"><?php echo $i; ?></a>
+                            $q['page'] = max(1, $page - 1);
+                            echo http_build_query($q);
+                        ?>" aria-label="Previous">
+                            <i class="bi bi-chevron-left"></i> Previous
+                        </a>
                     </li>
-                <?php endfor; ?>
-            </ul>
-        </nav>
+
+                    <?php
+                    // Smart pagination - show first, last, and pages around current
+                    $range = 2; // Number of pages to show on each side of current page
+                    
+                    // Always show first page
+                    if ($page > $range + 2) {
+                        $q = $_GET;
+                        $q['page'] = 1;
+                        echo '<li class="page-item"><a class="page-link" href="?' . http_build_query($q) . '">1</a></li>';
+                        if ($page > $range + 3) {
+                            echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                        }
+                    }
+                    
+                    // Show pages around current page
+                    for ($i = max(1, $page - $range); $i <= min($total_pages, $page + $range); $i++) {
+                        $q = $_GET;
+                        $q['page'] = $i;
+                        $active = ($i == $page) ? 'active' : '';
+                        echo '<li class="page-item ' . $active . '"><a class="page-link" href="?' . http_build_query($q) . '">' . $i . '</a></li>';
+                    }
+                    
+                    // Always show last page
+                    if ($page < $total_pages - $range - 1) {
+                        if ($page < $total_pages - $range - 2) {
+                            echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                        }
+                        $q = $_GET;
+                        $q['page'] = $total_pages;
+                        echo '<li class="page-item"><a class="page-link" href="?' . http_build_query($q) . '">' . $total_pages . '</a></li>';
+                    }
+                    ?>
+
+                    <!-- Next Button -->
+                    <li class="page-item <?php if ($page >= $total_pages) echo 'disabled'; ?>">
+                        <a class="page-link" href="?<?php
+                            $q = $_GET;
+                            $q['page'] = min($total_pages, $page + 1);
+                            echo http_build_query($q);
+                        ?>" aria-label="Next">
+                            Next <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <!-- Quick Jump -->
+            <div class="pagination-jump">
+                <form method="get" action="" class="d-inline-flex align-items-center gap-2">
+                    <?php foreach ($_GET as $key => $value) : ?>
+                        <?php if ($key !== 'page') : ?>
+                            <input type="hidden" name="<?php echo htmlspecialchars($key); ?>" value="<?php echo htmlspecialchars($value); ?>">
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                    <label for="pageJump" class="mb-0 text-muted small">Go to page:</label>
+                    <input type="number" id="pageJump" name="page" min="1" max="<?php echo $total_pages; ?>" value="<?php echo $page; ?>" class="form-control form-control-sm" style="width: 80px;">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Go</button>
+                </form>
+            </div>
+        </div>
         <?php endif; ?>
     </div>
 

@@ -272,9 +272,6 @@ try {
             <div class="d-flex justify-content-between align-items-center">
                 <h1 class="page-title">System Analytics</h1>
                 <div>
-                    <button class="btn btn-light btn-sm me-2" onclick="window.location.reload()">
-                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
-                    </button>
                     <small class="text-light opacity-75">
                         Last updated: <?php echo date('M d, Y H:i'); ?>
                     </small>
@@ -449,24 +446,32 @@ try {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Helper function to handle empty data
-        function getChartData(data, labelKey, valueKey, defaultLabel = 'No Data', defaultValue = 0) {
-            if (!data || data.length === 0) {
+        // Wait for DOM and Chart.js to be ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if Chart is loaded
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js is not loaded!');
+                return;
+            }
+
+            // Helper function to handle empty data
+            function getChartData(data, labelKey, valueKey, defaultLabel = 'No Data', defaultValue = 0) {
+                if (!data || data.length === 0) {
+                    return {
+                        labels: [defaultLabel],
+                        values: [defaultValue]
+                    };
+                }
                 return {
-                    labels: [defaultLabel],
-                    values: [defaultValue]
+                    labels: data.map(item => item[labelKey] || 'Unknown'),
+                    values: data.map(item => parseInt(item[valueKey]) || 0)
                 };
             }
-            return {
-                labels: data.map(item => item[labelKey] || 'Unknown'),
-                values: data.map(item => parseInt(item[valueKey]) || 0)
-            };
-        }
 
-        // Project Types Chart
-        const projectTypeCtx = document.getElementById('projectTypeChart').getContext('2d');
-        const projectData = getChartData(<?php echo json_encode($project_stats); ?>, 'project_type', 'count', 'No Projects');
-        new Chart(projectTypeCtx, {
+            // Project Types Chart
+            const projectTypeCtx = document.getElementById('projectTypeChart').getContext('2d');
+            const projectData = getChartData(<?php echo json_encode($project_stats); ?>, 'project_type', 'count', 'No Projects');
+            new Chart(projectTypeCtx, {
             type: 'doughnut',
             data: {
                 labels: projectData.labels,
@@ -597,18 +602,17 @@ try {
         });
 
         // Add sidebar toggle functionality
-        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
-            
-            if (sidebar && mainContent) {
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-            }
-        });
+            // Sidebar toggle
+            document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+                const sidebar = document.querySelector('.sidebar');
+                const mainContent = document.querySelector('.main-content');
+                
+                if (sidebar && mainContent) {
+                    sidebar.classList.toggle('collapsed');
+                    mainContent.classList.toggle('expanded');
+                }
+            });
 
-        // Add loading state management
-        document.addEventListener('DOMContentLoaded', function() {
             // Hide loader after charts are rendered
             setTimeout(() => {
                 const loader = document.getElementById('universalLoader');
@@ -616,7 +620,7 @@ try {
                     loader.style.display = 'none';
                 }
             }, 1000);
-        });
+        }); // End of DOMContentLoaded
     </script>
 
 <!-- Universal Loader -->
