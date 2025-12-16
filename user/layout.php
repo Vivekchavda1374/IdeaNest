@@ -305,6 +305,16 @@ $basePath = $is_in_subdirectory ? '../' : './';
             </a>
         </div>
 
+
+        <!-- Support -->
+        <div class="nav-section">
+            <div class="nav-section-title">Support</div>
+            <a href="<?php echo $basePath; ?>support/index.php" class="nav-item <?php echo ($current_page == 'index.php' && $current_dir == 'support') ? 'active' : ''; ?>">
+                <i class="fas fa-headset nav-icon"></i>
+                <span class="nav-text">Support & Queries</span>
+            </a>
+        </div>
+
         <!-- Account -->
         <div class="nav-section">
             <div class="nav-section-title">Account</div>
